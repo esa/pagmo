@@ -240,7 +240,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	
 	//SPEA2
 	algorithm_wrapper<algorithm::spea2>("spea2", "Strength Pareto Evolutionary Algorithm 2")
-		.def(init<optional<int, double, double, double, double> >());
+		.def(init<optional<int, double, double, double, double, population::size_type> >());
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")

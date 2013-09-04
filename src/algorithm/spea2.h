@@ -45,24 +45,22 @@ namespace pagmo { namespace algorithm {
 class  distance_sorter {
 public:
 	distance_sorter(const std::vector<std::vector<pagmo::population::size_type>  > &neighbours,
-					const std::vector<fitness_vector> &fit, int K):
+					const std::vector<fitness_vector> &fit):
 		m_neighbours(neighbours),
-		m_fit(fit),
-		m_K(K) {}
+		m_fit(fit) {}
 	bool operator()(int a, int b) {
 		double delta_a, delta_b;
-		int i = 0;
+		unsigned int i = 0;
 		do{
 			delta_a = pagmo::util::neighbourhood::euclidian::distance(m_fit[a], m_fit[m_neighbours[a][i]]);
 			delta_b = pagmo::util::neighbourhood::euclidian::distance(m_fit[b], m_fit[m_neighbours[b][i]]);
 			i++;
-		} while (i<m_K && delta_a == delta_b);
+		} while (i<m_fit.size() && delta_a == delta_b);
 		return delta_a > delta_b;
 	}
 private:
 	const std::vector<std::vector<pagmo::population::size_type>  > &m_neighbours;
 	const std::vector<fitness_vector> &m_fit;
-	const int m_K;
 };
 
 
@@ -71,7 +69,7 @@ private:
 class __PAGMO_VISIBLE spea2: public base
 {
 public:
-	spea2(int gen=100, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50);
+	spea2(int gen=100, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50, int archive_size = -1);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
@@ -80,15 +78,15 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
-	void order_by_delta(std::vector<population::size_type> &, const std::vector<std::vector<pagmo::population::size_type>  > &,
-													  const std::vector<fitness_vector> &, int) const;
+	std::vector<population::size_type> order_by_delta(const std::vector<std::vector<pagmo::population::size_type>  > &,
+													  const std::vector<fitness_vector> &) const;
+	std::vector<population::size_type> complement(std::vector<population::size_type> v, population::size_type N) const;
 	void compute_spea2_fitness(std::vector<double> &,
-				const std::vector<std::vector<pagmo::population::size_type> > &,
-				const std::vector<fitness_vector> &,
+				int K,
 				const pagmo::population &) const;
 	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type, const std::vector<double>&) const;
 	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,const pagmo::population&) const;
-	void mutate(decision_vector&, const pagmo::population&) const;
+	void mutate(decision_vector&, const pagmo::problem::base&) const;
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -99,6 +97,7 @@ private:
 		ar & const_cast<double &>(m_eta_c);
 		ar & const_cast<double &>(m_m);
 		ar & const_cast<double &>(m_eta_m);
+		ar & const_cast<int &>(m_archive_size);
 	}
 	//Number of generations
 	const int m_gen;
@@ -110,6 +109,8 @@ private:
 	const double m_m;
 	// Ditribution index for mutation
 	const double m_eta_m;
+	// Size of the archive
+	int m_archive_size;
 };
 
 }} //namespaces

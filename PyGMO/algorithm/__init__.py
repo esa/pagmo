@@ -408,7 +408,7 @@ def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 	nspso._orig_init = nspso.__init__
 	nspso.__init__ = _mopso_ctor
 
-def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50):
+def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, archive_size = -1):
 	"""
 	Constructs a Strenght Pareto Evolutionary Algorithm 2
 	
@@ -419,6 +419,7 @@ def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50):
 	* eta_c
 	* m
 	* eta_m
+	* archive_size
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -427,6 +428,7 @@ def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50):
 	arg_list.append(eta_c)
 	arg_list.append(m)
 	arg_list.append(eta_m)
+	arg_list.append(archive_size)
 	self._orig_init(*arg_list)
 	spea2._orig_init = spea2.__init__
 	spea2.__init__ = _spea2_ctor
