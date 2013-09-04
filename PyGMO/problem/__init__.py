@@ -285,6 +285,42 @@ def _sch_ctor(self):
 sch._orig_init = sch.__init__
 sch.__init__ = _sch_ctor
 
+def _pressure_vessel_ctor(self):
+	"""
+	Constructs a pressure vessel design problem (Constrained Continuous Single-Objective)
+
+	USAGE: problem.pressure_vessel()
+	"""
+	arg_list=[]
+	self._orig_init(*arg_list)
+
+pressure_vessel._orig_init = pressure_vessel.__init__
+pressure_vessel.__init__ = _pressure_vessel_ctor
+
+def _tens_comp_string_ctor(self):
+	"""
+	Constructs a tension compression string design problem (Constrained Continuous Single-Objective)
+
+	USAGE: problem.tens_comp_string()
+	"""
+	arg_list=[]
+	self._orig_init(*arg_list)
+
+tens_comp_string._orig_init = tens_comp_string.__init__
+tens_comp_string.__init__ = _tens_comp_string_ctor
+
+def _welded_beam_ctor(self):
+	"""
+	Constructs a welded beam design problem (Constrained Continuous Single-Objective)
+
+	USAGE: problem.welded_beam()
+	"""
+	arg_list=[]
+	self._orig_init(*arg_list)
+
+welded_beam._orig_init = welded_beam.__init__
+welded_beam.__init__ = _welded_beam_ctor
+
 def _cec2006_ctor(self, prob_id=1):
 	"""
 	Constructs one of the 24 CEC2006 Competition Problems (Constrained Continuous Single-Objective)

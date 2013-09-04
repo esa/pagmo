@@ -557,6 +557,41 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, scree
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
 
+# Renaming and placing the enums
+_algorithm.cstrs_co_evolution.method = _algorithm._method_type
+
+def _cstrs_co_evolution_ctor(self,algorithm = _algorithm.jde(),algorithm_2 = _algorithm.jde(),pop_2_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.):
+	"""
+    Constructs a co-evolution adaptive algorithm.
+	
+	USAGE: algorithm.cstrs_co_evolution(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), pop_2_size = 30, gen = 20, method = cstrs_co_evolution.method.SIMPLE, pen_lower_bound = 0, pen_upper_bound = 100000);
+    *
+	* algorithm: optimizer to use as 'original' optimization method
+	* algorithm_2: optimizer to use as 'original' optimization method for population 2
+    * pop_2_size: population size for the penalty encoding population.
+    * gen: number of generations.
+    * method: cstrs_co_evolution.method.SIMPLE by default, the method used for the population 2.
+    * Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
+    * The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
+    * splits the equalities and inequalities constraints in two different sets for the
+    * penalty weigths, containing respectively inequalities and equalities weigths. The
+    * SPLIT_CONSTRAINTS splits the constraints in M set of weigths with M the number of
+    * constraints.
+    * pen_lower_bound: the lower boundary used for penalty.
+    * pen_upper_bound: the upper boundary used for penalty.
+	"""
+	arg_list=[]
+	arg_list.append(algorithm)
+	arg_list.append(algorithm_2)
+	arg_list.append(pop_2_size)
+	arg_list.append(gen)
+	arg_list.append(method)
+	arg_list.append(pen_lower_bound)
+	arg_list.append(pen_upper_bound)
+	self._orig_init(*arg_list)
+cstrs_co_evolution._orig_init = cstrs_co_evolution.__init__
+cstrs_co_evolution.__init__ = _cstrs_co_evolution_ctor
+
 def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_min = 1E-5, bw_max = 1):
 	"""
 	Constructs an Improved Harmony Search Algorithm

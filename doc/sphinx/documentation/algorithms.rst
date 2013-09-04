@@ -38,15 +38,16 @@ Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.cmaes`        
 
 Meta-algorithms 
 ^^^^^^^^^^^^^^^
-================================== ========================================= =============== ===========================================
-Common Name                        Name in PyGMO                             Type            Comments
-================================== ========================================= =============== ===========================================
+================================== ============================================ =============== ===========================================
+Common Name                        Name in PyGMO                                Type            Comments
+================================== ============================================ =============== ===========================================
 Monotonic Basin Hopping (MBH)      :class:`PyGMO.algorithm.mbh`                    N/A          
 Multistart (MS)                    :class:`PyGMO.algorithm.ms`                     N/A      
-Penalty Function (PF)                                                                        Planned 
-Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag`          C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
-Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`       C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
-================================== ========================================= =============== ===========================================
+Penalty Function (PF)                                                                           Planned 
+Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag`          C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
+Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`       C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
+Cstrs co-evolution                 :class:`PyGMO.algorithm.cstrs_co_evolution`    C-C-S         Minimization assumed
+================================== ============================================ =============== ===========================================
 
 Local optimization 
 ^^^^^^^^^^^^^^^^^^
@@ -198,6 +199,10 @@ Detailed Documentation
    .. attribute:: PyGMO.algorithm.mbh.algorithm
 
       Algorithm to perform mbh 'local' search
+
+.. autoclass:: PyGMO.algorithm.cstrs_co_evolution
+
+   .. automethod:: PyGMO.algorithm.cstrs_co_evolution.__init__
 
 .. autoclass:: PyGMO.algorithm.cs
 

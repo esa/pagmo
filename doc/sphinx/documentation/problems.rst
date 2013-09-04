@@ -87,6 +87,9 @@ Constrained Continuous Single-Objective
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
 CEC2006                            :class:`PyGMO.problem.cec2006`            24 problems part of CEC2006 Competition
+Pressure vessel design             :class:`PyGMO.problem.pressure_vessel`    
+Welded beam design                 :class:`PyGMO.problem.welded_beam`        
+Tension compression string design  :class:`PyGMO.problem.tens_comp_string`    
 Luksan Vlcek 1                     :class:`PyGMO.problem.luksan_vlcek_1`
 Luksan Vlcek 2                     :class:`PyGMO.problem.luksan_vlcek_2`
 Luksan Vlcek 3                     :class:`PyGMO.problem.luksan_vlcek_3`
@@ -242,6 +245,18 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.cec2006
 
    .. automethod:: PyGMO.problem.cec2006.__init__
+
+.. autoclass:: PyGMO.problem.pressure_vessel
+
+   .. automethod:: PyGMO.problem.pressure_vessel.__init__
+
+.. autoclass:: PyGMO.problem.welded_beam
+
+   .. automethod:: PyGMO.problem.welded_beam.__init__
+
+.. autoclass:: PyGMO.problem.tens_comp_string
+
+   .. automethod:: PyGMO.problem.tens_comp_string.__init__
 
 .. autoclass:: PyGMO.problem.cec2009
 

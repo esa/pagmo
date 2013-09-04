@@ -40,16 +40,25 @@ int main()
 	//increment this if you add a multiobjective problem
 	unsigned int n_mo = 2;
 
+	//increment this if you add a constrained problem
+	unsigned int n_con = 1;
+
 	// create two containers of pagmo::algorithms
 	std::vector<algorithm::base_ptr> algos;
 	std::vector<algorithm::base_ptr> algos_new;
 	
-	// fill it up with algorithm (first the multiobjective ones
-
+	// fill it up with algorithm
+	// first the multiobjective ones
 	algos.push_back(algorithm::nsga2(gen,0.5,11,0.3,11).clone());
 	algos_new.push_back(algorithm::nsga2().clone());
 	algos.push_back(algorithm::vega(gen,.9,.021,1,algorithm::vega::mutation::RANDOM,0.3,algorithm::vega::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::vega().clone());
+
+	// then the meta-algorithm
+	algos.push_back(algorithm::cstrs_co_evolution(algorithm::de(gen),algorithm::de(1),20,30,algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS).clone());
+	algos_new.push_back(algorithm::cstrs_co_evolution().clone());
+
+	// algorithm
 	algos.push_back(algorithm::bee_colony(gen,19).clone());
 	algos_new.push_back(algorithm::bee_colony().clone());
 	algos.push_back(algorithm::cmaes(gen,0.5, 0.5, 0.5, 0.5, 0.7, 1e-5, 1e-5, false).clone());
@@ -82,6 +91,7 @@ int main()
 	algos_new.push_back(algorithm::sa_corana().clone());
 	algos.push_back(algorithm::sga(gen,.9, .021, 5, algorithm::sga::mutation::RANDOM, 0.3, algorithm::sga::selection::BEST20, algorithm::sga::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::sga().clone());
+
 
 #ifdef PAGMO_ENABLE_GSL
 	algos.push_back(algorithm::gsl_bfgs(gen,1e-3,1e-3,0.03,1e-3).clone());
@@ -133,9 +143,13 @@ int main()
 	// and pick a multiobjective one
 	problem::zdt1 prob_mo(10);
 
+	// and pick a constrained one
+	problem::cec2006 prob_con(4);
+
 	// make a population out of it
 	population pop_original(prob,pop_size);
 	population pop_original_mo(prob_mo,pop_size);
+	population pop_original_con(prob_con,pop_size);
 
 	//serialize algos and deserialize into algos_new checking they are then identical
 	for (size_t i=0; i< algos.size(); ++i) {
@@ -165,6 +179,9 @@ int main()
 		if (i<n_mo) {
 			pop1 = population(pop_original_mo); 
 			pop2 = population(pop_original_mo);
+		} else if (i<(n_mo+n_con) && (i>=n_mo)) {
+			pop1 = population(pop_original_con);
+			pop2 = population(pop_original_con);
 		}
 		else {
 			pop1 = population(pop_original);

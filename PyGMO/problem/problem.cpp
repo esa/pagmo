@@ -300,6 +300,15 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::cec2006>("cec2006","CEC2006 Competition Problems.")
 		.def(init<int>());
 
+	// Pressure vessel design.
+	problem_wrapper<problem::pressure_vessel>("pressure_vessel","Pressure vessel design problem.");
+
+	// Weight minimization of a tension compression string.
+	problem_wrapper<problem::tens_comp_string>("tens_comp_string","Weight minimization of a tension compression string problem.");
+
+	// Welded beam design Problems.
+	problem_wrapper<problem::welded_beam>("welded_beam","Welded beam design problem.");
+
 	// CEC2009 Competition Problems.
 	problem_wrapper<problem::cec2009>("cec2009","CEC2009 Competition Problems.")
 		.def(init<int, problem::base::size_type, bool>());

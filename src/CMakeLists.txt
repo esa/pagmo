@@ -21,6 +21,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/monte_carlo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_co_evolution.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
@@ -82,8 +83,12 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2006.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2009.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2013.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/problem/con2mo.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/problem/death_penalty.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/con2mo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/pressure_vessel.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/welded_beam.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/tens_comp_string.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cstrs_co_evolution.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/death_penalty.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp

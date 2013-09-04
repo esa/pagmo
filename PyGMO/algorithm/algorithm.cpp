@@ -121,6 +121,20 @@ inline class_<algorithm::mbh,bases<algorithm::base> > algorithm_wrapper(const ch
 	return retval;
 }
 
+template <>
+inline class_<algorithm::cstrs_co_evolution,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
+{
+	class_<algorithm::cstrs_co_evolution,bases<algorithm::base> > retval(name,descr,init<const algorithm::cstrs_co_evolution &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<algorithm::cstrs_co_evolution>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<algorithm::cstrs_co_evolution>);
+	retval.def("evolve", &evolve_copy);
+	retval.def_pickle(meta_algorithm_pickle_suite<algorithm::cstrs_co_evolution>());
+	retval.def("cpp_loads", &py_cpp_loads<algorithm::cstrs_co_evolution>);
+	retval.def("cpp_dumps", &py_cpp_dumps<algorithm::cstrs_co_evolution>);
+	return retval;
+}
+
 BOOST_PYTHON_MODULE(_algorithm) {
 	common_module_init();
 
@@ -156,7 +170,13 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	enum_<algorithm::vega::crossover::type>("_crossover_type")
 		.value("BINOMIAL", algorithm::vega::crossover::BINOMIAL)
 		.value("EXPONENTIAL", algorithm::vega::crossover::EXPONENTIAL);
-		
+
+	// Constraints Co-Evolution enums
+	enum_<algorithm::cstrs_co_evolution::method_type>("_method_type")
+		.value("SIMPLE", algorithm::cstrs_co_evolution::SIMPLE)
+		.value("SPLIT_NEQ_EQ", algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ)
+		.value("SPLIT_CONSTRAINTS", algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS);		
+
 	// Expose algorithms.
 
 	// Null.
@@ -181,7 +201,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.add_property("sigma",&algorithm::cmaes::get_sigma,&algorithm::cmaes::set_sigma)
 		.add_property("ftol",&algorithm::cmaes::get_ftol,&algorithm::cmaes::set_ftol)
 		.add_property("xtol",&algorithm::cmaes::get_xtol,&algorithm::cmaes::set_xtol);
-
 
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
@@ -209,7 +228,12 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")
 		.def(init<const algorithm::base &, int>())
 		.add_property("algorithm",&algorithm::ms::get_algorithm,&algorithm::ms::set_algorithm);
-	
+
+	// Constraints Co-Evolution.
+	algorithm_wrapper<algorithm::cstrs_co_evolution>("cstrs_co_evolution","Constraints Co-Evolution.")
+		.def(init<optional<const algorithm::base &,const algorithm::base &,int,int,algorithm::cstrs_co_evolution::method_type,double,double> >())
+		.add_property("algorithm",&algorithm::cstrs_co_evolution::get_algorithm,&algorithm::cstrs_co_evolution::set_algorithm);
+
 	// Particle Swarm Optimization (Steady state)
 	algorithm_wrapper<algorithm::pso>("pso", "Particle Swarm Optimization (steady-state)")
 		.def(init<optional<int,double, double, double, double, int, int, int> >());

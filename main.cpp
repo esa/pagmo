@@ -26,36 +26,47 @@
 #include <iomanip>
 #include "src/pagmo.h"
 
+#include "src/algorithm/cstrs_co_evolution.h"
+
 using namespace pagmo;
 
 // Example in C++ of the use of PaGMO 1.1.4
 
 int main()
 {
-	pagmo::problem::zdt1 orig_prob(10);
+	//pagmo::problem::cec2006 prob_constrained(4);
+	//pagmo::problem::welded_beam prob_constrained;
+	//pagmo::problem::tens_comp_string prob_constrained;
+	pagmo::problem::pressure_vessel prob_constrained;
 
-//	std::vector<double> weights(2,0.5);
-//	pagmo::problem::decompose decomposed_problem(orig_prob, weights);
+	pagmo::algorithm::pso algo(25);
+	pagmo::algorithm::pso algo_2(1);
 
-	// pagmo::algorithm::jde alg(50);
+	pagmo::algorithm::cstrs_co_evolution algo_constrained(algo, algo_2, 30, 20,pagmo::algorithm::cstrs_co_evolution::SIMPLE, 1., 999.);
+	algo_constrained.reset_rngs(100);
 
-	pagmo::algorithm::vega alg(50);
-
-	std::cout << alg << std::endl;
-	std::cout << orig_prob << std::endl;
-	//std::cout << decomposed_problem << std::endl;
-
-	pagmo::island isl = island(alg, orig_prob, 50);
-	//pagmo::population original_problem_pop = population(orig_prob, 50);
-
-	std::cout << "Initial distance from Pareto Front (p-distance): " << orig_prob.p_distance(isl.get_population()) << std::endl;
-	for (size_t i = 0; i< 10; ++i){
-		isl.evolve();
-		//original_problem_pop.set_x(0, isl.get_population().champion().x);
-		std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(isl.get_population()) << std::endl;
-		//std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
-		//std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
+	for (size_t i=0; i<1; ++i) {
+		pagmo::population pop(prob_constrained,60);
+		pagmo::population pop_copy = pop;
+		algo_constrained.evolve(pop);
+		std::cout<<"CHAMPION1"<<std::endl;
+		std::cout << pop.champion();
+		std::cout<<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<<std::endl;
+		algo_constrained.evolve(pop_copy);
+		std::cout<<"CHAMPION2"<<std::endl;
+		std::cout << pop_copy.champion();
 	}
+
+	std::cout << algo_constrained << std::endl;
+	std::cout << prob_constrained << std::endl;
+
+	std::cin.get();
+//	pagmo::island isl = island(algo_constrained, prob_constrained, 70);
+
+//	for (size_t i=0; i<20; ++i){
+//		isl.evolve(1);
+//		std::cout << isl.get_population().champion();
+//	}
+
 	return 0;
 }
