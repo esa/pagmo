@@ -39,31 +39,39 @@ table summarizing all results. The purpose is to show the effect of the constrai
 using namespace pagmo;
 using namespace kep_toolbox;
 
-double best(archipelago a) {
+double best(archipelago a, problem::base_ptr original_problem) {
 	double retval = boost::numeric::bounds<double>::highest();
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
-		retval = fmin(retval, a.get_island(i)->get_population().champion().f[0]);
+		// test feasibility
+		if(original_problem->feasibility_x(a.get_island(i)->get_population().champion().x))
+			retval = fmin(retval, a.get_island(i)->get_population().champion().f[0]);
 	}
 	return retval;
 }
-double worst(archipelago a) {
+double worst(archipelago a, problem::base_ptr original_problem) {
 	double retval = - boost::numeric::bounds<double>::highest();
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
-		retval = fmax(retval, a.get_island(i)->get_population().champion().f[0]);
+		// test feasibility
+		if(original_problem->feasibility_x(a.get_island(i)->get_population().champion().x))
+			retval = fmax(retval, a.get_island(i)->get_population().champion().f[0]);
 	}
 	return retval;
 }
-double mean(archipelago a) {
+double mean(archipelago a, problem::base_ptr original_problem) {
 	double retval = 0;
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
-		retval += a.get_island(i)->get_population().champion().f[0];
+		// test feasibility
+		if(original_problem->feasibility_x(a.get_island(i)->get_population().champion().x))
+			retval += a.get_island(i)->get_population().champion().f[0];
 	}
 	return retval / a.get_size();
 }
-double std_dev(archipelago a, double mean) {
+double std_dev(archipelago a, double mean, problem::base_ptr original_problem) {
 	double retval = 0;
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
-		retval += pow((a.get_island(i)->get_population().champion().f[0] - mean),2);
+		// test feasibility
+		if(original_problem->feasibility_x(a.get_island(i)->get_population().champion().x))
+			retval += pow((a.get_island(i)->get_population().champion().f[0] - mean),2);
 	}
 	return sqrt(retval / a.get_size());
 }
@@ -89,6 +97,15 @@ problem::base_ptr get_constrained_prob(problem::base_ptr prob, int i) {
 	case(1):
 		return problem::death_penalty(*prob,problem::death_penalty::KURI).clone();
 		break;
+	case(2):
+		return problem::con2mo(*prob,problem::con2mo::OBJ_CSTRS).clone();
+		break;
+	case(3):
+		return problem::con2mo(*prob,problem::con2mo::OBJ_CSTRSVIO).clone();
+		break;
+	case(4):
+		return problem::con2mo(*prob,problem::con2mo::OBJ_EQVIO_INEQVIO).clone();
+		break;
 	default:
 		return prob;
 		break;
@@ -110,6 +127,15 @@ std::string get_constrained_name(int i) {
 		break;
 	case(1):
 		return "Death_penalty_Kuri";
+		break;
+	case(2):
+		return "con2mo_obj_cstrs";
+		break;
+	case(3):
+		return "con2mo_obj_cstrsvio";
+		break;
+	case(4):
+		return "con2mo_obj_eqvio_ineqvio";
 		break;
 	default:
 		return "No_constraint_technique";
@@ -136,9 +162,12 @@ int main()
 	std::cout << std::setprecision(5);
 
 	//0 - Experiment parameters
-	size_t number_of_islands = 30;
-	size_t number_of_individuals = 20;
-	size_t function_evaluations = 100;
+
+	// in CEC2006, the max number of function evaluation = 5,000; 50,000; 500,000
+	// for each run
+	size_t number_of_islands = 25;
+	size_t number_of_individuals = 60; // was 60
+	size_t function_evaluations = 5000;
 	size_t number_of_migrations = 1;
 
 	//1 - We instantiate the problems and store the problems
@@ -150,21 +179,22 @@ int main()
 	//2 - We instantiate the algorithms
 	std::vector<algorithm::base_ptr> algos;
 	int gen = function_evaluations/number_of_individuals/number_of_migrations;
-//    algos.push_back(algorithm::nsga2(gen,0.5,11,0.3,11).clone());
+	algos.push_back(algorithm::vega(gen).clone());
+	algos.push_back(algorithm::nsga2(gen).clone());
 	algos.push_back(algorithm::bee_colony(gen/2.).clone());
 	algos.push_back(algorithm::cmaes(gen).clone());
-//    algos.push_back(algorithm::cs(gen*10,0.02,0.3,0.3).clone());
+	algos.push_back(algorithm::cs(gen*10,0.02,0.3,0.3).clone());
 	algos.push_back(algorithm::de(gen).clone());
 	algos.push_back(algorithm::de_1220(gen).clone());
 	algos.push_back(algorithm::ihs(gen*number_of_individuals).clone());
 	algos.push_back(algorithm::jde(gen).clone());
-//    algos.push_back(algorithm::mbh(algorithm::de(gen),2,0.03).clone());
+	//    algos.push_back(algorithm::mbh(algorithm::de(gen),2,0.03).clone());
 	algos.push_back(algorithm::mde_pbx(gen).clone());
 	algos.push_back(algorithm::monte_carlo(gen).clone());
-//    algos.push_back(algorithm::ms(algorithm::monte_carlo(gen),5).clone());
-//    algos.push_back(algorithm::null().clone());
+	//    algos.push_back(algorithm::ms(algorithm::monte_carlo(gen),5).clone());
+	//    algos.push_back(algorithm::null().clone());
 	algos.push_back(algorithm::pso(gen).clone());
-//    algos.push_back(algorithm::pso_generational(gen,0.5,0.5,0.5,0.5,3,3,3).clone());
+	//    algos.push_back(algorithm::pso_generational(gen,0.5,0.5,0.5,0.5,3,3,3).clone());
 	algos.push_back(algorithm::sa_corana(gen*number_of_individuals).clone());
 	algos.push_back(algorithm::sga(gen).clone());
 
@@ -179,7 +209,7 @@ int main()
 	std::vector<std::string> stored_best_constraint_technique(probs.size(), "");
 
 	// for each constraints handling technique:
-	for(unsigned int ch=0; ch < 2; ch++) {
+	for(unsigned int ch=2; ch < 5; ch++) {
 
 		//Open the output file
 		std::ofstream myfile;
@@ -208,7 +238,7 @@ int main()
 				std::cout << topo[to]->get_name() << std::endl;
 
 				for (unsigned int al=0; al<algos.size(); ++al) {
-				   // we generate the constrained algorithm
+					// we generate the constrained algorithm
 					algorithm::base_ptr constrained_algorithm = get_constrained_algo(algos[al], ch);
 
 					pagmo::archipelago a = pagmo::archipelago(*topo[to]);
@@ -220,13 +250,13 @@ int main()
 					a.join();
 
 					myfile << "$" << constrained_algorithm->get_name() << "$";
-					myfile << " & " << best(a) << " & " << worst(a) << " & " << mean(a) << " & " << std_dev(a,mean(a)) << "& &";
+					myfile << " & " << best(a, probs[pr]) << " & " << worst(a, probs[pr]) << " & " << mean(a, probs[pr]) << " & " << std_dev(a,mean(a, probs[pr]), probs[pr]) << "& &";
 					myfile << "\\\\";
-					std::cout << ":\t " << mean(a) << "\t" << std_dev(a,mean(a)) << std::endl;
+					std::cout << ":\t " << mean(a, probs[pr]) << "\t" << std_dev(a,mean(a, probs[pr]), probs[pr]) << std::endl;
 
 					// store the best solution for the recap
-					if(best(a) < stored_best_optimum[pr]) {
-						stored_best_optimum[pr] = best(a);
+					if(best(a, probs[pr]) < stored_best_optimum[pr]) {
+						stored_best_optimum[pr] = best(a, probs[pr]);
 						stored_best_algorithm[pr] = constrained_algorithm->get_name();
 						stored_best_constraint_technique[pr] = get_constrained_name(ch);
 					}

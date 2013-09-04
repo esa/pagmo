@@ -701,3 +701,40 @@ def _death_penalty_ctor(self, problem = None, method = None):
 	self._orig_init(*arg_list)
 death_penalty._orig_init = death_penalty.__init__
 death_penalty.__init__ = _death_penalty_ctor
+
+# Renaming and placing the enums
+_problem.con2mo.method = _problem._method_type
+
+def _con2mo_ctor(self, problem = None, method = None):
+	"""
+	Implements a meta-problem class that wraps some other constrained problems,
+	resulting in multi-objective problem.
+ 
+	Three implementations of the constrained to multi-objective are available. For a problem with m constraints,
+	m+1 objective functions, the first objective function is the original objective function.
+	The first implementation is the constrained to multi-objective defined by Coello Coello. The
+	objectives defined from constraints includes number of violated constraints and objective functions.
+	The second implementation is the COMOGA multi-objective problem: a biobjective problem with the second
+	objective the sum of the violations of the constraints.
+	The third implementation is the same as the second one but splitting the sum of violations between equality
+	and inequality constraints, resulting in a total of three objectives problem.
+	
+	USAGE: problem.(problem=PyGMO.cec2006(4), method=con2mo.method.OBJ_CSTRS)
+
+	* problem: PyGMO constrained problem one wants to treat with a multi-objective approach
+	* method: Coello constraints to multi-objective set with OBJ_CSTRS, COMOGA method set with OBJ_CSTRSVIO
+	and COMOGA with splitting of inequality and equality constraints set with OBJ_EQVIO_INEQVIO
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem = cec2006(4)
+	if method == None:
+		method = con2mo.method.OBJ_CSTRS
+	arg_list.append(problem)
+	arg_list.append(method)
+	self._orig_init(*arg_list)
+con2mo._orig_init = con2mo.__init__
+con2mo.__init__ = _con2mo_ctor
+

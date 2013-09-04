@@ -32,46 +32,30 @@ using namespace pagmo;
 
 int main()
 {
-    /*
 	pagmo::problem::zdt1 orig_prob(10);
 
-	std::vector<double> weights(2,0.5);
-	pagmo::problem::decompose decomposed_problem(orig_prob, weights);
+//	std::vector<double> weights(2,0.5);
+//	pagmo::problem::decompose decomposed_problem(orig_prob, weights);
 
-	pagmo::algorithm::jde alg(50);
+	// pagmo::algorithm::jde alg(50);
+
+	pagmo::algorithm::vega alg(50);
 
 	std::cout << alg << std::endl;
 	std::cout << orig_prob << std::endl;
-	std::cout << decomposed_problem << std::endl;
+	//std::cout << decomposed_problem << std::endl;
 
-	pagmo::island isl = island(alg, decomposed_problem, 100);
-	pagmo::population original_problem_pop = population(orig_prob, 1);
+	pagmo::island isl = island(alg, orig_prob, 50);
+	//pagmo::population original_problem_pop = population(orig_prob, 50);
 
-    for (size_t i = 0; i< 10; ++i){
-	    isl.evolve(1);
-	    original_problem_pop.set_x(0, isl.get_population().champion().x);
-	    std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(original_problem_pop) << std::endl;
-	    std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
-	    std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
+	std::cout << "Initial distance from Pareto Front (p-distance): " << orig_prob.p_distance(isl.get_population()) << std::endl;
+	for (size_t i = 0; i< 10; ++i){
+		isl.evolve();
+		//original_problem_pop.set_x(0, isl.get_population().champion().x);
+		std::cout << "Distance from Pareto Front (p-distance): " << orig_prob.p_distance(isl.get_population()) << std::endl;
+		//std::cout << "Original fitness: " << orig_prob.objfun(isl.get_population().champion().x) << std::endl;
+		//std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
 
 	}
 	return 0;
-    */
-    pagmo::problem::zdt1 prob(10);
-    pagmo::algorithm::pade alg(10000);
-
-    std::cout << alg << std::endl;
-    std::cout << prob << std::endl;
-
-    pagmo::island isl = island(alg, prob, 8);
-
-    for (size_t i = 0; i<10; ++i){
-        isl.evolve(1);
-        std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
-        //std::cout << "Original fitness: " << isl.get_population() << std::endl;
-        //std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
-
-    }
-    std::cout << "Finished" << std::endl;
-    return 0;
 }

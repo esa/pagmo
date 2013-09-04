@@ -12,27 +12,29 @@ problems of certain types: (Continuous, Integer or Mixed Integer)-(Constrained, 
 
 Heuristic Optimization
 ^^^^^^^^^^^^^^^^^^^^^^
-================================== ========================================= =============== ===================================================================
-Common Name                        Name in PyGMO                             Type            Comments
-================================== ========================================= =============== ===================================================================
-Differential Evolution (DE)        :class:`PyGMO.algorithm.de`                    C-U-S      The original algorithm
-Self-adaptive DE (jDE)             :class:`PyGMO.algorithm.jde`                   C-U-S      Self-adaptive F, CR
-DE with p-best crossover (mde_pbx) :class:`PyGMO.algorithm.mde_pbx`               C-U-S      Self-adaptive F, CR
-Differential Evolution (DE)        :class:`PyGMO.algorithm.de_1220`               C-U-S      Our own brew. self adaptive F, CR and variants 
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
-Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
-(N+1)-EA Evol. Algorithm (SEA)     :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
-Non-dominated Sorting GA (NSGA2)   :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
-Parallel Decomposition (PADE)      :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition
-Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
-Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
-Improved Harmony Search (IHS)      :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
-Monte Carlo Search (MC)            :class:`PyGMO.algorithm.monte_carlo`          MI-C-S
-Monte Carlo Search (MC)            :class:`PyGMO.algorithm.py_example`           MI-C-S      Written directly in Python
-Covariance Matrix Adaptation-ES    :class:`PyGMO.algorithm.py_cmaes`              C-U-S      Written directly in Python
-Covariance Matrix Adaptation-ES    :class:`PyGMO.algorithm.cmaes`                 C-U-S
-================================== ========================================= =============== ===================================================================
+========================================= ========================================= =============== ===================================================================
+Common Name                               Name in PyGMO                             Type            Comments
+========================================= ========================================= =============== ===================================================================
+Differential Evolution (DE)               :class:`PyGMO.algorithm.de`                    C-U-S      The original algorithm
+Self-adaptive DE (jDE)                    :class:`PyGMO.algorithm.jde`                   C-U-S      Self-adaptive F, CR
+DE with p-best crossover (mde_pbx)        :class:`PyGMO.algorithm.mde_pbx`               C-U-S      Self-adaptive F, CR
+Differential Evolution (DE)               :class:`PyGMO.algorithm.de_1220`               C-U-S      Our own brew. self adaptive F, CR and variants 
+Particle Swarm Optimization (PSO)         :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
+Particle Swarm Optimization (PSO)         :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
+Simple Genetic Algorithm (SGA)            :class:`PyGMO.algorithm.sga`                  MI-U-S 
+Vector Evaluated Genetic Algorithm (VEGA) :class:`PyGMO.algorithm.vega`                 MI-U-M      VEGA algorithm, multi-objective extension of SGA
+(N+1)-EA Evol. Algorithm (SEA)            :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
+Non-dominated Sorting GA (NSGA2)          :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
+Parallel Decomposition (PADE)             :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition
+Corana's Simulated Annealing (SA)         :class:`PyGMO.algorithm.sa_corana`             C-U-S 
+Artificial Bee Colony (ABC)               :class:`PyGMO.algorithm.bee_colony`            C-U-S 
+Improved Harmony Search (IHS)             :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
+Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.monte_carlo`          MI-C-S
+Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.py_example`           MI-C-S      Written directly in Python
+Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.py_cmaes`              C-U-S      Written directly in Python
+Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.cmaes`                 C-U-S
+========================================= ========================================= =============== ===================================================================
+>>>>>>> constraints
 
 Meta-algorithms 
 ^^^^^^^^^^^^^^^
@@ -134,6 +136,26 @@ Detailed Documentation
      Binomial crossover
 
    .. attribute:: PyGMO.algorithm.sga.crossover.EXPONENTIAL
+
+     Exponential crossover
+
+.. autoclass:: PyGMO.algorithm.vega
+
+   .. automethod:: PyGMO.algorithm.vega.__init__
+
+   .. attribute:: PyGMO.algorithm.vega.mutation.RANDOM
+
+     Random mutation (width is set by the width argument in :class:`PyGMO.algorithm.vega`)
+
+   .. attribute:: PyGMO.algorithm.vega.mutation.GAUSSIAN
+
+     Gaussian mutation (bell shape standard deviation is set by the width argument in :class:`PyGMO.algorithm.vega` multiplied by the box-bounds width)
+
+   .. attribute:: PyGMO.algorithm.vega.crossover.BINOMIAL
+
+     Binomial crossover
+
+   .. attribute:: PyGMO.algorithm.vega.crossover.EXPONENTIAL
 
      Exponential crossover
 

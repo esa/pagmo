@@ -279,8 +279,6 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 pso_gen._orig_init = pso_gen.__init__
 pso_gen.__init__ = _pso_gen_ctor
 
-
-
 def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL):
 	"""
 	Constructs a Simple Genetic Algorithm (generational)
@@ -310,6 +308,35 @@ def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSS
 	self._orig_init(*arg_list)
 sga._orig_init = sga.__init__
 sga.__init__ = _sga_ctor
+
+def _vega_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL):
+	"""
+	Constructs a Vector evaluated genetic algorithm
+	
+	USAGE: algorithm.vega(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, crossover=sga.crossover.EXPONENTIAL)
+  
+	* gen: number of generations
+	* cr: crossover factor in [0,1]
+	* m: mutation probability (for each component) [0,1]
+	* elitism: number of generation after which the best is reinserted
+	* mutation: mutation type (one of [RANDOM, GAUSSIAN])
+	* width: the mutation width (in case of a GAUSSIAN bell
+		this is the std normalized with the width)
+	* selection: selection startegy (one of [ROULETTE, BEST20])
+	* crossover: crossover strategy (one of [BINOMIAL, EXPONENTIAL])
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(m)
+	arg_list.append(elitism)
+	arg_list.append(mutation)
+	arg_list.append(width)
+	arg_list.append(crossover)	
+	self._orig_init(*arg_list)
+vega._orig_init = vega.__init__
+vega.__init__ = _vega_ctor
 
 def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	"""

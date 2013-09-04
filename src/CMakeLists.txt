@@ -25,6 +25,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/algorithm/vega.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pade.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
@@ -81,6 +82,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2006.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2009.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2013.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/problem/con2mo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/problem/death_penalty.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp

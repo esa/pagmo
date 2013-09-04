@@ -20,6 +20,7 @@ Normalized                         :class:`PyGMO.problem.normalized`         fro
 Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
 Decompose	                   :class:`PyGMO.problem.decompose`          from V1.1.5
 Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5
+Constraints to MO                  :class:`PyGMO.problem.con2mo`             from V1.1.5
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
@@ -181,6 +182,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.death_penalty
 
    .. automethod:: PyGMO.problem.death_penalty.__init__
+   
+.. autoclass:: PyGMO.problem.con2mo
+
+   .. automethod:: PyGMO.problem.con2mo.__init__
 
 .. autoclass:: PyGMO.problem.shifted
 

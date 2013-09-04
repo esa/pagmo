@@ -148,6 +148,14 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	enum_<algorithm::sga::selection::type>("_selection_type")
 		.value("BEST20", algorithm::sga::selection::BEST20)
 		.value("ROULETTE", algorithm::sga::selection::ROULETTE);
+
+	enum_<algorithm::vega::mutation::type>("_mutation_type")
+		.value("RANDOM", algorithm::vega::mutation::RANDOM)
+		.value("GAUSSIAN", algorithm::vega::mutation::GAUSSIAN);
+	
+	enum_<algorithm::vega::crossover::type>("_crossover_type")
+		.value("BINOMIAL", algorithm::vega::crossover::BINOMIAL)
+		.value("EXPONENTIAL", algorithm::vega::crossover::EXPONENTIAL);
 		
 	// Expose algorithms.
 
@@ -213,6 +221,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Simple Genetic Algorithm.
 	algorithm_wrapper<algorithm::sga>("sga", "A simple genetic algorithm (generational)")
 		.def(init<int, optional<const double &, const double &, int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
+	
+	// VEGA Algorithm.
+	algorithm_wrapper<algorithm::vega>("vega", "Vector evaluated genetic algorithm")
+		.def(init<int, optional<const double &, const double &, int, algorithm::vega::mutation::type, double, algorithm::vega::crossover::type> >());
 	
 	// (N+1)-EA - Simple Evolutionary Algorithm
 	algorithm_wrapper<algorithm::sea>("sea", "(N+1)-EA - A Simple Evolutionary Algorithm")

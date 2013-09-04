@@ -73,6 +73,7 @@
 #include "problem/cec2006.h"
 #include "problem/cec2009.h"
 #include "problem/cec2013.h"
+#include "problem/con2mo.h"
 #include "problem/death_penalty.h"
 #include "problem/shifted.h"
 #include "problem/rotated.h"
