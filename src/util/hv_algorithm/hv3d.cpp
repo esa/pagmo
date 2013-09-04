@@ -211,13 +211,11 @@ std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fit
 			d.push_back((*r_it).second);
 			++r_it;
 		}
-		tree_t::iterator erase_begin = r_it.base();
-		tree_t::iterator erase_end(it);
-
-		T.erase(erase_begin, erase_end);
 
 		int r = (*it).second;
 		int t = (*r_it).second;
+
+		T.erase(r_it.base(), it);
 
 		// Process right neighbor region, region R
 		while(!L[r].empty()) {
@@ -275,10 +273,9 @@ std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fit
 	}
 
 	// Fix the indices
-	std::vector<double> contribs;
-	contribs.reserve(n);
+	std::vector<double> contribs(n, 0.0);
 	for(unsigned int i=0;i < c.size();++i) {
-		contribs.push_back(c[point_pairs[i].second]);
+		contribs[point_pairs[i].second] = c[i];
 	}
 	return contribs;
 }
