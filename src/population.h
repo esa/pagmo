@@ -44,6 +44,11 @@ namespace pagmo
 class base_island;
 struct population_access;
 
+namespace algorithm {
+class base;
+typedef boost::shared_ptr<base> base_ptr;
+}
+
 /// Population class.
 /**
  * This class contains an instance of an optimisation problem and a group of candidate solutions represented by the class individual_type.
@@ -226,6 +231,9 @@ class __PAGMO_VISIBLE population
 		void reinit();
 		void clear();
 		double mean_velocity() const;
+
+		// Constraints repairing methods
+        void repair(const size_type &, const algorithm::base_ptr &);
 
 		// Race routine wrappers
 		std::pair<std::vector<population::size_type>, unsigned int> race(const size_type n_final,

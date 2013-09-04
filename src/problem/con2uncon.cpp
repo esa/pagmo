@@ -37,16 +37,21 @@ namespace pagmo { namespace problem {
  *
  * @param[in] problem base::problem to be con2unconed
  */
-con2uncon::con2uncon(const base &problem):
+con2uncon::con2uncon(const base &problem, const method_type &method):
 	base((int)problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
 		 0,
 		 0,
 		 0.),
-	m_original_problem(problem.clone())
+	m_original_problem(problem.clone()),
+	m_method(method)
 {
 	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
+
+	if((m_method < 0) || (m_method > 1)) {
+		pagmo_throw(value_error,"the problem method must be either OPTIMALITY or FEASIBILITY.");
+	}
 }
 
 /// Copy Constructor. Performs a deep copy
@@ -57,7 +62,8 @@ con2uncon::con2uncon(const con2uncon &prob):
 		 0,
 		 0,
 		 0.),
-	m_original_problem(prob.m_original_problem->clone())
+	m_original_problem(prob.m_original_problem->clone()),
+	m_method(prob.m_method)
 {
 	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
@@ -72,7 +78,44 @@ base_ptr con2uncon::clone() const
 /// (Wraps over the original implementation)
 void con2uncon::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	m_original_problem->objfun(f,x);
+	switch(m_method) {
+	case(OPTIMALITY): {
+		m_original_problem->objfun(f,x);
+		break;
+	}
+	case(FEASIBILITY): {
+		// get the constraints dimension
+		problem::base::c_size_type prob_c_dimension = m_original_problem->get_c_dimension();
+		problem::base::c_size_type number_of_eq_constraints =
+				m_original_problem->get_c_dimension() -
+				m_original_problem->get_ic_dimension();
+
+		constraint_vector c(m_original_problem->get_c_dimension(),0);
+		m_original_problem->compute_constraints(c,x);
+
+		const std::vector<double> &c_tol = m_original_problem->get_c_tol();
+
+		double c_func = 0.;
+
+		// update equality constraints
+		for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
+			if(!m_original_problem->test_constraint(c,j)) {
+				c_func += ( std::abs(c.at(j)) - c_tol.at(j) ) * ( std::abs(c.at(j)) - c_tol.at(j) );
+			}
+		}
+
+		// update inequality constraints
+		for(problem::base::c_size_type j=number_of_eq_constraints; j<prob_c_dimension; j++) {
+			if(!m_original_problem->test_constraint(c,j)) {
+				c_func += std::abs(c.at(j)) - c_tol.at(j);
+			}
+		}
+
+		std::fill(f.begin(),f.end(), 0.);
+		f[0] = c_func;
+		break;
+	}
+	}
 }
 
 /// Implementation of fitness vectors comparison.
@@ -93,14 +136,36 @@ std::string con2uncon::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
-	oss << "\n\tcon2unconed ";
+	oss << "\n\tcon2unconed with method ";
+	switch(m_method){
+	case OPTIMALITY: {
+		oss << "OPTIMALITY ";
+		break;
+	}
+	case FEASIBILITY: {
+		oss << "FEASIBILITY ";
+		break;
+	}
+	}
 	oss << std::endl;
 	return oss.str();
 }
 
 std::string con2uncon::get_name() const
 {
-	return m_original_problem->get_name() + " [con2uncon]";
+	std::string method;
+
+	switch(m_method){
+	case OPTIMALITY: {
+		method = "OPTIMALITY ";
+		break;
+	}
+	case FEASIBILITY: {
+		method = "FEASIBILITY ";
+		break;
+	}
+	}
+	return m_original_problem->get_name() + " [con2uncon, method_" + method + "]";
 }
 
 }}

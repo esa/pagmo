@@ -189,7 +189,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		
 	enum_<algorithm::sga::selection::type>("_selection_type")
 		.value("BEST20", algorithm::sga::selection::BEST20)
-        .value("ROULETTE", algorithm::sga::selection::ROULETTE);
+		.value("ROULETTE", algorithm::sga::selection::ROULETTE);
 
 	enum_<algorithm::vega::mutation::type>("_mutation_type")
 		.value("RANDOM", algorithm::vega::mutation::RANDOM)
@@ -213,7 +213,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		
 	enum_<algorithm::sga_gray::selection::type>("_selection_type")
 		.value("BEST20", algorithm::sga_gray::selection::BEST20)
-        .value("ROULETTE", algorithm::sga_gray::selection::ROULETTE);
+		.value("ROULETTE", algorithm::sga_gray::selection::ROULETTE);
 	
 	// Constraints immune system enums
 	enum_<algorithm::cstrs_immune_system::select_method_type>("_select_method_type")
@@ -227,7 +227,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Antibodies Problems (for immune system).
 	enum_<algorithm::cstrs_immune_system::distance_method_type>("_distance_method_type")
 		.value("HAMMING", algorithm::cstrs_immune_system::HAMMING)
-        .value("EUCLIDEAN", algorithm::cstrs_immune_system::EUCLIDEAN);
+		.value("EUCLIDEAN", algorithm::cstrs_immune_system::EUCLIDEAN);
 
 	// Expose algorithms.
 
@@ -281,6 +281,12 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<optional<const algorithm::base &,const algorithm::base &,int,algorithm::cstrs_immune_system::select_method_type,algorithm::cstrs_immune_system::inject_method_type,algorithm::cstrs_immune_system::distance_method_type,double,double,double,double,double> >())
 		.add_property("algorithm",&algorithm::cstrs_immune_system::get_algorithm,&algorithm::cstrs_immune_system::set_algorithm)
 		.add_property("algorithm_immune",&algorithm::cstrs_immune_system::get_algorithm_immune,&algorithm::cstrs_immune_system::set_algorithm_immune);
+
+	// Constraints CORE.
+	algorithm_wrapper<algorithm::cstrs_core>("cstrs_core","Constraints core.")
+            .def(init<optional<const algorithm::base &,const algorithm::base &,int,int,double,double,double> >())
+        .add_property("algorithm",&algorithm::cstrs_core::get_algorithm,&algorithm::cstrs_core::set_algorithm)
+        .add_property("algorithm_repair",&algorithm::cstrs_core::get_repair_algorithm,&algorithm::cstrs_core::set_repair_algorithm);
 	
 	// Multistart.
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")

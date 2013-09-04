@@ -49,6 +49,7 @@ Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`     
 Cstrs co-evolution                 :class:`PyGMO.algorithm.cstrs_co_evolution`    C-C-S         Minimization assumed
 Cstrs Self-Adaptive                :class:`PyGMO.algorithm.csrts_self_adaptive`   C-C-S         Minimization assumed
 Cstrs Immune System                :class:`PyGMO.algorithm.cstrs_immune_system`   C-C-S         Immune system constraints handling technique
+Cstrs CORE                         :`PyGMO.algorithm.cstrs_core`                  C-C-S         CORE constraints handling technique (repairing technique)
 ================================== ============================================ =============== ===========================================
 
 Local optimization 
@@ -231,6 +232,14 @@ Detailed Documentation
    .. automethod:: PyGMO.algorithm.cstrs_immune_system.__init__
 
    .. attribute:: PyGMO.algorithm.cstrs_immune_system.screen_output
+
+      When True, the algorithms produces output on screen 
+
+.. autoclass:: PyGMO.algorithm.cstrs_core
+
+   .. automethod:: PyGMO.algorithm.cstrs_core.__init__
+
+   .. attribute:: PyGMO.algorithm.cstrs_core.screen_output
 
       When True, the algorithms produces output on screen 
 

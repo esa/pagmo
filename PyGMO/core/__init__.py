@@ -436,3 +436,24 @@ def _pop_race(self, n_winners, min_trials = 0, max_feval = 500,
 
 population._orig_race = population.race
 population.race = _pop_race
+
+def _pop_repair(self, idx, iter = 100, tolerance = 1e-6, step_size=0.02):
+	"""
+	Repairs the individual at the given position
+
+	USAGE: pop.repair(idx, iter = 100, tolerance = 1e-6, step_size = 0.02)
+
+	* idx: index of the individual to repair
+	* iter: number of iterations to do for the repairing algorithm
+	* tolerance: tolerance stop criterion for the repairing algorithm
+	* step_size: step size for the repairing algorithm
+	"""
+	arg_list=[]
+	arg_list.append(idx)
+	arg_list.append(iter)
+	arg_list.append(tolerance)
+	arg_list.append(step_size)
+	return self._orig_repair(*arg_list)
+
+population._orig_repair = population.repair
+population.repair = _pop_repair

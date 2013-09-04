@@ -43,6 +43,9 @@
 #include "util/racing.h"
 #include "util/race_pop.h"
 
+#include "algorithm/base.h"
+#include "problem/con2uncon.h"
+
 namespace pagmo
 {
 
@@ -776,6 +779,41 @@ std::vector<population::size_type> population::get_best_idx(const population::si
 	return retval;
 }
 
+/// Repairs the individual at the position idx.
+/**
+ * This methods repairs an infeasible individual to make it feasible. The method uses the repairing
+ * algorithm provided by the user. It minimizes the constraints violation.
+ *
+ * @param[in] idx index of the individual to repair
+ * @param[in] repair_algo algorithm to be used to repair the individual. Should be an algorithm
+ * working with a population of size 1.
+ *
+ * @throws index_error if idx is larger than the population size
+ */
+void population::repair(const population::size_type &idx, const algorithm::base_ptr &repair_algo)
+{
+	if (idx >= size()) {
+		pagmo_throw(index_error,"invalid individual position");
+	}
+
+	const decision_vector &current_x = m_container[idx].cur_x;
+	const constraint_vector &current_c = m_container[idx].cur_c;
+
+	// if feasible, nothing is done
+	if(m_prob->feasibility_c(current_c)) {
+		return;
+	}
+
+	problem::con2uncon feasibility_problem(*m_prob,problem::con2uncon::FEASIBILITY);
+
+	population pop_repair(feasibility_problem);
+	pop_repair.clear();
+	pop_repair.push_back(current_x);
+
+    repair_algo->evolve(pop_repair);
+
+	this->set_x(idx,pop_repair.get_individual(0).cur_x);
+}
 
 /// Return terse human-readable representation.
 /**

@@ -53,6 +53,7 @@
 #include "algorithm/cstrs_co_evolution.h"
 #include "algorithm/pade.h"
 #include "algorithm/cstrs_immune_system.h"
+#include "algorithm/cstrs_core.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"

@@ -175,6 +175,13 @@ Population
 	  * delta: Statistical test confidence
 	  * racers_idx: indices of the individuals in pop to be raced
 
+   .. method:: repair((int) idx, (:class:`problem`) repair_algo)
+
+	  Repairs the individual at the position idx
+
+	  * idx: index of the individual to repair
+	  * repair_algo: 'repairing' optimization algorithm to use. It should be able to deal with population of size 1.
+
    .. attribute:: champion
       :noindex:
 

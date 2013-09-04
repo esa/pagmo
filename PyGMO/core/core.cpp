@@ -135,6 +135,11 @@ inline static void population_set_v(population &pop, int n, const decision_vecto
 	pop.set_v(boost::numeric_cast<population::size_type>(n),v);
 }
 
+inline static void population_repair(population &pop, const int &idx, const algorithm::base_ptr &repair_algo)
+{
+	pop.repair(boost::numeric_cast<population::size_type>(idx),repair_algo);
+}
+
 struct __PAGMO_VISIBLE population_pickle_suite : boost::python::pickle_suite
 {
 	static boost::python::tuple getinitargs(const population &pop)
@@ -299,6 +304,7 @@ BOOST_PYTHON_MODULE(_core)
 		.def("erase", &population::erase, "Erase individual at position")
 		.def("mean_velocity", &population::mean_velocity, "Calculates the mean velocity across particles")
 		.def("race", &race_return_tuple, "Race the individuals")
+		.def("repair", &population_repair, "Repair the individual at the given index")
 		.def("cpp_loads", &py_cpp_loads<population>)
 		.def("cpp_dumps", &py_cpp_dumps<population>)
 		.def_pickle(population_pickle_suite());

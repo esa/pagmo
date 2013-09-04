@@ -22,47 +22,59 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_CON2UNCON_H
-#define PAGMO_PROBLEM_CON2UNCON_H
+#ifndef PAGMO_ALGORITHM_CSTRS_CORE_H
+#define PAGMO_ALGORITHM_CSTRS_CORE_H
 
 #include <string>
 
+#include "../config.h"
+#include "../population.h"
 #include "../serialization.h"
-#include "../types.h"
-#include "cec2006.h"
 #include "base.h"
+#include "jde.h"
+#include "sga.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace algorithm {
 
-/// Constrained to unconstrained meta-problem
+/// CORE constraints handling meta-algorithm
 /**
- * Implements a meta-problem class that wraps some other constrained problems,
- * resulting in unconstrained problem by removing the constraints. Two methods
- * are available for the objective function: OPTIMALITY and FEASIBILITY.
- * The OPTIMALITY uses the objective function of the original problem. The
- * FEASIBILITY computes the sum of the constraints.
+ *
+ * CORE is a meta-algorithm that allow to solve constrained optimization problems.
+ * The key idea of this constraint handling technique is to repair infeasible individuals
+ * of the population at fixed intervals.
+ *
+ * The original algorithm is using a random evolutionary search algorithm. This implementation
+ * is extended to be used with any algorithm.
+ *
+ * This meta-algorithm is based on the population population::repair() method.
+ *
+ * @see Belur, S.V. CORE: Constrained optimization by random evolution, Late Breaking Papers
+ * at the Genetic Programming Conference, Stanford University, 280-286, 1997.
  *
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
 
-class __PAGMO_VISIBLE con2uncon : public base
+class __PAGMO_VISIBLE cstrs_core: public base
 {
 public:
-	enum method_type {OPTIMALITY = 0, FEASIBILITY = 1};
+    cstrs_core(const base & = jde(1), const base & = jde(1),
+               int = 1,
+			   int = 10,
+			   double = 1.,
+			   double = 1e-15, double = 1e-15);
+	cstrs_core(const cstrs_core &);
+	base_ptr clone() const;
 
 public:
-	//constructors
-	con2uncon(const base & = cec2006(4), const method_type & = OPTIMALITY);
-
-	//copy constructor
-	con2uncon(const con2uncon &);
-	base_ptr clone() const;
+	void evolve(population &) const;
 	std::string get_name() const;
+	base_ptr get_algorithm() const;
+	void set_algorithm(const base &);
+    base_ptr get_repair_algorithm() const;
+    void set_repair_algorithm(const base &);
 
 protected:
 	std::string human_readable_extra() const;
-	void objfun_impl(fitness_vector &, const decision_vector &) const;
-	bool compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const;
 
 private:
 	friend class boost::serialization::access;
@@ -70,16 +82,29 @@ private:
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<base>(*this);
-		ar & m_original_problem;
-		ar & m_method;
+		ar & m_original_algo;
+        ar & m_repair_algo;
+        ar & const_cast<int &>(m_gen);
+		ar & const_cast<int &>(m_repair_frequency);
+		ar & const_cast<double &>(m_repair_ratio);
+		ar & const_cast<double &>(m_ftol);
+		ar & const_cast<double &>(m_xtol);
 	}
-	base_ptr m_original_problem;
+	base_ptr m_original_algo;
+    base_ptr m_repair_algo;
+	//Number of generations
+	const int m_gen;
+    // repair constants
+	const int m_repair_frequency;
+	const double m_repair_ratio;
 
-	method_type m_method;
+	// tolerance
+	const double m_ftol;
+	const double m_xtol;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::con2uncon);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_core);
 
-#endif // PAGMO_PROBLEM_con2uncon_H
+#endif // PAGMO_ALGORITHM_CSTRS_CORE_H

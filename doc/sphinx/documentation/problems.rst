@@ -18,9 +18,10 @@ Rotated                            :class:`PyGMO.problem.rotated`            fro
 Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
 Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
 Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
-Decompose	                   :class:`PyGMO.problem.decompose`          from V1.1.5
+Decompose                          :class:`PyGMO.problem.decompose`          from V1.1.5
 Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5
 Constraints to MO                  :class:`PyGMO.problem.con2mo`             from V1.1.5
+Con2uncon                          :class:`PyGMO.problem.con2uncon`          from V1.1.5
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
@@ -233,7 +234,11 @@ Detailed Documentation
    .. attribute:: weights
       
       The weights vector
+   
+.. autoclass:: PyGMO.problem.con2uncon
 
+   .. automethod:: PyGMO.problem.con2uncon.__init__
+   
 .. autoclass:: PyGMO.problem.ackley
 
    .. automethod:: PyGMO.problem.ackley.__init__

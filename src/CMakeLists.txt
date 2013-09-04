@@ -1,10 +1,10 @@
 # PaGMO lib source files.
 SET(PAGMO_LIB_SRC_LIST
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/algorithm/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/archipelago.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sea.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/jde.cpp
@@ -31,6 +31,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_self_adaptive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pade.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_immune_system.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_core.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
