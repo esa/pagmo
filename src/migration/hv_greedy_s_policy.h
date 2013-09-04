@@ -42,6 +42,7 @@ namespace pagmo { namespace migration {
  *
  * Note: If the problem is a single objective one, we fall back to the pagmo::migration::best_s_policy instead.
  *
+ * @author Marcus Maertens (mmarcusx@gmail.com)
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
 class __PAGMO_VISIBLE hv_greedy_s_policy: public base_s_policy

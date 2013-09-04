@@ -45,6 +45,7 @@ namespace pagmo { namespace migration {
  *
  * Note: If the problem is a single objective one, we fall back to the pagmo::migration::fair_r_policy instead.
  *
+ * @author Marcus Maertens (mmarcusx@gmail.com)
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
 class __PAGMO_VISIBLE hv_greedy_r_policy: public base_r_policy
