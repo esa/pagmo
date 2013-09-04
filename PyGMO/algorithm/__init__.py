@@ -623,6 +623,46 @@ def _cstrs_co_evolution_ctor(self,algorithm = _algorithm.jde(),algorithm_2 = _al
 cstrs_co_evolution._orig_init = cstrs_co_evolution.__init__
 cstrs_co_evolution.__init__ = _cstrs_co_evolution_ctor
 
+# Renaming and placing the enums
+_algorithm.cstrs_immune_system.select_method = _algorithm._select_method_type
+_algorithm.cstrs_immune_system.inject_method = _algorithm._inject_method_type
+_algorithm.cstrs_immune_system.distance_method = _algorithm._distance_method_type
+
+def _cstrs_immune_system_ctor(self,algorithm = _algorithm.jde(), algorithm_immune = _algorithm.jde(), gen = 1, select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., f_tol = 1e-15, x_tol = 1e-15):
+	"""
+	Constructs an immune system constraints handling algorithm.
+	
+	USAGE: algorithm._cstrs_immune_system(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., ftol = 1e-15, xtol = 1e-15);
+	*
+	* algorithm: optimizer to use as 'original' optimization method. Its number of generations should be set to 1.
+	* algorithm_2: optimizer to use as 'original' optimization method for the immune system.
+	* gen: number of generations.
+	* select_method: cstrs_immune_system.select_method.BEST_ANTIBODY by default, the method used for selecting the antibodies.
+	* inject_method: cstrs_immune_system.inject_method.CHAMPION by default, the method used for reinjecting the antibodies.
+	* distance_method: cstrs_immune_system.distance_method.EUCLIDEAN by default, the method used for computing the distance to the antigenes population.
+	* Two possibilities are available: CHAMPION, and BEST25.
+	* phi: 0.5 by default. The feasible fraction selection to compute the mean value.
+	* gamma: 0.5 by default. The number of antigens selected / number of total antigens.
+	* sigma: 1/3 by default. The number of antibodies / number of antigens.
+	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
+	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
+	"""
+	arg_list=[]
+	arg_list.append(algorithm)
+	arg_list.append(algorithm_immune)
+	arg_list.append(gen)
+	arg_list.append(select_method)
+	arg_list.append(inject_method)
+	arg_list.append(distance_method)
+	arg_list.append(phi)
+	arg_list.append(gamma)
+	arg_list.append(sigma)
+	arg_list.append(f_tol)
+	arg_list.append(x_tol)
+	self._orig_init(*arg_list)
+cstrs_immune_system._orig_init = cstrs_immune_system.__init__
+cstrs_immune_system.__init__ = _cstrs_immune_system_ctor
+
 def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_min = 1E-5, bw_max = 1):
 	"""
 	Constructs an Improved Harmony Search Algorithm

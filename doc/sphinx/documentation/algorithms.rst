@@ -48,6 +48,7 @@ Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag`        
 Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`       C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
 Cstrs co-evolution                 :class:`PyGMO.algorithm.cstrs_co_evolution`    C-C-S         Minimization assumed
 Cstrs Self-Adaptive                :class:`PyGMO.algorithm.csrts_self_adaptive`   C-C-S         Minimization assumed
+Cstrs Immune System                :class:`PyGMO.algorithm.cstrs_immune_system`   C-C-S         Immune system constraints handling technique
 ================================== ============================================ =============== ===========================================
 
 Local optimization 
@@ -224,6 +225,14 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.cstrs_co_evolution
 
    .. automethod:: PyGMO.algorithm.cstrs_co_evolution.__init__
+
+.. autoclass:: PyGMO.algorithm.cstrs_immune_system
+
+   .. automethod:: PyGMO.algorithm.cstrs_immune_system.__init__
+
+   .. attribute:: PyGMO.algorithm.cstrs_immune_system.screen_output
+
+      When True, the algorithms produces output on screen 
 
 .. autoclass:: PyGMO.algorithm.cs
 

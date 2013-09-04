@@ -22,74 +22,55 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef PAGMO_PROBLEM_CON2UNCON_H
+#define PAGMO_PROBLEM_CON2UNCON_H
 
-// Header including all algorithms implemented in PaGMO.
+#include <string>
 
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/de_1220.h"
-#include "algorithm/sea.h"
-#include "algorithm/jde.h"
-#include "algorithm/ihs.h"
-#include "algorithm/mde_pbx.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/pso_generational.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-#include "algorithm/sga_gray.h"
-#include "algorithm/nsga2.h"
-#include "algorithm/bee_colony.h"
-#include "algorithm/firefly.h"
-#include "algorithm/cmaes.h"
-#include "algorithm/aco.h"
-#include "algorithm/nsga2.h"
-#include "algorithm/vega.h"
-#include "algorithm/cstrs_co_evolution.h"
-#include "algorithm/pade.h"
-#include "algorithm/cstrs_immune_system.h"
+#include "../serialization.h"
+#include "../types.h"
+#include "cec2006.h"
+#include "base.h"
 
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
-#include "algorithm/cstrs_self_adaptive.h"
+namespace pagmo{ namespace problem {
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
+/// Constrained to unconstrained meta-problem
+/**
+ * Implements a meta-problem class that wraps some other constrained problems,
+ * resulting in unconstrained problem by simply removing the constraints.
+ *
+ * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
+ */
 
-// IPOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
+class __PAGMO_VISIBLE con2uncon : public base
+{
+public:
+	//constructors
+	con2uncon(const base & = cec2006(4));
 
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
+	//copy constructor
+	con2uncon(const con2uncon &);
+	base_ptr clone() const;
+	std::string get_name() const;
 
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-	#include "algorithm/nlopt_slsqp.h"
-	#include "algorithm/nlopt_mma.h"
-	#include "algorithm/nlopt_aug_lag.h"
-	#include "algorithm/nlopt_aug_lag_eq.h"
-#endif
+protected:
+	std::string human_readable_extra() const;
+	void objfun_impl(fitness_vector &, const decision_vector &) const;
+	bool compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const;
 
-#endif
+private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+		ar & m_original_problem;
+	}
+	base_ptr m_original_problem;
+};
+
+}} //namespaces
+
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::con2uncon);
+
+#endif // PAGMO_PROBLEM_con2uncon_H

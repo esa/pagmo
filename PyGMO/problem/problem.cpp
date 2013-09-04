@@ -435,7 +435,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
-
 	// Decomposition meta-problem
 	// Exposing enums of problem::decompose
 	enum_<problem::decompose::method_type>("_decomposition_method")

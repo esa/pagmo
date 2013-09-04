@@ -30,3 +30,6 @@ TARGET_LINK_LIBRARIES(cstrs_self_adaptive ${MANDATORY_LIBRARIES} pagmo_static)
 ADD_EXECUTABLE(cstrs_self_adaptive_island cstrs_self_adaptive_island.cpp)
 TARGET_LINK_LIBRARIES(cstrs_self_adaptive_island ${MANDATORY_LIBRARIES} pagmo_static)
 
+ADD_EXECUTABLE(cstrs_immune_system cstrs_immune_system.cpp)
+TARGET_LINK_LIBRARIES(cstrs_immune_system ${MANDATORY_LIBRARIES} pagmo_static)
+
