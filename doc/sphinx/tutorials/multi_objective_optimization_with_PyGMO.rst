@@ -11,5 +11,4 @@ Multi Objective Optimization with PyGMO
    decomposition 
    pade_a_moea_d_algorithm
    spea_ii_nsga_ii_and_ns_pso
-   hypervolume_indicator
-   hypervolume_algorithms
+

@@ -1,7 +1,7 @@
-.. _hypervolume_algorithms:
+.. _using_hypervolumes_in_your_algorithm:
 
 ================================================================
-Using the hypervolume indicator in algorithms
+Using hypervolumes in your own algorithm
 ================================================================
 
 In this tutorial we will 
