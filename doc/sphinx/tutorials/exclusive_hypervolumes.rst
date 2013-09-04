@@ -1,7 +1,7 @@
-.. _hypervolume_indicator:
+.. _exclusive_hypervolumes:
 
 ================================================================
-The hypervolume indicator
+Exclusive Hypervolumes
 ================================================================
 
 In this tutorial we will 
