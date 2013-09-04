@@ -23,3 +23,10 @@ TARGET_LINK_LIBRARIES(constraints_handling ${MANDATORY_LIBRARIES} pagmo_static)
 
 ADD_EXECUTABLE(cstrs_co_evolution cstrs_co_evolution.cpp)
 TARGET_LINK_LIBRARIES(cstrs_co_evolution ${MANDATORY_LIBRARIES} pagmo_static)
+
+ADD_EXECUTABLE(cstrs_self_adaptive cstrs_self_adaptive.cpp)
+TARGET_LINK_LIBRARIES(cstrs_self_adaptive ${MANDATORY_LIBRARIES} pagmo_static)
+
+ADD_EXECUTABLE(cstrs_self_adaptive_island cstrs_self_adaptive_island.cpp)
+TARGET_LINK_LIBRARIES(cstrs_self_adaptive_island ${MANDATORY_LIBRARIES} pagmo_static)
+

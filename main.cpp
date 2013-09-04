@@ -34,39 +34,49 @@ using namespace pagmo;
 
 int main()
 {
-	//pagmo::problem::cec2006 prob_constrained(4);
-	//pagmo::problem::welded_beam prob_constrained;
-	//pagmo::problem::tens_comp_string prob_constrained;
-	pagmo::problem::pressure_vessel prob_constrained;
+	pagmo::problem::cec2006 prob_constrained(5);
+	
+	//pagmo::algorithm::monte_carlo algo(1); //only one generation for the algo!
+	//pagmo::algorithm::sga algo(1); //only one generation for the algo!
+	pagmo::algorithm::sga_gray algo(1,0.9,0.003, 1,
+									algorithm::sga_gray::mutation::UNIFORM,
+									algorithm::sga_gray::selection::ROULETTE,
+									algorithm::sga_gray::crossover::SINGLE_POINT); //only one generation for the algo!
+	//pagmo::algorithm::cmaes algo(1); //only one generation for the algo!
+	//pagmo::algorithm::de algo(1); //only one generation for the algo!
+	//pagmo::algorithm::pso algo(1); //only one generation for the algo!
+    pagmo::algorithm::cstrs_self_adaptive algo_constrained(algo, 5000);
 
-	pagmo::algorithm::pso algo(25);
-	pagmo::algorithm::pso algo_2(1);
+	std::cout << algo_constrained;
 
-	pagmo::algorithm::cstrs_co_evolution algo_constrained(algo, algo_2, 30, 20,pagmo::algorithm::cstrs_co_evolution::SIMPLE, 1., 999.);
-	algo_constrained.reset_rngs(100);
-
-	for (size_t i=0; i<1; ++i) {
-		pagmo::population pop(prob_constrained,60);
-		pagmo::population pop_copy = pop;
+	for (size_t i=0; i<20; ++i) {
+		pagmo::population pop(prob_constrained,70);
 		algo_constrained.evolve(pop);
-		std::cout<<"CHAMPION1"<<std::endl;
 		std::cout << pop.champion();
-		std::cout<<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<<std::endl;
-		algo_constrained.evolve(pop_copy);
-		std::cout<<"CHAMPION2"<<std::endl;
-		std::cout << pop_copy.champion();
 	}
 
 	std::cout << algo_constrained << std::endl;
 	std::cout << prob_constrained << std::endl;
 
-	std::cin.get();
+//	// test sga_gray
+//	pagmo::problem::branin prob;
+//	pagmo::algorithm::sga_gray algo(1000,0.9,0.003, 1,
+//									algorithm::sga_gray::mutation::UNIFORM,
+//									algorithm::sga_gray::selection::ROULETTE,
+//									algorithm::sga_gray::crossover::SINGLE_POINT);
+
+//	pagmo::population pop(prob,70);
+//	algo.evolve(pop);
+//	std::cout << pop.champion();
+
+
+
+
 //	pagmo::island isl = island(algo_constrained, prob_constrained, 70);
 
 //	for (size_t i=0; i<20; ++i){
 //		isl.evolve(1);
 //		std::cout << isl.get_population().champion();
 //	}
-
 	return 0;
 }

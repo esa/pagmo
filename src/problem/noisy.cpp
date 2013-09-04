@@ -59,8 +59,8 @@ noisy::noisy(const base & p, unsigned int trials, const double param_first, cons
 		 p.get_c_tol(), seed),
 	m_original_problem(p.clone()),
 	m_trials(trials),
-	m_normal_dist(param_first, param_second),
-	m_uniform_dist(param_first, param_second),
+	m_normal_dist(0.0,1.0),
+	m_uniform_dist(0.0,1.0),
 	m_decision_vector_hash(),
 	m_param_first(param_first),
 	m_param_second(param_second),
@@ -83,8 +83,8 @@ noisy::noisy(const noisy &prob):
 		 prob.m_seed),
 	m_original_problem(prob.m_original_problem->clone()),
 	m_trials(prob.m_trials),
-	m_normal_dist(prob.m_normal_dist),
-	m_uniform_dist(prob.m_param_first, prob.m_param_second),
+	m_normal_dist(0.0,1.0),
+	m_uniform_dist(0.0,1.0),
 	m_decision_vector_hash(),
 	m_param_first(prob.m_param_first),
 	m_param_second(prob.m_param_second),
@@ -108,14 +108,11 @@ base_ptr noisy::clone() const
  */ 
 void noisy::set_noise_param(double param_first, double param_second)
 {
-	if(m_noise_type == NORMAL){
-		boost::random::normal_distribution<double>::param_type params(param_first, param_second);
-		m_normal_dist.param(params);
+	if(m_noise_type == UNIFORM && param_first > param_second){
+		pagmo_throw(value_error, "Bounds specified for the uniform noise are not valid.");
 	}
-	else if(m_noise_type == UNIFORM){
-		boost::random::uniform_real_distribution<double>::param_type params(param_first, param_second);
-		m_uniform_dist.param(params);
-	}
+	m_param_first = param_first;
+	m_param_second = param_second;
 }
 
 /**
@@ -181,10 +178,10 @@ void noisy::inject_noise_f(fitness_vector& f) const
 {
 	for(f_size_type i = 0; i < f.size(); i++){
 		if(m_noise_type == NORMAL){
-			f[i] += m_normal_dist(m_drng);
+			f[i] += m_normal_dist(m_drng)*m_param_second+m_param_first;
 		}
 		else if(m_noise_type == UNIFORM){
-			f[i] += m_uniform_dist(m_drng);
+			f[i] += m_uniform_dist(m_drng)*(m_param_second-m_param_first)+m_param_first;
 		}
 	}
 }
@@ -194,10 +191,10 @@ void noisy::inject_noise_c(constraint_vector& c) const
 {
 	for(c_size_type i = 0; i < c.size(); i++){
 		if(m_noise_type == NORMAL){
-			c[i] += m_normal_dist(m_drng);
+			c[i] += m_normal_dist(m_drng)*m_param_second+m_param_first;
 		}
 		else if(m_noise_type == UNIFORM){
-			c[i] += m_uniform_dist(m_drng);
+			c[i] += m_uniform_dist(m_drng)*(m_param_second-m_param_first)+m_param_first;
 		}
 	}
 }

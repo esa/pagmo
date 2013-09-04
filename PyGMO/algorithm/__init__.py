@@ -13,6 +13,10 @@ _algorithm.sga.crossover = _algorithm._crossover_type
 _algorithm.sga.selection = _algorithm._selection_type
 _algorithm.sga.mutation = _algorithm._mutation_type
 
+_algorithm.sga_gray.crossover = _algorithm._crossover_type
+_algorithm.sga_gray.selection = _algorithm._selection_type
+_algorithm.sga_gray.mutation = _algorithm._mutation_type
+
 #Creating the list of algorithms
 def _get_algorithm_list():
 	import _algorithm as algorithm
@@ -337,6 +341,33 @@ def _vega_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUS
 	self._orig_init(*arg_list)
 vega._orig_init = vega.__init__
 vega.__init__ = _vega_ctor
+
+def _sga_gray_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.UNIFORM, selection=sga.selection.ROULETTE, crossover=sga.crossover.SINGLE_POINT):
+	"""
+	Constructs a Simple Genetic Algorithm with gray binary encoding (generational)
+	
+	USAGE: algorithm.sga+gray(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.UNIFORM, selection=sga.selection.ROULETTE, crossover=sga.crossover.SINGLE_POINT)
+  
+	* gen: Number of generations to evolve.
+	* cr: crossover factor in [0,1]
+	* m: mutation probability (of each encoded bit) [0,1]
+	* elitism: number of generation after which the best is reinserted
+	* mut: mutation type (one of [UNIFORM])
+	* sel: selection strategy (one of [ROULETTE, BEST20])
+	* cro: crossover strategy (one of [SINGLE_POINT])
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(m)
+	arg_list.append(elitism)
+	arg_list.append(mutation)
+	arg_list.append(selection)
+	arg_list.append(crossover)	
+	self._orig_init(*arg_list)
+sga_gray._orig_init = sga_gray.__init__
+sga_gray.__init__ = _sga_gray_ctor
 
 def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	"""
@@ -673,6 +704,27 @@ def _monte_carlo_ctor(self, iter = 10000):
 	self._orig_init(*arg_list)
 monte_carlo._orig_init = monte_carlo.__init__
 monte_carlo.__init__ = _monte_carlo_ctor
+
+def _cstrs_self_adaptive_ctor(self, algorithm = _algorithm.jde(), max_iter = 100):
+	"""
+	Constructs a Self-Adaptive Fitness constraints handling Meta Algorithm.
+
+	The key idea of this constraint handling technique is to represent the
+	constraint violation by a single infeasibility measure, and to adapt
+	dynamically the penalization of infeasible solutions.
+	
+	USAGE: algorithm.self_adaptive(algorithm = algorithm.jde(),max_iter  = 100);
+
+	* algorithm: original optimizer
+	* max_iter: stop-criteria (number of iterations)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(algorithm)
+	arg_list.append(max_iter)
+	self._orig_init(*arg_list)
+cstrs_self_adaptive._orig_init = cstrs_self_adaptive.__init__
+cstrs_self_adaptive.__init__ = _cstrs_self_adaptive_ctor
 
 #NLOPT algorithms (only if PyGMO has been compiled woth nlopt option activated)
 if "nlopt" in str(_get_algorithm_list()):

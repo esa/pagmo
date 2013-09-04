@@ -135,6 +135,20 @@ inline class_<algorithm::cstrs_co_evolution,bases<algorithm::base> > algorithm_w
 	return retval;
 }
 
+template <>
+inline class_<algorithm::cstrs_self_adaptive,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
+{
+    class_<algorithm::cstrs_self_adaptive,bases<algorithm::base> > retval(name,descr,init<const algorithm::cstrs_self_adaptive &>());
+	retval.def(init<>());
+    retval.def("__copy__", &Py_copy_from_ctor<algorithm::cstrs_self_adaptive>);
+    retval.def("__deepcopy__", &Py_deepcopy_from_ctor<algorithm::cstrs_self_adaptive>);
+	retval.def("evolve", &evolve_copy);
+    retval.def_pickle(meta_algorithm_pickle_suite<algorithm::cstrs_self_adaptive>());
+    retval.def("cpp_loads", &py_cpp_loads<algorithm::cstrs_self_adaptive>);
+    retval.def("cpp_dumps", &py_cpp_dumps<algorithm::cstrs_self_adaptive>);
+	return retval;
+}
+
 BOOST_PYTHON_MODULE(_algorithm) {
 	common_module_init();
 
@@ -176,6 +190,16 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.value("SIMPLE", algorithm::cstrs_co_evolution::SIMPLE)
 		.value("SPLIT_NEQ_EQ", algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ)
 		.value("SPLIT_CONSTRAINTS", algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS);		
+
+	enum_<algorithm::sga_gray::mutation::type>("_mutation_type")
+		.value("GAUSSIAN", algorithm::sga_gray::mutation::UNIFORM);
+	
+	enum_<algorithm::sga_gray::crossover::type>("_crossover_type")
+		.value("EXPONENTIAL", algorithm::sga_gray::crossover::SINGLE_POINT);
+		
+	enum_<algorithm::sga_gray::selection::type>("_selection_type")
+		.value("BEST20", algorithm::sga_gray::selection::BEST20)
+		.value("ROULETTE", algorithm::sga_gray::selection::ROULETTE);
 
 	// Expose algorithms.
 
@@ -234,6 +258,11 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<optional<const algorithm::base &,const algorithm::base &,int,int,algorithm::cstrs_co_evolution::method_type,double,double> >())
 		.add_property("algorithm",&algorithm::cstrs_co_evolution::get_algorithm,&algorithm::cstrs_co_evolution::set_algorithm);
 
+	// Self-Adaptive meta-algorithm.
+    algorithm_wrapper<algorithm::cstrs_self_adaptive>("cstrs_self_adaptive","Self adaptive constraints handling meta-algorithm.")
+		.def(init<optional<const algorithm::base &, const int> >())
+        .add_property("algorithm",&algorithm::cstrs_self_adaptive::get_algorithm,&algorithm::cstrs_self_adaptive::set_algorithm);
+
 	// Particle Swarm Optimization (Steady state)
 	algorithm_wrapper<algorithm::pso>("pso", "Particle Swarm Optimization (steady-state)")
 		.def(init<optional<int,double, double, double, double, int, int, int> >());
@@ -249,6 +278,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// VEGA Algorithm.
 	algorithm_wrapper<algorithm::vega>("vega", "Vector evaluated genetic algorithm")
 		.def(init<int, optional<const double &, const double &, int, algorithm::vega::mutation::type, double, algorithm::vega::crossover::type> >());
+
+	// Simple Genetic Algorithm with binary gray encoding.
+	algorithm_wrapper<algorithm::sga_gray>("sga_gray", "A simple genetic algorithm with gray binary encoding (generational)")
+		.def(init<int, optional<const double &, const double &, int, algorithm::sga_gray::mutation::type, algorithm::sga_gray::selection::type, algorithm::sga_gray::crossover::type> >());
 	
 	// (N+1)-EA - Simple Evolutionary Algorithm
 	algorithm_wrapper<algorithm::sea>("sea", "(N+1)-EA - A Simple Evolutionary Algorithm")

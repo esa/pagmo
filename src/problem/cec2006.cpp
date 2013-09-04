@@ -108,7 +108,7 @@ cec2006::cec2006(int fun_id):base(m_problems_dimension[__check__(fun_id)-1],0,1,
     case 5:
     {
         const double lb[] = {0.,0.,-0.55,-0.55};
-        const double ub[] = {1.,1.,1.,1.};
+		const double ub[] = {1200.,1200.,0.55,0.55};
         set_bounds(lb,ub);
         break;
     }

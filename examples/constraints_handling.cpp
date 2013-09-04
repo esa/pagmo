@@ -114,6 +114,9 @@ problem::base_ptr get_constrained_prob(problem::base_ptr prob, int i) {
 
 algorithm::base_ptr get_constrained_algo(algorithm::base_ptr algo, int i) {
 	switch(i) {
+//	case(3):
+//		return algorithm::self_adaptive(*algo).clone();
+//		break;
 	default:
 		return algo;
 		break;
@@ -136,6 +139,9 @@ std::string get_constrained_name(int i) {
 		break;
 	case(4):
 		return "con2mo_obj_eqvio_ineqvio";
+		break;
+	case(5):
+		return "Self adaptive";
 		break;
 	default:
 		return "No_constraint_technique";

@@ -79,6 +79,7 @@
 #include "problem/welded_beam.h"
 #include "problem/death_penalty.h"
 #include "problem/cstrs_co_evolution.h"
+#include "problem/cstrs_self_adaptive.h"
 #include "problem/shifted.h"
 #include "problem/rotated.h"
 #include "problem/normalized.h"

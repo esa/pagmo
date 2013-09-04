@@ -177,6 +177,11 @@ int main()
 	probs.push_back(problem::robust(zdt1_before_transform1, 0.1, 123).clone());
 	probs_new.push_back(problem::robust(zdt1_before_transform1, 1.23, 456).clone());
 
+	//----- Test constraints handling meta-problems -----//
+	problem::cec2006 cec2006_before_cstrs_handling(7);
+    probs.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
+    probs_new.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
+
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	probs.push_back(problem::cassini_1(2).clone());
 	probs_new.push_back(problem::cassini_1().clone());

@@ -20,13 +20,15 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga_gray.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/monte_carlo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_co_evolution.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/algorithm/vega.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/vega.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_self_adaptive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pade.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
@@ -89,6 +91,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tens_comp_string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cstrs_co_evolution.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/death_penalty.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cstrs_self_adaptive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp
