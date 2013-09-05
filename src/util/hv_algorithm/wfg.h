@@ -40,6 +40,13 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 /**
  * This is the class containing the implementation of the WFG algorithm for the computation of hypervolume indicator.
  *
+ * - Computation of hypervolume indicator relies on the the original WFG algorithm as it was described by the Walking Fish Group researchers.
+ *
+ * - Computation of the extreme contributors is performed using a slightly modified version of WFG algorithm.
+ * It differs from the IWFG algorithm (referenced below), as we do not use the priority-queueing mechanism (as it was proposed in IWFG), but compute every exclusive contribution instead.
+ * This may suggest that the algorithm for the extreme contributor itself reduces to the 'naive' approach. It is not the case, as we utilize the benefits of the 'limitset', before we begin the recursion.
+ * This simplifies the sub problems for each exclusive computation right away.
+ *
  * @see "While, Lyndon, Lucas Bradstreet, and Luigi Barone. "A fast way of calculating exact hypervolumes." Evolutionary Computation, IEEE Transactions on 16.1 (2012): 86-95."
  * @see "Lyndon While and Lucas Bradstreet. Applying the WFG Algorithm To Calculate Incremental Hypervolumes. 2012 IEEE Congress on Evolutionary Computation. CEC 2012, pages 489-496. IEEE, June 2012."
  *
@@ -55,19 +62,29 @@ public:
 	std::string get_name() const;
 
 private:
-	void limitset(double**, const unsigned int, const unsigned int, const unsigned int) const;
-	double exclusive_hv(double**, const unsigned int, const unsigned int, const unsigned int) const;
-	double compute_hv(double**, const unsigned int, const unsigned int) const;
+	void limitset(const unsigned int, const unsigned int, const unsigned int) const;
+	double exclusive_hv(const unsigned int, const unsigned int) const;
+	double compute_hv(const unsigned int) const;
 
-	bool cmp_func(double* a, double* b) const;
+	bool cmp_points(double* a, double* b) const;
+
+	unsigned int extreme_contributor(std::vector<fitness_vector> &, const fitness_vector &, bool (*)(double, double)) const;
+
+	void allocate_wfg_members(std::vector<fitness_vector> &, const fitness_vector &) const;
+	void free_wfg_members() const;
 
 	/**
-	 * 'compute' method variables section.
+	 * 'compute' and 'extreme_contributor' method variables section.
 	 *
 	 * Variables below (especially the pointers m_frames, m_frames_size and m_refpoint) are initialized
-	 * at the beginning of the 'compute' method, and freed afterwards.
-	 * The state of the variables is irrelevant outside the scope of the compute method.
+	 * at the beginning of the 'compute' and 'extreme_contributor' methods, and freed afterwards.
+	 * The state of the variables is irrelevant outside the scope of the these methods.
 	 */
+
+	// Array of exclusive contributions.
+	mutable double* m_contributions;
+
+	// Current slice depth
 	mutable unsigned int m_current_slice;
 
 	// Array of point sets for each recursive level.

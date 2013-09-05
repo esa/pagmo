@@ -34,7 +34,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 /**
  * Comparison function for WFG. Can't be static in order to have access to member variable m_current_slice.
  */
-bool wfg::cmp_func(double* a, double* b) const
+bool wfg::cmp_points(double* a, double* b) const
 {
 	for(int i = m_current_slice - 1; i >= 0 ; --i){
 		if (a[i] > b[i]) {
@@ -65,6 +65,61 @@ wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimensi
  */
 double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
+	allocate_wfg_members(points, r_point);
+	return compute_hv(1);
+	free_wfg_members();
+}
+
+/// Extreme contributor method
+/**
+ * Uses a slightly modified version of the original WFG algorithm, to get the exclusive contribution of every point in the set.
+ */
+unsigned int wfg::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) const
+{
+	// Single point is always the extreme contributor
+	if (points.size() == 1) {
+		return 0;
+	}
+
+	// Allocate the same members as for 'compute' method
+	allocate_wfg_members(points, r_point);
+
+	// Allocate the memory for contributions
+	m_contributions = new double[m_max_points];
+
+	// Prepare the memory for first front
+	double** fr = new double*[m_max_points];
+	for(unsigned int i = 0 ; i < m_max_points ; ++i) {
+		fr[i]=new double[m_current_slice];
+	}
+	m_frames[m_n_frames] = fr;
+	m_frames_size[m_n_frames] = 0;
+	++m_n_frames;
+
+	for(unsigned int p_idx = 0 ; p_idx < m_max_points ; ++p_idx) {
+		limitset(0, p_idx, 1);
+		m_contributions[p_idx] = exclusive_hv(p_idx, 1);
+	}
+
+	unsigned int extr_idx = 0;
+	double extr_v = m_contributions[extr_idx];
+	for(unsigned int p_idx = 1 ; p_idx < m_max_points; ++p_idx){
+		if (cmp_func(m_contributions[p_idx], extr_v)) {
+			extr_idx = p_idx;
+			extr_v = m_contributions[p_idx];
+		}
+	}
+
+	// Free the contributions and the remaining WFG members
+	delete m_contributions;
+	free_wfg_members();
+
+	return extr_idx;
+}
+
+/// Allocate the memory for the 'compute' method
+void wfg::allocate_wfg_members(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
 	m_max_points = points.size();
 	m_max_dim = r_point.size();
 
@@ -92,9 +147,11 @@ double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 
 	// Variable holding the current "depth" of dimension slicing. We progress by slicing dimensions from the end.
 	m_current_slice = m_max_dim;
+}
 
-	double hv = compute_hv(m_frames[0], m_frames_size[0], 1);
-
+/// Free the previously allocated memory
+void wfg::free_wfg_members() const
+{
 	// Free the memory.
 	delete[] m_refpoint;
 
@@ -106,19 +163,23 @@ double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 	}
 	delete[] m_frames;
 	delete[] m_frames_size;
-
-	return hv;
 }
 
 /// Limit the set of points to point at p_idx
-void wfg::limitset(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level) const
+void wfg::limitset(const unsigned int begin_idx, const unsigned int p_idx, const unsigned int rec_level) const
 {
+	double **points = m_frames[rec_level - 1];
+	unsigned int n_points = m_frames_size[rec_level - 1];
+
 	int no_points = 0;
 
 	double* p = points[p_idx];
 	double** frame = m_frames[rec_level];
 
-	for(unsigned int idx = p_idx + 1; idx < n_points; ++idx) {
+	for(unsigned int idx = begin_idx; idx < n_points; ++idx) {
+		if (idx == p_idx) {
+			continue;
+		}
 
 		for(fitness_vector::size_type f_idx = 0; f_idx < m_current_slice; ++f_idx) {
 			frame[no_points][f_idx] = fmax(points[idx][f_idx], p[f_idx]);
@@ -166,8 +227,11 @@ void wfg::limitset(double** points, const unsigned int n_points, const unsigned 
 }
 
 /// Compute the hypervolume recursively
-double wfg::compute_hv(double** points, const unsigned int n_points, const unsigned int rec_level) const
+double wfg::compute_hv(const unsigned int rec_level) const
 {
+	double **points = m_frames[rec_level - 1];
+	unsigned int n_points = m_frames_size[rec_level - 1];
+
 	// Simple inclusion-exclusion for one and two points
 	if (n_points == 1) {
 		return base::volume_between(points[0], m_refpoint, m_current_slice);
@@ -203,23 +267,14 @@ double wfg::compute_hv(double** points, const unsigned int n_points, const unsig
 		}
 	} else {
 		// Otherwise, sort the points in preparation for the next recursive step
-		// Bind the object under "this" pointer to the cmp_func method so it can be used as a valid comparator function for std::sort
-		// We need that in order for the cmp_func to have acces to the m_current_slice member variable.
-		std::sort(points, points + n_points, boost::bind(&wfg::cmp_func, this, _1, _2));
+		// Bind the object under "this" pointer to the cmp_points method so it can be used as a valid comparator function for std::sort
+		// We need that in order for the cmp_points to have acces to the m_current_slice member variable.
+		std::sort(points, points + n_points, boost::bind(&wfg::cmp_points, this, _1, _2));
 	}
 
 	double H = 0.0;
 	--m_current_slice;
-	for(unsigned int i = 0 ; i < n_points ; ++i) {
-		H += fabs((points[i][m_current_slice] - m_refpoint[m_current_slice]) * exclusive_hv(points, n_points, i, rec_level));
-	}
-	++m_current_slice;
-	return H;
-}
 
-/// Compute the exclusive hypervolume of point at p_idx
-double wfg::exclusive_hv(double** points, const unsigned int n_points, const unsigned int p_idx, const unsigned int rec_level) const
-{
 	if(rec_level >= m_n_frames) {
 		double** fr = new double*[m_max_points];
 		for(unsigned int i = 0 ; i < m_max_points ; ++i) {
@@ -230,14 +285,25 @@ double wfg::exclusive_hv(double** points, const unsigned int n_points, const uns
 		++m_n_frames;
 	}
 
-	limitset(points, n_points, p_idx, rec_level);
+	for(unsigned int p_idx = 0 ; p_idx < n_points ; ++p_idx) {
+		limitset(p_idx + 1, p_idx, rec_level);
 
-	double H = base::volume_between(points[p_idx], m_refpoint, m_current_slice);
+		H += fabs((points[p_idx][m_current_slice] - m_refpoint[m_current_slice]) * exclusive_hv(p_idx, rec_level));
+	}
+	++m_current_slice;
+	return H;
+}
+
+/// Compute the exclusive hypervolume of point at p_idx
+double wfg::exclusive_hv(const unsigned int p_idx, const unsigned int rec_level) const
+{
+	//double H = base::volume_between(points[p_idx], m_refpoint, m_current_slice);
+	double H = base::volume_between(m_frames[rec_level - 1][p_idx], m_refpoint, m_current_slice);
 
 	if (m_frames_size[rec_level] == 1) {
 		H -= base::volume_between(m_frames[rec_level][0], m_refpoint, m_current_slice);
 	} else if (m_frames_size[rec_level] > 1) {
-		H -= compute_hv(m_frames[rec_level], m_frames_size[rec_level], rec_level + 1);
+		H -= compute_hv(rec_level + 1);
 	}
 
 	return H;
