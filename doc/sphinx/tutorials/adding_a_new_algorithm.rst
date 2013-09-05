@@ -1,7 +1,7 @@
-.. _tutorial3:
+.. _adding_a_new_algorithm:
 
 ================================================================
-Tutorial 3: Coding your own algorithm in Python
+Adding a new algorithm
 ================================================================
 
 In this tutorial we will learn how to code a simple optimization algorithm.
