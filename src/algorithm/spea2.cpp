@@ -119,19 +119,34 @@ void spea2::evolve(population &pop) const
 		new_pop.push_back(pop.get_individual(i).cur_x);
 	}
 
+	//Indices of individuals in new_pop which are in the archive
 	std::vector<population::size_type> archive_indices(archive_size);
+
+	//Indices of individuals in new_pop which are in the next population
 	std::vector<population::size_type> pop_indices(NP);
+
+	std::vector<double> F(NP+archive_size,0);// individuals' fitness (according to raw fitness and density)
 
 	for(int g = 0; g < m_gen; ++g) {
 		std::cout << "gen: " << g << std::endl;
 
-		std::vector<double> F(NP+archive_size,0);// individuals' fitness (according to raw fitness and density)
 		compute_spea2_fitness(F, sqrt(NP + archive_size), new_pop);
 
 		std::vector<population::size_type> ordered_by_fitness = pagmo::util::neighbourhood::order(F);
 
 		unsigned int n_non_dominated;
 		for(n_non_dominated = 0; n_non_dominated < NP+archive_size && F[ordered_by_fitness[n_non_dominated]] < 1; ++n_non_dominated);
+
+		//std::cout << "non dominated count: " << n_non_dominated << std::endl;
+		//std::cout << "ordered_by_fitness " << ordered_by_fitness << std::endl;
+		//std::cout << "F: " << F << std::endl;
+
+		//std::cout << "F ordered: " << std::endl;
+		/*for(int i =0; i < ordered_by_fitness.size(); ++i) {
+			std::cout << F[ordered_by_fitness[i]] << std::endl;
+		}*/
+
+		//std::cout << "non dominated according to pareto front " << new_pop.compute_pareto_fronts()[0].size() << std::endl;
 
 		if(n_non_dominated > archive_size) { //truncate according to delta
 
@@ -152,12 +167,9 @@ void spea2::evolve(population &pop) const
 		}
 
 		pop_indices = complement(archive_indices, NP+archive_size);
-
-		//Update the new archive
-		/*archive.clear(); //find a way to avoid to recreate the population
-		for(unsigned int i=0; i<archive_size; ++i) {
-			archive.push_back(new_pop.get_individual(bestIndices_archive[i]).cur_x);
-		}*/
+		//std::cout << "archive indices: " << archive_indices << std::endl;
+		//std::cout << "population indices: " << pop_indices << std::endl;
+		//std::cout << new_pop << std::endl;
 
 		std::vector<population::size_type> shuffle1(archive_size), shuffle2(archive_size);
 		for (pagmo::population::size_type i=0; i< archive_size; i++) {
@@ -167,13 +179,13 @@ void spea2::evolve(population &pop) const
 		boost::uniform_int<int> pop_idx(0,archive_size-1);
 		boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
 
-		population::size_type parent1_idx, parent2_idx;
-		decision_vector child1(D), child2(D);
-
 		//We create some pseudo-random permutation of the poulation indexes
 		std::random_shuffle(shuffle1.begin(),shuffle1.end(), p_idx);
 		std::random_shuffle(shuffle2.begin(),shuffle2.end(), p_idx);
 
+
+		population::size_type parent1_idx, parent2_idx;
+		decision_vector child1(D), child2(D);
 		int j = 0;
 		//We then loop thorugh all individuals with increment 4 to select two pairs of parents that will
 		//each create 2 new offspring
@@ -200,8 +212,10 @@ void spea2::evolve(population &pop) const
 			new_pop.set_x(pop_indices[j++], child2);
 		}
 
+		//std::cout << "POPULATION AFTER VARIATION: " << std::endl << new_pop << std::endl;
 	}
 
+	// End of the evolution. Clear the orginal population and fill it from the right elements from new_pop
 	pop.clear();
 	for(unsigned int i=0; i<NP; ++i) {
 		pop.push_back(new_pop.get_individual(pop_indices[i]).cur_x);
@@ -239,6 +253,13 @@ std::vector<population::size_type> spea2::order_by_delta(const std::vector<std::
 
 	std::sort(rv.begin(), rv.end(), distance_sorter(neighbours, fit));
 
+	/*for(unsigned int i=0; i<neighbours.size(); ++i) {
+		for(unsigned int j=0; j < neighbours[i].size(); ++j) {
+			std::cout << pagmo::util::neighbourhood::euclidian::distance(fit[i], fit[neighbours[i][j]]) << " ";
+		}
+		std::cout << std::endl;
+	}*/
+
 	return rv;
 }
 
@@ -246,6 +267,9 @@ void spea2::compute_spea2_fitness(std::vector<double> &F,
 			int K,
 			const pagmo::population &pop) const
 {
+
+	pop.update_pareto_information();
+
 	std::vector<std::vector<population::size_type> > domination_list;
 	const population::size_type NP = pop.size();
 	std::vector<int> S(NP, 0);
@@ -257,13 +281,17 @@ void spea2::compute_spea2_fitness(std::vector<double> &F,
 	std::vector<std::vector<pagmo::population::size_type> > neighbours;
 	pagmo::util::neighbourhood::euclidian::compute_neighbours(neighbours, fit);
 
+	//std::cout <<"domination count:" << std::endl;
 	for(unsigned i=0; i<NP; ++i) {
 		domination_list.push_back(pop.get_domination_list(i));
+		//std::cout << pop.get_domination_list(i) << std::endl;
 	}
 
 	for(unsigned int i=0; i<NP; ++i) {
 		S[i] = domination_list[i].size();
 	}
+	//std::cout << "S: " << S << std::endl;
+
 
 	std::fill(F.begin(), F.end(), 0);
 
@@ -274,7 +302,7 @@ void spea2::compute_spea2_fitness(std::vector<double> &F,
 	}
 
 	for(unsigned int i=0; i<NP; ++i) {
-		F[i] = S[i] +
+		F[i] +=
 				(1.0 / (pagmo::util::neighbourhood::euclidian::distance(fit[i], fit[neighbours[i][K]]) + 2));
 	}
 }
