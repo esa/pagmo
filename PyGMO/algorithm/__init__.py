@@ -226,7 +226,56 @@ def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.
 pso._orig_init = pso.__init__
 pso.__init__ = _pso_ctor
 
-def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, nr_eval_per_x = 1, use_racing = False, max_fevals = 10000000):
+def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
+	"""
+	Constructs a Particle Swarm Optimization (generational). The position update is applied
+	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
+	
+	USAGE: algorithm.pso_gen(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4])
+
+	* gen: number of generations
+	* omega: constriction factor (or particle inertia weight) in [0,1]
+	* eta1: Cognitive component in [0,4]
+	* eta2: Social component in [0,4]
+	* vcoeff: Maximum velocity coefficient (w.r.t. the box-bounds width) in [0,1]
+	* variant: algoritmic variant to use (one of  [1 .. 6])
+		1. PSO canonical (with inertia weight)
+		2. PSO canonical (with inertia weight
+			and equal random weights of social and cognitive components)
+		3. PSO variant (with inertia weight
+			same random number for all components.)
+		4. PSO variant (with inertia weight
+			same random number for all components
+			and equal weights of social and cognitive components)
+		5. PSO canonical (with constriction factor)
+		6. Fully Informed Particle Swarm (FIPS)
+	* neighb_type: defines the particle neighbourhood (used for the social component)
+		1. gbest neighbourhood topology (fully connected)
+		2. lbest neighbourhood topology (ring)
+		3. Von-Neumann neighbourhood topology (square lattice)
+		4. Randomly-varying neighbourhood topology
+	* neighb_param: if the lbest topology is selected, it represents each particle's indegree
+		(also outdegree) in the swarm topology. Particles have neighbours up
+		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
+		The minimum outdegree is 1 (the particle always connects back to itself).
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(omega)
+	arg_list.append(eta1)
+	arg_list.append(eta2)
+	arg_list.append(vcoeff)
+	arg_list.append(variant)
+	arg_list.append(neighb_type)
+	arg_list.append(neighb_param)	
+	self._orig_init(*arg_list)
+pso_gen._orig_init = pso_gen.__init__
+pso_gen.__init__ = _pso_gen_ctor
+
+
+def _pso_gen_racing_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, nr_eval_per_x = 1, use_racing = False, max_fevals = 10000000):
 	"""
 	Constructs a Particle Swarm Optimization (generational). The position update is applied
 	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
@@ -277,8 +326,8 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 	if max_fevals > 0:
 		arg_list.append(max_fevals)
 	self._orig_init(*arg_list)
-pso_gen._orig_init = pso_gen.__init__
-pso_gen.__init__ = _pso_gen_ctor
+pso_gen_racing._orig_init = pso_gen_racing.__init__
+pso_gen_racing.__init__ = _pso_gen_racing_ctor
 
 
 

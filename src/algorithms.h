@@ -40,6 +40,7 @@
 #include "algorithm/null.h"
 #include "algorithm/pso.h"
 #include "algorithm/pso_generational.h"
+#include "algorithm/pso_generational_racing.h"
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
 #include "algorithm/nsga2.h"

@@ -27,6 +27,8 @@
 #include <iomanip>
 #include <limits>
 #include <string>
+#include <fstream>
+
 #include "../src/pagmo.h"
 
 using namespace pagmo;
@@ -59,11 +61,11 @@ double evolve_in_one_go(int n_isl, int pop_size, int nr_eval_per_x, int n_gen, b
 
 	if(use_racing){
 		std::cout << "---Using racing---" << std::endl;
-		algo = algorithm::pso_generational(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, nr_eval_per_x, true, max_fevals).clone();
+		algo = algorithm::pso_generational_racing(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, nr_eval_per_x, true, max_fevals).clone();
 	}
 	else{
 		std::cout << "---Not using racing---" << std::endl;
-		algo = algorithm::pso_generational(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, nr_eval_per_x, false, max_fevals).clone();
+		algo = algorithm::pso_generational(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4).clone();
 	}
 	algo->reset_rngs(seed);
 
@@ -122,21 +124,7 @@ double evolve_in_one_go(int n_isl, int pop_size, int nr_eval_per_x, int n_gen, b
 	return final_f;
 }
 
-// Evolve until max_fevals is hit, repeat for multiple times and average the
-// final fitness value
-double run_experiment_alternative(int n_isl, int pop_size, int nr_eval_per_x, int n_gen, bool use_racing, int seed=123)
-{
-	const int n_repeat_experiments = 10;
-	double avg_final_f = 0;
-	for(int i = 0; i < n_repeat_experiments; i++, seed+=123){
-		double final_f = evolve_in_one_go(n_isl, pop_size, nr_eval_per_x, n_gen, use_racing, seed);
-		avg_final_f += final_f / (double)n_repeat_experiments;
-	}	
-	std::cout << "Final averaged fitness of the champions over " << n_repeat_experiments << " independent runs = " << avg_final_f << std::endl;
-	return 0;
-}
-
-int run_experiment_original(int n_isl, int pop_size, int n_eval, int n_gen, bool use_racing, unsigned int seed = 123)
+double evolve_original(int n_isl, int pop_size, int n_eval_per_x, int n_gen, bool use_racing, unsigned int seed = 123)
 {
 	// Buffer
 	std::vector<double> buff;
@@ -150,15 +138,13 @@ int run_experiment_original(int n_isl, int pop_size, int n_eval, int n_gen, bool
 	int pso_neighb_param = 4;
 
 	// The implicit maximum evaluation budget based on the parameters
-	unsigned int max_fevals = gen_batch_size * pop_size * 2 * n_eval + pop_size * n_eval;
+	unsigned int max_fevals = gen_batch_size * pop_size * 2 * n_eval_per_x + pop_size * n_eval_per_x;
 
 	if(use_racing){
-		std::cout << "Using racing: " << std::endl;
-		algo_ptr = algorithm::pso_generational(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval, true, max_fevals).clone();
+		algo_ptr = algorithm::pso_generational_racing(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval_per_x, true, max_fevals).clone();
 	}
 	else{
-		std::cout << "Not using racing: " << std::endl;
-		algo_ptr = algorithm::pso_generational(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval, false, max_fevals).clone();
+		algo_ptr = algorithm::pso_generational(gen_batch_size*5, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param).clone();
 	}
 
 	algorithm::base &algo = *algo_ptr;
@@ -194,6 +180,7 @@ int run_experiment_original(int n_isl, int pop_size, int n_eval, int n_gen, bool
 	int window_width = 10;
 
 	//Evolution is here started on the archipelago
+	double mean = 0.0;
 	for (int i=0; i< n_gen; ++i){
 		int idx = archi_best_idx(archi);
 		if (!(i%100)) {
@@ -207,7 +194,6 @@ int run_experiment_original(int n_isl, int pop_size, int n_eval, int n_gen, bool
 		else {
 			 (buff[i%window_width] = best_f);
 		}
-		double mean = 0.0;
 		mean = std::accumulate(buff.begin(),buff.end(),mean);
 		mean /= (double)buff.size();
 		std::cout << "gen: "<< std::setw(12) << i << std::setw(12) <<
@@ -220,9 +206,28 @@ int run_experiment_original(int n_isl, int pop_size, int n_eval, int n_gen, bool
 	int idx = archi_best_idx(archi);
 	std::cout << "and the winner is ......" << "\n" << archi.get_island(idx)->get_population().champion().x << std::endl;
 
-	return 0;
+	return mean;
 }
 
+// Evolve until max_fevals is hit, repeat for multiple times and average the
+// final fitness value
+int repeat_experiment(int n_trials, int n_isl, int pop_size, int nr_eval_per_x, int n_gen, bool use_racing, int seed=123)
+{
+	double averaged_outcome = 0;
+	for(int i = 0; i < n_trials; i++, seed+=123){
+		//double outcome = evolve_in_one_go(n_isl, pop_size, nr_eval_per_x, n_gen, use_racing, seed);
+		double outcome = evolve_original(n_isl, pop_size, nr_eval_per_x, n_gen, use_racing, seed);
+		averaged_outcome += outcome / (double)n_trials;
+	}
+	if(use_racing){
+		std::cout << ":::PSO with racing:::" << std::endl;
+	}
+	else{
+		std::cout << ":::PSO without racing:::" << std::endl;
+	}
+	std::cout << "Results after repeating the experiments for " << n_trials << " independent trials: " << averaged_outcome << std::endl;
+	return 0;
+}
 
 // Usage:
 // To evolve using pso_gen with racing, invoke the program as follows:
@@ -238,6 +243,13 @@ int main(int argc, char* argv[])
 	bool use_racing = false;
 	// END OF EXPERIMENT SET-UP //
 
+	std::cout << "n_isl = " << n_isl << " ";
+	std::cout << "pop_size = " << pop_size << " ";
+	std::cout << "nr_eval_per_x = " << nr_eval_per_x << " ";
+	std::cout << "n_gen = " << n_gen << " ";
+	std::cout << "use_racing = " << use_racing << " ";
+	std::cout << std::endl;
+
 	if(argc > 1){
 		if(argv[1][0] == '1'){
 			use_racing = true;
@@ -246,8 +258,9 @@ int main(int argc, char* argv[])
 
 	unsigned int seed = 5;
 
-	run_experiment_original(n_isl, pop_size, nr_eval_per_x, n_gen, use_racing, seed);
+	//run_experiment_original(n_isl, pop_size, nr_eval_per_x, n_gen, use_racing, seed);
 	//run_experiment_alternative(n_isl, pop_size, nr_eval_per_x, n_gen, use_racing, seed);
+	repeat_experiment(10, n_isl, pop_size, nr_eval_per_x, n_gen, use_racing, seed);
 
 	return 0;
 }
