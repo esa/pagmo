@@ -323,8 +323,8 @@ void pso_generational_racing::evolve(population &pop) const
 
 	bool forced_terminate = false;
 
-	bool use_race_neighbourhood = false;
-	bool flush_cache_every_iter = false;
+	bool racing_opt__race_neighbourhood = true;
+	bool racing_opt__flush_cache = true;
 
 	/* --- Main PSO loop ---
 	 */
@@ -339,7 +339,7 @@ void pso_generational_racing::evolve(population &pop) const
 		}
 		*/
 	
-		if( flush_cache_every_iter ){
+		if( racing_opt__flush_cache ){
 			// Initialize a new list of internal seeds for use in racing
 			unsigned int cur_racing_seed = m_urng();
 			race_lbX.set_seed(cur_racing_seed);
@@ -354,7 +354,7 @@ void pso_generational_racing::evolve(population &pop) const
 			// function . not needed if m_variant == 6 (FIPS): all neighbours
 			// are considered, no need to identify the best one
 			if( m_neighb_type != 1 && m_variant != 6){
-				if( !use_race_neighbourhood ){
+				if( !racing_opt__race_neighbourhood ){
 					best_neighb = particle__get_best_neighbor( p, neighb, lbX, lbfit, prob );
 				}
 				else{
@@ -512,8 +512,8 @@ void pso_generational_racing::evolve(population &pop) const
 
 		// Change the ground seed of the race object so that a new list of
 		// internal seeds list will be generated. Also clear the cache.
-		// race_lbX.set_seed(m_urng());
-		// race_lbX_and_X.set_seed(m_urng());
+		//race_lbX.set_seed(m_urng());
+		//race_lbX_and_X.set_seed(m_urng());
 
 		racing__construct_race_environment(race_lbX_and_X, pop.problem(), lbX, X);
 		race_lbX_and_X.inherit_memory(race_lbX);
@@ -576,14 +576,15 @@ void pso_generational_racing::evolve(population &pop) const
 		// the memory to the next generation -- some new memory may come
 		// from the previous race between lbX and X. NOTE: This is only
 		// possible if the ground seed of the race has not changed
-		racing__construct_race_environment(race_lbX, pop.problem(), lbX, std::vector<decision_vector>());
-		race_lbX.inherit_memory(race_lbX_and_X);
+		//racing__construct_race_environment(race_lbX, pop.problem(), lbX, std::vector<decision_vector>());
+		//race_lbX.inherit_memory(race_lbX_and_X);
 
 		// update the best position observed so far by any particle in the swarm
 		// (only performed if swarm topology is gbest or random varying)
 		if( m_neighb_type == 1 ){
 			// Race to get the best in lbX
 			std::pair<population::size_type, unsigned int> res =
+				//racing__race_for_winner(race_lbX, -1, -1, swarm_size * m_nr_eval_per_x);
 				racing__race_for_winner(race_lbX, -1, -1, swarm_size * m_nr_eval_per_x);
 
 			// Set fitness to the averaged fitness from race

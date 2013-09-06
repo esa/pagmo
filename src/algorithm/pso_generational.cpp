@@ -330,8 +330,6 @@ void pso_generational::evolve(population &pop) const
 			}
 		}
 
-
-
 		// If the problem is a stochastic optimization chage the seed and re-evaluate taking care to update also best and local bests
 		try
 		{
