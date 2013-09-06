@@ -57,13 +57,13 @@ int main()
 	}
 	return 0;
     */
-    pagmo::problem::zdt1 prob(10);
-	pagmo::algorithm::nspso alg(100);
+    pagmo::problem::zdt2 prob(30);
+	pagmo::algorithm::nspso alg(100,0.4, 1.0, 2.0, 2.0,1.0, 0.5, 5, pagmo::algorithm::nspso::CROWDING_DISTANCE);
 
 	std::cout << alg << std::endl;
     std::cout << prob << std::endl;
 
-    pagmo::island isl = island(alg, prob, 100);
+    pagmo::island isl = island(alg, prob, 10);
 
     for (size_t i = 0; i<1; ++i){
         isl.evolve(1);
