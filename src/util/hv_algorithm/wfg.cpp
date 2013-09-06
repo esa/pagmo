@@ -70,22 +70,26 @@ double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 	free_wfg_members();
 }
 
-/// Extreme contributor method
+/// Contributions method
 /**
- * Uses a slightly modified version of the original WFG algorithm, to get the exclusive contribution of every point in the set.
+ * This method employs a slightly modified version of the original WFG algorithm to suit the computation of the exclusive contributions.
+ * It differs from the IWFG algorithm (referenced below), as we do not use the priority-queueing mechanism, but compute every exclusive contribution instead.
+ * This may suggest that the algorithm for the extreme contributor itself reduces to the 'naive' approach. It is not the case however,
+ * as we utilize the benefits of the 'limitset', before we begin the recursion.
+ * This simplifies the sub problems for each exclusive computation right away, which makes the whole algorithm much faster, and in many cases only slower than regular WFG algorithm by a constant factor.
+ *
+ * @see "Lyndon While and Lucas Bradstreet. Applying the WFG Algorithm To Calculate Incremental Hypervolumes. 2012 IEEE Congress on Evolutionary Computation. CEC 2012, pages 489-496. IEEE, June 2012."
+ *
+ * @param[in] points vector of points containing the D-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
  */
-unsigned int wfg::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) const
+std::vector<double> wfg::contributions(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
-	// Single point is always the extreme contributor
-	if (points.size() == 1) {
-		return 0;
-	}
+	std::vector<double> c;
+	c.reserve(points.size());
 
 	// Allocate the same members as for 'compute' method
 	allocate_wfg_members(points, r_point);
-
-	// Allocate the memory for contributions
-	m_contributions = new double[m_max_points];
 
 	// Prepare the memory for first front
 	double** fr = new double*[m_max_points];
@@ -98,23 +102,13 @@ unsigned int wfg::extreme_contributor(std::vector<fitness_vector> &points, const
 
 	for(unsigned int p_idx = 0 ; p_idx < m_max_points ; ++p_idx) {
 		limitset(0, p_idx, 1);
-		m_contributions[p_idx] = exclusive_hv(p_idx, 1);
-	}
-
-	unsigned int extr_idx = 0;
-	double extr_v = m_contributions[extr_idx];
-	for(unsigned int p_idx = 1 ; p_idx < m_max_points; ++p_idx){
-		if (cmp_func(m_contributions[p_idx], extr_v)) {
-			extr_idx = p_idx;
-			extr_v = m_contributions[p_idx];
-		}
+		c.push_back(exclusive_hv(p_idx, 1));
 	}
 
 	// Free the contributions and the remaining WFG members
-	delete m_contributions;
 	free_wfg_members();
 
-	return extr_idx;
+	return c;
 }
 
 /// Allocate the memory for the 'compute' method

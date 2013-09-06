@@ -124,33 +124,18 @@ bool hv3d::hycon3d_sort_cmp(const std::pair<fitness_vector, unsigned int> &a, co
 	return a.first[2] < b.first[2];
 }
 
-
-/// Extreme contributor method
-/**
- * This method elicits an "extreme" contributor (either min or max item) from a set of contributions computed by HyCon3D algorithm.
- */
-unsigned int hv3d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) const
-{
-	// Compute the contributions using HyCon3D algorithm.
-	const std::vector<double> contributions = hycon3d(points, r_point);
-
-	unsigned int extr_i = 0;
-	double extr_c = contributions[extr_i];
-	for(unsigned int i = 1 ; i < contributions.size() ; ++i) {
-		if (cmp_func(contributions[i], extr_c)) {
-			extr_i = i;
-			extr_c = contributions[i];
-		}
-	}
-
-	return extr_i;
-}
-
-/// HyCon3D algorithm
+/// Contributions method
 /*
+ * This method is the implementation of the HyCon3D algorithm.
  * This algorithm computes the exclusive contribution to the hypervolume by every point, using an efficient HyCon3D algorithm by Emmerich and Fonseca.
+ *
+ * @see "Computing hypervolume contribution in low dimensions: asymptotically optimal algorithm and complexity results", Michael T. M. Emmerich, Carlos M. Fonseca
+ *
+ * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
+ * @return vector of exclusive contributions by every point
  */
-std::vector<double> hv3d::hycon3d(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+std::vector<double> hv3d::contributions(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	std::vector<std::pair<fitness_vector, unsigned int> > point_pairs;
 	point_pairs.reserve(points.size());

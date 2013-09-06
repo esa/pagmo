@@ -64,6 +64,42 @@ double hv2d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 	return hypervolume;
 }
 
+/// Contributions method
+/**
+ * This method computes the exclusive hypervolume for each point in a set.
+ * It uses an efficient method to achieve that which runs in asymptotic time of O(n * log(n));
+ *
+ * @param[in] points vector of points containing the 2-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
+ */
+std::vector<double> hv2d::contributions(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	std::vector<double> c;
+	c.reserve(points.size());
+	// introduce a pair of <point, index> in order to return the correct original index
+	// otherwise, we would lose the information about the index after the sorting
+	std::vector<std::pair<fitness_vector, unsigned int> > points_cpy;
+	points_cpy.resize(points.size());
+	for (std::vector<std::pair<fitness_vector, unsigned int> >::size_type idx = 0; idx < points.size() ; ++idx) {
+		points_cpy[idx] = std::pair<fitness_vector, unsigned int>(points[idx], idx);
+	}
+
+	sort(points_cpy.begin(), points_cpy.end(), point_pairs_cmp);
+
+	c.push_back(fabs((points_cpy[0].first[1] - r_point[1]) * (points_cpy[0].first[0] - points_cpy[1].first[0])));
+
+	// compute points 2nd to (n-1)th
+	for(std::vector<fitness_vector>::size_type idx = 1; idx < points_cpy.size() - 1 ; ++idx) {
+		c.push_back(fabs((points_cpy[idx].first[1] - points_cpy[idx - 1].first[1]) * (points_cpy[idx].first[0] - points_cpy[idx+1].first[0])));
+	}
+	unsigned int last_idx = points_cpy.size() - 1;
+
+	// compute last point separately
+	c.push_back(fabs((points_cpy[last_idx].first[1] - points_cpy[last_idx - 1].first[1]) * (points_cpy[last_idx].first[0] - r_point[0])));
+
+	return c;
+}
+
 /// Comparison function for arrays of double.
 /**
  * Required by the hv2d::compute method for the sorting of arrays of double*.
@@ -117,48 +153,6 @@ double hv2d::compute(double** points , unsigned int n_points, double* r_point) c
 bool hv2d::point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &a, const std::pair<fitness_vector, unsigned int> &b)
 {
 	return a.first[1] > b.first[1];
-}
-
-/// Extreme contributor method
-/**
- * Returns the extreme contributor (least or greatest) for 2d case, depending on the provided comparison function 'cmp_func'
- */
-unsigned int hv2d::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, bool (*cmp_func)(double, double)) const
-{
-	if (points.size() == 1) {
-		return 0;
-	}
-	// introduce a pair of <point, index> in order to return the correct original index
-	// otherwise, we would lose the information about the index after the sorting
-	std::vector<std::pair<fitness_vector, unsigned int> > points_cpy;
-	points_cpy.resize(points.size());
-	for (std::vector<std::pair<fitness_vector, unsigned int> >::size_type idx = 0; idx < points.size() ; ++idx) {
-		points_cpy[idx] = std::pair<fitness_vector, unsigned int>(points[idx], idx);
-	}
-
-	sort(points_cpy.begin(), points_cpy.end(), point_pairs_cmp);
-
-	// compute first point separately
-	double extreme_contrib_idx = 0;
-	double extreme_hv = fabs((points_cpy[0].first[1] - r_point[1]) * (points_cpy[0].first[0] - points_cpy[1].first[0]));
-
-	// compute points 2nd to (m-1)th
-	for(std::vector<fitness_vector>::size_type idx = 1; idx < points_cpy.size() - 1 ; ++idx) {
-		double exclusive_hv = fabs((points_cpy[idx].first[1] - points_cpy[idx - 1].first[1]) * (points_cpy[idx].first[0] - points_cpy[idx+1].first[0]));
-		if (cmp_func(exclusive_hv, extreme_hv)) {
-			extreme_hv = exclusive_hv;
-			extreme_contrib_idx = idx;
-		}
-	}
-	unsigned int last_idx = points_cpy.size() - 1;
-
-	// compute last point separately
-	double last_exclusive_hv = fabs((points_cpy[last_idx].first[1] - points_cpy[last_idx - 1].first[1]) * (points_cpy[last_idx].first[0] - r_point[0]));
-	if (cmp_func(last_exclusive_hv, extreme_hv)) {
-		extreme_contrib_idx = last_idx;
-	}
-
-	return points_cpy[extreme_contrib_idx].second;
 }
 
 /// Clone method.

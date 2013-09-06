@@ -199,7 +199,6 @@ def _hypervolume_greatest_contributor(self, r = None, algorithm = None, *args, *
 	Type 'hv_algorithm?' for a list of available hypervolume algorithms.
 
 	USAGE:
-		hv.greatest_contributor()
 		hv.greatest_contributor(r=[5.0]*3)
 		hv.greatest_contributor(r=[5.0]*3, algorithm=hv_algorithm.hv3d())
 		* r - reference point used for computation
@@ -218,6 +217,31 @@ def _hypervolume_greatest_contributor(self, r = None, algorithm = None, *args, *
 
 hypervolume._original_greatest_contributor = hypervolume.greatest_contributor
 hypervolume.greatest_contributor = _hypervolume_greatest_contributor
+
+def _hypervolume_contributions(self, r = None, algorithm = None, *args, **kwargs):
+	"""
+	Find the contributions to the hypervolume by each point.
+	Type 'hv_algorithm?' for a list of available hypervolume algorithms.
+
+	USAGE:
+		hv.contributions(r=[5.0]*3)
+		hv.contributions(r=[5.0]*3, algorithm=hv_algorithm.hv3d())
+		* r - reference point used for computation
+		* algorithm (optional) - hypervolume algorithm used for the computation, uses the best performing algorithm for given dimension by default
+	"""
+
+	if len(args) > 0 or len(kwargs) > 0:
+		raise TypeError("Incorrect combination of args/kwargs, type 'hypervolume.contributions?' for usage")
+	r = HypervolumeValidation.handle_refpoint(self, r)
+	args = []
+	args.append(r)
+	if algorithm:
+		algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
+		args.append(algorithm)
+	return self._original_contributions(*args)
+
+hypervolume._original_contributions = hypervolume.contributions
+hypervolume.contributions = _hypervolume_contributions
 
 def _hypervolume_get_nadir_point(self, eps = 0.0):
 	"""

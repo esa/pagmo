@@ -51,11 +51,39 @@ typedef boost::shared_ptr<base> base_ptr;
 /// Base hypervolume class.
 /**
  * This class represents the abstract hypervolume algorithm used for computing
- * the hypervolume indicator (also known as Lebesgue measure, or S-metric).
+ * the hypervolume indicator (also known as Lebesgue measure, or S-metric), and other
+ * measures that can derive from it, e.g. exclusive contribution by given point
  *
- * Every hypervolume algorithm that extends this base class should implement the following methods:
- * - compute which takes a list of points and a reference point.
- * - verify_before_compute which raises an exception for special cases of misuse of given method (e.g. method working only for certain dimension sizes).
+ * The are few public methods available:
+ *
+ * - 'compute' - returns the total hypervolume of the set of points
+ * - 'exclusive' - returns the exclusive volume contributed by given point
+ * - 'least_contributor' - returns an index of the point contributing the least volume
+ * - 'greatest_contributor' - returns an index of the point contributing the most volume
+ * - 'contributions' - returns a vector of exclusive contributions by each of the points.
+ *
+ * Additionally a private method 'base::extreme_contributor' can be overloaded:
+ * - 'extreme_contributor' - returns an index of a single individual that contributes either the least or the greatest
+ *  amount of the volume. The distinction between the extreme contributors is made using a comparator function.
+ *  Purpose of this method is to avoid repeating a similar code for the least and the greatest contributor methods.
+ *  In many cases it's just a matter of a single alteration in a comparison sign '<' to '>'. See concrete example here for more details.
+ *
+ * The following base class provides an interface for any hv_algorithm that may be added.
+ * The crucial method to implement is the 'compute' method, as the remaining methods can be derived from it.
+ *
+ * Base class assumes that the hv_algorithm implements the 'compute' method, and employs a naive approach to provide other functionalities:
+ *
+ * 'base::exclusive' method relies on 'compute' method, by computing the hypervolume twice (e.g. ExclusiveHV = HV(P) - HV(P/{p}))
+ * 'base::contributions' method relies on 'compute' method as well, by computing the exclusive volume for each point using approach above.
+ * 'base::extreme_contributor' (private method) relies on the 'base::contributions' method in order to elicit the correct extreme individual.
+ * 'base::least_contributor' and 'base::greatest_contributor' methods rely on 'base::extreme_contributor' method by providing the correct comparator.
+ *
+ * Thanks to that, any newly implemented hypervolume algorithm that overloads the 'compute' method, gets the functionalities above as well.
+ * It is often the case that the algorithm may provide a better solution for each of the features above, e.g. overloading the 'base::extreme_contributor'
+ * method with an efficient solution, will automatically speed up the 'least_contributor' and the 'greatest_contributor' methods as well.
+ *
+ * Additionally, any newly implemented hypervolume algorithm should overload the 'base::verify_before_compute' method in order to prevent
+ * the computation for the incompatible data.
  *
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
@@ -75,6 +103,7 @@ public:
 	virtual double exclusive(const unsigned int, std::vector<fitness_vector> &, const fitness_vector &) const;
 	virtual unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 	virtual unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
+	virtual std::vector<double> contributions(std::vector<fitness_vector> &, const fitness_vector &) const;
 
 	/// Verification of input
 	/**
@@ -104,47 +133,10 @@ protected:
 	static bool cmp_least(const double, const double);
 	static bool cmp_greatest(const double, const double);
 
-	/// Compute volume between two points
-	/**
-	 * Calculates the volume between points a and b (as defined for n-dimensional Euclidean spaces).
-	 *
-	 * @param[in] a first point defining the hypercube
-	 * @param[in] b second point defining the hypercube
-	 * @param[in] dim_bound dimension boundary for the volume. If equal to 0, then compute the volume of whole vector. Any positive number limits the computation from dimension 1 to dim_bound INCLUSIVE.
-	 *
-	 * @return volume of hypercube defined by points a and b
-	 */
-	inline double volume_between(const fitness_vector &a, const fitness_vector &b, unsigned int dim_bound = 0) const
-	{
-		if (dim_bound == 0) {
-			dim_bound = a.size();
-		}
-		double volume = 1.0;
-		for (fitness_vector::size_type idx = 0; idx < dim_bound ; ++idx) {
-			volume *= (a[idx] - b[idx]);
-		}
-		return (volume < 0 ? -volume : volume);
-	}
+public:
+	static double volume_between(const fitness_vector &, const fitness_vector &, unsigned int = 0);
 
-	/// Compute volume between two points
-	/**
-	 * Calculates the volume between points a and b (as defined for n-dimensional Euclidean spaces).
-	 *
-	 * @param[in] a first point defining the hypercube
-	 * @param[in] b second point defining the hypercube
-	 * @param[in] size dimension of the vectors.
-	 *
-	 * @return volume of hypercube defined by points a and b
-	 */
-	inline double volume_between(double* a, double* b, unsigned int size) const
-	{
-		double volume = 1.0;
-		while(size--) {
-			volume *= (b[size] - a[size]);
-		}
-		return (volume < 0 ? -volume : volume);
-	}
-
+protected:
 	// Domination results of the 'dom_cmp' methods
 	enum {
 		DOM_CMP_B_DOMINATES_A = 1, // second argument dominates the first one
@@ -153,72 +145,9 @@ protected:
 		DOM_CMP_INCOMPARABLE = 4 // points are incomparable
 	};
 
-	/// Dominance comparison method
-	/**
-	 * Establishes the domination relationship between two points.
-	 *
-	 * returns DOM_CMP_B_DOMINATES_A if point 'b' DOMINATES point 'a'
-	 * returns DOM_CMP_A_DOMINATES_B if point 'a' DOMINATES point 'b'
-	 * returns DOM_CMP_A_B_EQUAL if point 'a' IS EQUAL TO 'b'
-	 * returns DOM_CMP_INCOMPARABLE otherwise
-	 */
-	inline int dom_cmp(const fitness_vector &a, const fitness_vector &b, unsigned int dim_bound = 0) const
-	{
-		if (dim_bound == 0) {
-			dim_bound = a.size();
-		}
-		for(fitness_vector::size_type i = 0; i < dim_bound ; ++i) {
-			if (a[i] > b[i]) {
-				for(fitness_vector::size_type j = i + 1; j < dim_bound ; ++j) {
-					if (a[j] < b[j]) {
-						return DOM_CMP_INCOMPARABLE;
-					}
-				}
-				return DOM_CMP_B_DOMINATES_A;
-			}
-			else if (a[i] < b[i]) {
-				for(fitness_vector::size_type j = i + 1 ; j < dim_bound ; ++j) {
-					if (a[j] > b[j]) {
-						return DOM_CMP_INCOMPARABLE;
-					}
-				}
-				return DOM_CMP_A_DOMINATES_B;
-			}
-		}
-		return DOM_CMP_A_B_EQUAL;
-	}
-
-	/// Dominance comparison method
-	/**
-	 * Establishes the domination relationship between two points (overloaded for double*);
-	 *
-	 * returns DOM_CMP_B_DOMINATES_A if point 'b' DOMINATES point 'a'
-	 * returns DOM_CMP_A_DOMINATES_B if point 'a' DOMINATES point 'b'
-	 * returns DOM_CMP_A_B_EQUAL if point 'a' IS EQUAL TO 'b'
-	 * returns DOM_CMP_INCOMPARABLE otherwise
-	 */
-	inline int dom_cmp(double* a, double* b, unsigned int size) const
-	{
-		for(fitness_vector::size_type i = 0; i < size ; ++i) {
-			if (a[i] > b[i]) {
-				for(fitness_vector::size_type j = i + 1; j < size ; ++j) {
-					if (a[j] < b[j]) {
-						return DOM_CMP_INCOMPARABLE;
-					}
-				}
-				return DOM_CMP_B_DOMINATES_A;
-			}
-			else if (a[i] < b[i]) {
-				for(fitness_vector::size_type j = i + 1 ; j < size ; ++j) {
-					if (a[j] > b[j]) {
-						return DOM_CMP_INCOMPARABLE;
-					}
-				}
-				return DOM_CMP_A_DOMINATES_B;
-			}
-		}
-		return DOM_CMP_A_B_EQUAL;
-	}
+	static double volume_between(double*, double*, unsigned int);
+	static int dom_cmp(double*, double*, unsigned int);
+	static int dom_cmp(const fitness_vector &, const fitness_vector &, unsigned int = 0);
 
 private:
 	friend class boost::serialization::access;
