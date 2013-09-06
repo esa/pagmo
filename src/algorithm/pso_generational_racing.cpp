@@ -323,8 +323,8 @@ void pso_generational_racing::evolve(population &pop) const
 
 	bool forced_terminate = false;
 
-	bool racing_opt__race_neighbourhood = true;
-	bool racing_opt__flush_cache = true;
+	bool racing_opt__race_neighbourhood = false;
+	bool racing_opt__flush_cache = false;
 
 	/* --- Main PSO loop ---
 	 */

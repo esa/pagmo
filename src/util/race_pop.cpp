@@ -343,7 +343,7 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 
 	// Reset data holder for wilcoxon test
 	m_pop_wilcoxon.clear();
-	bool use_wilcoxon = true;
+	bool use_wilcoxon = false;
 
 	unsigned int count_iter = 0;
 	unsigned int count_nfes = 0;

@@ -211,7 +211,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<optional<int,double, double, double, double, int, int, int> >());
 
 	// Particle Swarm Optimization (generational with racing mechanism)
-	algorithm_wrapper<algorithm::pso_generational_racing>("pso_gen", "Particle Swarm Optimization (generational with racing)")
+	algorithm_wrapper<algorithm::pso_generational_racing>("pso_gen_racing", "Particle Swarm Optimization (generational with racing)")
 		.def(init<optional<int,double, double, double, double, int, int, int, unsigned int, unsigned int> >());
 	
 	// Simple Genetic Algorithm.
