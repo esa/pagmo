@@ -57,7 +57,7 @@ namespace pagmo { namespace algorithm {
  * vcoeff is not in ]0,1], variant is not one of 1 .. 6, neighb_type is not one of 1 .. 4
  */
 
-pso_generational_racing::pso_generational_racing(int gen, double omega, double eta1, double eta2, double vcoeff, int variant, int neighb_type, int neighb_param, unsigned int nr_eval_per_x, bool use_racing, unsigned int max_fevals): base(), m_gen(gen), m_omega(omega), m_eta1(eta1), m_eta2(eta2), m_vcoeff(vcoeff), m_variant(variant), m_neighb_type(neighb_type), m_neighb_param(neighb_param), m_nr_eval_per_x(nr_eval_per_x), m_use_racing(use_racing), m_fevals(0), m_max_fevals(max_fevals) {
+pso_generational_racing::pso_generational_racing(int gen, double omega, double eta1, double eta2, double vcoeff, int variant, int neighb_type, int neighb_param, unsigned int nr_eval_per_x, unsigned int max_fevals): base(), m_gen(gen), m_omega(omega), m_eta1(eta1), m_eta2(eta2), m_vcoeff(vcoeff), m_variant(variant), m_neighb_type(neighb_type), m_neighb_param(neighb_param), m_nr_eval_per_x(nr_eval_per_x), m_fevals(0), m_max_fevals(max_fevals) {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
@@ -209,6 +209,17 @@ void pso_generational_racing::evolve(population &pop) const
 		return;
 	}
 
+	// If problem is not stochastic, no point to use a racing based PSO
+	try{
+		dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
+	}
+	catch (const std::bad_cast& e){
+		// TODO: Should throw, but current algorithm's serialization test does not supply stochastic problem
+		// pagmo_throw(value_error, "The problem is not stochastic and racing based PSO is not suitable to solve it");
+		std::cout << "The problem is not stochastic and racing based PSO is not suitable to solve it" << std::endl;
+		return;
+	}
+
 	// Some vectors used during evolution are allocated here.
 	std::vector<double> dummy(Dc,0);				// used for initialisation purposes
 
@@ -271,15 +282,6 @@ void pso_generational_racing::evolve(population &pop) const
 		default: initialize_topology__lbest( neighb );
 	}
 
-	bool is_stochastic;
-	try{
-		dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
-		is_stochastic = true;
-	}
-	catch (const std::bad_cast& e){
-		is_stochastic = false;
-	}
-
 	m_fevals = 0;
 
 	// Initialize the seed to be used to construct different race_pop instances
@@ -292,32 +294,25 @@ void pso_generational_racing::evolve(population &pop) const
 
 	racing__construct_race_environment(race_lbX, pop.problem(), lbX, std::vector<decision_vector>());
 
-	if( is_stochastic && m_use_racing ){
-		
-		if( m_neighb_type == 1 ){
-			// Using the gbest (fully connected) topology; best position
-			// visited so far in the swarm must be determined through racing
-			//std::pair<std::vector<population::size_type>, unsigned int>  res = race_lbX.run(1, 0, pop.size()*5, 0.05, active_set, true, false);
-			std::pair<population::size_type, unsigned int> res
-				= racing__race_for_winner(race_lbX, -1, -1, pop.size() * m_nr_eval_per_x);
-			best_idx = res.first;
-			m_fevals += res.second;
-			// Set lbfit to be the averaged fitness values from racing
-			lbfit = race_lbX.get_mean_fitness();
-			best_neighb = lbX[ best_idx ];
-			best_fit = lbfit[ best_idx ];
-		}
-		// Luis's note: if( m_neighb_type == 4 ), adaptive_random topology,
-		// best_fit may be too inaccurate, as it results from a single fitness
-		// evaluation, but in that case we don't trigger here a costly race of
-		// all lbX vectors, as above.  That inaccuracy will simply lead to an
-		// acceptable change in the time the first topology rewiring is
-		// triggered.
+	if( m_neighb_type == 1 ){
+		// Using the gbest (fully connected) topology; best position
+		// visited so far in the swarm must be determined through racing
+		//std::pair<std::vector<population::size_type>, unsigned int>  res = race_lbX.run(1, 0, pop.size()*5, 0.05, active_set, true, false);
+		std::pair<population::size_type, unsigned int> res
+			= racing__race_for_winner(race_lbX, -1, -1, pop.size() * m_nr_eval_per_x);
+		best_idx = res.first;
+		m_fevals += res.second;
+		// Set lbfit to be the averaged fitness values from racing
+		lbfit = race_lbX.get_mean_fitness();
+		best_neighb = lbX[ best_idx ];
+		best_fit = lbfit[ best_idx ];
 	}
-	else if ( is_stochastic && !m_use_racing ){
-		particle__average_fitness_set_best(prob, lbfit, best_idx, best_fit, lbX);
-		m_fevals += m_nr_eval_per_x * pop.size();
-	}
+	// Luis's note: if( m_neighb_type == 4 ), adaptive_random topology,
+	// best_fit may be too inaccurate, as it results from a single fitness
+	// evaluation, but in that case we don't trigger here a costly race of
+	// all lbX vectors, as above.  That inaccuracy will simply lead to an
+	// acceptable change in the time the first topology rewiring is
+	// triggered.
 
 	// auxiliary varibables specific to the Fully Informed Particle Swarm variant
 	double acceleration_coefficient = m_eta1 + m_eta2;
@@ -359,7 +354,7 @@ void pso_generational_racing::evolve(population &pop) const
 			// function . not needed if m_variant == 6 (FIPS): all neighbours
 			// are considered, no need to identify the best one
 			if( m_neighb_type != 1 && m_variant != 6){
-				if( !use_race_neighbourhood || !m_use_racing ){
+				if( !use_race_neighbourhood ){
 					best_neighb = particle__get_best_neighbor( p, neighb, lbX, lbfit, prob );
 				}
 				else{
@@ -499,205 +494,123 @@ void pso_generational_racing::evolve(population &pop) const
 			}
 		}
 		std::vector<bool> local_bests_improved = std::vector<bool>(lbX.size(), false);
-		// If the problem is a stochastic optimization change the seed and re-evaluate taking care to update also best and local bests
-		if( is_stochastic ){
-			dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
-		}
 
-		if( is_stochastic && !m_use_racing ){
-			// (I) Stochastic problem being solved without racing, sampling and
-			// averaging will be performed here
-			
-			// Check if there is enough evaluation budget before proceeding
-			unsigned int required_fevals = swarm_size * m_nr_eval_per_x * 2;
+		// Problem is a stochastic optimization, change the seed
+		dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
 
-			if (m_fevals + required_fevals > m_max_fevals){
+		// (II) Stochastic problem being solved with the assistance of racing
+		
+		// Luis: reinitialize the race structure, in a way that will
+		// support racing between a particle's current and previous
+		// best positions, while still preserving in the cache the
+		// information from such evaluation for reuse in the next
+		// position update cycle.
+
+		// Perform racing between lbX and X here and handles the memory
+		// booking so that the evaluation data can be used in the next
+		// generation
+
+		// Change the ground seed of the race object so that a new list of
+		// internal seeds list will be generated. Also clear the cache.
+		// race_lbX.set_seed(m_urng());
+		// race_lbX_and_X.set_seed(m_urng());
+
+		racing__construct_race_environment(race_lbX_and_X, pop.problem(), lbX, X);
+		race_lbX_and_X.inherit_memory(race_lbX);
+
+		for( p = 0; p < swarm_size && !forced_terminate; p++ ){
+			std::pair<population::size_type, unsigned int> res =
+				racing__race_for_winner(race_lbX_and_X, p, p + swarm_size, 2 * m_nr_eval_per_x);
+			m_fevals += res.second;
+			if (m_fevals > m_max_fevals){
 				forced_terminate = true;
 				break;
 			}
-
-			pop.clear(); // Removes memory based on different seeds (champion and best_x, best_f, best_c)
-
-			// Re-evaluate wrt new seed the particle position and memory
-			for( p = 0; p < swarm_size; p++ ){
-				// We evaluate here the new individual fitness
-				//prob.objfun( fit[p], X[p] );
-				particle__average_fitness(prob, fit[p], X[p]);
-				// We re-evaluate the fitness of the particle memory
-				//prob.objfun( lbfit[p], lbX[p] );
-				particle__average_fitness(prob, lbfit[p], lbX[p]);
-
-				if( prob.compare_fitness( fit[p], lbfit[p] ) ){
-					local_bests_improved[p] = true;
-				}
-				///We now set the cleared pop. cur_x is the best_x, re-evaluated with new seed.
-				pop.push_back(lbX[p]);
-				pop.set_x(p,X[p]);
-				pop.set_v(p,V[p]);
-			}
-			m_fevals += required_fevals;
-
-		}
-		else if( is_stochastic && m_use_racing ){
-			// (II) Stochastic problem being solved with the assistance of racing
-			
-			// Luis: reinitialize the race structure, in a way that will
-			// support racing between a particle's current and previous
-			// best positions, while still preserving in the cache the
-			// information from such evaluation for reuse in the next
-			// position update cycle.
-
-			// Perform racing between lbX and X here and handles the memory
-			// booking so that the evaluation data can be used in the next
-			// generation
-
-			// Change the ground seed of the race object so that a new list of
-			// internal seeds list will be generated. Also clear the cache.
-			// race_lbX.set_seed(m_urng());
-			// race_lbX_and_X.set_seed(m_urng());
-
-			racing__construct_race_environment(race_lbX_and_X, pop.problem(), lbX, X);
-			race_lbX_and_X.inherit_memory(race_lbX);
-
-			for( p = 0; p < swarm_size && !forced_terminate; p++ ){
-				std::pair<population::size_type, unsigned int> res =
-					racing__race_for_winner(race_lbX_and_X, p, p + swarm_size, 2 * m_nr_eval_per_x);
-				m_fevals += res.second;
-				if (m_fevals > m_max_fevals){
-					forced_terminate = true;
-					break;
-				}
-				if(res.first == p+swarm_size){
-					local_bests_improved[p] = true;	
-				}
-			}
-
-			if(!forced_terminate){
-
-				// Now we know that racing did not exceed budget, we can go
-				// on and update pop
-				pop.clear();
-
-				// Update lbfit and fit to hold the averaged fitness values
-				std::vector<fitness_vector> averaged_fitness =
-					race_lbX_and_X.get_mean_fitness();
-				for(unsigned int i = 0; i < swarm_size; i++){
-					lbfit[i] = averaged_fitness[i];
-					fit[i] = averaged_fitness[i+swarm_size];
-				}
+			if(res.first == p+swarm_size){
+				local_bests_improved[p] = true;	
 			}
 		}
-		else
-		{
-			// (III) Deterministic problem
-			
-			// Check if there is enough evaluation budget before proceeding
-			unsigned int required_fevals = swarm_size;
-			if (m_fevals + required_fevals > m_max_fevals){
-				forced_terminate = true;
-				break;
-			}
-			//Only evaluate new position
-			for( p = 0; p < swarm_size; p++ ){
-				// We evaluate here the new individual fitness
-				prob.objfun( fit[p], X[p] );
-				pop.set_x(p,X[p]);
-				pop.set_v(p,V[p]);
-			}
-		}
-	
+
 		// If we run out of budget in the previous loop, the following
 		// operations are not meaningful as they may be out-of-date
 		if(forced_terminate){
 			break;
 		}
 
+		pop.clear();
+
+		// Update lbfit and fit to hold the averaged fitness values
+		std::vector<fitness_vector> averaged_fitness =
+			race_lbX_and_X.get_mean_fitness();
+		for(unsigned int i = 0; i < swarm_size; i++){
+			lbfit[i] = averaged_fitness[i];
+			fit[i] = averaged_fitness[i+swarm_size];
+		}
+	
 		// We update the particles memory if a better point has been reached
 		best_fit_improved = false;
-		if( !is_stochastic || !m_use_racing ){
-			// Simply check whether there is any improvement in solutions (for
-			// rewiring) and update best individual (for m_neighb_type 1)
-			for( p = 0; p < swarm_size; p++ ){
-				if( prob.compare_fitness( fit[p], lbfit[p] ) ){
-					// update the particle's previous best position
-					lbfit[p] = fit[p];
-					lbX[p] = X[p];
-					
-					// update the best position observed so far by any particle in the swarm
-					// (only performed if swarm topology is gbest or random varying)
-					if( ( m_neighb_type == 1 || m_neighb_type == 4 ) && prob.compare_fitness( fit[p], best_fit ) ){
-						best_idx    = p; 
-						best_neighb = X[p];
-						best_fit    = fit[p];
-						best_fit_improved = true;
-					}
-				}
-			}
-		}
-		else{
-			// The decisions here (whether to update local best or not) are
-			// based on the results of racing performed previously.
-			for( p = 0; p < swarm_size; p++ ){
-				// Use racing to update local bests
-				if(local_bests_improved[p]){
-					// current position better than previous best update the
-					// particle's previous best position
-					lbfit[p] = fit[p];
-					lbX[p] = X[p];
-					
-					// case of improvement not detected below when
-					// m_neighb_type == 4
-					if( p == best_idx )
-						best_fit_improved = true;
-				}
-				pop.push_back(lbX[p]);
-				pop.set_v(p,V[p]);
-				// NOTE: The reason to skip pop.set_x(p,X[p]) is that m_gen can
-				// be 1 -- meaning if we don't do this the lbX's information
-				// might be overriden by the result of a single evaluation in
-				// the next call of evolve.
-				// pop.set_x(p,X[p]);
-			}
-			// Construct the new race environment with the updated lbX. Pass on
-			// the memory to the next generation -- some new memory may come
-			// from the previous race between lbX and X. NOTE: This is only
-			// possible if the ground seed of the race has not changed
-			racing__construct_race_environment(race_lbX, pop.problem(), lbX, std::vector<decision_vector>());
-			race_lbX.inherit_memory(race_lbX_and_X);
-
-			// update the best position observed so far by any particle in the swarm
-			// (only performed if swarm topology is gbest or random varying)
-			if( m_neighb_type == 1 ){
-				// Race to get the best in lbX
-				std::pair<population::size_type, unsigned int> res =
-					racing__race_for_winner(race_lbX, -1, -1, swarm_size * m_nr_eval_per_x);
-
-				// Set fitness to the averaged fitness from race
-				lbfit = race_lbX.get_mean_fitness();
-
-				m_fevals += res.second;
-
-				p = res.first;
-				if( p != best_idx ){
-					best_idx = p;
+		// The decisions here (whether to update local best or not) are
+		// based on the results of racing performed previously.
+		for( p = 0; p < swarm_size; p++ ){
+			// Use racing to update local bests
+			if(local_bests_improved[p]){
+				// current position better than previous best update the
+				// particle's previous best position
+				lbfit[p] = fit[p];
+				lbX[p] = X[p];
+				
+				// case of improvement not detected below when
+				// m_neighb_type == 4
+				if( p == best_idx )
 					best_fit_improved = true;
-				}
-				best_neighb = lbX[ best_idx ];
-				best_fit = lbfit[ best_idx ];
 			}
-			if( m_neighb_type == 4 ){
-				// Improvement -> A decision vector other than the one
-				// previously identified as being the top solution now has the
-				// best fitness		
-				best_neighb = lbX[ best_idx ];
-				best_fit    = lbfit[ best_idx ];
-				for( p = 0; p < swarm_size; p++ ){
-					if( prob.compare_fitness( lbfit[p], best_fit ) ){
-						best_idx = p;
-						best_neighb = lbX[p];
-						best_fit    = lbfit[p];
-						best_fit_improved = true;
-					}
+			pop.push_back(lbX[p]);
+			pop.set_v(p,V[p]);
+			// NOTE: The reason to skip pop.set_x(p,X[p]) is that m_gen can
+			// be 1 -- meaning if we don't do this the lbX's information
+			// might be overriden by the result of a single evaluation in
+			// the next call of evolve.
+			// pop.set_x(p,X[p]);
+		}
+		// Construct the new race environment with the updated lbX. Pass on
+		// the memory to the next generation -- some new memory may come
+		// from the previous race between lbX and X. NOTE: This is only
+		// possible if the ground seed of the race has not changed
+		racing__construct_race_environment(race_lbX, pop.problem(), lbX, std::vector<decision_vector>());
+		race_lbX.inherit_memory(race_lbX_and_X);
+
+		// update the best position observed so far by any particle in the swarm
+		// (only performed if swarm topology is gbest or random varying)
+		if( m_neighb_type == 1 ){
+			// Race to get the best in lbX
+			std::pair<population::size_type, unsigned int> res =
+				racing__race_for_winner(race_lbX, -1, -1, swarm_size * m_nr_eval_per_x);
+
+			// Set fitness to the averaged fitness from race
+			lbfit = race_lbX.get_mean_fitness();
+
+			m_fevals += res.second;
+
+			p = res.first;
+			if( p != best_idx ){
+				best_idx = p;
+				best_fit_improved = true;
+			}
+			best_neighb = lbX[ best_idx ];
+			best_fit = lbfit[ best_idx ];
+		}
+		if( m_neighb_type == 4 ){
+			// Improvement -> A decision vector other than the one
+			// previously identified as being the top solution now has the
+			// best fitness		
+			best_neighb = lbX[ best_idx ];
+			best_fit    = lbfit[ best_idx ];
+			for( p = 0; p < swarm_size; p++ ){
+				if( prob.compare_fitness( lbfit[p], best_fit ) ){
+					best_idx = p;
+					best_neighb = lbX[p];
+					best_fit    = lbfit[p];
+					best_fit_improved = true;
 				}
 			}
 		}

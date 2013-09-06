@@ -53,8 +53,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pso_generational_racing: public base
 {
 public:
-	//pso_generational_racing(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4, bool use_racing = false, unsigned int max_fevals=std::numeric_limits<unsigned int>::max());
-	pso_generational_racing(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4, unsigned int nr_eval_per_x = 1, bool use_racing = false, unsigned int max_fevals = std::numeric_limits<unsigned int>::max());
+	pso_generational_racing(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4, unsigned int nr_eval_per_x = 5, unsigned int max_fevals = std::numeric_limits<unsigned int>::max());
 	base_ptr clone() const;
 	void evolve(population &) const;
 	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob) const;
@@ -89,7 +88,6 @@ private:
 		ar & const_cast<int &>(m_variant);
 		ar & const_cast<int &>(m_neighb_type);
 		ar & const_cast<int &>(m_neighb_param);
-		ar & const_cast<bool &>(m_use_racing);
 		ar & m_fevals;
 		ar & const_cast<unsigned int&>(m_max_fevals);
 	}
@@ -112,8 +110,6 @@ private:
 	// Parameter controlling how many times a stochastic objective function
 	// will be called for averaging
 	const unsigned int m_nr_eval_per_x;
-	// Whether to use racing in stochastic settings
-	const bool m_use_racing;
 	// Incurred objective function evaluation
 	mutable unsigned int m_fevals;
 	// Maximum allowable fevals before algo terminates

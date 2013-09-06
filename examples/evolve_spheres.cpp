@@ -61,7 +61,7 @@ double evolve_in_one_go(int n_isl, int pop_size, int nr_eval_per_x, int n_gen, b
 
 	if(use_racing){
 		std::cout << "---Using racing---" << std::endl;
-		algo = algorithm::pso_generational_racing(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, nr_eval_per_x, true, max_fevals).clone();
+		algo = algorithm::pso_generational_racing(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, 5, 2, 4, nr_eval_per_x, max_fevals).clone();
 	}
 	else{
 		std::cout << "---Not using racing---" << std::endl;
@@ -141,7 +141,7 @@ double evolve_original(int n_isl, int pop_size, int n_eval_per_x, int n_gen, boo
 	unsigned int max_fevals = gen_batch_size * pop_size * 2 * n_eval_per_x + pop_size * n_eval_per_x;
 
 	if(use_racing){
-		algo_ptr = algorithm::pso_generational_racing(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval_per_x, true, max_fevals).clone();
+		algo_ptr = algorithm::pso_generational_racing(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval_per_x, max_fevals).clone();
 	}
 	else{
 		algo_ptr = algorithm::pso_generational(gen_batch_size*5, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param).clone();

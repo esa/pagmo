@@ -308,7 +308,7 @@ def _pso_gen_racing_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, 
 		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
 		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
 		The minimum outdegree is 1 (the particle always connects back to itself).
-	* use_racing: Whether to use racing
+    * nr_eval_per_x: Specify the expected budget to be allocated during racing
 	* max_fevals: When specified other than -1, this serve as another termination condition -- maximium number of objective function evaluations
 	"""
 	# We set the defaults or the kwargs
@@ -322,7 +322,6 @@ def _pso_gen_racing_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, 
 	arg_list.append(neighb_type)
 	arg_list.append(neighb_param)	
 	arg_list.append(nr_eval_per_x)
-	arg_list.append(use_racing)
 	if max_fevals > 0:
 		arg_list.append(max_fevals)
 	self._orig_init(*arg_list)
