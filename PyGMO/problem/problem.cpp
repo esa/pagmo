@@ -399,7 +399,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Meta-problems
 
 	// Death penalty enums
-	enum_<problem::death_penalty::method_type>("_method_type")
+	enum_<problem::death_penalty::method_type>("_death_method_type")
 		.value("SIMPLE", problem::death_penalty::SIMPLE)
 		.value("KURI", problem::death_penalty::KURI);
 	// Death penalty meta-problem
@@ -407,7 +407,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<optional<const problem::base &, problem::death_penalty::method_type> >());
 
 	// con2mo penalty enums
-	enum_<problem::con2mo::method_type>("_method_type")
+	enum_<problem::con2mo::method_type>("_con2mo_method_type")
 		.value("OBJ_CSTRS", problem::con2mo::OBJ_CSTRS)
 		.value("OBJ_CSTRSVIO", problem::con2mo::OBJ_CSTRSVIO)
 		.value("OBJ_EQVIO_INEQVIO", problem::con2mo::OBJ_EQVIO_INEQVIO);

@@ -710,7 +710,7 @@ robust._orig_init = robust.__init__
 robust.__init__ = _robust_ctor
 
 # Renaming and placing the enums
-_problem.death_penalty.method = _problem._method_type
+_problem.death_penalty.method = _problem._death_method_type
 
 def _death_penalty_ctor(self, problem = None, method = None):
 	"""
@@ -739,7 +739,7 @@ death_penalty._orig_init = death_penalty.__init__
 death_penalty.__init__ = _death_penalty_ctor
 
 # Renaming and placing the enums
-_problem.con2mo.method = _problem._method_type
+_problem.con2mo.method = _problem._con2mo_method_type
 
 def _con2mo_ctor(self, problem = None, method = None):
 	"""

@@ -8,15 +8,6 @@ from _scipy_algos import *
 
 _base = _algorithm._base
 
-# Renaming and placing the enums
-_algorithm.sga.crossover = _algorithm._crossover_type
-_algorithm.sga.selection = _algorithm._selection_type
-_algorithm.sga.mutation = _algorithm._mutation_type
-
-_algorithm.sga_gray.crossover = _algorithm._crossover_type
-_algorithm.sga_gray.selection = _algorithm._selection_type
-_algorithm.sga_gray.mutation = _algorithm._mutation_type
-
 #Creating the list of algorithms
 def _get_algorithm_list():
 	import _algorithm as algorithm
@@ -283,6 +274,10 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 pso_gen._orig_init = pso_gen.__init__
 pso_gen.__init__ = _pso_gen_ctor
 
+_algorithm.sga.crossover = _algorithm._sga_crossover_type
+_algorithm.sga.selection = _algorithm._sga_selection_type
+_algorithm.sga.mutation = _algorithm._sga_mutation_type
+
 def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL):
 	"""
 	Constructs a Simple Genetic Algorithm (generational)
@@ -313,11 +308,14 @@ def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSS
 sga._orig_init = sga.__init__
 sga.__init__ = _sga_ctor
 
-def _vega_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL):
+_algorithm.vega.crossover = _algorithm._vega_crossover_type
+_algorithm.vega.mutation = _algorithm._vega_mutation_type
+
+def _vega_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=vega.mutation.GAUSSIAN, width = 0.1, crossover=vega.crossover.EXPONENTIAL):
 	"""
 	Constructs a Vector evaluated genetic algorithm
 	
-	USAGE: algorithm.vega(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, crossover=sga.crossover.EXPONENTIAL)
+	USAGE: algorithm.vega(self, gen=1, cr=.95, m=.02, elitism=1, mutation=vega.mutation.GAUSSIAN, width = 0.1, crossover=vega.crossover.EXPONENTIAL)
   
 	* gen: number of generations
 	* cr: crossover factor in [0,1]
@@ -326,7 +324,6 @@ def _vega_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUS
 	* mutation: mutation type (one of [RANDOM, GAUSSIAN])
 	* width: the mutation width (in case of a GAUSSIAN bell
 		this is the std normalized with the width)
-	* selection: selection startegy (one of [ROULETTE, BEST20])
 	* crossover: crossover strategy (one of [BINOMIAL, EXPONENTIAL])
 	"""
 	# We set the defaults or the kwargs
@@ -337,12 +334,16 @@ def _vega_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUS
 	arg_list.append(elitism)
 	arg_list.append(mutation)
 	arg_list.append(width)
-	arg_list.append(crossover)	
+	arg_list.append(crossover)
 	self._orig_init(*arg_list)
 vega._orig_init = vega.__init__
 vega.__init__ = _vega_ctor
 
-def _sga_gray_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.UNIFORM, selection=sga.selection.ROULETTE, crossover=sga.crossover.SINGLE_POINT):
+_algorithm.sga_gray.crossover = _algorithm._gray_crossover_type
+_algorithm.sga_gray.selection = _algorithm._gray_selection_type
+_algorithm.sga_gray.mutation = _algorithm._gray_mutation_type
+
+def _sga_gray_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga_gray.mutation.UNIFORM, selection=sga_gray.selection.ROULETTE, crossover=sga_gray.crossover.SINGLE_POINT):
 	"""
 	Constructs a Simple Genetic Algorithm with gray binary encoding (generational)
 	
@@ -589,28 +590,27 @@ mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
 
 # Renaming and placing the enums
-<<<<<<< HEAD
-_algorithm.cstrs_co_evolution.method = _algorithm._method_type
+_algorithm.cstrs_co_evolution.method = _algorithm._co_evo_method_type
 
 def _cstrs_co_evolution_ctor(self,algorithm = _algorithm.jde(),algorithm_2 = _algorithm.jde(),pop_2_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.):
 	"""
-    Constructs a co-evolution adaptive algorithm.
+	Constructs a co-evolution adaptive algorithm.
 	
 	USAGE: algorithm.cstrs_co_evolution(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), pop_2_size = 30, gen = 20, method = cstrs_co_evolution.method.SIMPLE, pen_lower_bound = 0, pen_upper_bound = 100000);
-    *
+	*
 	* algorithm: optimizer to use as 'original' optimization method
 	* algorithm_2: optimizer to use as 'original' optimization method for population 2
-    * pop_2_size: population size for the penalty encoding population.
-    * gen: number of generations.
-    * method: cstrs_co_evolution.method.SIMPLE by default, the method used for the population 2.
-    * Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
-    * The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
-    * splits the equalities and inequalities constraints in two different sets for the
-    * penalty weigths, containing respectively inequalities and equalities weigths. The
-    * SPLIT_CONSTRAINTS splits the constraints in M set of weigths with M the number of
-    * constraints.
-    * pen_lower_bound: the lower boundary used for penalty.
-    * pen_upper_bound: the upper boundary used for penalty.
+	* pop_2_size: population size for the penalty encoding population.
+	* gen: number of generations.
+	* method: cstrs_co_evolution.method.SIMPLE by default, the method used for the population 2.
+	* Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
+	* The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
+	* splits the equalities and inequalities constraints in two different sets for the
+	* penalty weigths, containing respectively inequalities and equalities weigths. The
+	* SPLIT_CONSTRAINTS splits the constraints in M set of weigths with M the number of
+	* constraints.
+	* pen_lower_bound: the lower boundary used for penalty.
+	* pen_upper_bound: the upper boundary used for penalty.
 	"""
 	arg_list=[]
 	arg_list.append(algorithm)
@@ -625,9 +625,9 @@ cstrs_co_evolution._orig_init = cstrs_co_evolution.__init__
 cstrs_co_evolution.__init__ = _cstrs_co_evolution_ctor
 
 # Renaming and placing the enums
-_algorithm.cstrs_immune_system.select_method = _algorithm._select_method_type
-_algorithm.cstrs_immune_system.inject_method = _algorithm._inject_method_type
-_algorithm.cstrs_immune_system.distance_method = _algorithm._distance_method_type
+_algorithm.cstrs_immune_system.select_method = _algorithm._immune_select_method_type
+_algorithm.cstrs_immune_system.inject_method = _algorithm._immune_inject_method_type
+_algorithm.cstrs_immune_system.distance_method = _algorithm._immune_distance_method_type
 
 def _cstrs_immune_system_ctor(self,algorithm = _algorithm.jde(), algorithm_immune = _algorithm.jde(), gen = 1, select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., f_tol = 1e-15, x_tol = 1e-15):
 	"""

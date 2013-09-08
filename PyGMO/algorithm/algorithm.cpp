@@ -179,53 +179,52 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def_pickle(python_class_pickle_suite<algorithm::python_base>());
 
 	// Exposing enums
-	enum_<algorithm::sga::mutation::type>("_mutation_type")
+	enum_<algorithm::sga::mutation::type>("_sga_mutation_type")
 		.value("RANDOM", algorithm::sga::mutation::RANDOM)
 		.value("GAUSSIAN", algorithm::sga::mutation::GAUSSIAN);
 	
-	enum_<algorithm::sga::crossover::type>("_crossover_type")
+	enum_<algorithm::sga::crossover::type>("_sga_crossover_type")
 		.value("BINOMIAL", algorithm::sga::crossover::BINOMIAL)
 		.value("EXPONENTIAL", algorithm::sga::crossover::EXPONENTIAL);
-		
-	enum_<algorithm::sga::selection::type>("_selection_type")
+
+	enum_<algorithm::sga::selection::type>("_sga_selection_type")
 		.value("BEST20", algorithm::sga::selection::BEST20)
 		.value("ROULETTE", algorithm::sga::selection::ROULETTE);
 
-	enum_<algorithm::vega::mutation::type>("_mutation_type")
+	enum_<algorithm::vega::mutation::type>("_vega_mutation_type")
 		.value("RANDOM", algorithm::vega::mutation::RANDOM)
 		.value("GAUSSIAN", algorithm::vega::mutation::GAUSSIAN);
 	
-	enum_<algorithm::vega::crossover::type>("_crossover_type")
+	enum_<algorithm::vega::crossover::type>("_vega_crossover_type")
 		.value("BINOMIAL", algorithm::vega::crossover::BINOMIAL)
 		.value("EXPONENTIAL", algorithm::vega::crossover::EXPONENTIAL);
 
 	// Constraints Co-Evolution enums
-	enum_<algorithm::cstrs_co_evolution::method_type>("_method_type")
+	enum_<algorithm::cstrs_co_evolution::method_type>("_co_evo_method_type")
 		.value("SIMPLE", algorithm::cstrs_co_evolution::SIMPLE)
 		.value("SPLIT_NEQ_EQ", algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ)
 		.value("SPLIT_CONSTRAINTS", algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS);		
 
-	enum_<algorithm::sga_gray::mutation::type>("_mutation_type")
-		.value("GAUSSIAN", algorithm::sga_gray::mutation::UNIFORM);
+	enum_<algorithm::sga_gray::mutation::type>("_gray_mutation_type")
+		.value("UNIFORM", algorithm::sga_gray::mutation::UNIFORM);
 	
-	enum_<algorithm::sga_gray::crossover::type>("_crossover_type")
-		.value("EXPONENTIAL", algorithm::sga_gray::crossover::SINGLE_POINT);
+	enum_<algorithm::sga_gray::crossover::type>("_gray_crossover_type")
+		.value("SINGLE_POINT", algorithm::sga_gray::crossover::SINGLE_POINT);
 		
-	enum_<algorithm::sga_gray::selection::type>("_selection_type")
+	enum_<algorithm::sga_gray::selection::type>("_gray_selection_type")
 		.value("BEST20", algorithm::sga_gray::selection::BEST20)
 		.value("ROULETTE", algorithm::sga_gray::selection::ROULETTE);
 	
 	// Constraints immune system enums
-	enum_<algorithm::cstrs_immune_system::select_method_type>("_select_method_type")
+	enum_<algorithm::cstrs_immune_system::select_method_type>("_immune_select_method_type")
 		.value("BEST_ANTIBODY", algorithm::cstrs_immune_system::BEST_ANTIBODY)
 		.value("INFEASIBILITY", algorithm::cstrs_immune_system::INFEASIBILITY);
 
-	enum_<algorithm::cstrs_immune_system::inject_method_type>("_inject_method_type")
+	enum_<algorithm::cstrs_immune_system::inject_method_type>("_immune_inject_method_type")
 		.value("CHAMPION", algorithm::cstrs_immune_system::CHAMPION)
 		.value("BEST25", algorithm::cstrs_immune_system::BEST25);
 
-	// Antibodies Problems (for immune system).
-	enum_<algorithm::cstrs_immune_system::distance_method_type>("_distance_method_type")
+	enum_<algorithm::cstrs_immune_system::distance_method_type>("_immune_distance_method_type")
 		.value("HAMMING", algorithm::cstrs_immune_system::HAMMING)
 		.value("EUCLIDEAN", algorithm::cstrs_immune_system::EUCLIDEAN);
 
