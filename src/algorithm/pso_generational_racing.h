@@ -69,7 +69,8 @@ public:
 
 	// Helper routines for racing related features
 	decision_vector particle__racing_get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, util::racing::race_pop& ) const;
-
+	void racing__construct_race_environment( util::racing::race_pop & race_structure, const problem::base& prob, const std::vector<decision_vector> &x_list1, const std::vector<decision_vector> &x_list2 ) const;
+	std::pair<population::size_type, unsigned int> racing__race_for_winner( util::racing::race_pop &race_structure, int idx1, int idx2, unsigned int max_fevals) const;
 
 	std::string get_name() const;
 protected:
@@ -114,6 +115,7 @@ private:
 	mutable unsigned int m_fevals;
 	// Maximum allowable fevals before algo terminates
 	const unsigned int m_max_fevals;
+	mutable int m_extra_budget;
 };
 
 }} //namespaces

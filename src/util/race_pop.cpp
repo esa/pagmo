@@ -15,7 +15,7 @@ namespace pagmo { namespace util { namespace racing {
  * @param[in] pop population containing the individuals to race
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_pop_wilcoxon(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
+race_pop::race_pop(const population& pop, unsigned int seed): m_use_caching(true), m_race_seed(seed), m_pop(pop), m_pop_wilcoxon(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
 {
 	register_population(pop);
 }
@@ -165,7 +165,7 @@ unsigned int race_pop::prepare_population_friedman(const std::vector<population:
 	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it) {
 		// Case 1: Current racer has previous data that can be reused, no
 		// need to be evaluated with this seed
-		if(cache_data_exist(*it, count_iter-1)){
+		if(m_use_caching && cache_data_exist(*it, count_iter-1)){
 			const eval_data& cached_data = cache_get_entry(*it, count_iter-1);
 			m_pop.set_fc(*it, cached_data.f, cached_data.c);
 		}
@@ -407,7 +407,7 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 
 			// std::cout << "Null hypothesis 0 rejected!" << std::endl;
 
-			// std::vector<size_type> out_of_race;
+			std::vector<size_type> out_of_race;
 
 			std::vector<bool> to_decide(in_race.size(), false), to_discard(in_race.size(), false);
 
@@ -439,10 +439,12 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 			for(unsigned int i = 0; i < in_race.size(); i++){
 				if(to_decide[i]){
 					decided.push_back(in_race[i]);
+					out_of_race.push_back(in_race[i]);
 					racers[in_race[i]].active = false;
 				}
 				else if(to_discard[i]){
 					discarded.push_back(in_race[i]);
+					out_of_race.push_back(in_race[i]);
 					racers[in_race[i]].active = false;
 				}
 				else{
@@ -453,7 +455,9 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 			in_race = new_in_race;
 
 			// Check if this is that important
-			// f_race_adjust_ranks(racers, out_of_race);
+			if(!use_wilcoxon || in_race.size() > 2){
+				f_race_adjust_ranks(racers, out_of_race);
+			}
 		}
 
 	};
@@ -670,6 +674,11 @@ unsigned int race_pop::get_current_seed(unsigned int seed_idx)
 		generate_seeds(expanding_length);
 	}
 	return m_seeds[seed_idx]; 
+}
+
+void race_pop::disable_cache()
+{
+	m_use_caching = false;
 }
 
 }}}

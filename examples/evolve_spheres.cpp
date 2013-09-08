@@ -133,7 +133,7 @@ double evolve_original(int n_isl, int pop_size, int n_eval_per_x, int n_gen, boo
 	// Buffer
 	std::vector<double> buff;
 
-	int gen_batch_size = 10;
+	int gen_batch_size = n_gen/4;
 
 	// We instantiate a PSO algorithm capable of coping with stochastic prolems
 	algorithm::base_ptr algo_ptr;
@@ -141,11 +141,14 @@ double evolve_original(int n_isl, int pop_size, int n_eval_per_x, int n_gen, boo
 	int pso_neighb_type = 2;
 	int pso_neighb_param = 4;
 
-	// The implicit maximum evaluation budget based on the parameters
-	unsigned int max_fevals = gen_batch_size * pop_size * 2 * n_eval_per_x + pop_size * n_eval_per_x;
+	// The implicit maximum evaluation budget based on the parameters,
+	// i.e. the number of fevals that a non-racing based PSO will need
+	// to consume to complete gen_batch_size generations
+	//unsigned int max_fevals = gen_batch_size * pop_size * 2 * n_eval_per_x + pop_size * n_eval_per_x;
+	unsigned int max_fevals = gen_batch_size * pop_size * 2 + pop_size;
 
 	if(use_racing){
-		algo_ptr = algorithm::pso_generational_racing(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval_per_x, max_fevals).clone();
+		algo_ptr = algorithm::pso_generational_racing(std::numeric_limits<int>::max(), 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param, n_eval_per_x, max_fevals).clone();
 	}
 	else{
 		algo_ptr = algorithm::pso_generational(gen_batch_size, 0.7298, 2.05, 2.05, 0.05, pso_variant, pso_neighb_type, pso_neighb_param).clone();
@@ -163,7 +166,8 @@ double evolve_original(int n_isl, int pop_size, int n_eval_per_x, int n_gen, boo
 
 		problem::base_ptr prob_ptr;
 		if(use_racing){
-			prob_ptr = problem::spheres(1, 10, 1e-6, seed, false).clone();
+			//prob_ptr = problem::spheres(1, 10, 1e-6, seed, false).clone();
+			prob_ptr = problem::spheres(n_eval_per_x, 10, 1e-6, seed, false).clone();
 		}
 		else{
 			prob_ptr = problem::spheres(n_eval_per_x, 10, 1e-6, seed, false).clone();
@@ -193,14 +197,14 @@ double evolve_original(int n_isl, int pop_size, int n_eval_per_x, int n_gen, boo
 	//Evolution is here started on the archipelago
 	problem::spheres prob_eval(1, 10, 1e-6, seed, false);
 	double mean = 0.0;
-	for (int i=0; i< n_gen; ++i){
+	for (int i=0; i< n_gen / gen_batch_size; ++i){
 		int idx = archi_best_idx(archi);
-		if (!(i%1)) {
-			//std::cout << "best so far ......" << "\n" << archi.get_island(idx)->get_population().champion().x << std::endl;
-			decision_vector best_x = archi.get_island(idx)->get_population().champion().x;
-			double post_eval_f = post_evaluation(prob_eval, post_evaluation_n, best_x, seed);
-			std::cout << "Post-evaluated current best f = " << post_eval_f << std::endl;
-		}
+
+		//std::cout << "best so far ......" << "\n" << archi.get_island(idx)->get_population().champion().x << std::endl;
+		decision_vector best_x = archi.get_island(idx)->get_population().champion().x;
+		double post_eval_f = post_evaluation(prob_eval, post_evaluation_n, best_x, seed);
+		//std::cout << "Post-evaluated current best f = " << post_eval_f << std::endl;
+
 		double best_f = archi.get_island(idx)->get_population().champion().f[0];
 
 		if (i < window_width) {
@@ -211,10 +215,11 @@ double evolve_original(int n_isl, int pop_size, int n_eval_per_x, int n_gen, boo
 		}
 		mean = std::accumulate(buff.begin(),buff.end(),mean);
 		mean /= (double)buff.size();
-		std::cout << "gen: "<< std::setw(12) << i << std::setw(12) <<
+		std::cout << "gen: "<< std::setw(12) << i*gen_batch_size << std::setw(12) <<
 		best_f << std::setw(12) <<
 		archi.get_island(idx)->get_population().mean_velocity() << std::setw(12) <<
-		mean <<	 std::endl;
+		mean << std::setw(12) <<
+		post_eval_f << std::setw(12) << std::endl;
 		archi.evolve(1);
 	 }
 
@@ -254,7 +259,7 @@ int main(int argc, char* argv[])
 	const int n_isl = 1;
 	const int pop_size = 80;
 	const int nr_eval_per_x = 5;
-	const int n_gen = 200;
+	const int n_gen = 4000;
 	bool use_racing = false;
 	// END OF EXPERIMENT SET-UP //
 
