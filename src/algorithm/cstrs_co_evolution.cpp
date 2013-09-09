@@ -57,13 +57,16 @@ namespace pagmo { namespace algorithm {
  * constraints.
  * @param[in] pen_lower_bound the lower boundary used for penalty.
  * @param[in] pen_upper_bound the upper boundary used for penalty.
+ * @param[in] ftol stopping criteria on the f tolerance.
+ * @param[in] xtol stopping criteria on the x tolerance.
  * @throws value_error if stop is negative
  */
 cstrs_co_evolution::cstrs_co_evolution(const base &original_algo, const base &original_algo_penalties, int pop_penalties_size,
 									   int gen,method_type method, double pen_lower_bound,
-									   double pen_upper_bound):
+									   double pen_upper_bound,
+									   double ftol, double xtol):
 	base(),m_gen(gen),m_pop_penalties_size(pop_penalties_size),m_method(method),
-	m_pen_lower_bound(pen_lower_bound),m_pen_upper_bound(pen_upper_bound)
+	m_pen_lower_bound(pen_lower_bound),m_pen_upper_bound(pen_upper_bound),m_ftol(ftol),m_xtol(xtol)
 {
 	m_original_algo = original_algo.clone();
 	m_original_algo_penalties = original_algo_penalties.clone();
@@ -83,7 +86,8 @@ cstrs_co_evolution::cstrs_co_evolution(const cstrs_co_evolution &algo):
 	base(algo),m_original_algo(algo.m_original_algo->clone()),
 	m_original_algo_penalties(algo.m_original_algo_penalties->clone()),m_gen(algo.m_gen),
 	m_pop_penalties_size(algo.m_pop_penalties_size),m_method(algo.m_method),
-	m_pen_lower_bound(algo.m_pen_lower_bound),m_pen_upper_bound(algo.m_pen_upper_bound)
+	m_pen_lower_bound(algo.m_pen_lower_bound),m_pen_upper_bound(algo.m_pen_upper_bound),
+	m_ftol(algo.m_ftol),m_xtol(algo.m_xtol)
 {}
 
 /// Clone method.
@@ -103,6 +107,7 @@ void cstrs_co_evolution::evolve(population &pop) const
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
 	const population::size_type pop_size = pop.size();
+	const problem::base::size_type prob_dimension = prob.get_dimension();
 
 	// get the constraints dimension
 	problem::base::c_size_type prob_c_dimension = prob.get_c_dimension();
@@ -222,6 +227,53 @@ void cstrs_co_evolution::evolve(population &pop) const
 		for(population::size_type i=0; i<pop_2_size; i++) {
 			pop_2_x[i] = pop_2.get_individual(i).cur_x;
 			pop_2_f[i] = pop_2.get_individual(i).cur_f;
+		}
+
+		// Check the exit conditions (every 40 generations, just as DE)
+		if(k % 40 == 0) {
+			// finds the best population
+			population::size_type best_idx = 0;
+			for(population::size_type j=1; j<pop_2_size; j++) {
+				if(pop_2_f[j][0] < pop_2_f[best_idx][0]) {
+					best_idx = j;
+				}
+			}
+
+			const population &current_population = pop_1_vector.at(best_idx);
+
+			decision_vector tmp(prob_dimension);
+
+			double dx = 0;
+			for(decision_vector::size_type i=0; i<prob_dimension; i++) {
+				tmp[i] = current_population.get_individual(current_population.get_worst_idx()).best_x[i] -
+						current_population.get_individual(current_population.get_best_idx()).best_x[i];
+				dx += std::fabs(tmp[i]);
+			}
+
+			if(dx < m_xtol ) {
+				if (m_screen_output) {
+					std::cout << "Exit condition -- xtol < " << m_xtol << std::endl;
+				}
+				break;
+			}
+
+			double mah = std::fabs(current_population.get_individual(current_population.get_worst_idx()).best_f[0] -
+					current_population.get_individual(current_population.get_best_idx()).best_f[0]);
+
+			if(mah < m_ftol) {
+				if(m_screen_output) {
+					std::cout << "Exit condition -- ftol < " << m_ftol << std::endl;
+				}
+				break;
+			}
+
+			// outputs current values
+			if(m_screen_output) {
+				std::cout << "Generation " << k << " ***" << std::endl;
+				std::cout << "    Best global fitness: " << current_population.champion().f << std::endl;
+				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
+				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
+			}
 		}
 	}
 

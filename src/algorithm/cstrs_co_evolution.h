@@ -74,7 +74,8 @@ public:
 
 	cstrs_co_evolution(const base & = jde(), const base & = sga(1), int pop_penalties_size = 30, int gen = 1,
 					   method_type method = SIMPLE, double pen_lower_bound = 0.,
-					   double pen_upper_bound = 100000.);
+					   double pen_upper_bound = 100000.,
+					   double = 1e-15, double = 1e-15);
 	cstrs_co_evolution(const cstrs_co_evolution &);
 	base_ptr clone() const;
 
@@ -100,6 +101,8 @@ private:
 		ar & m_pop_penalties_size;
 		ar & m_pen_lower_bound;
 		ar & m_pen_upper_bound;
+		ar & const_cast<double &>(m_ftol);
+		ar & const_cast<double &>(m_xtol);
 	}
 	base_ptr m_original_algo;
 	base_ptr m_original_algo_penalties;
@@ -111,6 +114,10 @@ private:
 	method_type m_method;
 	double m_pen_lower_bound;
 	double m_pen_upper_bound;
+
+	// tolerance
+	const double m_ftol;
+	const double m_xtol;
 };
 
 }} //namespaces

@@ -294,7 +294,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// Constraints Co-Evolution.
 	algorithm_wrapper<algorithm::cstrs_co_evolution>("cstrs_co_evolution","Constraints Co-Evolution.")
-		.def(init<optional<const algorithm::base &,const algorithm::base &,int,int,algorithm::cstrs_co_evolution::method_type,double,double> >())
+		.def(init<optional<const algorithm::base &,const algorithm::base &,int,int,algorithm::cstrs_co_evolution::method_type,double,double,double,double> >())
 		.add_property("algorithm",&algorithm::cstrs_co_evolution::get_algorithm,&algorithm::cstrs_co_evolution::set_algorithm);
 
 	// Self-Adaptive meta-algorithm.

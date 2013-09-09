@@ -592,11 +592,11 @@ mbh.__init__ = _mbh_ctor
 # Renaming and placing the enums
 _algorithm.cstrs_co_evolution.method = _algorithm._co_evo_method_type
 
-def _cstrs_co_evolution_ctor(self,algorithm = _algorithm.jde(),algorithm_2 = _algorithm.jde(),pop_2_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.):
+def _cstrs_co_evolution_ctor(self,algorithm = _algorithm.jde(),algorithm_2 = _algorithm.jde(),pop_2_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.,f_tol = 1e-15,x_tol = 1e-15):
 	"""
 	Constructs a co-evolution adaptive algorithm.
 	
-	USAGE: algorithm.cstrs_co_evolution(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), pop_2_size = 30, gen = 20, method = cstrs_co_evolution.method.SIMPLE, pen_lower_bound = 0, pen_upper_bound = 100000);
+	USAGE: algorithm.cstrs_co_evolution(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), pop_2_size = 30, gen = 20, method = cstrs_co_evolution.method.SIMPLE, pen_lower_bound = 0, pen_upper_bound = 100000,f_tol = 1e-15,x_tol = 1e-15);
 	*
 	* algorithm: optimizer to use as 'original' optimization method
 	* algorithm_2: optimizer to use as 'original' optimization method for population 2
@@ -611,6 +611,8 @@ def _cstrs_co_evolution_ctor(self,algorithm = _algorithm.jde(),algorithm_2 = _al
 	* constraints.
 	* pen_lower_bound: the lower boundary used for penalty.
 	* pen_upper_bound: the upper boundary used for penalty.
+	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
+	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
 	arg_list=[]
 	arg_list.append(algorithm)
@@ -620,6 +622,8 @@ def _cstrs_co_evolution_ctor(self,algorithm = _algorithm.jde(),algorithm_2 = _al
 	arg_list.append(method)
 	arg_list.append(pen_lower_bound)
 	arg_list.append(pen_upper_bound)
+	arg_list.append(f_tol)
+	arg_list.append(x_tol)
 	self._orig_init(*arg_list)
 cstrs_co_evolution._orig_init = cstrs_co_evolution.__init__
 cstrs_co_evolution.__init__ = _cstrs_co_evolution_ctor
