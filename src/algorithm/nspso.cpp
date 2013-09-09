@@ -150,80 +150,31 @@ void nspso::evolve(population &pop) const
 	}
 
 	population nextPopList(pop);
-	std::vector<population::size_type> bestNextPopIndices(NP,0);
-	std::vector<population::size_type> worseNextPopIndices(NP,0);
-
-	// initialization of the indexes (bestNextPopIndices contains the indexes of the particles that evolve, 
-	// worseNextPopIndices contains the indexes where the p_best is stored)
-	for ( population::size_type i = 0; i<NP; i++ ) {
-		bestNextPopIndices[i] = i;
-		worseNextPopIndices[i] = NP+i;
-	}
 
 	for(int g = 0; g < m_gen; ++g) {
-		// std::cout << "gen: " << g << std::endl;
-		// The individuals at position bestNextPopIndices of the new population (size 2*NP) contain the actual population
-		// (that will be moved) the remaining individuals having as X the best_x of each individual
-		// of the current population and as velocity the current velocity
-		if(g==0){
-			for(population::size_type idx = 0; idx < NP; ++idx) {
-				decision_vector tmp_x = nextPopList.get_individual(bestNextPopIndices[idx]).best_x; 
-				decision_vector tmp_v = nextPopList.get_individual(bestNextPopIndices[idx]).cur_v;
-				nextPopList.push_back(tmp_x);
-				nextPopList.set_v(worseNextPopIndices[idx],tmp_v);
-			}
-		}
-		else{
-			for(population::size_type idx = 0; idx < NP; ++idx) {
-				decision_vector tmp_bx = nextPopList.get_individual(bestNextPopIndices[idx]).best_x;
-				decision_vector tmp_v = nextPopList.get_individual(bestNextPopIndices[idx]).cur_v;
+		 std::cout << "gen: " << g << std::endl;
 
-				fitness_vector cur_f = nextPopList.get_individual(bestNextPopIndices[idx]).cur_f;
-				constraint_vector cur_c = nextPopList.get_individual(bestNextPopIndices[idx]).cur_c;
-				fitness_vector best_f = nextPopList.get_individual(bestNextPopIndices[idx]).best_f;
-				constraint_vector best_c = nextPopList.get_individual(bestNextPopIndices[idx]).best_c;
-
-				if(!prob.compare_fc(best_f,best_c,cur_f,cur_c)){
-					tmp_bx = nextPopList.get_individual(bestNextPopIndices[idx]).cur_x;
-				}
-
-				nextPopList.set_x(worseNextPopIndices[idx],tmp_bx);
-				nextPopList.set_v(worseNextPopIndices[idx],tmp_v);
-			}
-		}
-
-		decision_vector dummy(nextPopList.get_individual(0).cur_x.size(),0); //used for initialisation purposes
-		std::vector<decision_vector> X(NP,dummy); //set of population chromosomes
-		std::vector<decision_vector> nonDomChromosomes;
-		std::vector<population::size_type> bestNonDomIndices;
+		 std::vector<population::size_type> bestNonDomIndices;
 		std::vector<fitness_vector> fit(NP);// particles' current fitness values
 		// Copy the population chromosomes into X
 		for ( population::size_type i = 0; i<NP; i++ ) {
-			X[i]	=	nextPopList.get_individual(bestNextPopIndices[i]).cur_x;
-			fit[i]	=	nextPopList.get_individual(bestNextPopIndices[i]).cur_f;
+			fit[i]	=	nextPopList.get_individual(i).best_f;
 		}
 
 		if(m_diversity_mechanism == CROWDING_DISTANCE) {
 			std::vector<std::vector<population::size_type> > pareto_fronts = nextPopList.compute_pareto_fronts();
-			population nonDomPSOList(prob);
-			for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
-				if(std::find(bestNextPopIndices.begin(),bestNextPopIndices.end(), pareto_fronts[0][i])!=bestNextPopIndices.end()){
-					nonDomPSOList.push_back(nextPopList.get_individual(pareto_fronts[0][i]).cur_x);
-					nonDomChromosomes.push_back(nextPopList.get_individual(pareto_fronts[0][i]).cur_x);
-				}
-			}
-			if(nonDomPSOList.size()>1)
-				bestNonDomIndices = nonDomPSOList.get_best_idx(nonDomPSOList.size());
+			if(pareto_fronts[0].size()>1)
+				bestNonDomIndices = nextPopList.get_best_idx(pareto_fronts[0].size());
 			else
 				bestNonDomIndices.push_back(0);
 		}
 		else if(m_diversity_mechanism == NICHE_COUNT) {
+			std::vector<decision_vector> nonDomChromosomes;
+
 			//compute non dominated_population (for niche count)
 			std::vector<std::vector<population::size_type> > pareto_fronts = nextPopList.compute_pareto_fronts();
 			for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
-				if(std::find(bestNextPopIndices.begin(),bestNextPopIndices.end(), pareto_fronts[0][i])!=bestNextPopIndices.end()){
-					nonDomChromosomes.push_back(nextPopList.get_individual(pareto_fronts[0][i]).cur_x);
-				}
+				nonDomChromosomes.push_back(nextPopList.get_individual(pareto_fronts[0][i]).best_x);
 			}
 
 			std::vector<double> nadir = nextPopList.compute_nadir(); //TODO
@@ -249,17 +200,21 @@ void nspso::evolve(population &pop) const
 
 			std::vector<int> count(nonDomChromosomes.size(),0);
 			compute_niche_count(count, nonDomChromosomes, delta);
-			bestNonDomIndices = pagmo::util::neighbourhood::order(count);
+			std::vector<population::size_type> tmp = pagmo::util::neighbourhood::order(count);
+
+			for(unsigned int i=0; i < tmp.size(); ++i) {
+				bestNonDomIndices.push_back(pareto_fronts[0][tmp[i]]);
+			}
 
 		} else { // m_diversity_method == MAXMIN
 			std::vector<double> maxmin(NP,0);
 			compute_maxmin(maxmin, fit);
 			bestNonDomIndices = pagmo::util::neighbourhood::order(maxmin);
 			unsigned int i = 0;
-			for(;maxmin[bestNonDomIndices[i]] < 0 && i < bestNonDomIndices.size(); ++i);
-			if(i==0){
+			for(;i < bestNonDomIndices.size() && maxmin[bestNonDomIndices[i]] < 0; ++i);
+			/*if(i==0){
 				for(;maxmin[bestNonDomIndices[i]] < 0 && i < bestNonDomIndices.size(); ++i);
-			}
+			}*/
 			bestNonDomIndices = std::vector<population::size_type>(bestNonDomIndices.begin(), bestNonDomIndices.begin() + i); //keep just the non dominated
 		}
 
@@ -267,21 +222,21 @@ void nspso::evolve(population &pop) const
 		const double W  = m_maxW - (m_maxW-m_minW)/m_gen * g; //W decreased from maxW to minW troughout the run
 
 		for(population::size_type idx = 0; idx < NP; ++idx) {
-			const decision_vector &best_X = nextPopList.get_individual(bestNextPopIndices[idx]).best_x;
-			const decision_vector &cur_X = nextPopList.get_individual(bestNextPopIndices[idx]).cur_x;
-			const decision_vector &cur_V = nextPopList.get_individual(bestNextPopIndices[idx]).cur_v;
+			const decision_vector &best_X = nextPopList.get_individual(idx).best_x;
+			const decision_vector &cur_X = nextPopList.get_individual(idx).cur_x;
+			const decision_vector &cur_V = nextPopList.get_individual(idx).cur_v;
 
 			decision_vector leader(cur_X.size(),0);
 			if(m_diversity_mechanism == CROWDING_DISTANCE || m_diversity_mechanism == NICHE_COUNT) {
 				int ext = ceil(bestNonDomIndices.size()*m_leader_selection_range/100.0)-1;
 				if (ext < 0) ext = 0;
-				leader = nonDomChromosomes[bestNonDomIndices[boost::uniform_int<int>(0,ext)(m_drng)]];
+				leader = nextPopList.get_individual(bestNonDomIndices[boost::uniform_int<int>(0,ext)(m_drng)]).best_x;
 			}
 			else { // m_diversity_method == MAXMIN
 				for(unsigned int i = 0; i < leader.size(); ++i) {
 					int ext = ceil(bestNonDomIndices.size()*m_leader_selection_range/100.0)-1;
 					if (ext < 0) ext = 0;
-					leader[i] = X[bestNonDomIndices[boost::uniform_int<int>(0,ext)(m_drng)]][i];
+					leader[i] = nextPopList.get_individual(bestNonDomIndices[boost::uniform_int<int>(0,ext)(m_drng)]).best_x[i];
 				}
 			}
 			//Calculate some random factors
@@ -316,13 +271,15 @@ void nspso::evolve(population &pop) const
 				newX[i] = x;
 			}
 
-			nextPopList.set_x(bestNextPopIndices[idx],newX);
-			nextPopList.set_v(bestNextPopIndices[idx],newV);
+			nextPopList.push_back(newX);
+			nextPopList.set_v(idx+NP, newV);
 		}
 
 
 		//Select the best NP individuals in the new population (of size 2*NP) according to pareto dominance
 		std::vector<std::vector<population::size_type> > nextPop_pareto_fronts = nextPopList.compute_pareto_fronts();
+
+		std::vector<population::size_type> bestNextPopIndices(NP,0);
 
 		for(unsigned int f = 0, i=0; i<NP && f < nextPop_pareto_fronts.size(); ++f) {
 			if(nextPop_pareto_fronts[f].size() < NP-i) { //then push the whole front in the population
@@ -338,19 +295,26 @@ void nspso::evolve(population &pop) const
 				}
 			}
 		}
-		worseNextPopIndices.clear();
-		for(int i=0;i<2*NP;i++){
+
+		//Calculate the complement of bestNextPopIndices
+		std::vector<population::size_type> worseNextPopIndices;
+		for(unsigned int i=0;i<2*NP;i++){
 			if(std::find(bestNextPopIndices.begin(), bestNextPopIndices.end(), i)==bestNextPopIndices.end())
 				worseNextPopIndices.push_back(i);
+		}
+
+		//Delete the non-selected particles
+		std::sort(worseNextPopIndices.begin(), worseNextPopIndices.end());
+		for(population::size_type idx = 0; idx < NP; ++idx) {
+			nextPopList.erase(worseNextPopIndices[NP-idx-1]);
 		}
 
 	}
 	pop.clear();
 	for(population::size_type i = 0; i < NP; ++i){
-			pop.push_back(nextPopList.get_individual(bestNextPopIndices[i]).cur_x);
-			pop.set_x(i, nextPopList.get_individual(bestNextPopIndices[i]).best_x);
-			pop.set_x(i, nextPopList.get_individual(bestNextPopIndices[i]).cur_x);
-			pop.set_v(i, nextPopList.get_individual(bestNextPopIndices[i]).cur_v);
+		pop.push_back(nextPopList.get_individual(i).best_x);
+		pop.set_x(i, nextPopList.get_individual(i).cur_x);
+		pop.set_v(i, nextPopList.get_individual(i).cur_v);
 	}
 
 }
