@@ -78,10 +78,13 @@ private:
 	// Helper methods to validate input data
 	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size) const;
 	void _validate_problem_stochastic(const problem::base& prob) const;
-	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size) const;
+	void _validate_racing_params(const population& pop, const population::size_type n_final, double delta) const;
+	void _validate_budget(const unsigned int min_trials, const unsigned int max_f_evals, const std::vector<population::size_type>& in_race) const;
 
 	unsigned int prepare_population_friedman(const std::vector<population::size_type> &in_race, unsigned int count_iter);
 	unsigned int prepare_population_wilcoxon(const std::vector<population::size_type> &in_race, unsigned int count_iter);
+
+	unsigned int compute_required_fevals(const std::vector<population::size_type>& in_race, unsigned int num_iter) const;
 
 	// Atoms of the cache
 	struct eval_data
