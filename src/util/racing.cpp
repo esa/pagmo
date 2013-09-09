@@ -258,6 +258,8 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_populatio
 		racers[idx_mapping[i]].m_hist.push_back(rankings[i]);
 	}
 
+	//std::cout << "Adjusted ranking: "; for(size_type i = 0; i < idx_mapping.size(); i++) std::cout << "(" << idx_mapping[i] << ")-" << racers[idx_mapping[i]].m_hist.back() << " "; std::cout << std::endl;
+
 	// Update mean of rank (which also reflects the sum of rank, useful for
 	// later pair-wise test)
 	for(size_type i = 0; i < rankings.size(); i++){

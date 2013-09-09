@@ -28,7 +28,7 @@ race_pop::race_pop(const population& pop, unsigned int seed): m_use_caching(true
  *
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(unsigned int seed): m_race_seed(seed), m_pop(population(problem::ackley())), m_pop_wilcoxon(population(problem::ackley())), m_pop_registered(false), m_seeds(), m_seeder(seed), m_cache_data(0), m_cache_averaged_data(0)
+race_pop::race_pop(unsigned int seed): m_use_caching(true), m_race_seed(seed), m_pop(population(problem::ackley())), m_pop_wilcoxon(population(problem::ackley())), m_pop_registered(false), m_seeds(), m_seeder(seed), m_cache_data(0), m_cache_averaged_data(0)
 {
 }
 
@@ -310,7 +310,7 @@ unsigned int race_pop::compute_required_fevals(const std::vector<population::siz
  * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
  * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
-std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const std::vector<population::size_type>& active_set, const bool race_best, const bool screen_output)
+std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const std::vector<population::size_type>& active_set, termination_condition term_cond, const bool race_best, const bool screen_output)
 {
 	// First check whether the a population has been properly registered
 	if(!m_pop_registered){
@@ -356,8 +356,10 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		}
 	}
 
-	// d - Check if the given budget is too small
-	_validate_budget(min_trials, max_f_evals, in_race);		
+	if(term_cond == MAX_BUDGET){
+		// d - Check if the given budget is too small
+		_validate_budget(min_trials, max_f_evals, in_race);		
+	}
 
 	size_type N_begin = in_race.size();
 	size_type n_final_best;
@@ -391,14 +393,29 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 			std::cout << "Decided: " << decided << std::endl;
 			std::cout << "In-race: " << in_race << std::endl;
 			std::cout << "Discarded: " << discarded << std::endl;
+			std::cout << "Mean ranks: ";
+			for(unsigned int i = 0; i < in_race.size(); i++){
+				if(racers[in_race[i]].active){
+					std::cout <<  "(" << in_race[i] << "): " << racers[in_race[i]].m_mean << " ";
+				}
+			}
+			std::cout << std::endl;
+			print_cache_stats(in_race);
 		}
-
-		//print_cache_stats(in_race);
 		
-		// Check if there is enough budget for evaluating the individuals in the race 
-		unsigned int required_fevals = compute_required_fevals(in_race, count_iter);
-		if(count_nfes + required_fevals > max_f_evals){
-			break;
+		if(term_cond == MAX_BUDGET){
+			// Check if there is enough budget for evaluating the individuals in the race 
+			unsigned int required_fevals = compute_required_fevals(in_race, count_iter);
+			if(count_nfes + required_fevals > max_f_evals){
+				break;
+			}
+		}
+		else{
+			// Here max_f_evals has the meaning of "maximum number of data
+			// points" to be considered for each individual
+			if(count_iter > max_f_evals){
+				break;
+			}
 		}
 
 		unsigned int cur_seed = get_current_seed(seed_idx++);

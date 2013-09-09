@@ -35,6 +35,7 @@
 #include "../src/util/race_pop.h"
 
 using namespace pagmo;
+using namespace util::racing;
 
 const double EPS = 10e-9;
 rng_uint32 rng_seed_provider;
@@ -243,8 +244,8 @@ int test_racing_cache(const problem::base_ptr& prob)
 		active_set.push_back(i);
 	}
 	population::size_type n_final = 1;
-	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev.run(n_final, 0, 500, 0.05, active_set, true, false);
-	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev.run(n_final, 0, 500, 0.05, active_set, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
 
 	std::cout << "\tfevals: First race consumed " << res1.second << " and second consumed " << res2.second << std::endl;
 
@@ -285,13 +286,13 @@ int test_racing_cache_transfer(const problem::base_ptr &prob)
 	population::size_type n_final = 1;
 
 	// Race on device 1
-	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev1.run(n_final, 0, 500, 0.05, active_set, true, false);	
+	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev1.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);	
 
 	// Transfer to device 2
 	race_pop_dev2.inherit_memory(race_pop_dev1);
 
 	// Race on device 2
-	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev2.run(n_final, 0, 500, 0.05, active_set, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev2.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
 
 	std::cout << "\tfevals: First race consumed " << res1.second << " and second consumed " << res2.second << std::endl;
 
@@ -329,7 +330,7 @@ int test_racing_get_mean_fitness(const problem::base_ptr &prob)
 	}
 	population::size_type n_final = 1;
 
-	std::pair<std::vector<population::size_type>, unsigned int> res = race_pop_dev.run(n_final, 0, 5000, 0.05, active_set, true, true);
+	std::pair<std::vector<population::size_type>, unsigned int> res = race_pop_dev.run(n_final, 0, 5000, 0.05, active_set, race_pop::MAX_BUDGET, true, true);
 
 	// Check that the dimension is correct
 	unsigned int winner_idx = res.first[0];
@@ -390,14 +391,14 @@ int test_race_pop_constructor(const problem::base_ptr& prob)
 		active_set.push_back(i);
 	}
 	population::size_type n_final = 1;
-	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev1.run(n_final, 0, 500, 0.05, active_set, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev1.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
 
 	// Register the population
 	race_pop_dev2.register_population(pop);
 	// Try to inherit memory from the other race structure
 	race_pop_dev2.inherit_memory(race_pop_dev1);
 
-	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev2.run(n_final, 0, 500, 0.05, active_set, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev2.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
 
 	std::cout << "\tfevals: First race consumed " << res1.second << " and second consumed " << res2.second << std::endl;
 

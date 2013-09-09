@@ -24,7 +24,8 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
 
     # 1. Set up the problem
     prob_orig = problem.ackley(10)
-    noise_level = 0.5
+    #prob_orig = problem.griewank(10)
+    noise_level = 0.05
     prob_single_eval = problem.noisy(prob_orig, trials = 1, param_second = noise_level)
     prob_regular = problem.noisy(prob_orig, trials = nr_eval_per_x, param_second = noise_level)
 
@@ -70,7 +71,7 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
             fitnesses_racing.append(evolve_and_evaluate(algo_with_racing, prob_regular, pop_size, prob_orig, seed)[0])
         else:
             fitnesses_racing.append(evolve_and_evaluate(algo_with_racing, prob_single_eval, pop_size, prob_orig, seed)[0])
-            print (fitnesses[-1], fitnesses_racing[-1])
+        print (fitnesses[-1], fitnesses_racing[-1])
 
     avg_fitness = np.mean(fitnesses)
     avg_fitness_racing = np.mean(fitnesses_racing)
@@ -84,4 +85,4 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
     return (avg_fitness, avg_fitness_racing)
 
 if __name__ == '__main__':
-    start_experiment(num_trials=20, pop_size=20, nr_eval_per_x=5, fevals_max=200000)
+    start_experiment(num_trials=20, pop_size=20, nr_eval_per_x=5, fevals_max=500000)

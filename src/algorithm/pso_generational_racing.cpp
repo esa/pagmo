@@ -31,8 +31,9 @@
 #include "pso_generational_racing.h"
 #include "../problem/base_stochastic.h"
 
-
 namespace pagmo { namespace algorithm {
+
+using namespace util::racing;
 
 /// Constructor.
 /**
@@ -125,6 +126,11 @@ std::pair<population::size_type, unsigned int> pso_generational_racing::racing__
 	if(!(idx1<0 && idx2<0) && !(idx1>=0 && idx2>=0)){
 		pagmo_throw(value_error, "The pair must either be both -1 (race all) or both explicitly specified.");
 	}
+
+	// If this is true, the max_fevals need to be scaled down accordingly, as
+	// it has a different meaning when being passed in.
+	bool use_data_count_termination = false;
+
 	std::vector<population::size_type> active_set;
 	// Run race on all the individuals
 	if(idx1 < 0){
@@ -132,14 +138,26 @@ std::pair<population::size_type, unsigned int> pso_generational_racing::racing__
 		for(population::size_type i = 0; i < race_structure.size(); i++){
 			active_set[i] = i;
 		}
+		if(use_data_count_termination){
+			max_fevals /= race_structure.size();
+		}
 	}
 	// Race between the two specified individuals
 	else{
 		active_set.resize(2);
 		active_set[0] = idx1;
 		active_set[1] = idx2;
+		if(use_data_count_termination){
+			max_fevals /= 2;
+		}
 	}
-	std::pair<std::vector<population::size_type>, unsigned int>  res = race_structure.run(1, 0, max_fevals, 0.005, active_set, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> res;
+	if(use_data_count_termination){
+		res = race_structure.run(1, 0, max_fevals, 0.01, active_set, race_pop::MAX_DATA_COUNT, true, false);
+	}
+	else{
+		res = race_structure.run(1, 0, max_fevals, 0.01, active_set, race_pop::MAX_BUDGET, true, false);
+	}
 	return std::make_pair(res.first[0], res.second);
 }
 
@@ -680,13 +698,17 @@ decision_vector pso_generational_racing::particle__racing_get_best_neighbor( pop
 		if(!repeated)
 			active_indices.push_back(neighb[pidx][nidx]);
 	}
+	/*
 	unsigned int max_budget_default = neighb[pidx].size() * m_nr_eval_per_x;
 	//unsigned int max_budget = neighb[pidx].size() * m_nr_eval_per_x / 2;
 	//unsigned int max_budget = neighb[pidx].size() * 3;
 	unsigned int max_budget = max_budget_default * 1;
 	m_extra_budget = max_budget_default - max_budget;
+	*/
+	m_extra_budget = 0;
 
-	std::pair<std::vector<population::size_type>, unsigned int> race_res = race.run(1, 0, max_budget, 0.005, active_indices, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> race_res = race.run(2, 0, neighb[pidx].size() * m_nr_eval_per_x, 0.01, active_indices, race_pop::MAX_BUDGET, true, false);
+	//std::pair<std::vector<population::size_type>, unsigned int> race_res = race.run(1, 0, m_nr_eval_per_x, 0.01, active_indices, race_pop::MAX_DATA_COUNT, true, false);
 	std::vector<population::size_type> winners = race_res.first;
 	m_fevals += race_res.second;
 	return lbX[winners[0]];
