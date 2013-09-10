@@ -146,7 +146,7 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 			}
 		}
 
-		// check termination condidion
+		// check termination condition
 		stop_condition = false;
 		if (m_point_set.size() <= 1) {
 			stop_condition = true;

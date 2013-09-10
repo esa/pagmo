@@ -24,7 +24,6 @@
 
 #include "base.h"
 
-
 namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// Destructor required for pure virtual methods
@@ -201,7 +200,12 @@ std::vector<double> base::contributions(std::vector<fitness_vector> &points, con
 		points_less.reserve(points.size() - 1);
 		copy(points.begin(), points.begin() + idx, back_inserter(points_less));
 		copy(points.begin() + idx + 1, points.end(), back_inserter(points_less));
-		c.push_back(hv_total - compute(points_less, r_point));
+		double delta = hv_total - compute(points_less, r_point);
+
+		if (fabs(delta) < 1e-8) {
+			delta = 0.0;
+		}
+		c.push_back(delta);
 	}
 
 	return c;

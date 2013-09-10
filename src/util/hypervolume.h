@@ -88,7 +88,8 @@ public:
 	const std::vector<fitness_vector> &get_points() const;
 
 private:
-	hv_algorithm::base_ptr get_best_method(const fitness_vector &) const;
+	hv_algorithm::base_ptr get_best_compute(const fitness_vector &) const;
+	hv_algorithm::base_ptr get_best_contributions(const fitness_vector &) const;
 	void verify_after_construct() const;
 	void verify_before_compute(const fitness_vector &, const hv_algorithm::base_ptr) const;
 

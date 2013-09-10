@@ -163,7 +163,7 @@ void hypervolume::verify_before_compute(const fitness_vector &r_point, hv_algori
  * Returns the best method for given hypervolume computation problem.
  * As of yet, only the dimension size is taken into account.
  */
-hv_algorithm::base_ptr hypervolume::get_best_method(const fitness_vector &r_point) const
+hv_algorithm::base_ptr hypervolume::get_best_compute(const fitness_vector &r_point) const
 {
 	switch(r_point.size()) {
 		case 2:
@@ -174,6 +174,20 @@ hv_algorithm::base_ptr hypervolume::get_best_method(const fitness_vector &r_poin
 			break;
 		case 4:
 			return hv_algorithm::base_ptr(new hv_algorithm::hv4d());
+			break;
+		default:
+			return hv_algorithm::base_ptr(new hv_algorithm::wfg());
+	}
+}
+
+hv_algorithm::base_ptr hypervolume::get_best_contributions(const fitness_vector &r_point) const
+{
+	switch(r_point.size()) {
+		case 2:
+			return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
+			break;
+		case 3:
+			return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
 			break;
 		default:
 			return hv_algorithm::base_ptr(new hv_algorithm::wfg());
@@ -215,7 +229,7 @@ double hypervolume::compute(const fitness_vector &r_point, hv_algorithm::base_pt
  */
 double hypervolume::compute(const fitness_vector &r_point) const
 {
-	return compute(r_point, get_best_method(r_point));
+	return compute(r_point, get_best_compute(r_point));
 }
 
 /// Compute exclusive contribution
@@ -260,7 +274,7 @@ double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_
  */
 double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_point) const
 {
-	return exclusive(p_idx, r_point, get_best_method(r_point));
+	return exclusive(p_idx, r_point, get_best_contributions(r_point));
 }
 
 /// Find the least contributing individual
@@ -303,7 +317,7 @@ unsigned int hypervolume::least_contributor(const fitness_vector &r_point, hv_al
  */
 unsigned int hypervolume::least_contributor(const fitness_vector &r_point) const
 {
-	return least_contributor(r_point, get_best_method(r_point));
+	return least_contributor(r_point, get_best_contributions(r_point));
 }
 
 /// Find the most contributing individual
@@ -341,7 +355,7 @@ unsigned int hypervolume::greatest_contributor(const fitness_vector &r_point, hv
  */
 unsigned int hypervolume::greatest_contributor(const fitness_vector &r_point) const
 {
-	return greatest_contributor(r_point, get_best_method(r_point));
+	return greatest_contributor(r_point, get_best_contributions(r_point));
 }
 
 /// Contributions method
@@ -386,7 +400,7 @@ std::vector<double> hypervolume::contributions(const fitness_vector &r_point, co
  */
 std::vector<double> hypervolume::contributions(const fitness_vector &r_point) const
 {
-	return contributions(r_point, get_best_method(r_point));
+	return contributions(r_point, get_best_contributions(r_point));
 }
 
 /// Get expected numer of operations

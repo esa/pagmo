@@ -54,50 +54,16 @@ double hv2d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 	}
 
 	double hypervolume = 0.0;
-	for(std::vector<fitness_vector>::size_type idx = 0; idx < points.size() - 1 ; ++idx) {
-		double area = (points[idx][1] - points[idx+1][1]) * (points[idx][0] - r_point[0]);
-		hypervolume += fabs(area);
+
+	// width of the sweeping line
+	double w = r_point[0] - points[0][0];
+	for(unsigned int idx = 0 ; idx < points.size() - 1 ; ++idx) {
+		hypervolume += (points[idx + 1][1] - points[idx][1]) * w;
+		w = fmax(w, r_point[0] - points[idx+1][0]);
 	}
-	fitness_vector &last = points.back();
-	hypervolume += fabs((r_point[1] - last[1]) * (r_point[0] - last[0]));
+	hypervolume += (r_point[1] - points[points.size() - 1][1]) * w;
 
 	return hypervolume;
-}
-
-/// Contributions method
-/**
- * This method computes the exclusive hypervolume for each point in a set.
- * It uses an efficient method to achieve that which runs in asymptotic time of O(n * log(n));
- *
- * @param[in] points vector of points containing the 2-dimensional points for which we compute the hypervolume
- * @param[in] r_point reference point for the points
- */
-std::vector<double> hv2d::contributions(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
-{
-	std::vector<double> c;
-	c.reserve(points.size());
-	// introduce a pair of <point, index> in order to return the correct original index
-	// otherwise, we would lose the information about the index after the sorting
-	std::vector<std::pair<fitness_vector, unsigned int> > points_cpy;
-	points_cpy.resize(points.size());
-	for (std::vector<std::pair<fitness_vector, unsigned int> >::size_type idx = 0; idx < points.size() ; ++idx) {
-		points_cpy[idx] = std::pair<fitness_vector, unsigned int>(points[idx], idx);
-	}
-
-	sort(points_cpy.begin(), points_cpy.end(), point_pairs_cmp);
-
-	c.push_back(fabs((points_cpy[0].first[1] - r_point[1]) * (points_cpy[0].first[0] - points_cpy[1].first[0])));
-
-	// compute points 2nd to (n-1)th
-	for(std::vector<fitness_vector>::size_type idx = 1; idx < points_cpy.size() - 1 ; ++idx) {
-		c.push_back(fabs((points_cpy[idx].first[1] - points_cpy[idx - 1].first[1]) * (points_cpy[idx].first[0] - points_cpy[idx+1].first[0])));
-	}
-	unsigned int last_idx = points_cpy.size() - 1;
-
-	// compute last point separately
-	c.push_back(fabs((points_cpy[last_idx].first[1] - points_cpy[last_idx - 1].first[1]) * (points_cpy[last_idx].first[0] - r_point[0])));
-
-	return c;
 }
 
 /// Comparison function for arrays of double.
@@ -122,7 +88,7 @@ bool hv2d::cmp_double_2d(double* a, double* b)
  *
  * @return hypervolume
  */
-double hv2d::compute(double** points , unsigned int n_points, double* r_point) const
+double hv2d::compute(double** points, unsigned int n_points, double* r_point) const
 {
 	if (n_points == 0) {
 		return 0.0;
@@ -136,12 +102,14 @@ double hv2d::compute(double** points , unsigned int n_points, double* r_point) c
 	}
 
 	double hypervolume = 0.0;
-	for(unsigned int idx = 0; idx < n_points - 1 ; ++idx) {
-		double area = (points[idx][1] - points[idx+1][1]) * (points[idx][0] - r_point[0]);
-		hypervolume += fabs(area);
+
+	// width of the sweeping line
+	double w = r_point[0] - points[0][0];
+	for(unsigned int idx = 0 ; idx < n_points - 1 ; ++idx) {
+		hypervolume += (points[idx + 1][1] - points[idx][1]) * w;
+		w = fmax(w, r_point[0] - points[idx+1][0]);
 	}
-	double* last = points[n_points - 1];
-	hypervolume += fabs((r_point[1] - last[1]) * (r_point[0] - last[0]));
+	hypervolume += (r_point[1] - points[n_points - 1][1]) * w;
 
 	return hypervolume;
 }

@@ -108,22 +108,122 @@ class HVComputeTest(unittest.TestCase):
 	def test_bad_algo(self):
 		self.assertRaises(ValueError, self.hv2d.compute, [4, 4], hv_algorithm.hv3d())  # 3d method to 2d problem
 
+class HVContributionsTest(unittest.TestCase):
+	def test2d(self):
+		"""
+		This test contains a front with 3 non dominated points, 
+		and many dominated points. Most of the dominated points
+		lie on edges of the front, which makes their exclusive contribution
+		equal to 0.
+		"""
+		S = ((1, 6.5), (1, 6), (1, 5), (2, 5), (3, 5), (3, 3), (4, 6.5),
+			(4.5, 4), (5, 3), (5, 1.5), (7, 1.5), (7, 3.5), )
+		R = (7, 6.5, )
+		ans = (0.0, 0.0, 1.0, 0.0, 0.0, 3.5, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, )
+
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), ans)
+
+		# Adding few extra points that share an edge with a reference point
+		extra = ((7,0.5), (7, 1.0), (7, 4.5), (0.0, 6.5), (5.5, 6.5), )
+		S += extra
+		ans += (0, ) * len(extra)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), ans)
+
+		# Adding few duplicated points on the inside and on the edges
+		extra = ((7,0.5), (5.5,6.5), (5,5), (5,5), (5,5), )
+		S += extra
+		ans += (0, )*len(extra)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), ans)
+
+	def test2d_gradual(self):
+		"""
+		Gradually adding duplicate points to the set, making sure the contribution change accordingly.
+		"""
+		S = ((1,1),)
+		R = (2,2)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (1.0,))
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+		S += ((1,1),)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (0.0, 0.0))
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+		S += ((1,1),)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (0.0,)*3)
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+		S += ((0.5, 0.5),)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (0.0, 0.0, 0.0, 1.25))
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+		S += ((0.5, 0.5),)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (0.0,)*5)
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+
+	def test3d(self):
+		"""
+		This test contains a tricky front in 3D with some weakly dominated points on the "edges" of the bounding box.
+		"""
+
+		# Non-tricky base problem
+		S = ((-6, -1, -6), (-1, -3, -5), (-3, -4, -4), (-4, -2, -3), (-5, -5, -2), (-2, -6, -1),)
+		R = (0, 0, 0)
+		ans = (18, 2, 12, 1, 18, 2)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), ans)
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+
+		# Add some points that contribute nothing and do not alter other contributions
+		extra = ((-3,-1,-3),(-1,-1,-5),(-1,-2,-4), (-1,-3,-4), (-7,-7,0), (0,-5,-5), (-7,0,-7))
+
+		S += extra
+		ans += (0,)*len(extra)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), ans)
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+
+	def test5d(self):
+		"""
+		Gradually adding points.
+		Tests whether contributions and exclusive methods produce the same results.
+		"""
+		S = ((1,1,1,1,1), )
+		R = (5,5,5,5,5)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (1024,))
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+
+		S += ((4,4,4,4,4),)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (1023,0))
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+
+		S += ((3,3,3,3,3),)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (992,0,0))
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+
+		S += ((1,1,1,1,1),)
+		hv = hypervolume(S)
+		self.assertEqual(hv.contributions(R), (0,0,0,0))
+		self.assertEqual(hv.contributions(R), tuple(hv.exclusive(i, R) for i in xrange(len(S))))
+
 class HVLeastContribTest(unittest.TestCase):
 
 	def setUp(self):
 		self.r = [4,4]
-		self.hv2d_eq_0 = hypervolume([[3,1],[2,2],[1,3]])  # all are equal (take first -> idx = 0)
-		self.hv2d_eq_1 = hypervolume([[2.5,1],[2,2],[1,3]])  # last two are equal (take first -> idx = 1)
+		self.hv2d_eq_0 = hypervolume([[3,1],[2,2],[1,3]])  # LC in [0,1,2]
+		self.hv2d_eq_1 = hypervolume([[2.5,1],[2,2],[1,3]])  # LC = 1
 		self.hv2d_0 = hypervolume([[3.5,1],[2,2],[1,3]])
 		self.hv2d_1 = hypervolume([[3,1],[2.5,2.5],[1,3]])
 		self.hv2d_2 = hypervolume([[3,1],[2,2],[1,3.5]])
 	
 	def test_correct_out(self):
-		out1 = self.hv2d_eq_0.least_contributor(r=self.r)
-		self.assertTrue(out1 in [0,1,2])
-
-		out2 = self.hv2d_eq_1.least_contributor(r=self.r)
-		self.assertTrue(out2 in [1,2])
+		self.assertTrue(self.hv2d_eq_0.least_contributor(r=self.r) in [0,1,2])
 
 		self.assertEqual(self.hv2d_eq_1.least_contributor(r=self.r), 1)
 		self.assertEqual(self.hv2d_0.least_contributor(r=self.r), 0)
@@ -228,4 +328,5 @@ def get_hv_suite():
 	suite.addTests(unittest.makeSuite(HVNadirPointTest))
 	suite.addTests(unittest.makeSuite(HVAlgorithms))
 	suite.addTests(unittest.makeSuite(HVFlagsTest))
+	suite.addTests(unittest.makeSuite(HVContributionsTest))
 	return suite

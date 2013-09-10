@@ -52,6 +52,51 @@ double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 	return guerreiro_hv4d(data, points.size(), refpoint);
 }
 
+/// Exclusive method
+/**
+ * As of yet, this algorithm does not support this method, even in its naive form, due to a poor handling of the dominated points.
+ */
+double hv4d::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	(void)p_idx;
+	(void)points;
+	(void)r_point;
+	pagmo_throw(value_error, "This method is not supported by the hv4d algorithm");
+}
+
+/// Least contributor method
+/**
+ * As of yet, this algorithm does not support this method, even in its naive form, due to a poor handling of the dominated points.
+ */
+unsigned int hv4d::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	(void)points;
+	(void)r_point;
+	pagmo_throw(value_error, "This method is not supported by the hv4d algorithm");
+}
+
+/// Greatest contributor method
+/**
+ * As of yet, this algorithm does not support this method, even in its naive form, due to a poor handling of the dominated points.
+ */
+unsigned int hv4d::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	(void)points;
+	(void)r_point;
+	pagmo_throw(value_error, "This method is not supported by the hv4d algorithm");
+}
+
+/// Contributions method
+/**
+ * As of yet, this algorithm does not support this method, even in its naive form, due to a poor handling of the dominated points.
+ */
+std::vector<double> hv4d::contributions(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	(void)points;
+	(void)r_point;
+	pagmo_throw(value_error, "This method is not supported by the hv4d algorithm");
+}
+
 /// Verify before compute
 /**
  * Verifies whether given algorithm suits the requested data.
