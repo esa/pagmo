@@ -43,6 +43,7 @@ namespace pagmo { namespace algorithm {
  * @see "Carlos M. Fonseca, Peter J. Fleming - Genetic Algorithms for Multiobjective Optimization: Formulation, Discussion and Generalization"
  **/
 
+
 class __PAGMO_VISIBLE nspso: public base
 {
 public:
@@ -84,6 +85,16 @@ private:
 		const std::vector<double> &m_crowding_d;
 	};
 
+	struct nspso_individual {
+		decision_vector cur_x;
+		decision_vector best_x;
+		decision_vector cur_v;
+		fitness_vector cur_f;
+		fitness_vector best_f;
+		constraint_vector cur_c;
+		constraint_vector best_c;
+	};
+
 
 	double minfit(unsigned int, unsigned int, const std::vector<fitness_vector> &) const;
 	void compute_maxmin(std::vector<double> &, const std::vector<fitness_vector> &) const;
@@ -99,6 +110,9 @@ private:
 																		   const std::vector<fitness_vector> &,
 																		   const std::vector<constraint_vector> &) const;
 	std::vector<double> compute_crowding_d(const std::vector<fitness_vector> &, const std::vector<std::vector<population::size_type> > &) const;
+	fitness_vector compute_ideal(const std::vector<fitness_vector> &, const std::vector<population::size_type> &) const;
+	fitness_vector compute_nadir(const std::vector<fitness_vector> &, const std::vector<population::size_type> &) const;
+
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)

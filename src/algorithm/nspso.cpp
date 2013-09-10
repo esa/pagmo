@@ -149,7 +149,19 @@ void nspso::evolve(population &pop) const
 		maxV[d] = v_width;
 	}
 
-	population nextPopList(pop);
+	//population nextPopList(pop);
+
+	std::vector<nspso_individual> nextPopList;
+	for(unsigned int i=0; i < NP; ++i) {
+		nextPopList.push_back(nspso_individual());
+		nextPopList[i].cur_x = pop.get_individual(i).cur_x;
+		nextPopList[i].best_x = pop.get_individual(i).best_x;
+		nextPopList[i].cur_v = pop.get_individual(i).cur_v;
+		nextPopList[i].cur_f = pop.get_individual(i).cur_f;
+		nextPopList[i].best_f = pop.get_individual(i).best_f;
+		nextPopList[i].cur_c = pop.get_individual(i).cur_c;
+		nextPopList[i].best_c = pop.get_individual(i).best_c;
+	}
 
 	for(int g = 0; g < m_gen; ++g) {
 		 std::cout << "gen: " << g << std::endl;
@@ -159,8 +171,8 @@ void nspso::evolve(population &pop) const
 		std::vector<constraint_vector> cons(NP);
 		// Copy the population chromosomes into X
 		for ( population::size_type i = 0; i<NP; i++ ) {
-			fit[i]	=	nextPopList.get_individual(i).best_f;
-			cons[i] = nextPopList.get_individual(i).best_c;
+			fit[i]	=	nextPopList[i].best_f;
+			cons[i] = nextPopList[i].best_c;
 		}
 
 		if(m_diversity_mechanism == CROWDING_DISTANCE) {
@@ -179,18 +191,20 @@ void nspso::evolve(population &pop) const
 			} else {
 				bestNonDomIndices.push_back(0);
 			}
-		}
-		else if(m_diversity_mechanism == NICHE_COUNT) {
+		} else if(m_diversity_mechanism == NICHE_COUNT) {
 			std::vector<decision_vector> nonDomChromosomes;
 
 			//compute non dominated_population (for niche count)
-			std::vector<std::vector<population::size_type> > pareto_fronts = nextPopList.compute_pareto_fronts();
+			std::vector<std::vector<population::size_type> > dom_list = compute_domination_list(prob,fit,cons);
+			std::vector<population::size_type> pareto_rank = compute_pareto_rank(dom_list);
+			std::vector<std::vector<population::size_type> > pareto_fronts = compute_pareto_fronts(pareto_rank);
+
 			for(unsigned int i = 0; i < pareto_fronts[0].size(); ++i) {
-				nonDomChromosomes.push_back(nextPopList.get_individual(pareto_fronts[0][i]).best_x);
+				nonDomChromosomes.push_back(nextPopList[pareto_fronts[0][i]].best_x);
 			}
 
-			std::vector<double> nadir = nextPopList.compute_nadir(); //TODO
-			std::vector<double> ideal = nextPopList.compute_ideal(); //TODO
+			std::vector<double> nadir = compute_nadir(fit, pareto_rank); //TODO
+			std::vector<double> ideal = compute_ideal(fit, pareto_rank); //TODO
 
 			//Fonseca-Fleming setting for delta
 			double delta;
@@ -217,7 +231,6 @@ void nspso::evolve(population &pop) const
 			for(unsigned int i=0; i < tmp.size(); ++i) {
 				bestNonDomIndices.push_back(pareto_fronts[0][tmp[i]]);
 			}
-
 		} else { // m_diversity_method == MAXMIN
 			std::vector<double> maxmin(NP,0);
 			compute_maxmin(maxmin, fit);
@@ -234,21 +247,21 @@ void nspso::evolve(population &pop) const
 		const double W  = m_maxW - (m_maxW-m_minW)/m_gen * g; //W decreased from maxW to minW troughout the run
 
 		for(population::size_type idx = 0; idx < NP; ++idx) {
-			const decision_vector &best_X = nextPopList.get_individual(idx).best_x;
-			const decision_vector &cur_X = nextPopList.get_individual(idx).cur_x;
-			const decision_vector &cur_V = nextPopList.get_individual(idx).cur_v;
+			const decision_vector &best_X = nextPopList[idx].best_x;
+			const decision_vector &cur_X = nextPopList[idx].cur_x;
+			const decision_vector &cur_V = nextPopList[idx].cur_v;
 
 			decision_vector leader(cur_X.size(),0);
 			if(m_diversity_mechanism == CROWDING_DISTANCE || m_diversity_mechanism == NICHE_COUNT) {
 				int ext = ceil(bestNonDomIndices.size()*m_leader_selection_range/100.0)-1;
 				if (ext < 0) ext = 0;
-				leader = nextPopList.get_individual(bestNonDomIndices[boost::uniform_int<int>(0,ext)(m_drng)]).best_x;
+				leader = nextPopList[bestNonDomIndices[boost::uniform_int<int>(0,ext)(m_drng)]].best_x;
 			}
 			else { // m_diversity_method == MAXMIN
 				for(unsigned int i = 0; i < leader.size(); ++i) {
 					int ext = ceil(bestNonDomIndices.size()*m_leader_selection_range/100.0)-1;
 					if (ext < 0) ext = 0;
-					leader[i] = nextPopList.get_individual(bestNonDomIndices[boost::uniform_int<int>(0,ext)(m_drng)]).best_x[i];
+					leader[i] = nextPopList[bestNonDomIndices[boost::uniform_int<int>(0,ext)(m_drng)]].best_x[i];
 				}
 			}
 			//Calculate some random factors
@@ -283,17 +296,25 @@ void nspso::evolve(population &pop) const
 				newX[i] = x;
 			}
 
-			nextPopList.push_back(newX);
-			nextPopList.set_v(idx+NP, newV);
-		}
+			nextPopList.push_back(nspso_individual());
+			nextPopList[idx+NP].cur_x = newX;
+			nextPopList[idx+NP].best_x = newX;
+			nextPopList[idx+NP].cur_v = newV;
+			nextPopList[idx+NP].cur_f = prob.objfun(newX);
+			nextPopList[idx+NP].best_f = nextPopList[idx+NP].cur_f;
+			nextPopList[idx+NP].cur_c = prob.compute_constraints(newX);
+			nextPopList[idx+NP].best_c = nextPopList[idx+NP].cur_c;
 
+			//nextPopList.push_back(newX);
+			//nextPopList.set_v(idx+NP, newV);
+		}
 
 		//Select the best NP individuals in the new population (of size 2*NP) according to pareto dominance
 		std::vector<fitness_vector> nextPop_fit(nextPopList.size());
 		std::vector<constraint_vector> nextPop_cons(nextPopList.size());
 		for(unsigned int i=0; i<nextPopList.size(); ++i) {
-			nextPop_fit[i] = nextPopList.get_individual(i).best_f;
-			nextPop_cons[i] = nextPopList.get_individual(i).best_c;
+			nextPop_fit[i] = nextPopList[i].best_f;
+			nextPop_cons[i] = nextPopList[i].best_c;
 		}
 
 		std::vector<std::vector<population::size_type> > nextPop_pareto_fronts = compute_pareto_fronts(prob, nextPop_fit, nextPop_cons);
@@ -318,6 +339,15 @@ void nspso::evolve(population &pop) const
 			}
 		}
 
+		std::vector<nspso_individual> tmpPop(NP);
+		for(unsigned int i=0; i < NP; ++i) {
+			tmpPop[i] = nextPopList[bestNextPopIndices[i]];
+		}
+
+		nextPopList = tmpPop;
+		tmpPop.clear();
+
+		/*
 		//Calculate the complement of bestNextPopIndices
 		std::vector<population::size_type> worseNextPopIndices;
 		for(unsigned int i=0;i<2*NP;i++){
@@ -328,15 +358,15 @@ void nspso::evolve(population &pop) const
 		//Delete the non-selected particles
 		std::sort(worseNextPopIndices.begin(), worseNextPopIndices.end());
 		for(population::size_type idx = 0; idx < NP; ++idx) {
-			nextPopList.erase(worseNextPopIndices[NP-idx-1]);
-		}
+			nextPopList.erase(nextPopList.begin() + worseNextPopIndices[NP-idx-1]);
+		}*/
 
 	}
 	pop.clear();
 	for(population::size_type i = 0; i < NP; ++i){
-		pop.push_back(nextPopList.get_individual(i).best_x);
-		pop.set_x(i, nextPopList.get_individual(i).cur_x);
-		pop.set_v(i, nextPopList.get_individual(i).cur_v);
+		pop.push_back(nextPopList[i].best_x);
+		pop.set_x(i, nextPopList[i].cur_x);
+		pop.set_v(i, nextPopList[i].cur_v);
 	}
 
 }
@@ -528,6 +558,42 @@ std::vector<std::vector<population::size_type> > nspso::compute_pareto_fronts(co
 
 	return retval;
 }
+
+fitness_vector nspso::compute_ideal(const std::vector<fitness_vector> &fit, const std::vector<population::size_type> &pareto_rank) const {
+
+	unsigned int firstFrontIdx = 0;
+	for(;pareto_rank[firstFrontIdx] > 0; ++firstFrontIdx);
+
+	fitness_vector ideal(fit[firstFrontIdx]);
+	for (population::size_type idx = 0; idx < fit.size(); ++idx) {
+		if (pareto_rank[idx] == 0) { //it is in the first pareto front
+			for(fitness_vector::size_type i = 0; i < ideal.size(); ++i) {
+				if (fit[idx][i] < ideal[i]) {
+					ideal[i] = fit[idx][i];
+				}
+			}
+		}
+	}
+	return ideal;
+}
+
+fitness_vector nspso::compute_nadir(const std::vector<fitness_vector> &fit, const std::vector<population::size_type> &pareto_rank) const {
+	unsigned int firstFrontIdx = 0;
+	for(;pareto_rank[firstFrontIdx] > 0; ++firstFrontIdx);
+
+	fitness_vector nadir(fit[firstFrontIdx]);
+		for (population::size_type idx = 0; idx < fit.size(); ++idx) {
+		if (pareto_rank[idx] == 0) { //it is in the first pareto front
+			for(fitness_vector::size_type i = 0; i < nadir.size(); ++i) {
+				if (fit[idx][i] > nadir[i]) {
+					nadir[i] = fit[idx][i];
+				}
+			}
+		}
+	}
+	return nadir;
+}
+
 
 /// Algorithm name
 std::string nspso::get_name() const
