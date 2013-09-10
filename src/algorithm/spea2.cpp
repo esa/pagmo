@@ -133,6 +133,7 @@ void spea2::evolve(population &pop) const
 		unsigned int n_non_dominated;
 		for(n_non_dominated = 0; n_non_dominated < NP+archive_size && F[ordered_by_fitness[n_non_dominated]] < 1; ++n_non_dominated);
 
+
 		//if it is the last iteration store in pop the best solutions between the archive and the current population so the dimension of the archive is force to be the same as the population
 		if(g==m_gen)
 			max_archive_size = NP;
@@ -212,9 +213,6 @@ void spea2::evolve(population &pop) const
 		boost::uniform_int<int> pop_idx(0,archive_size-1);
 		boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
 
-		population::size_type parent1_idx, parent2_idx;
-		decision_vector child1(D), child2(D);
-
 		//We create some pseudo-random permutation of the poulation indexes
 		std::random_shuffle(shuffle1.begin(),shuffle1.end(), p_idx);
 		std::random_shuffle(shuffle2.begin(),shuffle2.end(), p_idx);
@@ -282,6 +280,13 @@ std::vector<population::size_type> spea2::order_by_delta(const std::vector<std::
 
 	std::sort(rv.begin(), rv.end(), distance_sorter(neighbours, fit));
 
+	/*for(unsigned int i=0; i<neighbours.size(); ++i) {
+		for(unsigned int j=0; j < neighbours[i].size(); ++j) {
+			std::cout << pagmo::util::neighbourhood::euclidian::distance(fit[i], fit[neighbours[i][j]]) << " ";
+		}
+		std::cout << std::endl;
+	}*/
+
 	return rv;
 }
 
@@ -289,6 +294,9 @@ void spea2::compute_spea2_fitness(std::vector<double> &F,
 			int K,
 			const pagmo::population &pop) const
 {
+
+	pop.update_pareto_information();
+
 	std::vector<std::vector<population::size_type> > domination_list;
 	const population::size_type NP = pop.size();
 	std::vector<int> S(NP, 0);
@@ -300,13 +308,17 @@ void spea2::compute_spea2_fitness(std::vector<double> &F,
 	std::vector<std::vector<pagmo::population::size_type> > neighbours;
 	pagmo::util::neighbourhood::euclidian::compute_neighbours(neighbours, fit);
 
+	//std::cout <<"domination count:" << std::endl;
 	for(unsigned i=0; i<NP; ++i) {
 		domination_list.push_back(pop.get_domination_list(i));
+		//std::cout << pop.get_domination_list(i) << std::endl;
 	}
 
 	for(unsigned int i=0; i<NP; ++i) {
 		S[i] = domination_list[i].size();
 	}
+	//std::cout << "S: " << S << std::endl;
+
 
 	std::fill(F.begin(), F.end(), 0);
 
