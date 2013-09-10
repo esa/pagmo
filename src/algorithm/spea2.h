@@ -84,7 +84,7 @@ private:
 	void compute_spea2_fitness(std::vector<double> &,
 				int K,
 				const pagmo::population &) const;
-	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type, const std::vector<double>&) const;
+	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type, const pagmo::population&) const;
 	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,const pagmo::population&) const;
 	void mutate(decision_vector&, const pagmo::problem::base&) const;
 	friend class boost::serialization::access;
