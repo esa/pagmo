@@ -59,10 +59,46 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
+	struct one_dim_fit_comp {
+		one_dim_fit_comp(const std::vector<fitness_vector> &fit, fitness_vector::size_type dim):m_fit(fit),m_dim(dim){};
+		bool operator()(const population::size_type& idx1, const population::size_type& idx2) const
+		{
+			return m_fit[idx1][m_dim] < m_fit[idx2][m_dim];
+		}
+		const std::vector<fitness_vector>& m_fit;
+		fitness_vector::size_type m_dim;
+	};
+
+	struct crowding_pareto_comp{
+		crowding_pareto_comp(const std::vector<population::size_type> &pareto_rank, const std::vector<double> &crowding_d):m_pareto_rank(pareto_rank),m_crowding_d(crowding_d){};
+		bool operator()(const population::size_type& idx1, const population::size_type& idx2) const
+		{
+			if (m_pareto_rank[idx1] == m_pareto_rank[idx2]) {
+				return (m_crowding_d[idx1] > m_crowding_d[idx2]);
+			}
+			else {
+				return (m_pareto_rank[idx1] < m_pareto_rank[idx2]);
+			}
+		}
+		const std::vector<population::size_type> &m_pareto_rank;
+		const std::vector<double> &m_crowding_d;
+	};
+
+
 	double minfit(unsigned int, unsigned int, const std::vector<fitness_vector> &) const;
 	void compute_maxmin(std::vector<double> &, const std::vector<fitness_vector> &) const;
 	void compute_niche_count(std::vector<int> &, const std::vector<std::vector<double> > &, double) const;
 	double euclidian_distance(const std::vector<double> &, const std::vector<double> &) const;
+	std::vector<std::vector<population::size_type> > compute_domination_list(const pagmo::problem::base &,
+																			const std::vector<fitness_vector> &,
+																			const std::vector<constraint_vector> &) const;
+	std::vector<population::size_type> compute_domination_count(const std::vector<std::vector<population::size_type> > &) const;
+	std::vector<population::size_type> compute_pareto_rank(const std::vector<std::vector<population::size_type> > &) const;
+	std::vector<std::vector<population::size_type> > compute_pareto_fronts(const std::vector<population::size_type> &) const;
+	std::vector<std::vector<population::size_type> > compute_pareto_fronts(const pagmo::problem::base &,
+																		   const std::vector<fitness_vector> &,
+																		   const std::vector<constraint_vector> &) const;
+	std::vector<double> compute_crowding_d(const std::vector<fitness_vector> &, const std::vector<std::vector<population::size_type> > &) const;
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)

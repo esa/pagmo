@@ -154,19 +154,31 @@ void nspso::evolve(population &pop) const
 	for(int g = 0; g < m_gen; ++g) {
 		 std::cout << "gen: " << g << std::endl;
 
-		 std::vector<population::size_type> bestNonDomIndices;
+		std::vector<population::size_type> bestNonDomIndices;
 		std::vector<fitness_vector> fit(NP);// particles' current fitness values
+		std::vector<constraint_vector> cons(NP);
 		// Copy the population chromosomes into X
 		for ( population::size_type i = 0; i<NP; i++ ) {
 			fit[i]	=	nextPopList.get_individual(i).best_f;
+			cons[i] = nextPopList.get_individual(i).best_c;
 		}
 
 		if(m_diversity_mechanism == CROWDING_DISTANCE) {
-			std::vector<std::vector<population::size_type> > pareto_fronts = nextPopList.compute_pareto_fronts();
-			if(pareto_fronts[0].size()>1)
-				bestNonDomIndices = nextPopList.get_best_idx(pareto_fronts[0].size());
-			else
+			std::vector<std::vector<population::size_type> > dom_list = compute_domination_list(prob,fit,cons);
+			std::vector<population::size_type> pareto_rank = compute_pareto_rank(dom_list);
+			std::vector<std::vector<population::size_type> > pareto_fronts = compute_pareto_fronts(pareto_rank);
+			std::vector<double> crowding_d = compute_crowding_d(fit, pareto_fronts);
+
+			if(pareto_fronts[0].size()>1) {
+				crowding_pareto_comp comp(pareto_rank, crowding_d);
+				std::vector<population::size_type> dummy(NP);
+				for(unsigned int i=0; i<NP; ++i) dummy[i] = i;
+				std::sort(dummy.begin(), dummy.end(),comp);
+				bestNonDomIndices = std::vector<population::size_type>(dummy.begin(), dummy.begin() + pareto_fronts[0].size());
+				//bestNonDomIndices = nextPopList.get_best_idx(pareto_fronts[0].size());
+			} else {
 				bestNonDomIndices.push_back(0);
+			}
 		}
 		else if(m_diversity_mechanism == NICHE_COUNT) {
 			std::vector<decision_vector> nonDomChromosomes;
@@ -277,7 +289,17 @@ void nspso::evolve(population &pop) const
 
 
 		//Select the best NP individuals in the new population (of size 2*NP) according to pareto dominance
-		std::vector<std::vector<population::size_type> > nextPop_pareto_fronts = nextPopList.compute_pareto_fronts();
+		std::vector<fitness_vector> nextPop_fit(nextPopList.size());
+		std::vector<constraint_vector> nextPop_cons(nextPopList.size());
+		for(unsigned int i=0; i<nextPopList.size(); ++i) {
+			nextPop_fit[i] = nextPopList.get_individual(i).best_f;
+			nextPop_cons[i] = nextPopList.get_individual(i).best_c;
+		}
+
+		std::vector<std::vector<population::size_type> > nextPop_pareto_fronts = compute_pareto_fronts(prob, nextPop_fit, nextPop_cons);
+
+		//std::vector<std::vector<population::size_type> > nextPop_pareto_fronts = nextPopList.compute_pareto_fronts();
+
 
 		std::vector<population::size_type> bestNextPopIndices(NP,0);
 
@@ -372,6 +394,140 @@ void nspso::compute_niche_count(std::vector<int> &count, const std::vector<std::
 
 }
 
+
+
+
+std::vector<std::vector<population::size_type> > nspso::compute_domination_list(const pagmo::problem::base &prob,
+																   const std::vector<fitness_vector> &fit,
+																   const std::vector<constraint_vector> &cons) const
+{
+	std::vector<population::size_type> dummy;
+	std::vector<std::vector<population::size_type> > domination_list(fit.size(), dummy);
+
+	for(unsigned int i=0; i<fit.size();++i) {
+		for(unsigned int j=0; j<fit.size(); ++j) {
+			// Check if individual in position i dominates individual in position n.
+			if(prob.compare_fc(fit[i],cons[i],fit[j],cons[j])) {
+				domination_list[i].push_back(j);
+			}
+		}
+	}
+
+	return domination_list;
+}
+
+std::vector<population::size_type> nspso::compute_domination_count(const std::vector<std::vector<population::size_type> > &dom_list) const
+{
+	std::vector<population::size_type> domination_count(dom_list.size(),0);
+	for(unsigned int i=0; i<dom_list.size(); ++i) {
+		for(unsigned int j = 0; j < dom_list[i].size(); ++j) {
+			domination_count[dom_list[i][j]]++;
+		}
+	}
+
+	return domination_count;
+}
+
+std::vector<population::size_type> nspso::compute_pareto_rank(const std::vector<std::vector<population::size_type> > &dom_list) const
+{
+	std::vector<population::size_type> pareto_rank(dom_list.size(),0);
+
+	// We define some utility vectors .....
+	std::vector<population::size_type> F,S;
+
+	// And make a copy of the domination count (number of individuals that dominating one individual)
+	std::vector<population::size_type> dom_count = compute_domination_count(dom_list);
+
+	// 1 - Find the first Pareto Front
+	for (population::size_type idx = 0; idx < dom_count.size(); ++idx){
+		if (dom_count[idx] == 0) {
+			F.push_back(idx);
+		}
+	}
+
+	unsigned int irank = 1;
+
+	// We loop to find subsequent fronts
+	while (F.size()!=0) {
+		//For each individual F in the current front
+		for (population::size_type i=0; i < F.size(); ++i) {
+			//For each individual dominated by F
+			for (population::size_type j=0; j<dom_list[F[i]].size(); ++j) {
+				dom_count[dom_list[F[i]][j]]--;
+				if (dom_count[dom_list[F[i]][j]] == 0){
+					S.push_back(dom_list[F[i]][j]);
+					pareto_rank[dom_list[F[i]][j]] = irank;
+				}
+			}
+		}
+		F = S;
+		S.clear();
+		irank++;
+	}
+
+	//std::cout << "pareto rank before return " << pareto_rank << std::endl;
+	return pareto_rank;
+}
+
+std::vector<double> nspso::compute_crowding_d(const std::vector<fitness_vector> &fit, const std::vector<std::vector<population::size_type> > &pareto_fronts) const {
+
+	std::vector<double> crowding_d(fit.size(),0);
+
+	for(unsigned f=0; f < pareto_fronts.size(); ++f) {
+		std::vector<fitness_vector::size_type> I(pareto_fronts[f]);
+
+		fitness_vector::size_type lastidx = I.size() - 1;
+
+		// we construct the comparison functor along the first fitness component
+		one_dim_fit_comp funct(fit,0);
+
+		// we loop along fitness components
+		for (fitness_vector::size_type i = 0; i < fit[0].size(); ++i) {
+			funct.m_dim = i;
+			// we sort I along the fitness_dimension i
+			std::sort(I.begin(),I.end(), funct);
+			// assign Inf to the boundaries
+			crowding_d[I[0]] = std::numeric_limits<double>::max();
+			crowding_d[I[lastidx]] = std::numeric_limits<double>::max();
+			//and compute the crowding distance
+			double df = fit[I[lastidx]][i] - fit[I[0]][i];
+			for (population::size_type j = 1; j < lastidx; ++j) {
+				if (df == 0.0) { 						// handles the case in which the pareto front collapses to one single point
+					crowding_d[I[j]] += 0.0;			// avoiding creation of nans that can't be serialized
+				} else {
+					crowding_d[I[j]] += (fit[I[j+1]][i] -fit[I[j-1]][i])/df;
+				}
+			}
+		}
+	}
+
+	return crowding_d;
+}
+
+
+std::vector<std::vector<population::size_type> > nspso::compute_pareto_fronts(const pagmo::problem::base &prob,
+																			  const std::vector<fitness_vector> &fit,
+																			  const std::vector<constraint_vector> &cons) const
+{
+	std::vector<std::vector<population::size_type> > dom_list = compute_domination_list(prob,fit,cons);
+	std::vector<population::size_type> pareto_rank = compute_pareto_rank(dom_list);
+
+	return compute_pareto_fronts(pareto_rank);
+}
+
+std::vector<std::vector<population::size_type> > nspso::compute_pareto_fronts(const std::vector<population::size_type> &pareto_rank) const
+{
+	std::vector<std::vector<population::size_type> > retval;
+
+	for (population::size_type idx = 0; idx < pareto_rank.size(); ++idx) {
+		if (pareto_rank[idx] >= retval.size()) {
+			retval.resize(pareto_rank[idx] + 1);
+		}
+		retval[pareto_rank[idx]].push_back(idx);
+	}
+
+	return retval;
+}
 
 /// Algorithm name
 std::string nspso::get_name() const
