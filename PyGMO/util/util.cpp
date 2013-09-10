@@ -25,8 +25,11 @@
 #include <Python.h>
 #include<boost/python/module.hpp>
 #include <boost/python/class.hpp>
+#include <boost/python/enum.hpp>
+#include <boost/python/tuple.hpp>
 
 #include"../../src/util/discrepancy.h"
+#include "../../src/util/race_pop.h"
 #include "../utils.h"
 
 using namespace boost::python;
@@ -67,6 +70,23 @@ class __PAGMO_VISIBLE py_faure
 
 }}}
 
+
+// Main method containing all the juice
+static inline boost::python::tuple race_pop_run_return_tuple(
+	racing::race_pop& race_obj,
+	const pagmo::population::size_type n_final,
+	const unsigned int min_trials,
+	const unsigned int max_count,
+	double delta,
+	const std::vector<pagmo::population::size_type> &active_set,
+	racing::race_pop::termination_condition term_cond,
+	const bool race_best,
+	const bool screen_output)
+{
+	std::pair<std::vector<pagmo::population::size_type>, unsigned int> res = race_obj.run(n_final, min_trials, max_count, delta, active_set, term_cond, race_best, screen_output);
+	return boost::python::make_tuple(res.first, res.second);
+}
+
 BOOST_PYTHON_MODULE(_util) {
 	common_module_init();
 	
@@ -87,4 +107,17 @@ BOOST_PYTHON_MODULE(_util) {
 	class_<discrepancy::py_faure>("faure", init<unsigned int , unsigned int>())
 		.def("next", my_first_overload_f(&discrepancy::py_faure::operator()))
 		.def("next", my_second_overload_f(&discrepancy::py_faure::operator()));
+
+	enum_<racing::race_pop::termination_condition>("_termination_condition")
+		.value("MAX_BUDGET", racing::race_pop::MAX_BUDGET)
+		.value("MAX_DATA_COUNT", racing::race_pop::MAX_DATA_COUNT);
+	class_<racing::race_pop>("race_pop", init<pagmo::population, unsigned int>())
+		.def(init<unsigned int>())
+		.def("run", &race_pop_run_return_tuple, "Race the individuals")
+		.def("size", &racing::race_pop::size, "Returns number of individuals")
+		.def("reset_cache", &racing::race_pop::reset_cache, "Clears the cache")
+		.def("register_pop", &racing::race_pop::register_population, "Load a population into the race environment")
+		.def("inherit_memory", &racing::race_pop::inherit_memory, "Transfer memory of identical decision vectors")
+		.def("get_mean_fitness", &racing::race_pop::get_mean_fitness, "Returns the mean fitness of the individuals resulted from previously run race")
+		.def("set_seed", &racing::race_pop::set_seed, "Set the ground seed of the race");
 }

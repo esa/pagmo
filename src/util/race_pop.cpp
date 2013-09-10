@@ -700,6 +700,7 @@ void race_pop::print_cache_stats(const std::vector<population::size_type> &in_ra
  */
 void race_pop::set_seed(unsigned int seed)
 {
+	m_race_seed = seed;
 	m_seeder.seed(seed);
 	m_seeds.clear();
 	reset_cache();
