@@ -47,7 +47,8 @@ namespace pagmo { namespace algorithm {
  * @param[in] gen Number of generations to evolve.
  * @param[in] cr Crossover probability (of each individual)
  * @param[in] m Mutation probability (of each encoded bit)
- * @param[in] elitism: the best individual is reinserted in the population each elitism generations
+ * @param[in] elitism: the best individual is reinserted in the population each elitism generations.
+ * If a elitism of 0 is set, then the elitism is avoided.
  * @param[in] mut Mutation type. sga_gray::mutation::UNIFORM
  * @param[in] sel Selection type. One of sga_gray::selection::BEST20, sga_gray::selection::ROULETTE
  * @param[in] cro Crossover type. One of sga_gray::crossover::SINGLE_POINT
@@ -67,8 +68,8 @@ sga_gray::sga_gray(int gen, const double &cr, const double &m, int elitism, muta
 	if (m < 0 || m > 1) {
 		pagmo_throw(value_error,"mutation probability must be in the [0,1] range");
 	}
-	if (elitism < 1) {
-		pagmo_throw(value_error,"elitisim must be greater than zero");
+	if (elitism < 0) {
+		pagmo_throw(value_error,"elitisim must be greater or equal than zero");
 	}
 
 	m_bit_encoding = 25;
@@ -202,7 +203,7 @@ void sga_gray::evolve(population &pop) const
 		}
 		
 		//5 - Reinsert best individual every m_elitism generations
-		if (j % m_elitism == 0) {
+		if ((m_elitism != 0) && (j % m_elitism == 0) ) {
 			int worst=0;
 			for (pagmo::population::size_type i = 1; i < NP;i++) {
 				if ( prob.compare_fitness(fit[worst],fit[i]) ) worst=i;
@@ -543,7 +544,7 @@ std::vector<int> sga_gray::encode(const decision_vector &x, const decision_vecto
 	for(decision_vector::size_type i=0; i<x.size(); i++) {
 		std::vector<int> encoded_gene = binary_to_gray(double_to_binary(x.at(i),lb.at(i),ub.at(i)));
 		// copy the gene at the right location
-		for(decision_vector::size_type j=0; j<m_bit_encoding; j++) {
+		for(int j=0; j<m_bit_encoding; j++) {
 			encoded_x[i*m_bit_encoding + j] = encoded_gene.at(j);
 		}
 	}
@@ -566,7 +567,7 @@ decision_vector sga_gray::decode(const std::vector<int> &chrom, const decision_v
 		// extract the part that need to be decoded
 		std::vector<int> encoded_gene(m_bit_encoding);
 
-		for(decision_vector::size_type j=0; j<m_bit_encoding; j++) {
+		for(int j=0; j<m_bit_encoding; j++) {
 			encoded_gene[j] = chrom.at(i*m_bit_encoding + j);
 		}
 

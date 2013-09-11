@@ -777,7 +777,7 @@ def _monte_carlo_ctor(self, iter = 10000):
 monte_carlo._orig_init = monte_carlo.__init__
 monte_carlo.__init__ = _monte_carlo_ctor
 
-def _cstrs_self_adaptive_ctor(self, algorithm = _algorithm.jde(), max_iter = 100):
+def _cstrs_self_adaptive_ctor(self, algorithm = _algorithm.jde(), max_iter = 100, f_tol = 1e-15, x_tol = 1e-15):
 	"""
 	Constructs a Self-Adaptive Fitness constraints handling Meta Algorithm.
 
@@ -785,15 +785,19 @@ def _cstrs_self_adaptive_ctor(self, algorithm = _algorithm.jde(), max_iter = 100
 	constraint violation by a single infeasibility measure, and to adapt
 	dynamically the penalization of infeasible solutions.
 	
-	USAGE: algorithm.self_adaptive(algorithm = algorithm.jde(),max_iter  = 100);
+	USAGE: algorithm.self_adaptive(algorithm = algorithm.jde(), max_iter  = 100, f_tol = 1e-15, x_tol = 1e-15);
 
 	* algorithm: original optimizer
 	* max_iter: stop-criteria (number of iterations)
+	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
+	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
 	arg_list.append(algorithm)
 	arg_list.append(max_iter)
+	arg_list.append(f_tol)
+	arg_list.append(x_tol)
 	self._orig_init(*arg_list)
 cstrs_self_adaptive._orig_init = cstrs_self_adaptive.__init__
 cstrs_self_adaptive.__init__ = _cstrs_self_adaptive_ctor

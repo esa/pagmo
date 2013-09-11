@@ -56,7 +56,8 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE cstrs_self_adaptive: public base
 {
 public:
-    cstrs_self_adaptive(const base & = jde(), int gen = 1);
+	cstrs_self_adaptive(const base & = jde(), int gen = 1,
+						double = 1e-15, double = 1e-15);
     cstrs_self_adaptive(const cstrs_self_adaptive &);
 	base_ptr clone() const;
 
@@ -78,10 +79,16 @@ private:
 		ar & boost::serialization::base_object<base>(*this);
 		ar & m_original_algo;
 		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_ftol);
+		ar & const_cast<double &>(m_xtol);
 	}
 	base_ptr m_original_algo;
 	//Number of generations
 	const int m_gen;
+
+	// tolerance
+	const double m_ftol;
+	const double m_xtol;
 };
 
 }} //namespaces

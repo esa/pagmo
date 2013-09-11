@@ -283,9 +283,9 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// Constraints CORE.
 	algorithm_wrapper<algorithm::cstrs_core>("cstrs_core","Constraints core.")
-            .def(init<optional<const algorithm::base &,const algorithm::base &,int,int,double,double,double> >())
-        .add_property("algorithm",&algorithm::cstrs_core::get_algorithm,&algorithm::cstrs_core::set_algorithm)
-        .add_property("algorithm_repair",&algorithm::cstrs_core::get_repair_algorithm,&algorithm::cstrs_core::set_repair_algorithm);
+		.def(init<optional<const algorithm::base &,const algorithm::base &,int,int,double,double,double> >())
+		.add_property("algorithm",&algorithm::cstrs_core::get_algorithm,&algorithm::cstrs_core::set_algorithm)
+		.add_property("algorithm_repair",&algorithm::cstrs_core::get_repair_algorithm,&algorithm::cstrs_core::set_repair_algorithm);
 	
 	// Multistart.
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")
@@ -298,9 +298,9 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.add_property("algorithm",&algorithm::cstrs_co_evolution::get_algorithm,&algorithm::cstrs_co_evolution::set_algorithm);
 
 	// Self-Adaptive meta-algorithm.
-    algorithm_wrapper<algorithm::cstrs_self_adaptive>("cstrs_self_adaptive","Self adaptive constraints handling meta-algorithm.")
-		.def(init<optional<const algorithm::base &, const int> >())
-        .add_property("algorithm",&algorithm::cstrs_self_adaptive::get_algorithm,&algorithm::cstrs_self_adaptive::set_algorithm);
+	algorithm_wrapper<algorithm::cstrs_self_adaptive>("cstrs_self_adaptive","Self adaptive constraints handling meta-algorithm.")
+		.def(init<optional<const algorithm::base &, const int, double, double> >())
+		.add_property("algorithm",&algorithm::cstrs_self_adaptive::get_algorithm,&algorithm::cstrs_self_adaptive::set_algorithm);
 
 	// Particle Swarm Optimization (Steady state)
 	algorithm_wrapper<algorithm::pso>("pso", "Particle Swarm Optimization (steady-state)")

@@ -42,18 +42,22 @@ namespace pagmo { namespace algorithm {
  * Constructs an self adaptive algorithm.
  *
  * @param[in] original_algo pagmo::algorithm to use as 'original' optimization method
+ * @param[in] gen number of generations.
+ * @param[in] ftol stopping criteria on the f tolerance.
+ * @param[in] xtol stopping criteria on the x tolerance.
  * @throws value_error if gen is negative or zero
  */
-cstrs_self_adaptive::cstrs_self_adaptive(const base &original_algo, int gen):base(),m_gen(gen)
+cstrs_self_adaptive::cstrs_self_adaptive(const base &original_algo, int gen, double ftol, double xtol):base(),
+	m_original_algo(original_algo.clone()),m_gen(gen),m_ftol(ftol),m_xtol(xtol)
 {
-	m_original_algo = original_algo.clone();
 	if(gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
 }
 
 /// Copy constructor.
-cstrs_self_adaptive::cstrs_self_adaptive(const cstrs_self_adaptive &algo):base(algo),m_original_algo(algo.m_original_algo->clone()),m_gen(algo.m_gen)
+cstrs_self_adaptive::cstrs_self_adaptive(const cstrs_self_adaptive &algo):base(algo),m_original_algo(algo.m_original_algo->clone()),m_gen(algo.m_gen),
+	m_ftol(algo.m_ftol),m_xtol(algo.m_xtol)
 {}
 
 /// Clone method.
@@ -73,6 +77,7 @@ void cstrs_self_adaptive::evolve(population &pop) const
 	// Let's store some useful variables.
 	const problem::base &prob = pop.problem();
 	const population::size_type pop_size = pop.size();
+	const problem::base::size_type prob_dimension = prob.get_dimension();
 
 	// get the constraints dimension
 	problem::base::c_size_type prob_c_dimension = prob.get_c_dimension();
@@ -132,6 +137,41 @@ void cstrs_self_adaptive::evolve(population &pop) const
 		pop.clear();
 		for(pagmo::population::size_type i=0; i<pop_new.size(); i++) {
 			pop.push_back(pop_new.get_individual(i).cur_x);
+		}
+
+		// Check the exit conditions (every 40 generations, just as DE)
+		if(k % 40 == 0) {
+			decision_vector tmp(prob_dimension);
+
+			double dx = 0;
+			for(decision_vector::size_type i=0; i<prob_dimension; i++) {
+				tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];
+				dx += std::fabs(tmp[i]);
+			}
+
+			if(dx < m_xtol ) {
+				if (m_screen_output) {
+					std::cout << "Exit condition -- xtol < " << m_xtol << std::endl;
+				}
+				break;
+			}
+
+			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+
+			if(mah < m_ftol) {
+				if(m_screen_output) {
+					std::cout << "Exit condition -- ftol < " << m_ftol << std::endl;
+				}
+				break;
+			}
+
+			// outputs current values
+			if(m_screen_output) {
+				std::cout << "Generation " << k << " ***" << std::endl;
+				std::cout << "    Best global fitness: " << pop.champion().f << std::endl;
+				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
+				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
+			}
 		}
 
 		//std::cout << pop.champion() << std::endl;
