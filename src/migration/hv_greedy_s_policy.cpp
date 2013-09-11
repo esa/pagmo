@@ -96,25 +96,35 @@ std::vector<population::individual_type> hv_greedy_s_policy::select(population &
 	unsigned int processed_individuals = 0;
 
 	// Vector for maintaining the original indices of points
-	std::vector<unsigned int> orig_indices(fronts_i[front_idx].size());
-	iota(orig_indices.begin(), orig_indices.end(), 0);
+	std::vector<unsigned int> orig_indices;
 
 	while (processed_individuals < migration_rate) {
-		// If current front is depleted, load next front.
-		if (fronts_f[front_idx].size() == 0) {
-			// Increase front and reset the orig_indices
-			++front_idx;
-			orig_indices.resize(fronts_i[front_idx].size());
-			iota(orig_indices.begin(), orig_indices.end(), 0);
-		}
-		hypervolume hv(fronts_f[front_idx], false);
-		hv.set_copy_points(false);
+		// If we need to pull every point from given front anyway, just push back the individuals right away
+		if (fronts_f[front_idx].size() <= (migration_rate - processed_individuals)) {
+			for(unsigned int i = 0 ; i < fronts_i[front_idx].size() ; ++i) {
+				result.push_back(pop.get_individual(fronts_i[front_idx][i]));
+			}
 
-		unsigned int gc_idx = hv.greatest_contributor(refpoint);
-		result.push_back(pop.get_individual(fronts_i[front_idx][orig_indices[gc_idx]]));
-		orig_indices.erase(orig_indices.begin() + gc_idx);
-		fronts_f[front_idx].erase(fronts_f[front_idx].begin() + gc_idx);
-		++processed_individuals;
+			processed_individuals += fronts_f[front_idx].size();
+			++front_idx;
+		} else {
+			// Prepare the vector for the original indices
+			if (orig_indices.size() == 0) {
+				orig_indices.resize(fronts_i[front_idx].size());
+				iota(orig_indices.begin(), orig_indices.end(), 0);
+			}
+
+			// Compute the greatest contributor
+			hypervolume hv(fronts_f[front_idx], false);
+			hv.set_copy_points(false);
+			unsigned int gc_idx = hv.greatest_contributor(refpoint);
+			result.push_back(pop.get_individual(fronts_i[front_idx][orig_indices[gc_idx]]));
+			
+			// Remove it from the front along with its index
+			orig_indices.erase(orig_indices.begin() + gc_idx);
+			fronts_f[front_idx].erase(fronts_f[front_idx].begin() + gc_idx);
+			++processed_individuals;
+		}
 	}
 
 	return result;
