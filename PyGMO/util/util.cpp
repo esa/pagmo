@@ -27,9 +27,11 @@
 #include <boost/python/class.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/tuple.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include"../../src/util/discrepancy.h"
 #include "../../src/util/race_pop.h"
+#include "../../src/util/race_algo.h"
 #include "../utils.h"
 
 using namespace boost::python;
@@ -71,7 +73,7 @@ class __PAGMO_VISIBLE py_faure
 }}}
 
 
-// Main method containing all the juice
+// Main method containing all the juice of race_pop
 static inline boost::python::tuple race_pop_run_return_tuple(
 	racing::race_pop& race_obj,
 	const pagmo::population::size_type n_final,
@@ -85,6 +87,31 @@ static inline boost::python::tuple race_pop_run_return_tuple(
 {
 	std::pair<std::vector<pagmo::population::size_type>, unsigned int> res = race_obj.run(n_final, min_trials, max_count, delta, active_set, term_cond, race_best, screen_output);
 	return boost::python::make_tuple(res.first, res.second);
+}
+
+// Main method containing all the juice of race_algo
+static inline boost::python::tuple race_algo_run_return_tuple(
+	racing::race_algo& race_obj,
+	const pagmo::population::size_type n_final,
+	const unsigned int min_trials,
+	const unsigned int max_count,
+	double delta,
+	const std::vector<int> &active_set,
+	const bool race_best,
+	const bool screen_output)
+{
+	// boost python does not like vector of unsigned int......
+	std::vector<unsigned int> active_set_(active_set.size());
+	for(unsigned int i = 0; i < active_set.size(); i++){
+		active_set_[i] = active_set[i];
+	}
+	std::pair<std::vector<unsigned int>, unsigned int> res = race_obj.run(n_final, min_trials, max_count, delta, active_set_, race_best, screen_output);
+	// boost python does not like vector of unsigned int......
+	std::vector<int> winners(res.first.size());
+	for(unsigned int i = 0; i < res.first.size(); i++){
+		winners[i] = res.first[i];
+	}
+	return boost::python::make_tuple(winners, res.second);
 }
 
 BOOST_PYTHON_MODULE(_util) {
@@ -120,4 +147,15 @@ BOOST_PYTHON_MODULE(_util) {
 		.def("inherit_memory", &racing::race_pop::inherit_memory, "Transfer memory of identical decision vectors")
 		.def("get_mean_fitness", &racing::race_pop::get_mean_fitness, "Returns the mean fitness of the individuals resulted from previously run race")
 		.def("set_seed", &racing::race_pop::set_seed, "Set the ground seed of the race");
+
+	// Required by race_algo
+	class_<std::vector<pagmo::algorithm::base_ptr> >("vector_of_algorithm_base_ptr")
+		.def(vector_indexing_suite<std::vector<pagmo::algorithm::base_ptr>, true>());
+
+	class_<std::vector<pagmo::problem::base_ptr> >("vector_of_problem_base_ptr")
+		.def(vector_indexing_suite<std::vector<pagmo::problem::base_ptr>, true>());
+
+	class_<racing::race_algo>("race_algo", init<const std::vector<pagmo::algorithm::base_ptr> &, const pagmo::problem::base &, unsigned int, unsigned int>())
+	.def(init<const std::vector<pagmo::algorithm::base_ptr> &, const std::vector<pagmo::problem::base_ptr> &, unsigned int, unsigned int>())
+	.def("run", &race_algo_run_return_tuple, "Race the algorithms");
 }
