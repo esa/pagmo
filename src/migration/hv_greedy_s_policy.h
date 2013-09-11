@@ -42,6 +42,10 @@ namespace pagmo { namespace migration {
  *
  * Note: If the problem is a single objective one, we fall back to the pagmo::migration::best_s_policy instead.
  *
+ * @see Karl Bringmann, Tobias Friedrich, "An efficient algorithm for computing hypervolume contributions", Evolutionary Computation, v.18 n.3, p.383-402, Fall 2010
+ * @see Karl Bringmann, Tobias Friedrich, "Don't be greedy when calculating hypervolume contributions",
+ * Proceedings of the 10th International Workshop on Foundations of Genetic Algorithms (FOGA), pp. 103-112, ACM Press, 2009.
+ *
  * @author Marcus Maertens (mmarcusx@gmail.com)
  * @author Krzysztof Nowak (kn@kiryx.net)
  */
