@@ -115,7 +115,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/bf_approx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/bf_fpras.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hoy.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv4d_cpp_wrapper/hv.c
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv4d_cpp_original/hv.c
 	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv4d.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/racing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/discrepancy.cpp

@@ -35,13 +35,22 @@
 #include "base.h"
 #include "../hypervolume.h"
 
-#include "hv4d_cpp_wrapper/hv.h"
+#include "hv4d_cpp_original/hv.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
 /// hv4d hypervolume algorithm
 /**
  * This is the class containing the interface to the the hypervolume indicator in four dimensions as implemented by Andreia P. Guerreiro et al.
+ *
+ * The original code was altered in following ways:
+ * - name of the main method was changed from "hv4d" to "guerreiro_hv4d" in order to distinguish it from the name of this class.
+ * - main method was altered to return 0 hypervolume BEFORE allocating any memory in case of an empty set of points.
+ *
+ * Note: As of yet, only the compute method is available.
+ * This is due to the fact that the original implementation assumes certain property about the input, namely that the available set of points is a non-dominated one.
+ * In order to provide accurate answers to any of the hypervolume features involving exclusive contribution by given point, we need to allow for the input to have dominated points.
+ * Since this is not possible, we cannot rely on the hv4d algorithm in those cases - remaining methods, which perform "naive" implementation of said features using the "compute" method, were overloaded to raise an exception.
  *
  * @see Andreia P. Guerreiro, Carlos M. Fonseca, Michael T. Emmerich, "A Fast Dimension-Sweep Algorithm for the Hypervolume Indicator in Four Dimensions", CCCG 2012, Charlottetown, P.E.I., August 8–10, 2012.
  *
