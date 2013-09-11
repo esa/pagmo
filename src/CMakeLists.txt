@@ -34,10 +34,12 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_kill_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_greedy_s_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_best_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/worst_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_greedy_r_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp

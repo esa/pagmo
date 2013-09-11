@@ -22,23 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_MIGRATION_H
-#define PAGMO_MIGRATION_H
+#ifndef PAGMO_MIGRATION_HV_BEST_S_POLICY_H
+#define PAGMO_MIGRATION_HV_BEST_S_POLICY_H
 
-// Header including all migration classes implemented in PaGMO.
+#include <vector>
 
-#include "migration/base.h"  
-#include "migration/base_r_policy.h"
-#include "migration/base_s_policy.h"
-#include "migration/best_s_policy.h"
-#include "migration/random_s_policy.h"
-#include "migration/best_kill_s_policy.h"
-#include "migration/hv_greedy_s_policy.h"
-#include "migration/hv_best_s_policy.h"
-#include "migration/fair_r_policy.h"
-#include "migration/random_r_policy.h"
-#include "migration/worst_r_policy.h"
-#include "migration/hv_greedy_r_policy.h"
-#include "migration/hv_fair_r_policy.h"
+#include "../config.h"
+#include "../population.h"
+#include "../serialization.h"
+#include "base.h"
+#include "base_s_policy.h"
+
+namespace pagmo { namespace migration {
+
+///  Choose 'n' greatest contributors migration policy
+/**
+ * This policy chooses the individuals that contribute the greatest amount of volume to the total hypervolume.
+ * Contributions of all individuals are computed, after which a set of 'n' best candidates is determined.
+ *
+ * Note: If the problem is a single objective one, we fall back to the pagmo::migration::best_s_policy instead.
+ *
+ * @author Marcus Maertens (mmarcusx@gmail.com)
+ * @author Krzysztof Nowak (kn@kiryx.net)
+ */
+class __PAGMO_VISIBLE hv_best_s_policy: public base_s_policy
+{
+public:
+	hv_best_s_policy(const double &rate = 1, rate_type type = absolute, double nadir_eps = 1.0);
+	base_s_policy_ptr clone() const;
+	std::vector<population::individual_type> select(population &) const;
+private:
+	const double m_nadir_eps;
+	static bool sort_point_pairs_desc(const std::pair<unsigned int, double> &, const std::pair<unsigned int, double> &);
+
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base_s_policy>(*this);
+		ar & const_cast<double &>(m_nadir_eps);
+	}
+};
+
+} }
+
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_best_s_policy);
 
 #endif
