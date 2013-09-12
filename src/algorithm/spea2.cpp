@@ -118,7 +118,15 @@ void spea2::evolve(population &pop) const
 		return;
 	}
 
-	population new_pop(pop);
+	//population new_pop(pop);
+
+	std::vector<spea2_individual> new_pop;
+	for(unsigned int i=0; i < NP; ++i) {
+		new_pop.push_back(spea2_individual());
+		new_pop[i].x = pop.get_individual(i).cur_x;
+		new_pop[i].f = pop.get_individual(i).cur_f;
+		new_pop[i].c = pop.get_individual(i).cur_c;
+	}
 
 	//the cycle is until m_gen+1 because on the last iteration is necessary to do the truncation of the archive according to the dimension of the population to return pop
 	for(int g = 0; g <= m_gen; ++g) {
@@ -126,7 +134,7 @@ void spea2::evolve(population &pop) const
 		std::vector<double> F(NP+archive_size,0); 
 		
 		//computation of individuals' fitness (according to raw fitness and density)
-		compute_spea2_fitness(F, sqrt(NP + archive_size), new_pop);
+		compute_spea2_fitness(F, sqrt(NP + archive_size), new_pop, prob);
 
 		std::vector<population::size_type> ordered_by_fitness = pagmo::util::neighbourhood::order(F);
 
@@ -145,7 +153,7 @@ void spea2::evolve(population &pop) const
 				//fitness vector fo the non-dominated individuals
 				std::vector<fitness_vector> fit_nd(n_non_dominated);
 				for ( population::size_type i = 0; i<n_non_dominated; i++ ) {
-					fit_nd[i]	=	new_pop.get_individual(ordered_by_fitness[i]).cur_f;
+					fit_nd[i]	=	new_pop[ordered_by_fitness[i]].f;
 				}
 
 				//computing K-NN distances for K=0,...,n_non_dominated
@@ -159,7 +167,7 @@ void spea2::evolve(population &pop) const
 				population::size_type idx = ordered_by_delta.size() - 1 ;
 				population::size_type pop_idx = ordered_by_fitness[ordered_by_delta[idx]];
 
-				new_pop.erase(pop_idx);	
+				new_pop.erase(new_pop.begin()+pop_idx);
 				ordered_by_fitness.erase(ordered_by_fitness.begin()+ordered_by_delta[idx]);
 				n_non_dominated--;
 
@@ -173,7 +181,7 @@ void spea2::evolve(population &pop) const
 
 			//erasing all the dominated solutions
 			for(population::size_type i=archive_size; i<ordered_by_fitness.size(); i++){
-				new_pop.erase(ordered_by_fitness[i]);
+				new_pop.erase(new_pop.begin() + ordered_by_fitness[i]);
 				for(population::size_type j=0; j<ordered_by_fitness.size(); j++){
 					if(ordered_by_fitness[i]<ordered_by_fitness[j])
 						ordered_by_fitness[j]--;
@@ -185,7 +193,7 @@ void spea2::evolve(population &pop) const
 
 			//erasing all the dominated solutions
 			for(population::size_type i=archive_size; i<ordered_by_fitness.size(); i++){
-				new_pop.erase(ordered_by_fitness[i]);
+				new_pop.erase(new_pop.begin() + ordered_by_fitness[i]);
 				for(population::size_type j=0; j<ordered_by_fitness.size(); j++){
 					if(ordered_by_fitness[i]<ordered_by_fitness[j])
 						ordered_by_fitness[j]--;
@@ -197,7 +205,7 @@ void spea2::evolve(population &pop) const
 			//return the population stored into the archive that now has dimension NP
 			pop.clear();
 			for(unsigned int i=0; i<NP; ++i) {
-				pop.push_back(new_pop.get_individual(i).cur_x);
+				pop.push_back(new_pop[i].x);
 			}
 			break;//exiting from cycle over the generations 
 		}
@@ -213,42 +221,93 @@ void spea2::evolve(population &pop) const
 		boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
 
 		population::size_type parent1_idx, parent2_idx;
-		decision_vector child1(D), child2(D);
+		decision_vector child1_x(D), child2_x(D);
 
 		//We create some pseudo-random permutation of the poulation indexes
 		std::random_shuffle(shuffle1.begin(),shuffle1.end(), p_idx);
 		std::random_shuffle(shuffle2.begin(),shuffle2.end(), p_idx);
 
-		new_pop.update_pareto_information();
+		//new_pop.update_pareto_information(); ///TODO: check why this was needed when using pagmo::population and if we still need
+
+		std::vector<fitness_vector> new_pop_fit(n_non_dominated);
+		std::vector<constraint_vector> new_pop_cons(n_non_dominated);
+		for ( population::size_type i = 0; i<n_non_dominated; i++ ) {
+			new_pop_fit[i]	=	new_pop[i].f;
+			new_pop_cons[i]	=	new_pop[i].c;
+		}
+
+		std::vector<std::vector<population::size_type> > domination_list = compute_domination_list(prob, new_pop_fit,new_pop_cons);
+		std::vector<population::size_type> pareto_rank = compute_pareto_rank(domination_list);
 
 		int j = 0;
 		//We then loop thorugh all individuals with increment 4 to select two pairs of parents that will
 		//each create 2 new offspring
 		for (pagmo::population::size_type i=0; i<archive_size; i+=4) {
 			// We create two offsprings using the shuffled list 1
-			parent1_idx = tournament_selection(shuffle1[i], shuffle1[i+1],new_pop);
-			parent2_idx = tournament_selection(shuffle1[i+2], shuffle1[i+3],new_pop);
-			crossover(child1, child2, parent1_idx,parent2_idx,new_pop);
-			mutate(child1,prob);
-			mutate(child2,prob);
+			parent1_idx = tournament_selection(shuffle1[i], shuffle1[i+1], pareto_rank);
+			parent2_idx = tournament_selection(shuffle1[i+2], shuffle1[i+3], pareto_rank);
+			crossover(child1_x, child2_x, parent1_idx,parent2_idx,new_pop, prob);
+			mutate(child1_x,prob);
+			mutate(child2_x,prob);
+
+			spea2_individual child1;
+			child1.x = child1_x;
+			child1.f = prob.objfun(child1_x);
+			child1.c = prob.compute_constraints(child1_x);
+
+			spea2_individual child2;
+			child2.x = child2_x;
+			child2.f = prob.objfun(child2_x);
+			child2.c = prob.compute_constraints(child2_x);
+
 			new_pop.push_back(child1);
 			new_pop.push_back(child2);
 		}
 
-		//same with shuffle2
+		//Same with shuffle2
 		for (pagmo::population::size_type i=0; i<archive_size; i+=4) {
 			// We create two offsprings using the shuffled list 1
-			parent1_idx = tournament_selection(shuffle1[i], shuffle1[i+1],new_pop);
-			parent2_idx = tournament_selection(shuffle1[i+2], shuffle1[i+3],new_pop);
-			crossover(child1, child2, parent1_idx,parent2_idx,new_pop);
-			mutate(child1,prob);
-			mutate(child2,prob);
+			parent1_idx = tournament_selection(shuffle2[i], shuffle2[i+1], pareto_rank);
+			parent2_idx = tournament_selection(shuffle2[i+2], shuffle2[i+3], pareto_rank);
+			crossover(child1_x, child2_x, parent1_idx,parent2_idx,new_pop, prob);
+			mutate(child1_x,prob);
+			mutate(child2_x,prob);
+
+			spea2_individual child1;
+			child1.x = child1_x;
+			child1.f = prob.objfun(child1_x);
+			child1.c = prob.compute_constraints(child1_x);
+
+			spea2_individual child2;
+			child2.x = child2_x;
+			child2.f = prob.objfun(child2_x);
+			child2.c = prob.compute_constraints(child2_x);
+
 			new_pop.push_back(child1);
 			new_pop.push_back(child2);
 		}
 
 	}
 
+}
+
+std::vector<std::vector<population::size_type> > spea2::compute_domination_list(const pagmo::problem::base &prob,
+																   const std::vector<fitness_vector> &fit,
+																   const std::vector<constraint_vector> &cons) const
+{
+	std::vector<population::size_type> dummy;
+	std::vector<std::vector<population::size_type> > domination_list(fit.size(), dummy);
+
+	for(unsigned int i=0; i<fit.size();++i) {
+		for(unsigned int j=0; j<fit.size(); ++j) {
+			// Check if individual in position i dominates individual in position n.
+			if(prob.compare_fc(fit[i],cons[i],fit[j],cons[j])) {
+				domination_list[i].push_back(j);
+			}
+		}
+	}
+
+	return domination_list;
 }
 
 std::vector<population::size_type> spea2::complement(std::vector<population::size_type> v, population::size_type N) const
@@ -287,22 +346,29 @@ std::vector<population::size_type> spea2::order_by_delta(const std::vector<std::
 
 void spea2::compute_spea2_fitness(std::vector<double> &F,
 			int K,
-			const pagmo::population &pop) const
+			const std::vector<spea2_individual> &pop,
+			const pagmo::problem::base &prob) const
 {
-	std::vector<std::vector<population::size_type> > domination_list;
+
 	const population::size_type NP = pop.size();
 	std::vector<int> S(NP, 0);
 
+
 	std::vector<fitness_vector> fit(NP);
+	std::vector<fitness_vector> cons(NP);
 	for ( population::size_type i = 0; i<NP; i++ ) {
-		fit[i]	=	pop.get_individual(i).cur_f;
+		fit[i]	=	pop[i].f;
+		cons[i]	=	pop[i].c;
 	}
 	std::vector<std::vector<pagmo::population::size_type> > neighbours;
 	pagmo::util::neighbourhood::euclidian::compute_neighbours(neighbours, fit);
 
-	for(unsigned i=0; i<NP; ++i) {
+	/*for(unsigned i=0; i<NP; ++i) {
 		domination_list.push_back(pop.get_domination_list(i));
-	}
+	}*/
+
+	std::vector<std::vector<population::size_type> > domination_list = compute_domination_list(prob, fit,cons);
+
 
 	for(unsigned int i=0; i<NP; ++i) {
 		S[i] = domination_list[i].size();
@@ -322,10 +388,10 @@ void spea2::compute_spea2_fitness(std::vector<double> &F,
 	}
 }
 
-pagmo::population::size_type spea2::tournament_selection(pagmo::population::size_type idx1, pagmo::population::size_type idx2, const pagmo::population &pop) const
+pagmo::population::size_type spea2::tournament_selection(pagmo::population::size_type idx1, pagmo::population::size_type idx2, const std::vector<population::size_type> &pareto_rank) const
 {
-	if (pop.get_pareto_rank(idx1) < pop.get_pareto_rank(idx2)) return idx1;
-	if (pop.get_pareto_rank(idx1) > pop.get_pareto_rank(idx2)) return idx2;
+	if (pareto_rank[idx1] < pareto_rank[idx2]) return idx1;
+	if (pareto_rank[idx1] > pareto_rank[idx2]) return idx2;
 	return ((m_drng() > 0.5) ? idx1 : idx2);
 	
 	/*fitness_vector f1 = pop.get_individual(idx1).cur_f;
@@ -341,15 +407,70 @@ pagmo::population::size_type spea2::tournament_selection(pagmo::population::size
 	}*/
 }
 
-void spea2::crossover(decision_vector& child1, decision_vector& child2, pagmo::population::size_type parent1_idx, pagmo::population::size_type parent2_idx,const pagmo::population& pop) const
+std::vector<population::size_type> spea2::compute_domination_count(const std::vector<std::vector<population::size_type> > &dom_list) const
+{
+	std::vector<population::size_type> domination_count(dom_list.size(),0);
+	for(unsigned int i=0; i<dom_list.size(); ++i) {
+		for(unsigned int j = 0; j < dom_list[i].size(); ++j) {
+			domination_count[dom_list[i][j]]++;
+		}
+	}
+
+	return domination_count;
+}
+
+std::vector<population::size_type> spea2::compute_pareto_rank(const std::vector<std::vector<population::size_type> > &dom_list) const
+{
+	std::vector<population::size_type> pareto_rank(dom_list.size(),0);
+
+	// We define some utility vectors .....
+	std::vector<population::size_type> F,S;
+
+	// And make a copy of the domination count (number of individuals that dominating one individual)
+	std::vector<population::size_type> dom_count = compute_domination_count(dom_list);
+
+	// 1 - Find the first Pareto Front
+	for (population::size_type idx = 0; idx < dom_count.size(); ++idx){
+		if (dom_count[idx] == 0) {
+			F.push_back(idx);
+		}
+	}
+
+	unsigned int irank = 1;
+
+	// We loop to find subsequent fronts
+	while (F.size()!=0) {
+		//For each individual F in the current front
+		for (population::size_type i=0; i < F.size(); ++i) {
+			//For each individual dominated by F
+			for (population::size_type j=0; j<dom_list[F[i]].size(); ++j) {
+				dom_count[dom_list[F[i]][j]]--;
+				if (dom_count[dom_list[F[i]][j]] == 0){
+					S.push_back(dom_list[F[i]][j]);
+					pareto_rank[dom_list[F[i]][j]] = irank;
+				}
+			}
+		}
+		F = S;
+		S.clear();
+		irank++;
+	}
+
+	//std::cout << "pareto rank before return " << pareto_rank << std::endl;
+	return pareto_rank;
+}
+
+
+void spea2::crossover(decision_vector& child1, decision_vector& child2, pagmo::population::size_type parent1_idx, pagmo::population::size_type parent2_idx,
+					  const std::vector<spea2_individual> &pop, const pagmo::problem::base &prob) const
 {
 
-	problem::base::size_type D = pop.problem().get_dimension();
-	problem::base::size_type Di = pop.problem().get_i_dimension();
+	problem::base::size_type D = prob.get_dimension();
+	problem::base::size_type Di = prob.get_i_dimension();
 	problem::base::size_type Dc = D - Di;
-	const decision_vector &lb = pop.problem().get_lb(), &ub = pop.problem().get_ub();
-	const decision_vector& parent1 = pop.get_individual(parent1_idx).cur_x;
-	const decision_vector& parent2 = pop.get_individual(parent2_idx).cur_x;
+	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
+	const decision_vector& parent1 = pop[parent1_idx].x;
+	const decision_vector& parent2 = pop[parent2_idx].x;
 	double y1,y2,yl,yu, rand, beta, alpha, betaq, c1, c2;
 	child1 = parent1;
 	child2 = parent2;

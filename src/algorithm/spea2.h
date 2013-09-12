@@ -78,14 +78,27 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
+	struct spea2_individual {
+		decision_vector x;
+		fitness_vector f;
+		constraint_vector c;
+	};
 	std::vector<population::size_type> order_by_delta(const std::vector<std::vector<pagmo::population::size_type>  > &,
 													  const std::vector<fitness_vector> &) const;
 	std::vector<population::size_type> complement(std::vector<population::size_type> v, population::size_type N) const;
 	void compute_spea2_fitness(std::vector<double> &,
 				int K,
-				const pagmo::population &) const;
-	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type, const pagmo::population&) const;
-	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,const pagmo::population&) const;
+				const std::vector<spea2_individual> &pop,
+				const pagmo::problem::base &prob) const;
+	std::vector<std::vector<population::size_type> > compute_domination_list(const pagmo::problem::base &,
+																			const std::vector<fitness_vector> &,
+																			const std::vector<constraint_vector> &) const;
+	std::vector<population::size_type> compute_pareto_rank(const std::vector<std::vector<population::size_type> > &) const;
+	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type,
+													  const std::vector<population::size_type> &) const;
+	std::vector<population::size_type> compute_domination_count(const std::vector<std::vector<population::size_type> > &) const;
+	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,
+				   const std::vector<spea2_individual> &, const pagmo::problem::base &) const;
 	void mutate(decision_vector&, const pagmo::problem::base&) const;
 	friend class boost::serialization::access;
 	template <class Archive>
