@@ -24,25 +24,6 @@
 
 #include "hypervolume.h"
 
-#define DEBUG_ON 1
-#define SPACER_ON 1
-#define SPACER_CHAR "-"
-#define SPACER_VAL rec_level
-#define DEBUG(x) if(DEBUG_ON) {std::cout << #x << ": " << (x) << std::endl;}
-#define DEBUGP(x) if(DEBUG_ON) {std::cout << #x << ": (" << (x).first << "," << (x).second << ")" << std::endl;}
-#define DEBUGV(x) if(DEBUG_ON) {std::cout << #x << ":"; for(unsigned int _idx = 0; _idx < (x).size() ; ++ _idx){ std::cout << " " << (x)[_idx];} std::cout << std::endl;}
-#define DEBUGA(x,s) if(DEBUG_ON) {std::cout << #x << ":"; for(unsigned int _idx = 0; _idx < (s); ++ _idx){ std::cout << " " << (x)[_idx];} std::cout << std::endl;}
-#define DEBUGAA(x,s,s2) if(DEBUG_ON) {std::cout << #x << ":" << std::endl; for(unsigned int _idx = 0; _idx < (s) ; ++_idx) {std::cout << " " << #x << "[" << _idx << "]:"; for(unsigned int _idx2 = 0; _idx2 < s2 ; ++ _idx2) {std::cout << " " << (x)[_idx][_idx2]; } std::cout << std::endl; } }
-#define DEBUGVP(x) if(DEBUG_ON) {std::cout << #x << ":"; for(unsigned int _idx = 0; _idx < (x).size() ; ++ _idx){ std::cout << " (" << (x)[_idx].first << "," << (x)[_idx].second << ")";} std::cout << std::endl;}
-#define DEBUGVV(x) if(DEBUG_ON) {std::cout << #x << ":" << std::endl; for(unsigned int _idx = 0; _idx < (x).size() ; ++_idx) {std::cout << " " << #x << "[" << _idx << "]:"; for(unsigned int _idx2 = 0; _idx2 < ((x)[_idx]).size() ; ++ _idx2) {std::cout << " " << (x)[_idx][_idx2]; } std::cout << std::endl; } }
-#define PRINT(__x) if(DEBUG_ON) {std::cout << __x << std::endl;}
-#define _SPACER() if(SPACER_ON){for(unsigned int _ii= 0 ;  _ii < SPACER_VAL ; ++_ii) {std::cout << SPACER_CHAR;}}
-#define SDEBUG(x) if(DEBUG_ON) {_SPACER(); std::cout << #x << ": " << (x) << std::endl;}
-#define SDEBUGV(x) if(DEBUG_ON) { _SPACER();std::cout << #x << ":"; for(unsigned int _idx = 0; _idx < (x).size() ; ++ _idx){ std::cout << " " << (x)[_idx];} std::cout << std::endl;}
-#define SDEBUGVV(x) if(DEBUG_ON) { _SPACER(); std::cout << #x << ":" << std::endl; for(unsigned int _idx = 0; _idx < (x).size() ; ++_idx) { _SPACER(); std::cout << " " << #x << "[" << _idx << "]:"; for(unsigned int _idx2 = 0; _idx2 < ((x)[_idx]).size() ; ++ _idx2) { std::cout << " " << (x)[_idx][_idx2]; } std::cout << std::endl; } }
-#define SPRINT(__x) if(DEBUG_ON) { _SPACER();std::cout << __x << std::endl;}
-#define DEBUGTR(__t) if(DEBUG_ON) { tree_t::iterator it_dbg; for(it_dbg = __t.begin() ; it_dbg != __t.end() ; ++it_dbg) { std::cout << "[" << (*it_dbg).first[0] << "]->" <<  (*it_dbg).second << ", "; } std::cout << std::endl; }
-#define DEBUGN(__n_it) DEBUG((*__n_it).second); DEBUGV((*__n_it).first);
 namespace pagmo { namespace util {
 
 /// Constructor from population
@@ -233,8 +214,6 @@ double hypervolume::compute(const fitness_vector &r_point, hv_algorithm::base_pt
 		std::vector<fitness_vector> points_cpy(m_points.begin(), m_points.end());
 		return hv_algorithm->compute(points_cpy, r_point);
 	} else {
-		DEBUGVV(m_points);
-		DEBUGV(r_point);
 		return hv_algorithm->compute(const_cast<std::vector<fitness_vector> &>(m_points), r_point);
 	}
 }
