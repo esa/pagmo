@@ -36,6 +36,25 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
+	// Filter out points sharing the same value of an objective as the reference point
+	// This does not alter the final result of the computation.
+	// Wrapped algorithm is susceptible to such cases, thus it is a precaution measure.
+	std::vector<fitness_vector>::iterator it = points.begin();
+	while (it != points.end()) {
+		bool erase = false;
+		for (unsigned int d_idx = 0 ; d_idx < 4 ; ++d_idx) {
+			if (fabs(r_point[d_idx] - (*it)[d_idx]) < 1e-10) {
+				erase = true;
+				break;
+			}
+		}
+		if (erase) {
+			it = points.erase(it);
+		} else {
+			++it;
+		}
+	}
+
 	// Prepare the initial data to suit the original code
 	double data[points.size() * 4];
 	double refpoint[4];
