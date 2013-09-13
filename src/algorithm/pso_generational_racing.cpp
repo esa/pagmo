@@ -153,10 +153,10 @@ std::pair<population::size_type, unsigned int> pso_generational_racing::racing__
 	}
 	std::pair<std::vector<population::size_type>, unsigned int> res;
 	if(use_data_count_termination){
-		res = race_structure.run(1, 0, max_fevals, 0.01, active_set, race_pop::MAX_DATA_COUNT, true, false);
+		res = race_structure.run(1, max_fevals / 2, max_fevals, 0.01, active_set, race_pop::MAX_DATA_COUNT, true, false);
 	}
 	else{
-		res = race_structure.run(1, 0, max_fevals, 0.01, active_set, race_pop::MAX_BUDGET, true, false);
+		res = race_structure.run(1, max_fevals / 2 / active_set.size() , max_fevals, 0.01, active_set, race_pop::MAX_BUDGET, true, false);
 	}
 	return std::make_pair(res.first[0], res.second);
 }
@@ -344,7 +344,7 @@ void pso_generational_racing::evolve(population &pop) const
 
 	bool forced_terminate = false;
 
-	bool racing_opt__race_neighbourhood = true;
+	bool racing_opt__race_neighbourhood = false;
 	bool racing_opt__flush_cache = true;
 
 	/* --- Main PSO loop ---
