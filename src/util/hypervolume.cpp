@@ -419,8 +419,10 @@ unsigned long long hypervolume::get_expected_operations(const unsigned int n, co
 		return 2. * n * log(n);  // hv2d
 	} else if (d == 3) {
 		return 3. * n * log(n);  // hv3d
+	} else if (d == 3) {
+		return 4. * n * n;  // hv4d
 	} else {
-		return n * log(n) * pow(n,d/2);  // Complexity of HSO, while we don't know good candiate for wfg yet
+		return pow(n, d/2);  // exponential complexity
 	}
 }
 
