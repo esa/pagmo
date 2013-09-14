@@ -2,6 +2,12 @@ from PyGMO import *
 import numpy as np
 import matplotlib.pyplot as plt
 
+import copy
+
+#stochastic_type = 'NOISY'
+stochastic_type = 'ROBUST'
+base_problem = problem.ackley(10)
+
 class post_eval:
 
     """
@@ -20,47 +26,19 @@ class post_eval:
             post_f += self.post_eval_prob.objfun(x)[0] / float(self.post_eval_n)
         return (post_f,)
 
-
-def evolve_and_evaluate(algo, prob, pop_size, prob_post_eval, seed):
-
-    algo.reset_rngs(seed)
-
-    # Seed used to ensure both algorithm evolves an identical population
-    pop = population(prob, pop_size, seed)
-
-    pop = algo.evolve(pop)
-
-    #winner_idx = pop.race(1)[0][0];
-    #print "race winner", winner_idx, "vs champion idx", pop.get_best_idx()
-    #champion_true_fitness = prob_orig.objfun(pop[winner_idx].cur_x)
-
-    champion_true_fitness = prob_post_eval.objfun(pop.champion.x)
-    #print 'Final champion =', champion_true_fitness
-
-    return champion_true_fitness
-
-def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_x=40, noise_level=0.05):
-
-    """
-    # 1. Set up the problem
-    prob_orig = problem.ackley(10)
-    #prob_orig = problem.griewank(10)
-
-    noise_level = 0.05
-    prob_single_eval = problem.noisy(prob_orig, trials = 1, param_second = noise_level)
-    prob_regular = problem.noisy(prob_orig, trials = nr_eval_per_x, param_second = noise_level)
-    prob_post_eval = post_eval(prob_single_eval, 500)
-    """
+def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_x=40, noise_level=0.05, seed=123):
 
     # 1. Set up the problem
-    prob_orig = problem.ackley(10)
-    #prob_orig = problem.griewank(10)
+    if(stochastic_type == 'NOISY'):
+        prob_single_eval = problem.noisy(base_problem, trials = 1, param_second = noise_level)
+        prob_regular = problem.noisy(base_problem, trials = nr_eval_per_x, param_second = noise_level)
+    else:
+        prob_single_eval = problem.robust(base_problem, trials = 1, rho = noise_level)
+        prob_regular = problem.robust(base_problem, trials = nr_eval_per_x, rho = noise_level)
+        #prob_large_trials = problem.robust(prob_orig, trials = 500, rho = noise_level)
+        #prob_post_eval = post_eval(prob_large_trials, 5)
 
-    prob_single_eval = problem.robust(prob_orig, trials = 1, rho = noise_level)
-    prob_regular = problem.robust(prob_orig, trials = nr_eval_per_x, rho = noise_level)
     prob_post_eval = post_eval(prob_single_eval, post_eval_n=500)
-    #prob_large_trials = problem.robust(prob_orig, trials = 500, rho = noise_level)
-    #prob_post_eval = post_eval(prob_large_trials, 5)
 
     """
     Notes for SAME_PROB: Both algorithm will operate on the same version of the
@@ -80,106 +58,131 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
     else:
         gen_budget = fevals_max/(2*pop_size*nr_eval_per_x)
     print 'Non-racing pso gen will evolve for %d generations' % gen_budget
-    algo = algorithm.pso_gen(gen_budget,0.7298,2.05,2.05,0.05,5,2,4)
+    algo_psogen = algorithm.pso_gen(gen_budget,0.7298,2.05,2.05,0.05,5,2,4)
     
     # 2B. Set up pso_gen algorithm with racing:
     # Setting gen number to be an arbitrarily large number, let fevals
     # decide when to terminate.
     nr_eval_per_x_racing = nr_eval_per_x
-    algo_with_racing = algorithm.pso_gen_racing(1000000,0.7298,2.05,2.05,0.05,5,2,4,nr_eval_per_x_racing,fevals_max)
+    algo_psogen_racing = algorithm.pso_gen_racing(1000000,0.7298,2.05,2.05,0.05,5,2,4,nr_eval_per_x_racing,fevals_max)
     # TODO: Use below to check the sanity of racing in factoring out the effect of exceeded fevals
     # algo_with_racing = algorithm.pso_gen_racing(gen_budget,0.7298,2.05,2.05,0.05,5,2,4,nr_eval_per_x_racing,999999999)
 
     # 3. Run both algorithms and record their performance
-    fitnesses = []
-    fitnesses_racing = []
+    if SAME_PROB:
+        algo_prob_pairs = [(algo_psogen, prob_regular), (algo_psogen_racing, prob_regular)]
+    else:
+        algo_prob_pairs = [(algo_psogen, prob_regular), (algo_psogen_racing, prob_single_eval)]
 
-    seed = 1234
+    post_evaluated_fitnesses = []
+
+    np.random.seed(seed)
     for i in range(num_trials):
         print '::: Trial #%d :::' % i
-        seed += 177
-        fitnesses.append(evolve_and_evaluate(algo, prob_regular, pop_size, prob_post_eval, seed)[0])
-        if SAME_PROB: 
-            fitnesses_racing.append(evolve_and_evaluate(algo_with_racing, prob_regular, pop_size, prob_post_eval, seed)[0])
-        else:
-            fitnesses_racing.append(evolve_and_evaluate(algo_with_racing, prob_single_eval, pop_size, prob_post_eval, seed)[0])
-        print (fitnesses[-1], fitnesses_racing[-1])
+        results = []
+        seed += np.random.randint(100000)
+        for algo, prob in algo_prob_pairs: 
+            algo.reset_rngs(seed)
+            # Seed used to ensure both algorithm evolves an identical population
+            pop = population(prob, pop_size, seed)
+            pop = algo.evolve(pop)
+            #winner_idx = pop.race(1)[0][0];
+            #print "race winner", winner_idx, "vs champion idx", pop.get_best_idx()
+            #champion_true_fitness = prob_orig.objfun(pop[winner_idx].cur_x)
+            champion_true_fitness = prob_post_eval.objfun(pop.champion.x)[0]
+            #print 'Final champion =', champion_true_fitness
+            results.append(champion_true_fitness)
+        print results
+        post_evaluated_fitnesses.append(results)
 
-    avg_fitness = np.mean(fitnesses)
-    avg_fitness_racing = np.mean(fitnesses_racing)
+    post_evaluated_fitnesses = zip(*post_evaluated_fitnesses)
+
+    averaged_no_racing = np.mean(post_evaluated_fitnesses[0])
+    averaged_racing = np.mean(post_evaluated_fitnesses[1])
 
     print '----------------------------------------------'
     print 'Final averaged actual fitness over %d trials:' % num_trials
-    print 'pso_gen without racing: %f' % avg_fitness
-    print 'pso_gen with racing: %f' % avg_fitness_racing
+    print 'pso_gen without racing: %f' % averaged_no_racing
+    print 'pso_gen with racing: %f' % averaged_racing
     print '----------------------------------------------'
 
-    return (avg_fitness, avg_fitness_racing)
+    return (averaged_no_racing, averaged_racing)
 
 
-def vary_nr_eval_per_x(num_trials=20, fevals_max=100000):
-    param_list = range(3,30,2)
+def vary_nr_eval_per_x(default_params):
+
+    pars = copy.deepcopy(default_params)
+
+    param_list = range(3,20,2)
     f_no_racing_list = []
     f_racing_list = []
     for n in param_list:
-        f_no_racing, f_racing = start_experiment(num_trials=num_trials, pop_size=20, nr_eval_per_x=n, fevals_max=fevals_max)
+        pars['nr_eval_per_x'] = n
+        f_no_racing, f_racing = start_experiment(**pars)
         f_no_racing_list.append(f_no_racing)
         f_racing_list.append(f_racing)
-    #print f_no_racing_list
-    #print f_racing_list
     plt.ion()
+    plt.figure()
     plt.plot(param_list, f_racing_list, '-o')
     plt.plot(param_list, f_no_racing_list, '-s')
     plt.legend(['PSO racing', 'PSO without racing'])
     plt.xlabel('nr_eval_per_x')
     plt.ylabel('Post-evaluated fitness')
-    plt.title('PSO: With/without racing (fevals=%d) (%d trials)' % (fevals_max, num_trials))
-    plt.savefig('psogenracing-nr_eval_per_x.png')
+    prob_stat = '%s-%s' % (stochastic_type, base_problem.get_name())
+    plt.title('%s\nPSO: With/without racing (fevals=%d) (%d trials)' % (prob_stat, pars['fevals_max'], pars['num_trials']))
+    plt.savefig('%s-psogenracing-nr_eval_per_x.png' % prob_stat)
 
-def vary_neighbourhood_size(num_trials=20, fevals_max=100000):
+def vary_neighbourhood_size(default_params):
+
+    pars = copy.deepcopy(default_params)
+
     param_list = np.linspace(0.01,0.2,num=20)
     f_no_racing_list = []
     f_racing_list = []
     for p in param_list:
-        f_no_racing, f_racing = start_experiment(num_trials=num_trials, pop_size=20, nr_eval_per_x=10, fevals_max=fevals_max, noise_level=p)
+        pars['noise_level'] = p
+        f_no_racing, f_racing = start_experiment(**pars)
         f_no_racing_list.append(f_no_racing)
         f_racing_list.append(f_racing)
-    #print f_no_racing_list
-    #print f_racing_list
     plt.ion()
+    plt.figure()
     plt.plot(param_list, f_racing_list, '-o')
     plt.plot(param_list, f_no_racing_list, '-s')
     plt.legend(['PSO racing', 'PSO without racing'],loc='best')
     plt.xlabel('Robust\'s neighbourhood size')
     plt.ylabel('Post-evaluated fitness')
-    plt.title('PSO: With/without racing (fevals=%d) (%d trials)' % (fevals_max, num_trials))
-    plt.savefig('psogenracing-robust_neighbourhood_small.png')
+    prob_stat = '%s-%s' % (stochastic_type, base_problem.get_name())
+    plt.title('%s\nPSO: With/without racing (fevals=%d) (%d trials)' % (prob_stat, pars['fevals_max'], pars['num_trials']))
+    plt.savefig('%s-psogenracing-robust_neighbourhood_small.png' % prob_stat)
 
-def vary_fevals_budget(num_trials=20):
-    nb_size = 0.5
+def vary_fevals_budget(num_trials=20, nr_eval_per_x=10, nb_size=0.5):
+
+    pars = copy.deepcopy(default_params)
+
     param_list = range(10000,160000,20000)
     f_no_racing_list = []
     f_racing_list = []
     for fevals_max in param_list:
-        f_no_racing, f_racing = start_experiment(num_trials=num_trials, pop_size=20, nr_eval_per_x=10, fevals_max=fevals_max, noise_level=nb_size)
+        pars['fevals_max'] = fevals_max
+        f_no_racing, f_racing = start_experiment(**pars)
         f_no_racing_list.append(f_no_racing)
         f_racing_list.append(f_racing)
-    #print f_no_racing_list
-    #print f_racing_list
     plt.ion()
+    plt.figure()
     plt.plot(param_list, f_racing_list, '-o')
     plt.plot(param_list, f_no_racing_list, '-s')
     plt.legend(['PSO racing', 'PSO without racing'],loc='best')
     plt.xlabel('Evaluation budget (# of fevals)')
     plt.ylabel('Post-evaluated fitness')
-    plt.title('PSO: With/without racing (neighbourhood size = %.2f) (%d trials)' % (nb_size, num_trials))
-    plt.savefig('psogenracing-robust_fevals.png')
+    prob_stat = '%s-%s' % (stochastic_type, base_problem.get_name())
+    plt.title('%s\nPSO: With/without racing (neighbourhood size = %.2f) (%d trials)' % (prob_stat, pars['noise_level'], pars['num_trials']))
+    plt.savefig('%s-psogenracing-robust_fevals.png' % prob_stat)
 
 if __name__ == '__main__':
     #start_experiment(num_trials=20, pop_size=20, nr_eval_per_x=20, fevals_max=200000)
 
-    #vary_nr_eval_per_x(num_trials=20, fevals_max=100000)
-    
-    #vary_neighbourhood_size(num_trials=20, fevals_max=100000)
+    default_params = dict(num_trials=20, pop_size=20, nr_eval_per_x=10, fevals_max=100000, noise_level=0.3)
 
-    vary_fevals_budget(num_trials=20)
+    #vary_nr_eval_per_x(default_params) 
+    #vary_neighbourhood_size(default_params)
+    vary_fevals_budget(default_params)
