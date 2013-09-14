@@ -64,7 +64,7 @@ Select the problem and associate a population to this problem.
 
 Creates the meta-algorithm with these informations.
 .. code-block:: python
-   In [9]: lgo_meta = algorithm.cstrs_immune_system(algorithm = algo_1, algorithm_immune = algo_2, gen = n_gen,select_method = algorithm.cstrs_immune_system.select_method.INFEASIBILITY, inject_method = algorithm.cstrs_immune_system.inject_method.CHAMPION, distance_method = algorithm.cstrs_immune_system.distance_method.EUCLIDEAN)
+   In [9]: algo_meta = algorithm.cstrs_immune_system(algorithm = algo_1, algorithm_immune = algo_2, gen = n_gen,select_method = algorithm.cstrs_immune_system.select_method.INFEASIBILITY, inject_method = algorithm.cstrs_immune_system.inject_method.CHAMPION, distance_method = algorithm.cstrs_immune_system.distance_method.EUCLIDEAN)
 
 Here we have selected the infeasibility method where the antigen 
 population is set by selecting individuals based on their 
