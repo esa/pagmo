@@ -105,8 +105,7 @@ decompose::decompose(const base & p, method_type method, const std::vector<doubl
 	}
 
 	//Setting the bounds according to the original problem
-	set_lb(m_original_problem->get_lb());
-	set_ub(m_original_problem->get_ub());
+	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
 
 /// Copy Constructor. Performs a deep copy
@@ -121,7 +120,7 @@ decompose::decompose(const decompose &p):
 		 m_method(p.m_method),
 		 m_weights(p.m_weights),
 		 m_z(p.m_z)
-		{set_lb(p.get_lb()); set_ub(p.get_ub());}
+		{set_bounds(p.get_lb(),p.get_ub());}
 
 /// Clone method.
 base_ptr decompose::clone() const
