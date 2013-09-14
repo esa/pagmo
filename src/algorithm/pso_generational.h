@@ -28,7 +28,8 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "base.h"
-
+#include "../util/race_pop.h"
+#include <limits>
 
 namespace pagmo { namespace algorithm {
 
@@ -52,10 +53,11 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pso_generational: public base
 {
 public:
-	pso_generational(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4 );
+	pso_generational(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4, bool use_racing = false, unsigned int max_fevals=std::numeric_limits<unsigned int>::max());
 	base_ptr clone() const;
 	void evolve(population &) const;
-	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob ) const;
+	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob) const;
+	decision_vector particle__racing_get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, util::racing::race_pop&) const;
 	void initialize_topology__gbest( const population &pop, decision_vector &gbX, fitness_vector &gbfit, std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__von( std::vector< std::vector<int> > &neighb ) const;
@@ -77,6 +79,9 @@ private:
 		ar & const_cast<int &>(m_variant);
 		ar & const_cast<int &>(m_neighb_type);
 		ar & const_cast<int &>(m_neighb_param);
+		ar & const_cast<bool &>(m_use_racing);
+		ar & m_fevals;
+		ar & const_cast<unsigned int&>(m_max_fevals);
 	}
 	// Number of generations
 	const int m_gen;
@@ -94,6 +99,12 @@ private:
 	const int m_neighb_type;
 	// parameterization of the swarm topology
 	const int m_neighb_param;
+	// Whether to use racing in stochastic settings
+	const bool m_use_racing;
+	// Incurred objective function evaluation
+	mutable unsigned int m_fevals;
+	// Maximum allowable fevals before algo terminates
+	const unsigned int m_max_fevals;
 };
 
 }} //namespaces

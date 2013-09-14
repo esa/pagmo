@@ -1,7 +1,7 @@
-.. _tutorial1:
+.. _adding_a_new_optimization_problem:
 
 ================================================================
-Tutorial 1: Coding an optimization problem in Python
+Adding a new optimization problem
 ================================================================
 
 In this Tutorial we will learn how to code simple optimization problems
@@ -15,37 +15,37 @@ and reimplement some of its 'virtual' methods.
 
    from PyGMO.problem import base
    class my_problem(base):
-	"""
-	De Jong (sphere) function implemented purely in Python.
-	
-	USAGE: my_problem(dim = 10)
+   """
+   De Jong (sphere) function implemented purely in Python.
+   
+   USAGE: my_problem(dim = 10)
 
-	* dim problem dimension
-	"""
-	def __init__(self, dim = 10):
-		#First we call the constructor of the base class telling
-		#essentially to PyGMO what kind of problem to expect (1 objective, 0 contraints etc.)
-		super(my_problem,self).__init__(dim)
+   * dim problem dimension
+   """
+   def __init__(self, dim = 10):
+      #First we call the constructor of the base class telling
+      #essentially to PyGMO what kind of problem to expect (1 objective, 0 contraints etc.)
+      super(my_problem,self).__init__(dim)
 
-		#then we set the problem bounds (in this case equal for all components)
-		self.set_bounds(-5.12,5.12)
-		
-		#we define some additional 'private' data members (not really necessary in
-		#this case, but ... hey this is a tutorial)
-		self.__dim = dim
+      #then we set the problem bounds (in this case equal for all components)
+      self.set_bounds(-5.12,5.12)
+ 
+      #we define some additional 'private' data members (not really necessary in
+      #this case, but ... hey this is a tutorial)
+      self.__dim = dim
 
-	#We reimplement the virtual method that defines the objective function.
-	def _objfun_impl(self,x):
-		f = 0;
-		for i in range(self.__dim):
-			f = f + (x[i])*(x[i])
-		#note that we return a tuple with one element only. In PyGMO the objective functions
-		#return tuples so that multi-objective optimization is also possible.
-		return (f,)
+   #We reimplement the virtual method that defines the objective function.
+   def _objfun_impl(self,x):
+      f = 0;
+      for i in range(self.__dim):
+         f = f + (x[i])*(x[i])
+         #note that we return a tuple with one element only. In PyGMO the objective functions
+         #return tuples so that multi-objective optimization is also possible.
+      return (f,)
 
-	#Finally we also reimplement a virtual method that adds some output to the __repr__ method
-	def human_readable_extra(self):
-		return "\n\t Problem dimension: " + str(self.__dim)
+   #Finally we also reimplement a virtual method that adds some output to the __repr__ method
+   def human_readable_extra(self):
+      return "\n\t Problem dimension: " + str(self.__dim)
 
 Note that by default PyGMO will assume one wants to minimize the objective function. In the second
 part of this tutorial we will also see how it is possible to change this default behaviour.
@@ -55,14 +55,14 @@ We may then put the above code in a file, say my_module.py and use, for example,
 
 .. code-block:: python
 
-    from PyGMO import *
-    from  my_module import my_problem
+   from PyGMO import *
+   from  my_module import my_problem
 
-    prob = my_problem(dim=10)
-    algo = algorithm.bee_colony(gen=500)
-    isl = island(algo,prob,20)
-    isl.evolve(1); isl.join()
-    print isl.population.champion.f
+   prob = my_problem(dim=10)
+   algo = algorithm.bee_colony(gen=500)
+   isl = island(algo,prob,20)
+   isl.evolve(1); isl.join()
+   print isl.population.champion.f
 
 And we are done!!!!! (the output will be something like 10^-27, no big deal for a sphere problem)
 
@@ -120,6 +120,7 @@ As before, we may put this in the file my_module.py and use our favorite optimiz
 algorithm:
 
 .. code-block:: python
+
     from PyGMO import *
     from my_module import my_problem
     from math import *

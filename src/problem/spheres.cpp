@@ -117,12 +117,12 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 		fit += temp;
 
 		//and we add the final velocity violation (two times since we will divide by two later)
-		fit += 2 *(norm2(vel_f));
+		//fit += 2 *(norm2(vel_f));
 
-		//and we keep them within the box [-1 -1]
-		if (std::abs(y[i*3]) > 1)   fit += std::abs(y[i*3]);
-		if (std::abs(y[i*3+1]) > 1) fit += std::abs(y[i*3+1]);
-		if (std::abs(y[i*3+2]) > 1) fit += std::abs(y[i*3+2]);
+		//and we keep them within the box [-1 1]
+		//if (std::abs(y[i*3]) > 1)   fit += std::abs(y[i*3]);
+		//if (std::abs(y[i*3+1]) > 1) fit += std::abs(y[i*3+1]);
+		//if (std::abs(y[i*3+2]) > 1) fit += std::abs(y[i*3+2]);
 	}
 	return (fit/2);
 }
@@ -222,9 +222,9 @@ void spheres::objfun_impl(fitness_vector &f, const decision_vector &x) const {
 	// Loop over the number of repetitions
 	for (int count=0;count<m_n_evaluations;++count) {
 		// Creates the initial conditions at random
-		// Positions starts in a [-2,2] box
+		// Positions starts in a [-1,1] box
 		for (int i=0; i<6; ++i) {
-			m_ic[i] = (m_drng()*4 - 2);
+			m_ic[i] = (m_drng()*2 - 1);
 		}
 
 		// Centered around the origin

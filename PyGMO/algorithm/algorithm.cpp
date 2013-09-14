@@ -208,7 +208,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// Particle Swarm Optimization (generational)
 	algorithm_wrapper<algorithm::pso_generational>("pso_gen", "Particle Swarm Optimization (generational)")
-		.def(init<optional<int,double, double, double, double, int, int, int> >());
+		.def(init<optional<int,double, double, double, double, int, int, int, bool, unsigned int> >());
 	
 	// Simple Genetic Algorithm.
 	algorithm_wrapper<algorithm::sga>("sga", "A simple genetic algorithm (generational)")
@@ -228,7 +228,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.value("GRID", algorithm::pade::GRID)
 		.value("LOW_DISCREPANCY", algorithm::pade::LOW_DISCREPANCY);
 	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
-		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type> >());
+		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type, pagmo::fitness_vector> >());
 
 	// SMS-EMOA
 	algorithm_wrapper<algorithm::sms_emoa>("sms_emoa", "The SMS-EMOA algorithm")

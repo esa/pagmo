@@ -166,6 +166,15 @@ Population
          pop = population(prob,30) 
          v = pop.mean_velocity()
 
+   .. method:: race((int) n_winners, (int) min_trials=0, (int) max_feval=500, (float) delta=0.05, (list) racers_idx=[])
+
+	  Races individuals in a population
+
+	  * n_winners: number of winners in the race
+	  * min_trials: minimum amount of evaluations before an individual can stop racing
+	  * delta: Statistical test confidence
+	  * racers_idx: indices of the individuals in pop to be raced
+
    .. attribute:: champion
       :noindex:
 
@@ -189,3 +198,5 @@ Population
          ub = list(prob.ub)
          lb[0]=-10
          pop.problem.set_bounds(lb,ub) #This line is completely uneffective ...
+
+

@@ -9,9 +9,10 @@ Available Tutorials
 .. toctree::
    :maxdepth: 2
 
-   tutorial1
-   tutorial2
-   tutorial3
-   tutorial4
-   tutorial5
-   tutorial6
+   adding_problems_and_algorithms_to_PyGMO
+   meta_problems_meta_algorithms
+   multi_objective_optimization_with_PyGMO
+   hypervolumes_in_PyGMO
+   dealing_with_constraints_in_PyGMO
+   racing
+

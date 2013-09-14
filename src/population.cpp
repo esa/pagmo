@@ -41,6 +41,7 @@
 #include "rng.h"
 #include "types.h"
 #include "util/racing.h"
+#include "util/race_pop.h"
 
 namespace pagmo
 {
@@ -1054,7 +1055,7 @@ population::size_type population::n_dominated(const individual_type &ind) const
 	return retval;
 }
 
-/// Race the individuals in the population.
+/// Race the individuals in the population
 /**
  * Perform racing on the individuals. Alternative to racing the whole population,
  * user can specify to race on only a subset of the individual. This is simply
@@ -1065,15 +1066,18 @@ population::size_type population::n_dominated(const individual_type &ind) const
  * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
+ * @param[in] race_best If true winners are the best, otherwise winners are the worst
+ * @param[in] screen_output If true some screen output is produced
  *
  * @return Indices of the individuals that remain in the race in the end, a.k.a the winners.
  *
  * @see pagmo::util::racing::race
  */
-std::vector<population::size_type> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set) const
+std::pair<std::vector<population::size_type>, unsigned int> population::race(const size_type n_final, const unsigned int min_trials, const unsigned int max_count, double delta, const std::vector<size_type>& active_set, const bool race_best, const bool screen_output) const
 {
-	return util::racing::race_pop(*this, n_final, min_trials, max_count,
-									 delta, m_urng(), active_set, false);
+	unsigned int seed = m_urng();
+	util::racing::race_pop m_race_pop(*this, seed);
+	return m_race_pop.run(n_final, min_trials, max_count, delta, active_set, race_best, screen_output);
 }
 
 /// Overload stream operator for pagmo::population.

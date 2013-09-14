@@ -5,11 +5,6 @@ from _base import base
 from _example import py_example
 from _cmaes import py_cmaes
 from _scipy_algos import *
-import sys
-
-from ..util import HypervolumeValidation
-
-from PyGMO.problem import decompose
 
 _base = _algorithm._base
 
@@ -112,36 +107,6 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, m
 jde._orig_init = jde.__init__
 jde.__init__ = _jde_ctor
 
-def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
-	"""
-	Constructs a mde_pbx algorithm (self-adaptive DE)
-	
-	REF: "An Adaptive Differential Evolution Algorithm With Novel Mutation and Crossover
-	Strategies for Global Numerical Optimization" - IEEE TRANSACTIONS ON SYSTEMS, MAN, AND CYBERNETICS?PART B: CYBERNETICS, VOL. 42, NO. 2, APRIL 20 
-
-	
-	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
-	
-	* gen: number of generations
-	* qperc: percentage of population to choose the best vector
-	* nexp: exponent for the powermean
-	* ftol: stop criteria on f
-	* xtol: stop criteria on x
-	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
-	* 		 different island outputs)
-	"""
-	# We set the defaults or the kwargs
-	arg_list=[]
-	arg_list.append(gen)
-	arg_list.append(qperc)
-	arg_list.append(nexp)
-	arg_list.append(ftol)
-	arg_list.append(xtol)	
-	self._orig_init(*arg_list)
-	self.screen_output = screen_output
-mde_pbx._orig_init = mde_pbx.__init__
-mde_pbx.__init__ = _mde_pbx_ctor
-
 def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], memory = False, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
 	Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
@@ -177,6 +142,37 @@ def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,
 	self.screen_output = screen_output
 de_1220._orig_init = de_1220.__init__
 de_1220.__init__ = _de_1220_ctor
+
+def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
+	"""
+	Constructs a mde_pbx algorithm (self-adaptive DE)
+	
+	REF: "An Adaptive Differential Evolution Algorithm With Novel Mutation and Crossover
+	Strategies for Global Numerical Optimization" - IEEE TRANSACTIONS ON SYSTEMS, MAN, AND CYBERNETICS?PART B: CYBERNETICS, VOL. 42, NO. 2, APRIL 20 
+
+	
+	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
+	
+	* gen: number of generations
+	* qperc: percentage of population to choose the best vector
+	* nexp: exponent for the powermean
+	* ftol: stop criteria on f
+	* xtol: stop criteria on x
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(qperc)
+	arg_list.append(nexp)
+	arg_list.append(ftol)
+	arg_list.append(xtol)	
+	self._orig_init(*arg_list)
+	self.screen_output = screen_output
+mde_pbx._orig_init = mde_pbx.__init__
+mde_pbx.__init__ = _mde_pbx_ctor
+
 
 def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
 	"""
@@ -230,7 +226,7 @@ def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.
 pso._orig_init = pso.__init__
 pso.__init__ = _pso_ctor
 
-def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
+def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, use_racing = False, max_fevals = -1):
 	"""
 	Constructs a Particle Swarm Optimization (generational). The position update is applied
 	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
@@ -263,6 +259,8 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
 		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
 		The minimum outdegree is 1 (the particle always connects back to itself).
+	* use_racing: Whether to use racing
+	* max_fevals: When specified other than -1, this serve as another termination condition -- maximium number of objective function evaluations
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -274,6 +272,9 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 	arg_list.append(variant)
 	arg_list.append(neighb_type)
 	arg_list.append(neighb_param)	
+	arg_list.append(use_racing)
+	if max_fevals > 0:
+		arg_list.append(max_fevals)
 	self._orig_init(*arg_list)
 pso_gen._orig_init = pso_gen.__init__
 pso_gen.__init__ = _pso_gen_ctor
@@ -350,6 +351,7 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 	# We set the defaults or the kwargs
 	arg_list=[]
 
+	from ..util import HypervolumeValidation
 	if hv_algorithm:
 		hv_algorithm = HypervolumeValidation.validate_hv_algorithm(hv_algorithm)
 		arg_list.append(hv_algorithm)
@@ -366,7 +368,8 @@ sms_emoa.__init__ = _sms_emoa_ctor
 _algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
 _algorithm.pade.GRID = _algorithm._weight_generation.GRID
 _algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
-def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM):
+from PyGMO.problem import decompose
+def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM, z = None):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	
@@ -375,7 +378,7 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	At the end of the evolution the population is set as the best individual in each single-objective island.
 	This algorithm, original with PaGMO, builds upon the MOEA/D framework
 	
-	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM)
+	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM, z = None)
 
 	* gen: number of generations
 	* max_parallelism: the maximum number of single-objective problems to solve at the same time
@@ -383,6 +386,7 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	* T: the size of the population on each subproblem (must be an even number)
 	* decomposition = the decomposition method to use (Weighted, Tchebycheff or BI)
 	* weights: the weight generation method
+	* z: the reference point (used with Tchebycheff and BI decomposition methods)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -392,9 +396,12 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	arg_list.append(solver)
 	arg_list.append(T)
 	arg_list.append(weights)
+	if z != None:
+		arg_list.append(z)
 	self._orig_init(*arg_list)
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
+del decompose
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""

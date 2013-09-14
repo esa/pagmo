@@ -1,7 +1,7 @@
-.. _tutorial5:
+.. _rotated_shifted:
 
 ================================================================
-Tutorial 5: Rotated and Shifted problems (only from V1.1.5)
+Rotated and Shifted problems
 ================================================================
 
 In this tutorial we will learn how to use meta-problems. These are optimization problems that transform somehow

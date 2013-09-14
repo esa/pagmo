@@ -1,10 +1,12 @@
-.. _tutorial6:
+.. _decomposition:
 
 ================================================================
-Tutorial 6: Solving a multi-objective problem by decomposition
+Decomposition
 ================================================================
 
-In this tutorial we will learn how to use the decompose meta-problems to solve a multi-objective problem. The decompose meta-problem transforms a multi-objective problem into a single-objective one having as fitness function a convex combination (defined by a weight vector) of the original objectives. 
+In this tutorial we will learn how to use the decompose meta-problems to solve a multi-objective problem.
+The decompose meta-problem transforms a multi-objective problem into a single-objective one having as
+fitness function a convex combination (defined by a weight vector) of the original objectives. 
 Let us start creating a decomposed problem from a multi-objective one.
 
 .. code-block:: python
