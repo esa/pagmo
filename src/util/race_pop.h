@@ -44,7 +44,18 @@ namespace racing{
 
 /// Racing mechanism for a population
 /**
- * This class contains ...
+ * This class implements the racing routines that can be invoked to race
+ * all or some of the individuals in a population.
+ *
+ * It contains a caching mechanism which allows the reuse of previously
+ * evaluated fitness and constraint vectors, in case an identical individual is
+ * raced more than once, for example each time with different sets of other
+ * individuals.  The caching mechanism ensures that all the data points that
+ * are compared during the race correspond to the same seed.
+ *
+ * Currently the racing is implemented based on F-Race, which invokes Friedman
+ * test iteratively during each race.
+ *
  */
 class __PAGMO_VISIBLE race_pop
 {
@@ -74,7 +85,6 @@ public:
 	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &active_set = std::vector<population::size_type>()) const;
 	void set_seed(unsigned int);
 
-	bool m_use_caching;
 	void disable_cache();
 
 private:
@@ -124,6 +134,7 @@ private:
 	bool m_pop_registered;
 	std::vector<unsigned int> m_seeds;
 	rng_uint32 m_seeder;
+	bool m_use_caching;
 	std::vector<std::vector<eval_data> > m_cache_data;
 	std::vector<eval_data> m_cache_averaged_data;
 	std::vector<decision_vector> m_cache_signatures;

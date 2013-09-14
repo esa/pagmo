@@ -115,7 +115,6 @@ private:
 	mutable unsigned int m_fevals;
 	// Maximum allowable fevals before algo terminates
 	const unsigned int m_max_fevals;
-	mutable int m_extra_budget;
 };
 
 }} //namespaces

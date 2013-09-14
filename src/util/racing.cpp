@@ -48,13 +48,10 @@ void racing_population::set_x_noeval(const size_type idx, const decision_vector 
 	if (idx >= size()) {
 		pagmo_throw(index_error,"invalid individual position");
 	}
-	// TODO: Add option to disable / enable this check
-	/*
 	if (!problem().verify_x(x)) {
 		pagmo_throw(value_error,"decision vector is not compatible with problem");
 
 	}
-	*/
 	// Set decision vector.
 	m_container[idx].cur_x = x;
 }
@@ -106,7 +103,8 @@ void racing_population::set_fc(const size_type idx, const fitness_vector &f, con
 void racing_population::push_back_noeval(const decision_vector &x)
 {
 	// To allow passing in a dummy x, when the focus of all is on the fitness
-	// and constraint vectors, i.e. when using this just to allocate spaces.
+	// and constraint vectors. The main purpose of this function is to allocate
+	// the spaces but skip the evaluation.
 	/*
 	if (!problem().verify_x(x)) {
 		pagmo_throw(value_error,"decision vector is not compatible with problem");
@@ -126,19 +124,13 @@ void racing_population::push_back_noeval(const decision_vector &x)
 	m_container.back().cur_v.resize(p_size);
 	m_container.back().cur_c.resize(c_size);
 	m_container.back().cur_f.resize(f_size);
-	// NOTE: do not allocate space for bests, as they are not defined yet. set_x will take
-	// care of it. No -- it won't now!
 
 	// As we bypass set_x which will allocate spaces for bests, they must be
-	// explicitly allocated here. Some secretive functions like update_dom()
-	// will love to use the bests instead of curs.
+	// explicitly allocated here.
 	m_container.back().best_f.resize(f_size);
 	m_container.back().best_c.resize(c_size);
 	
 	// Set the individual.
-	//set_x(m_container.size() - 1,x);
-	// TODO: Noeval options made the concept a champion invalid. And champions
-	// are not used in racing. How to prevent invalid use of champion?
 	set_x_noeval(m_container.size() - 1, x);
 	// Initialise randomly the velocity vector.
 	//init_velocity(m_container.size() - 1);
@@ -314,10 +306,11 @@ void f_race_adjust_ranks(std::vector<racer_type>& racers, const std::vector<popu
  * @param[in] delta Confidence level for the statistical test
  *
  * @return Result of the statistical test 
+ *
  */
 stat_test_result core_friedman_test(const std::vector<std::vector<double> >& X, double delta)
 {	
-	// TODO: throw when X is empty
+	pagmo_assert(X.size() > 0);
 	
 	unsigned int N = X.size(); // # of different configurations
 	unsigned int B = X[0].size(); // # of different instances
@@ -449,7 +442,8 @@ stat_test_result wilcoxon_ranksum_test(std::vector<racer_type> &racers, const st
 	// evaluated points.
 	racers[in_race[0]].m_hist.push_back(rankings[wilcoxon_pop.size()/2 - 1]);
 	racers[in_race[1]].m_hist.push_back(rankings[wilcoxon_pop.size() - 1]);
-	// TODO: Can be optimized if bothered
+
+	// Compute the mean ranks
 	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); it++){
 		racer_type& cur_racer = racers[*it];
 		cur_racer.m_mean = 0;
@@ -469,6 +463,7 @@ stat_test_result wilcoxon_ranksum_test(std::vector<racer_type> &racers, const st
 	return core_wilcoxon_ranksum_test(X, delta);
 }
 
+// Helper routine for Wilcoxon test
 std::size_t wilcoxon_faculty( std::size_t n )
 {
 	if( n == 1 )
@@ -477,6 +472,7 @@ std::size_t wilcoxon_faculty( std::size_t n )
 	return( n * wilcoxon_faculty( n-1 ) );
 }
 
+// Helper routine for Wilcoxon test
 double wilcoxon_frequency( double u, int sampleSizeA, int sampleSizeB )
 {
 	if( u < 0. || sampleSizeA < 0 || sampleSizeB < 0 )
@@ -517,7 +513,6 @@ stat_test_result core_wilcoxon_ranksum_test(const std::vector<std::vector<double
 		// sample size is small. Boost does not have the required Wilcoxon
 		// rank-sum distribution (currently in their todo list)... This piece
 		// of code is adapted from the Shark machine learning library.
-		// TODO: Check the validity
 		int wA = rank_sum[0];
 		//int wB = rank_sum[1];
 		double uA = wA - sizeA * ( sizeA + 1 ) / 2.;
@@ -539,7 +534,7 @@ stat_test_result core_wilcoxon_ranksum_test(const std::vector<std::vector<double
 		using boost::math::normal;
 		int n1 = X[0].size();
 		int n2 = X[1].size();
-		normal normal_dist(n1*n2/2, sqrt(n1*n2*(n1+n2+1.0)/12.0)); //TODO: Check the formulaa for standard deviation	
+		normal normal_dist(n1*n2/2, sqrt(n1*n2*(n1+n2+1.0)/12.0));
 		double delta_quantile_upp = quantile(normal_dist, 1 - delta);
 		//double delta_quantile_low = quantile(normal_dist, delta);
 		//std::cout << "quantile upp = " << delta_quantile_upp << ", quantile low = " << delta_quantile_low << std::endl;

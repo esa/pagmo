@@ -30,8 +30,8 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
 
     # 1. Set up the problem
     if(stochastic_type == 'NOISY'):
-        prob_single_eval = problem.noisy(base_problem, trials = 1, param_second = noise_level)
-        prob_regular = problem.noisy(base_problem, trials = nr_eval_per_x, param_second = noise_level)
+        prob_single_eval = problem.noisy(base_problem, trials = 1, param_second = noise_level, noise_type = problem.noisy.noise_distribution.UNIFORM)
+        prob_regular = problem.noisy(base_problem, trials = nr_eval_per_x, param_second = noise_level, noise_type = problem.noisy.noise_distribution.UNIFORM)
     else:
         prob_single_eval = problem.robust(base_problem, trials = 1, rho = noise_level)
         prob_regular = problem.robust(base_problem, trials = nr_eval_per_x, rho = noise_level)
@@ -130,7 +130,7 @@ def vary_nr_eval_per_x(default_params):
     plt.ylabel('Post-evaluated fitness')
     prob_stat = '%s-%s' % (stochastic_type, base_problem.get_name())
     plt.title('%s\nPSO: With/without racing (fevals=%d) (%d trials)' % (prob_stat, pars['fevals_max'], pars['num_trials']))
-    plt.savefig('%s-psogenracing-nr_eval_per_x.png' % prob_stat)
+    #plt.savefig('%s-psogenracing-nr_eval_per_x.png' % prob_stat)
 
 def vary_neighbourhood_size(default_params):
 
@@ -153,13 +153,13 @@ def vary_neighbourhood_size(default_params):
     plt.ylabel('Post-evaluated fitness')
     prob_stat = '%s-%s' % (stochastic_type, base_problem.get_name())
     plt.title('%s\nPSO: With/without racing (fevals=%d) (%d trials)' % (prob_stat, pars['fevals_max'], pars['num_trials']))
-    plt.savefig('%s-psogenracing-robust_neighbourhood_small.png' % prob_stat)
+    #plt.savefig('%s-psogenracing-robust_neighbourhood_small.png' % prob_stat)
 
 def vary_fevals_budget(num_trials=20, nr_eval_per_x=10, nb_size=0.5):
 
     pars = copy.deepcopy(default_params)
 
-    param_list = range(10000,160000,20000)
+    param_list = range(10000,200000,20000)
     f_no_racing_list = []
     f_racing_list = []
     for fevals_max in param_list:
@@ -176,13 +176,13 @@ def vary_fevals_budget(num_trials=20, nr_eval_per_x=10, nb_size=0.5):
     plt.ylabel('Post-evaluated fitness')
     prob_stat = '%s-%s' % (stochastic_type, base_problem.get_name())
     plt.title('%s\nPSO: With/without racing (neighbourhood size = %.2f) (%d trials)' % (prob_stat, pars['noise_level'], pars['num_trials']))
-    plt.savefig('%s-psogenracing-robust_fevals.png' % prob_stat)
+    #plt.savefig('%s-psogenracing-robust_fevals.png' % prob_stat)
 
 if __name__ == '__main__':
     #start_experiment(num_trials=20, pop_size=20, nr_eval_per_x=20, fevals_max=200000)
 
-    default_params = dict(num_trials=20, pop_size=20, nr_eval_per_x=10, fevals_max=100000, noise_level=0.3)
+    default_params = dict(num_trials=10, pop_size=20, nr_eval_per_x=10, fevals_max=100000, noise_level=0.3)
 
-    #vary_nr_eval_per_x(default_params) 
-    #vary_neighbourhood_size(default_params)
-    vary_fevals_budget(default_params)
+    vary_nr_eval_per_x(default_params) 
+    vary_neighbourhood_size(default_params)
+    ##vary_fevals_budget(default_params)

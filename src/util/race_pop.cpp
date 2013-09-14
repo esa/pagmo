@@ -36,9 +36,6 @@ race_pop::race_pop(unsigned int seed): m_use_caching(true), m_race_seed(seed), m
 /**
  * This also re-allocate the spaces required to the cache entries.
  *
- * TODO: Before clearing the cache altogether, check if anything in the memory
- * can be re-used and keep them?
- *
  * @param[in] pop The new population
  **/
 void race_pop::register_population(const population &pop)
@@ -189,7 +186,8 @@ unsigned int race_pop::prepare_population_friedman(const std::vector<population:
 			fitness_vector f_vec = m_pop.problem().objfun(ind.cur_x);
 			constraint_vector c_vec = m_pop.problem().compute_constraints(ind.cur_x);
 			m_pop.set_fc(*it, f_vec, c_vec);
-			cache_insert_data(*it, f_vec, c_vec);
+			if(m_use_caching)
+				cache_insert_data(*it, f_vec, c_vec);
 		}
 	}
 	return count_nfes;
@@ -226,8 +224,7 @@ unsigned int race_pop::prepare_population_wilcoxon(const std::vector<population:
 		for(unsigned int i = start_count_iter; i <= count_iter; i++){
 			// Case 1: Current racer has previous data that can be reused, no
 			// need to be evaluated with this seed
-			if(cache_data_exist(*it, i-1)){
-				// TODO: It is a bit inefficient here, x has no use at all
+			if(m_use_caching && cache_data_exist(*it, i-1)){
 				m_pop_wilcoxon.push_back_noeval(dummy_x);
 				const eval_data& cached_data = cache_get_entry(*it, i-1);
 				m_pop_wilcoxon.set_fc(m_pop_wilcoxon.size()-1, cached_data.f, cached_data.c);
@@ -241,7 +238,8 @@ unsigned int race_pop::prepare_population_wilcoxon(const std::vector<population:
 				constraint_vector c_vec = m_pop.problem().compute_constraints(ind.cur_x);
 				m_pop_wilcoxon.push_back_noeval(dummy_x);
 				m_pop_wilcoxon.set_fc(m_pop_wilcoxon.size()-1, f_vec, c_vec);
-				cache_insert_data(*it, f_vec, c_vec);
+				if(m_use_caching)
+					cache_insert_data(*it, f_vec, c_vec);
 			}
 		}
 	}
@@ -726,6 +724,11 @@ unsigned int race_pop::get_current_seed(unsigned int seed_idx)
 	return m_seeds[seed_idx]; 
 }
 
+/// Disable caching mechanism
+/*
+ * When cache is disabled the race object will not attempt to perform any data
+ * point reuse during racing.
+ */
 void race_pop::disable_cache()
 {
 	m_use_caching = false;
