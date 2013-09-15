@@ -8,7 +8,7 @@ namespace pagmo { namespace util { namespace racing {
 
 namespace metrics_algos {
 
-
+/// Returns the maximum constraint dimension of from set of problems
 static problem::base::c_size_type get_max_c_dimension(const std::vector<problem::base_ptr> &probs)
 {
 	problem::base::c_size_type max_c_dim = 0;
@@ -18,6 +18,7 @@ static problem::base::c_size_type get_max_c_dimension(const std::vector<problem:
 	return max_c_dim;
 }
 
+/// Returns the maximum inequality constraint dimension from a set of problems
 static problem::base::c_size_type get_max_ic_dimension(const std::vector<problem::base_ptr> &probs)
 {
 	problem::base::c_size_type max_ic_dim = 0;
@@ -41,7 +42,7 @@ static problem::base::c_size_type get_max_ic_dimension(const std::vector<problem
  * The standard way of assigning fitness to an algorithm contains two cases:
  * (1) Single problem: Algo's fitness assigned to be the fitness of the evolved
  * champion on the problem, evolved by the specified algorithm.
- * (2) Multiple problem: Randomly sample a single problem (based on current
+ * (2) Multiple problems: Randomly sample a single problem (based on current
  * seed) from the pool of problems, then proceed as (1).
  *
  * Currently supports box constrained and equality / inequality constrained
@@ -72,11 +73,20 @@ class standard : public problem::base_stochastic
 		}
 
 		void setup(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos);
-		constraint_vector zero_pad_constraint(const constraint_vector&, problem::base::c_size_type) const;
+		constraint_vector zero_pad_constraint(const constraint_vector&, problem::base::c_size_type) const;	
+		
+		void evaluate_algorithm(unsigned int) const;
 
 		std::vector<algorithm::base_ptr> m_algos;
 		std::vector<problem::base_ptr> m_probs;
-		unsigned int m_pop_size;	
+		unsigned int m_pop_size;
+
+		// To avoid inefficiency resulted from the decoupled fitness and
+		// constraint computation
+		mutable std::vector<bool> m_is_first_evaluation;
+		mutable std::vector<unsigned int> m_database_seed;
+		mutable std::vector<fitness_vector> m_database_f;
+		mutable std::vector<constraint_vector> m_database_c;
 };
 
 /// Constructor of the performance metrics of algorithms on a single problem
@@ -96,7 +106,7 @@ class standard : public problem::base_stochastic
  * @throws value_error if there are incompatible problems in the supplied set. All the problems need to have the same fitness and constraint dimension.
  *
  */
-standard::standard(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos, unsigned int seed, unsigned int pop_size): base_stochastic(1, 1, probs.front()->get_f_dimension(), get_max_c_dimension(probs), get_max_ic_dimension(probs), 0, seed), m_pop_size(pop_size)
+standard::standard(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos, unsigned int seed, unsigned int pop_size): base_stochastic(1, 1, probs.front()->get_f_dimension(), get_max_c_dimension(probs), get_max_ic_dimension(probs), 0, seed), m_pop_size(pop_size), m_is_first_evaluation(algos.size(), true), m_database_seed(algos.size()), m_database_f(algos.size()), m_database_c(algos.size())
 {
 	setup(probs, algos);
 }
@@ -143,7 +153,11 @@ standard::standard(const standard &standard_copy):
 			standard_copy.get_ic_dimension(), 0, standard_copy.m_seed),
 	m_algos(standard_copy.m_algos),
 	m_probs(standard_copy.m_probs),
-	m_pop_size(standard_copy.m_pop_size)
+	m_pop_size(standard_copy.m_pop_size),
+	m_is_first_evaluation(standard_copy.m_is_first_evaluation),
+	m_database_seed(standard_copy.m_database_seed),
+	m_database_f(standard_copy.m_database_f),
+	m_database_c(standard_copy.m_database_c)
 {
 	set_bounds(standard_copy.get_lb(), standard_copy.get_ub());
 }
@@ -161,30 +175,19 @@ problem::base_ptr standard::clone() const
  */
 void standard::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	if(x[0] < 0 || x[0] >= m_algos.size()){
-		pagmo_throw(value_error, "Out of bound algorithm index");
-	}
+	evaluate_algorithm(x[0]);
+	f = m_database_f[x[0]];
+}
 
-	// Seeding control
-	for(unsigned int i = 0; i < m_algos.size(); i++){
-		m_algos[i]->reset_rngs(m_seed);
-	}
-	m_drng.seed(m_seed);
-
-	// Randomly sample a problem if required
-	unsigned int prob_idx;
-	if(m_probs.size() == 1){
-		prob_idx = 0;
-	}
-	else{
-		prob_idx = (unsigned int)(m_drng() * 100000) % m_probs.size();
-	}
-
-	// Fitness defined as the quality of the champion in the evolved
-	// population, evolved by the selected algorithm
-	population pop(*m_probs[prob_idx], m_pop_size, m_seed);
-	m_algos[x[0]]->evolve(pop);
-	f = pop.champion().f;
+/// The performance of an algorithm in terms of a constraint vector
+/**
+ * Similar to objfun_impl(), the constraint violation is determined by the
+ * champion of the evolved population.
+ */
+void standard::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+	evaluate_algorithm(x[0]);
+	c = m_database_c[x[0]];
 }
 
 /// Pad constraint vector with non-violating values (i.e. 0)
@@ -192,7 +195,7 @@ void standard::objfun_impl(fitness_vector &f, const decision_vector &x) const
  * This is necessary when the underlying problems have different dimension. The
  * contraint dimensions of this meta-problem is set as the maximum constraint
  * dimension of all the underlying problems. Constraint vector having less than
- * that dimension will be padded here.
+ * that dimension will be padded here, up to the necessary dimension.
  */
 constraint_vector standard::zero_pad_constraint(const constraint_vector& c,  problem::base::c_size_type ic_dim) const
 {
@@ -208,13 +211,25 @@ constraint_vector standard::zero_pad_constraint(const constraint_vector& c,  pro
 	return c_padded;
 }
 
-
-//TODO: Computation of fitness and constraints are decoupled -- a single pop
-//has to be evolved twice? How to cache?
-void standard::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+/// Evaluate the target algorithm and stores the evaluation results
+/**
+ * If objfun_impl() and compute_constraints_impl() are decoupled, this
+ * meta-problem needs to evolve an identical population twice to get
+ * respectively the fitness and constraint vectors. To avoid this, this
+ * function serves as a proxy to the actual evaluation job, and it will take
+ * care of skipping unnecessary evolution of population.
+ *
+ */
+void standard::evaluate_algorithm(unsigned int algo_idx) const
 {
-	if(x[0] < 0 || x[0] >= m_algos.size()){
+	if(algo_idx >= m_algos.size()){
 		pagmo_throw(value_error, "Out of bound algorithm index");
+	}
+
+	// The requested data is ready, nothing to do
+	if(!m_is_first_evaluation[algo_idx] && m_database_seed[algo_idx] == m_seed){
+		std:: cout << "yes, skipping it like a boss ! " << std::endl;
+		return;
 	}
 
 	// Seeding control
@@ -235,9 +250,15 @@ void standard::compute_constraints_impl(constraint_vector &c, const decision_vec
 	// Fitness defined as the quality of the champion in the evolved
 	// population, evolved by the selected algorithm
 	population pop(*m_probs[prob_idx], m_pop_size, m_seed);
-	m_algos[x[0]]->evolve(pop);
-	c = zero_pad_constraint(pop.champion().c, m_probs[prob_idx]->get_ic_dimension());
+	m_algos[algo_idx]->evolve(pop);
+
+	// Store the data, to be retrieved by objfun_impl() or compute_constraints_impl()
+	m_is_first_evaluation[algo_idx] = false;
+	m_database_seed[algo_idx] = m_seed;
+	m_database_f[algo_idx] = pop.champion().f;
+	m_database_c[algo_idx] = zero_pad_constraint(pop.champion().c, m_probs[prob_idx]->get_ic_dimension());
 }
+
 
 }
 
@@ -306,7 +327,7 @@ std::pair<std::vector<unsigned int>, unsigned int> race_algo::run(
 	 * individuals. A direct re-implementation of the racing routines for
 	 * algorithms will cause unnecessary code duplication. To avoid that,
 	 * internally, here the task of race_algo is reformulated into its ``dual
-	 * form" in pop_race. The results of race_algo is the reconstructed from
+	 * form" in pop_race. The results of race_algo is then reconstructed from
 	 * the results of pop_race. If Hoeffding race or Bernstein race is desired,
 	 * they can be implemented in racing.cpp and be invoked in race_pop.cpp.
 	 * This way, all the existing / to-be-implemented racing mechanisms can be
@@ -331,8 +352,8 @@ std::pair<std::vector<unsigned int>, unsigned int> race_algo::run(
 
 	// Run the actual race
 	std::pair<std::vector<population::size_type>, unsigned int> res =
-		algos_pop.race(n_final, min_trials, max_count, delta, pop_race_active_set,
-				race_best, screen_output);
+	    algos_pop.race(n_final, min_trials, max_count, delta,
+	                   pop_race_active_set, race_best, screen_output);
 
 	// Convert the result to the algo's context
 	std::pair<std::vector<unsigned int>, unsigned int> res_algo_race;

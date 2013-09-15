@@ -40,7 +40,8 @@ namespace pagmo { namespace util { namespace racing {
 /// Racing mechanism for algorithms
 /**
  * This class allows the racing of a set of algorithms on a problem or a set of
- * problems.
+ * problems. It supports the racing over single objective box-constrained and
+ * equality / inequality constrained problems.
  */
 class __PAGMO_VISIBLE race_algo
 {
