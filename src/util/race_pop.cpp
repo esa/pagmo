@@ -15,7 +15,7 @@ namespace pagmo { namespace util { namespace racing {
  * @param[in] pop population containing the individuals to race
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(const population& pop, unsigned int seed): m_use_caching(true), m_race_seed(seed), m_pop(pop), m_pop_wilcoxon(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
+race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_pop_wilcoxon(pop), m_seeds(), m_seeder(seed), m_use_caching(true), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
 {
 	register_population(pop);
 }
@@ -28,7 +28,7 @@ race_pop::race_pop(const population& pop, unsigned int seed): m_use_caching(true
  *
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(unsigned int seed): m_use_caching(true), m_race_seed(seed), m_pop(population(problem::ackley())), m_pop_wilcoxon(population(problem::ackley())), m_pop_registered(false), m_seeds(), m_seeder(seed), m_cache_data(0), m_cache_averaged_data(0)
+race_pop::race_pop(unsigned int seed): m_race_seed(seed), m_pop(population(problem::ackley())), m_pop_wilcoxon(population(problem::ackley())), m_pop_registered(false), m_seeds(), m_seeder(seed), m_use_caching(true), m_cache_data(0), m_cache_averaged_data(0)
 {
 }
 
@@ -149,13 +149,6 @@ std::vector<population::size_type> race_pop::construct_output_list(
 		output.push_back(argsort[sorted_idx++].second);
 	}	
 
-	/*
-	std::vector<double> mean_list;
-	for(std::vector<size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it){
-		mean_list.push_back(racers[*it].m_mean);
-	}
-	std::cout << "DEBUG mean_list --> " << mean_list << std::endl;
-	*/
 	return output;
 }
 
@@ -219,7 +212,6 @@ unsigned int race_pop::prepare_population_wilcoxon(const std::vector<population:
 		start_count_iter = count_iter;
 	}
 	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it) {
-		//decision_vector dummy_x = m_pop.get_individual(*it).cur_x;
 		decision_vector dummy_x;
 		for(unsigned int i = start_count_iter; i <= count_iter; i++){
 			// Case 1: Current racer has previous data that can be reused, no
@@ -243,7 +235,6 @@ unsigned int race_pop::prepare_population_wilcoxon(const std::vector<population:
 			}
 		}
 	}
-	// std::cout << "size of wilcoxon pop = " << m_pop_wilcoxon.size() << std::endl;
 	return count_nfes;
 }
 
@@ -432,7 +423,7 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		// Update m_pop with re-evaluation results or possibly data from cache,
 		// and invoke statistical testing routines.
 		stat_test_result ss_result;
-		if(use_wilcoxon && in_race.size() == 2 /* && count_iter >= 4 */){
+		if(use_wilcoxon && in_race.size() == 2){
 			// Perform Wilcoxon rank-sum test
 			count_nfes += prepare_population_wilcoxon(in_race, count_iter);
 			ss_result = wilcoxon_ranksum_test(racers, in_race, m_pop_wilcoxon, delta);
@@ -452,8 +443,6 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		
 			const std::vector<std::vector<bool> >& is_better = ss_result.is_better;
 
-			// std::cout << "Null hypothesis 0 rejected!" << std::endl;
-
 			std::vector<size_type> out_of_race;
 
 			std::vector<bool> to_decide(in_race.size(), false), to_discard(in_race.size(), false);
@@ -472,12 +461,11 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 						vote_discard++;
 					}
 				}
-				// std::cout << "[" << *it_i << "]: vote_decide = " << vote_decide << ", vote_discard = " << vote_discard << std::endl;
+
 				if(vote_decide >= N_begin - n_final_best - discarded.size()){
 					to_decide[i] = true;
 				}
 				else if(vote_discard >= n_final_best - decided.size()){
-				//else if(vote_discard >= 1){ // Equivalent to the previous more aggressive approach
 					to_discard[i] = true;
 				}
 			}
@@ -662,20 +650,16 @@ void race_pop::inherit_memory(const race_pop& src)
 	}
 	int cnt_transferred = 0;
 	for(unsigned int i = 0; i < m_cache_data.size(); i++){
-		//std::cout << "Data entry " << i << std::endl;
 		std::map<decision_vector, unsigned int>::iterator it
 			= src_cache_locations.find(m_cache_signatures[i]);
 		if(it != src_cache_locations.end()){
-			//std::cout << "Found match!" << std::endl;
 			if(src.m_cache_data[it->second].size() > m_cache_data[i].size()){
-				//std::cout << "OK, transferring from source idx " << it->second << " to current idx " << i << std::endl;
 				m_cache_data[i] = src.m_cache_data[it->second];
 				m_cache_averaged_data[i] = src.m_cache_averaged_data[it->second];
 				cnt_transferred++;
 			}
 		}
 	}
-	//std::cout << "Number of transferred entries = " << cnt_transferred << std::endl;
 }
 
 
@@ -722,16 +706,6 @@ unsigned int race_pop::get_current_seed(unsigned int seed_idx)
 		generate_seeds(expanding_length);
 	}
 	return m_seeds[seed_idx]; 
-}
-
-/// Disable caching mechanism
-/*
- * When cache is disabled the race object will not attempt to perform any data
- * point reuse during racing.
- */
-void race_pop::disable_cache()
-{
-	m_use_caching = false;
 }
 
 }}}

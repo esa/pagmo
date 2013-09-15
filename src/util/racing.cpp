@@ -38,8 +38,7 @@ racing_population::racing_population(const problem::base &prob): population(prob
  * One of the most bizarre things you could in the world of PaGMO -- setting a
  * decision vector of an individual without evaluating its objective function.
  * This causes the fitness and constraint vectors of that individual to be
- * completely invalid, so as the best_x, best_f, etc. Only use this if you know
- * what you are doing.
+ * completely invalid, so as the best_x, best_f, etc. Use with caution.
  *
  * (Essentially, this is the first halve of the canonical set_x)
  **/
@@ -62,8 +61,7 @@ void racing_population::set_x_noeval(const size_type idx, const decision_vector 
  * directly setting fitness and constraint vectors. It only does what it says
  * -- set_fc -- meaning cur_x and best_x might become invalid as set_fc simply
  *  ignores and does not check their validity. Another note is that best_f and
- *  best_c will always mirror cur_f and cur_c. Only use this if you know what
- *  you are doing.
+ *  best_c will always mirror cur_f and cur_c. Use with caution.
  *
  *  (Essentially, this is the last halve of the canonical set_x)
  **/
@@ -102,15 +100,11 @@ void racing_population::set_fc(const size_type idx, const fitness_vector &f, con
  **/
 void racing_population::push_back_noeval(const decision_vector &x)
 {
-	// To allow passing in a dummy x, when the focus of all is on the fitness
-	// and constraint vectors. The main purpose of this function is to allocate
-	// the spaces but skip the evaluation.
-	/*
-	if (!problem().verify_x(x)) {
-		pagmo_throw(value_error,"decision vector is not compatible with problem");
+	// No checking on the validity of x:
+	// Accept a dummy x, as when using racing_population, the main focus is on
+	// the fitness and constraint vectors. The main purpose of this function is
+	// to allocate the spaces but skip the evaluation.
 
-	}
-	*/
 	// Store sizes temporarily.
 	const fitness_vector::size_type f_size = problem().get_f_dimension();
 	const constraint_vector::size_type c_size = problem().get_c_dimension();
@@ -132,8 +126,6 @@ void racing_population::push_back_noeval(const decision_vector &x)
 	
 	// Set the individual.
 	set_x_noeval(m_container.size() - 1, x);
-	// Initialise randomly the velocity vector.
-	//init_velocity(m_container.size() - 1);
 }
 
 
@@ -176,7 +168,6 @@ std::vector<double> racing_population::get_rankings() const
 			}
 		}
 	}
-	// std::cout << "Tied stats: "; for(size_type i = 0; i < tied.size(); i++) std::cout << tied[i] <<" "; std::cout<<std::endl;
 
 	// 2. For all the individuals who are tied, modify their rankings to
 	// be the average rankings in case of no tie.
@@ -192,14 +183,9 @@ std::vector<double> racing_population::get_rankings() const
 		}
 
 		double avg_rank = 0;
-		// std::cout << "Ties between: ";
 		for(size_type i = begin_avg_pos; i <= cur_pos; i++){
 			avg_rank += rankings[i] / ((double)cur_pos - begin_avg_pos + 1);
-			// std::cout << ordered_idx_active[i] << " (r=" << racers[ordered_idx_active[i]].m_hist.back() << ") ";
 		}
-		// std::cout << std::endl;
-		// if(cur_pos - begin_avg_pos + 1 > 1)
-			// std::cout << "Setting tied ranks between " << cur_pos - begin_avg_pos + 1 << " individuals to be " << avg_rank   << std::endl;
 		for(size_type i = begin_avg_pos; i <= cur_pos; i++){
 			rankings[i] = avg_rank;
 		}
@@ -250,8 +236,6 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_populatio
 		racers[idx_mapping[i]].m_hist.push_back(rankings[i]);
 	}
 
-	//std::cout << "Adjusted ranking: "; for(size_type i = 0; i < idx_mapping.size(); i++) std::cout << "(" << idx_mapping[i] << ")-" << racers[idx_mapping[i]].m_hist.back() << " "; std::cout << std::endl;
-
 	// Update mean of rank (which also reflects the sum of rank, useful for
 	// later pair-wise test)
 	for(size_type i = 0; i < rankings.size(); i++){
@@ -262,7 +246,6 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_populatio
 		}
 	}
 	
-	//std::cout << "Adjusted ranking: "; for(size_type i = 0; i < ordered_idx_active.size(); i++) std::cout << "(" << ordered_idx_active[i] << ")-" << racers[ordered_idx_active[i]].m_hist.back() << " "; std::cout << std::endl;
 }
 
 /// Rank adjustment (after every racing iteration)
@@ -288,9 +271,7 @@ void f_race_adjust_ranks(std::vector<racer_type>& racers, const std::vector<popu
 			}
 			racers[i].m_hist[j] -= adjustment;
 		}
-		//std::cout << "After deleting, rank of [" << i << "] adjusted as: " << racers[i].m_hist << std::endl;
 	}
-	//TODO: Tie cases not handled yet, worth it?
 }
 
 /// Perform a Friedman test
@@ -314,12 +295,6 @@ stat_test_result core_friedman_test(const std::vector<std::vector<double> >& X, 
 	
 	unsigned int N = X.size(); // # of different configurations
 	unsigned int B = X[0].size(); // # of different instances
-
-	// std::cout << "N = " << N << " B = " << B << std::endl;
-
-	// (Now obtained the rankings, done with problems and pop.)
-
-	// ----------- Stat. tests  starts-------------
 
 	// Compute mean rank
 	std::vector<double> X_mean(N, 0);
@@ -356,8 +331,6 @@ stat_test_result core_friedman_test(const std::vector<std::vector<double> >& X, 
 
 	double delta_quantile = quantile(chi_squared_dist, 1 - delta);
 
-	//std::cout << "T1: "<< T1 << "; delta_quantile = " << delta_quantile << std::endl;
-
 	// Null hypothesis 0: All the ranks observed are equally likely
 	bool null_hypothesis_0 = (boost::math::isnan(T1) || T1 < delta_quantile);
 
@@ -378,7 +351,6 @@ stat_test_result core_friedman_test(const std::vector<std::vector<double> >& X, 
 		for(unsigned int i = 0; i < N; i++){
 			for(unsigned int j = i + 1; j < N; j++){
 				double diff_r = fabs(R[i] - R[j]);
-				// std::cout<< "diff_r = " << diff_r << std::endl;
 				// Check if a pair is statistically significantly different
 				if(diff_r > t_delta2_quantile * Q){
 					if(X_mean[i] < X_mean[j]){
@@ -536,9 +508,6 @@ stat_test_result core_wilcoxon_ranksum_test(const std::vector<std::vector<double
 		int n2 = X[1].size();
 		normal normal_dist(n1*n2/2, sqrt(n1*n2*(n1+n2+1.0)/12.0));
 		double delta_quantile_upp = quantile(normal_dist, 1 - delta);
-		//double delta_quantile_low = quantile(normal_dist, delta);
-		//std::cout << "quantile upp = " << delta_quantile_upp << ", quantile low = " << delta_quantile_low << std::endl;
-		//std::cout << "rank sum = " << rank_sum << std::endl;	
 		if(rank_sum[0] > rank_sum[1] && rank_sum[0] > delta_quantile_upp){
 			res.trivial = false;
 			res.is_better[1][0] = true;

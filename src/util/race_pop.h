@@ -85,8 +85,6 @@ public:
 	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &active_set = std::vector<population::size_type>()) const;
 	void set_seed(unsigned int);
 
-	void disable_cache();
-
 private:
 	// Helper methods to validate input data
 	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size) const;
