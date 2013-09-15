@@ -43,9 +43,26 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_size, const double eps, const double delta, const double delta_multiplier, const double alpha, const double initial_delta_coeff, const double gamma)
 	: m_use_exact(use_exact), m_trivial_subcase_size(trivial_subcase_size), m_eps(eps), m_delta(delta), m_delta_multiplier(delta_multiplier), m_alpha(alpha), m_initial_delta_coeff(initial_delta_coeff), m_gamma(gamma) { }
 
+double bf_approx::lc_end_condition(unsigned int idx, unsigned int LC, std::vector<double> &approx_volume, std::vector<double> &point_delta)
+{
+	return (approx_volume[LC] + point_delta[LC]) / (approx_volume[idx] - point_delta[idx]);
+}
+double bf_approx::gc_end_condition(unsigned int idx, unsigned int GC, std::vector<double> &approx_volume, std::vector<double> &point_delta)
+{
+	return (approx_volume[idx] + point_delta[idx]) / (approx_volume[GC] - point_delta[GC]);
+}
+bool bf_approx::lc_erase_condition(unsigned int idx, unsigned int LC, std::vector<double> &approx_volume, std::vector<double> &point_delta)
+{
+	return (approx_volume[idx] - point_delta[idx]) > (approx_volume[LC] + point_delta[LC]);
+}
+bool bf_approx::gc_erase_condition(unsigned int idx, unsigned int GC, std::vector<double> &approx_volume, std::vector<double> &point_delta)
+{
+	return (approx_volume[idx] + point_delta[idx]) < (approx_volume[GC] - point_delta[GC]);
+}
+
 /// Least contributor method
 /**
- * This method establishes the individual that contributes the least to the hypervolume.
+ * This method establishes the individual that contributes the least to the hypervolume (approximately withing given epsilon and delta).
  *
  * @param[in] points vector of fitness_vectors for which the hypervolume is computed
  * @param[in] r_point distinguished "reference point".
@@ -53,6 +70,45 @@ bf_approx::bf_approx(const bool use_exact, const unsigned int trivial_subcase_si
  * @return index of the least contributing point
  */
 unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	return extreme_contributor(points, r_point, LEAST, base::cmp_least, lc_erase_condition, lc_end_condition);
+}
+
+/// Greatest contributor method
+/**
+ * This method establishes the individual that contributes the most to the hypervolume (approximately withing given epsilon and delta).
+ *
+ * @param[in] points vector of fitness_vectors for which the hypervolume is computed
+ * @param[in] r_point distinguished "reference point".
+ *
+ * @return index of the greatest contributing point
+ */
+unsigned int bf_approx::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	return extreme_contributor(points, r_point, GREATEST, base::cmp_greatest, gc_erase_condition, gc_end_condition);
+}
+
+/// Extreme contributor method
+/**
+ * Compute the extreme contributor using the approximated algorithm.
+ * In order to make the original algorithm work for both the least and the greatest contributor, some portions
+ * of the code had to be removed to an external methods.
+ * The following argument and functions are passed as arguments in the corresponding least/greatest contributor methods:
+ *
+ * - ec_type (argument):
+ *   enum stating whether given execution aims to find the least or the greatest contributor.
+ *   In either scenario, certain preprocessing steps are altered to determine it faster if possible.
+ *
+ * - erase_condition (function):
+ *   Determines whether current extreme contributor guarantees to exceed given candidate.
+ *   In such case, the other point is removed from the racing.
+ *
+ * - end_condition (function):
+ *   Determines whether given extreme contributor guarantees be accurate withing provided epsilon error.
+ *   The return value of the function is the ratio, stating the estimated error.
+ */
+unsigned int bf_approx::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, extreme_contrib_type ec_type, bool (*cmp_func)(double, double),
+		bool (*erase_condition)(unsigned int, unsigned int, std::vector<double> &, std::vector<double> &), double (*end_condition)(unsigned int, unsigned int, std::vector<double> &, std::vector<double> &)) const
 {
 	m_no_samples = std::vector<unsigned long long>(points.size(), 0);
 	m_no_succ_samples = std::vector<unsigned long long>(points.size(), 0);
@@ -73,7 +129,7 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 	double r_delta = 0.0;
 
 	bool stop_condition = false;
-	unsigned int LC = 0;
+	unsigned int EC = 0;
 
 	// put every point into the set
 	for(unsigned int i = 0 ; i < m_point_set.size() ; ++i) {
@@ -94,18 +150,20 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 				continue;
 			}
 			int op = point_in_box(points[idx2], points[idx], m_boxes[idx]);
-			switch(op) {
-				case 1:
-					m_box_points[idx].push_back(idx2);
-					break;
-				case 2:
-					// since contribution by idx is guaranteed to be 0.0 (as the point is dominated) we might as well return it as the least contributor right away
-					return idx;
-				case 3:
-					// points at idx and idx2 are equal, each of them will contribute 0.0 hypervolume, return idx as the least contributor
-					return idx;
-				default:
-					break;
+			if (op == 1) {
+				m_box_points[idx].push_back(idx2);
+			} else if (ec_type == LEAST) {
+				// Execute extra checks for least contributor
+				switch(op) {
+					case 2:
+						// since contribution by idx is guaranteed to be 0.0 (as the point is dominated) we might as well return it as the least contributor right away
+						return idx;
+					case 3:
+						// points at idx and idx2 are equal, each of them will contribute 0.0 hypervolume, return idx as the least contributor
+						return idx;
+					default:
+						break;
+				}
 			}
 		}
 	}
@@ -124,13 +182,13 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 		}
 
 		// sample the least contributor
-		sampling_round(points, m_alpha * r_delta , round_no, LC, log_factor);
+		sampling_round(points, m_alpha * r_delta , round_no, EC, log_factor);
 
 		// find the new least contributor
 		for(unsigned int _i = 0 ; _i < m_point_set.size() ; ++_i) {
 			unsigned int idx = m_point_set[_i];
-			if(m_approx_volume[LC] > m_approx_volume[idx]) {
-				LC = idx;
+			if(cmp_func(m_approx_volume[idx], m_approx_volume[EC])) {
+				EC = idx;
 			}
 		}
 
@@ -138,7 +196,7 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 		std::vector<unsigned int>::iterator it = m_point_set.begin();
 		while(it != m_point_set.end()) {
 			unsigned int idx = *it;
-			if ( (idx != LC) && ( (m_approx_volume[idx] - m_point_delta[idx]) > (m_approx_volume[LC] + m_point_delta[LC]) ) ) {
+			if ((idx != EC) && erase_condition(idx, EC, m_approx_volume, m_point_delta)) {
 				it = m_point_set.erase(it);
 			}
 			else {
@@ -154,10 +212,10 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 			stop_condition = true;
 			for(unsigned int _i = 0 ; _i < m_point_set.size() ; ++_i) {
 				unsigned int idx = m_point_set[_i];
-				if (idx == LC) {
+				if (idx == EC) {
 					continue;
 				}
-				double d = ( m_approx_volume[LC] + m_point_delta[LC] ) / ( m_approx_volume[idx] - m_point_delta[idx] );
+				double d = end_condition(idx, EC, m_approx_volume, m_point_delta);
 				if( d <= 0 || d > 1 + m_eps ) {
 					stop_condition = false;
 					break;
@@ -166,7 +224,7 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
 		}
 	} while (!stop_condition);
 
-	return LC;
+	return EC;
 }
 
 /// Performs a single round of sampling for given point at index 'idx'

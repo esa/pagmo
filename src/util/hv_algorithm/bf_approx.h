@@ -53,6 +53,7 @@ public:
 	bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double delta_multiplier = 0.775, const double m_alpha = 0.2, const double initial_delta_coeff = 1e-1, const double gamma = 0.25);
 	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
 	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
+	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
@@ -63,6 +64,19 @@ private:
 	inline int point_in_box(const fitness_vector &p, const fitness_vector &a, const fitness_vector &b) const;
 	inline void sampling_round(const std::vector<fitness_vector>&, const double, const unsigned int, const unsigned int, const double) const;
 	inline bool sample_successful(const std::vector<fitness_vector> &, const unsigned int) const;
+
+	enum extreme_contrib_type {
+		LEAST = 1,
+		GREATEST = 2
+	};
+
+	unsigned int extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, extreme_contrib_type, bool (*cmp_func)(double, double),
+		bool (*erase_condition)(unsigned int, unsigned int, std::vector<double> &, std::vector<double> &), double (*end_condition)(unsigned int, unsigned int, std::vector<double> &, std::vector<double> &)) const;
+
+	static double lc_end_condition(unsigned int, unsigned int, std::vector<double>&, std::vector<double>&);
+	static double gc_end_condition(unsigned int, unsigned int, std::vector<double>&, std::vector<double>&);
+	static bool lc_erase_condition(unsigned int, unsigned int, std::vector<double>&, std::vector<double>&);
+	static bool gc_erase_condition(unsigned int, unsigned int, std::vector<double>&, std::vector<double>&);
 
 	// flag stating whether BF approximation should use exact computation for some exclusive hypervolumes
 	const bool m_use_exact;
