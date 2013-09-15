@@ -149,7 +149,71 @@ int varied_n_gen(const std::vector<problem::base_ptr> &probs, unsigned int n_win
 	return 0;
 }
 
+// Test that race_algo accept problems with different constraint vectors via
+// the internal dummy constraint padding mechanism.
+//
+// NOTE: Still needs to command some constraint handling algorithms here to
+// verify the results of race.
+int test_heterogeneous_constraints()
+{
+	// Initialize a list of problems with different constraint dimension
+	std::vector<problem::base_ptr> probs;
+	probs.push_back(problem::cec2006(1).clone());
+	probs.push_back(problem::cec2006(2).clone());
+	probs.push_back(problem::cec2006(3).clone());
+	
+	// Set up some algorithms
+	std::vector<algorithm::base_ptr> algos;
+	unsigned int gen_interval = 25;
+	unsigned int num_instances = 5;
+	for(unsigned int i = 1; i <= num_instances - 1; i++){
+		algos.push_back(algorithm::ihs(i * gen_interval).clone());
+	}
+	// Create a super-algo so that when n_winner == 1 test passes faster
+	algos.push_back(algorithm::ihs(500).clone());
 
+	unsigned int pop_size = 50;
+
+	util::racing::race_algo race_dev(algos, probs, pop_size);
+
+	unsigned int n_winner = 1;
+
+	std::pair<std::vector<unsigned int>, unsigned int> res = race_dev.run(n_winner, 1, 500, 0.05, std::vector<unsigned int>(), true, true);
+	std::vector<unsigned int> winners = res.first;	
+
+	if(winners.size() != n_winner){
+		std::cout << "\tError in size of winner list!" << std::endl;
+		return 1;
+	}
+
+	// Check if all the expected winners are in place
+
+	std::vector<bool> found(num_instances, false);
+
+	for(unsigned int i = 0; i < n_winner; i++){
+		if(winners[i] >= num_instances){
+			std::cout << "\tError in winner index!" << std::endl;
+			return 1;
+		}
+		found[winners[i]] = true;
+	}
+
+	// Only those with large gen_num should win
+	for(unsigned int i = 0; i < num_instances; i++){
+		if(i < (num_instances - n_winner) && found[i]){
+			std::cout << "\tAlgo[" << i << "] found to be winner, but it is not!" << std::endl;
+			return 1;
+		}
+		if(i >= (num_instances - n_winner) && !found[i]){
+			std::cout << "\tAlgo[" << i << "] found not to be winner, but it is!" << std::endl;
+			return 1;
+		}
+	}
+
+	std::cout << "Test passed [heterogeneous constraints]" << std::endl;
+
+	return 0;
+}
 
 /*
 // TODO: Find out offline which variant works best and verify in this test?
@@ -165,7 +229,6 @@ int varied_pso_variant(const problem::base_ptr& prob)
 }
 */
 
-// TODO: Test is too slow!
 int main()
 {
 	int dimension = 10;
@@ -176,9 +239,11 @@ int main()
 	prob_list.push_back(prob.clone());
 	prob_list.push_back(prob2.clone());
 	prob_list.push_back(prob3.clone());
+
 	return
 		varied_n_gen(prob, 1) || 
 		varied_n_gen(prob, 2) ||
 		varied_n_gen(prob_list, 1) ||
-		varied_n_gen(prob_list, 2);
+		varied_n_gen(prob_list, 2) ||
+		test_heterogeneous_constraints();
 }

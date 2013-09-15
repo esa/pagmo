@@ -2,9 +2,30 @@
 #include "race_pop.h"
 #include "../problem/base_stochastic.h"
 
+#include <algorithm>
+
 namespace pagmo { namespace util { namespace racing {
 
 namespace metrics_algos {
+
+
+static problem::base::c_size_type get_max_c_dimension(const std::vector<problem::base_ptr> &probs)
+{
+	problem::base::c_size_type max_c_dim = 0;
+	for(std::vector<problem::base_ptr>::size_type i = 0; i < probs.size(); i++){
+		max_c_dim = std::max(max_c_dim, probs[i]->get_c_dimension());
+	}
+	return max_c_dim;
+}
+
+static problem::base::c_size_type get_max_ic_dimension(const std::vector<problem::base_ptr> &probs)
+{
+	problem::base::c_size_type max_ic_dim = 0;
+	for(std::vector<problem::base_ptr>::size_type i = 0; i < probs.size(); i++){
+		max_ic_dim = std::max(max_ic_dim, probs[i]->get_ic_dimension());
+	}
+	return max_ic_dim;
+}
 
 /**
  * This class implements the mechanism to assign a quality measure to each
@@ -22,6 +43,9 @@ namespace metrics_algos {
  * champion on the problem, evolved by the specified algorithm.
  * (2) Multiple problem: Randomly sample a single problem (based on current
  * seed) from the pool of problems, then proceed as (1).
+ *
+ * Currently supports box constrained and equality / inequality constrained
+ * single-objective problems
  */
 class standard : public problem::base_stochastic
 {
@@ -33,8 +57,7 @@ class standard : public problem::base_stochastic
 		standard(const standard &);
 		problem::base_ptr clone() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		//TODO: Now only handles unconstrained single objective
-		//void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 	
 	private:
 
@@ -49,10 +72,11 @@ class standard : public problem::base_stochastic
 		}
 
 		void setup(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos);
+		constraint_vector zero_pad_constraint(const constraint_vector&, problem::base::c_size_type) const;
 
 		std::vector<algorithm::base_ptr> m_algos;
 		std::vector<problem::base_ptr> m_probs;
-		unsigned int m_pop_size;
+		unsigned int m_pop_size;	
 };
 
 /// Constructor of the performance metrics of algorithms on a single problem
@@ -72,7 +96,7 @@ class standard : public problem::base_stochastic
  * @throws value_error if there are incompatible problems in the supplied set. All the problems need to have the same fitness and constraint dimension.
  *
  */
-standard::standard(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos, unsigned int seed, unsigned int pop_size): base_stochastic(1, 1, probs.front()->get_f_dimension(), probs.front()->get_c_dimension(), probs.front()->get_ic_dimension(), 0, seed), m_pop_size(pop_size)
+standard::standard(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos, unsigned int seed, unsigned int pop_size): base_stochastic(1, 1, probs.front()->get_f_dimension(), get_max_c_dimension(probs), get_max_ic_dimension(probs), 0, seed), m_pop_size(pop_size)
 {
 	setup(probs, algos);
 }
@@ -82,6 +106,7 @@ standard::standard(const std::vector<problem::base_ptr> &probs, const std::vecto
  * Check the sanity of the supplied problems. All fitness and constraint
  * dimensions have to be the same across all the problems. This is one of the
  * assumption made in the current implementation of race_algo.
+ *
  */
 void standard::setup(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos)
 {
@@ -90,13 +115,12 @@ void standard::setup(const std::vector<problem::base_ptr> &probs, const std::vec
 		pagmo_throw(value_error, "Empty algorithm set in race_algo");
 	}
 	problem::base::f_size_type fdim = probs[0]->get_f_dimension();
-	problem::base::c_size_type cdim = probs[0]->get_c_dimension();
 	for(unsigned int i = 1; i < probs.size(); i++){
 		if(probs[i]->get_f_dimension() != fdim){
 			pagmo_throw(value_error, "Incompatible fitness dimension among the problems");
 		}
-		if(probs[i]->get_c_dimension() != cdim){
-			pagmo_throw(value_error, "Incompatible constraint dimension among the problems");
+		if(probs[i]->get_f_dimension() > 1){
+			pagmo_throw(value_error, "Racing of multi-objective algorithms is not supported yet");
 		}
 	}
 	
@@ -114,7 +138,6 @@ void standard::setup(const std::vector<problem::base_ptr> &probs, const std::vec
 
 /// Copy Constructor. Performs a deep copy
 standard::standard(const standard &standard_copy):
-	// TODO: Can this be simplified? Required often when writing meta-problems
 	base_stochastic(1, 1, standard_copy.get_f_dimension(),
 			standard_copy.get_c_dimension(),
 			standard_copy.get_ic_dimension(), 0, standard_copy.m_seed),
@@ -138,7 +161,6 @@ problem::base_ptr standard::clone() const
  */
 void standard::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	// Bounds check (TODO: No need? already done by problem if bounds set correctly)
 	if(x[0] < 0 || x[0] >= m_algos.size()){
 		pagmo_throw(value_error, "Out of bound algorithm index");
 	}
@@ -165,11 +187,57 @@ void standard::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f = pop.champion().f;
 }
 
+/// Pad constraint vector with non-violating values (i.e. 0)
+/**
+ * This is necessary when the underlying problems have different dimension. The
+ * contraint dimensions of this meta-problem is set as the maximum constraint
+ * dimension of all the underlying problems. Constraint vector having less than
+ * that dimension will be padded here.
+ */
+constraint_vector standard::zero_pad_constraint(const constraint_vector& c,  problem::base::c_size_type ic_dim) const
+{
+	constraint_vector c_padded(get_c_dimension(), 0);
+	c_size_type c_dim = c.size();
+	for(problem::base::c_size_type i = 0; i < c_dim - ic_dim; i++){
+		c_padded[i] = c[i];
+	}
+	// Note that this->get_ic_dimension() must be larger than ic_dim by definition
+	for(problem::base::c_size_type i = c_dim - ic_dim; i < c_dim; i++){
+		c_padded[i + get_ic_dimension() - ic_dim] = c[i];
+	}
+	return c_padded;
+}
+
+
 //TODO: Computation of fitness and constraints are decoupled -- a single pop
 //has to be evolved twice? How to cache?
-//void compute_constraints_impl(constraint_vector &, const decision_vector &) const
-//{
-//}
+void standard::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
+{
+	if(x[0] < 0 || x[0] >= m_algos.size()){
+		pagmo_throw(value_error, "Out of bound algorithm index");
+	}
+
+	// Seeding control
+	for(unsigned int i = 0; i < m_algos.size(); i++){
+		m_algos[i]->reset_rngs(m_seed);
+	}
+	m_drng.seed(m_seed);
+
+	// Randomly sample a problem if required
+	unsigned int prob_idx;
+	if(m_probs.size() == 1){
+		prob_idx = 0;
+	}
+	else{
+		prob_idx = (unsigned int)(m_drng() * 100000) % m_probs.size();
+	}
+
+	// Fitness defined as the quality of the champion in the evolved
+	// population, evolved by the selected algorithm
+	population pop(*m_probs[prob_idx], m_pop_size, m_seed);
+	m_algos[x[0]]->evolve(pop);
+	c = zero_pad_constraint(pop.champion().c, m_probs[prob_idx]->get_ic_dimension());
+}
 
 }
 

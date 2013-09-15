@@ -59,7 +59,8 @@ class __PAGMO_VISIBLE race_algo
 			const bool screen_output
 		);
 
-	private:	
+	private:
+
 		std::vector<algorithm::base_ptr> m_algos;
 		std::vector<problem::base_ptr> m_probs;
 		unsigned int m_pop_size;
