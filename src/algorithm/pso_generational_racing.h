@@ -33,21 +33,11 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Particle Swarm optimization generational
+/// Particle Swarm optimization generational with racing
 /**
- * As opposed to the main PSO algorithm implemented in Pagmo, that is pagmo::algorithm::pso, this
- * version of Particle Swarm Optimization is generational. In other words, the velocity is first
- * calculated for all particles, then the position is updated.
+ * Compared to the generational version of Particle Swarm Optimization, this
+ * PSO is further extended with racing mechanisms for individuals.
  *
- * NOTE: this PSO is suitable for stochastic optimization problems. The random seed is changed at the end
- * of each generation
- *
- * @see http://www.particleswarm.info/ for a repository of information related to PSO
- * @see http://dx.doi.org/10.1007/s11721-007-0002-0 for a recent survey
- * @see http://www.engr.iupui.edu/~shi/Coference/psopap4.html for the first paper on this algorithm
- *
- * @author Dario Izzo (dario.izzo@googlemail.com)
- * @author Luis Simoes (luis.f.m.simoes@gmail.com)
  */
 
 class __PAGMO_VISIBLE pso_generational_racing: public base

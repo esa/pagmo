@@ -228,7 +228,6 @@ void standard::evaluate_algorithm(unsigned int algo_idx) const
 
 	// The requested data is ready, nothing to do
 	if(!m_is_first_evaluation[algo_idx] && m_database_seed[algo_idx] == m_seed){
-		std:: cout << "yes, skipping it like a boss ! " << std::endl;
 		return;
 	}
 

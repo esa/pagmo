@@ -47,13 +47,10 @@ using namespace util::racing;
  * @param[in] variant algorithm variant to use
  * @param[in] neighb_type swarm topology to use
  * @param[in] neighb_param if the lbest topology is selected (neighb_type=2), it represents each particle's indegree
- * @param[in] nr_eval_per_x Number of times an objective function will be evaluated for averaging (stocahstic problem only).
- * @param[in] use_racing Whether to use racing when solving stochastic optimization problem
+ * (also outdegree) in the swarm topology. Particles have neighbours u to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology is selected (neighb_type=4), neighb_param represents each particle's maximum outdegree in the swarm topology. The minimum outdegree is 1 (the particle always connects back to itself).
+ * @param[in] nr_eval_per_x Expected number of times an objective function will be evaluated for each individual during racing.
  * @param[in] max_fevals Maximum allowed number of fevals as the additional termination condition to gen number
- * (also outdegree) in the swarm topology. Particles have neighbours up
- * to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
- * is selected (neighb_type=4), neighb_param represents each particle's maximum outdegree in the swarm topology.
- * The minimum outdegree is 1 (the particle always connects back to itself).
+ *
  * @throws value_error if m_omega is not in the [0,1] interval, eta1, eta2 are not in the [0,1] interval,
  * vcoeff is not in ]0,1], variant is not one of 1 .. 6, neighb_type is not one of 1 .. 4
  */
@@ -195,7 +192,23 @@ void pso_generational_racing::particle__average_fitness_set_best(const problem::
 
 /// Evolve implementation.
 /**
- * Run the PSO algorithm for the number of generations specified in the constructors.
+ * Run the PSO algorithm with incorporation of racing mechanism.
+ *
+ * The main differences between this variant of PSO compared to the original
+ * PSO algorithm are as follows:
+ *
+ * (1) Racing is invoked during the selection of best neighbour in locally
+ * connected toplogy. This is in contrast to the original PSO-generational
+ * algorithm, where the averaged fitness value w.r.t to current seed is used.
+ * Each of such race typically involves a small number of individuals,
+ * depending on the specific connection toplogy.
+ *
+ * (2) During the update of memory best positions of each particle, racing is
+ * again used. Each of such race involves two decision vector, namely the
+ * current memory best position and the new candidate position.
+ *
+ * (3) With the gbest scheme, a race over all individuals is used to identify the
+ * single best.
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
@@ -257,7 +270,6 @@ void pso_generational_racing::evolve(population &pop) const
 	population::size_type best_idx = 0;				// index into the best solution in the swarm (best_fit == lbfit[best_idx]) (as with best_fit, this is only tracked when using topologies 1 or 4)
 	bool                  best_fit_improved;		// flag indicating whether the best solution's fitness improved (tracked only when using topologies 1 or 4)
 
-
 	decision_vector minv(Dc), maxv(Dc);			// Maximum and minumum velocity allowed
 
 	double vwidth;						// Temporary variable
@@ -304,8 +316,7 @@ void pso_generational_racing::evolve(population &pop) const
 
 	// Initialize the seed to be used to construct different race_pop instances
 	// to be used to do racing in different contexts: Within the new X, or
-	// within X + lbX, so that past evaluation data can be reused. TODO: Need
-	// to check the impact of keeping this seed fixed throughout the evolution.
+	// within X + lbX, so that past evaluation data can be reused.
 	unsigned int racing_seed = m_urng();
 	util::racing::race_pop race_lbX(racing_seed);
 	util::racing::race_pop race_lbX_and_X(racing_seed);
@@ -313,24 +324,18 @@ void pso_generational_racing::evolve(population &pop) const
 	racing__construct_race_environment(race_lbX, pop.problem(), lbX, std::vector<decision_vector>());
 
 	if( m_neighb_type == 1 ){
-		// Using the gbest (fully connected) topology; best position
-		// visited so far in the swarm must be determined through racing
-		//std::pair<std::vector<population::size_type>, unsigned int>  res = race_lbX.run(1, 0, pop.size()*5, 0.05, active_set, true, false);
+
+		// Using the gbest (fully connected) topology, race all the individuals
 		std::pair<population::size_type, unsigned int> res
 			= racing__race_for_winner(race_lbX, -1, -1, pop.size() * m_nr_eval_per_x);
 		best_idx = res.first;
 		m_fevals += res.second;
+
 		// Set lbfit to be the averaged fitness values from racing
 		lbfit = race_lbX.get_mean_fitness();
 		best_neighb = lbX[ best_idx ];
 		best_fit = lbfit[ best_idx ];
 	}
-	// Luis's note: if( m_neighb_type == 4 ), adaptive_random topology,
-	// best_fit may be too inaccurate, as it results from a single fitness
-	// evaluation, but in that case we don't trigger here a costly race of
-	// all lbX vectors, as above.  That inaccuracy will simply lead to an
-	// acceptable change in the time the first topology rewiring is
-	// triggered.
 
 	// auxiliary varibables specific to the Fully Informed Particle Swarm variant
 	double acceleration_coefficient = m_eta1 + m_eta2;
@@ -341,8 +346,9 @@ void pso_generational_racing::evolve(population &pop) const
 
 	bool forced_terminate = false;
 
+	// Invoke racing in a neighbourhood topology to determine the best
+	// neighbour. Otherwise, use the averaged fitness values.
 	bool racing_opt__race_neighbourhood = true;
-	bool racing_opt__flush_cache = true;
 
 	/* --- Main PSO loop ---
 	 */
@@ -350,17 +356,11 @@ void pso_generational_racing::evolve(population &pop) const
 	int g = 0;
 	while( g < m_gen &&  m_fevals < m_max_fevals ){
 		g++;
-	
-		if(g % 1 == 0){
-			// std::cout << "gen: " << g << " fevals: " << m_fevals << " f = " << pop.champion().f << std::endl;
-		}
-	
-		if( racing_opt__flush_cache ){
-			// Initialize a new list of internal seeds for use in racing
-			unsigned int cur_racing_seed = m_urng();
-			race_lbX.set_seed(cur_racing_seed);
-			race_lbX_and_X.set_seed(cur_racing_seed);
-		}
+		
+		// Initialize a new list of internal seeds for use in racing
+		unsigned int cur_racing_seed = m_urng();
+		race_lbX.set_seed(cur_racing_seed);
+		race_lbX_and_X.set_seed(cur_racing_seed);
 
 		// Update Velocity
 		for( p = 0; p < swarm_size; p++ ){
@@ -514,23 +514,8 @@ void pso_generational_racing::evolve(population &pop) const
 		// Problem is stochastic, change the seed
 		dynamic_cast<const pagmo::problem::base_stochastic &>(prob).set_seed(m_urng());
 
-		// (II) Stochastic problem being solved with the assistance of racing
+		// Stochastic problem being solved with the assistance of racing
 		
-		// Luis: reinitialize the race structure, in a way that will
-		// support racing between a particle's current and previous
-		// best positions, while still preserving in the cache the
-		// information from such evaluation for reuse in the next
-		// position update cycle.
-
-		// Perform racing between lbX and X here and handles the memory
-		// booking so that the evaluation data can be used in the next
-		// generation
-
-		// Change the ground seed of the race object so that a new list of
-		// internal seeds list will be generated. Also clear the cache.
-		//race_lbX.set_seed(m_urng());
-		//race_lbX_and_X.set_seed(m_urng());
-
 		racing__construct_race_environment(race_lbX_and_X, pop.problem(), lbX, X);
 		race_lbX_and_X.inherit_memory(race_lbX);
 
@@ -582,10 +567,9 @@ void pso_generational_racing::evolve(population &pop) const
 			}
 			pop.push_back(lbX[p]);
 			pop.set_v(p,V[p]);
-			// NOTE: The reason to skip pop.set_x(p,X[p]) is that m_gen can
-			// be 1 -- meaning if we don't do this the lbX's information
-			// might be overriden by the result of a single evaluation in
-			// the next call of evolve.
+
+			// Skipping set_x of X[p] intentionally, so that this information
+			// is not lost when m_gen is 1
 			// pop.set_x(p,X[p]);
 		}
 
