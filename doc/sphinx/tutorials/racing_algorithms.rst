@@ -15,13 +15,13 @@ best optimization performance? Is there a way to find the answer without
 resorting to pure brute force approach?
 
 The approach of racing algorithms is based on statistical testing. Each
-algorithm will be evaluated iteratively throughout the race, and whenever
-statistical significant evidence about the inferiority of an algorithm is
-found, that algorithm will be dropped out of the race. This saves precious
-evaluation budget to other algorithms whose performance are better closer to
-each other. Naturally, it is guaranteed that the eventually survived algorithms
-are statistically significantly better than those which are discarded. The
-underlying statistical testing machinery used is Friedman test.
+algorithm will be evaluated iteratively throughout the race. The performance of
+an algorithm is defined as its ability to evolve a population, measured by the
+fitness of the evolved champion. Whenever statistical significant evidence
+about the inferiority of an algorithm is found, that algorithm will be dropped
+out of the race. Naturally, it is guaranteed that the eventually survived
+algorithms are statistically significantly better than those which are
+discarded. The underlying statistical testing machinery used is Friedman test.
 
 Using ``race_algo`` to race algorithms
 ######################################
@@ -76,7 +76,6 @@ parameters as shown in the following code.
 .. code-block:: python
 
     from PyGMO import *
-    import numpy as np
     import itertools
 
     prob = problem.ackley()
@@ -91,14 +90,13 @@ parameters as shown in the following code.
     algo_list = []
     for p in pars:
         args = {}
-        args['variant'], args['neighb_type'], args['neighb_param'] = p
+        args['Variant'], args['neighb_type'], args['neighb_param'] = p
         algo_list.append(algorithm.pso(gen=100,**args))
 
     racer = util.race_algo(algo_list, prob, pop_size=pop_size, seed=0)
     winners, n_evaluated = racer.run(5, 0, len(algo_list)*30, 0.05, [], True, True)
 
     print 'Winning algorithm:'
-
     for i in winners:
         print zip(['Variant', 'neighb_type', 'neighb_param'], pars[i])
         
