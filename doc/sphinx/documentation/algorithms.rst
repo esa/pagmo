@@ -21,11 +21,12 @@ DE with p-best crossover (mde_pbx)        :class:`PyGMO.algorithm.mde_pbx`      
 Differential Evolution (DE)               :class:`PyGMO.algorithm.de_1220`               C-U-S      Our own brew. self adaptive F, CR and variants 
 Particle Swarm Optimization (PSO)         :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
 Particle Swarm Optimization (PSO)         :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
-Simple Genetic Algorithm (SGA)            :class:`PyGMO.algorithm.sga`                  MI-U-S 
 Simple Genetic Algorithm GRAY (SGA_GRAY)  :class:`PyGMO.algorithm.sga`                   C-U-S      Simple genetic algorithm with gray binary encoding
+Simple Genetic Algorithm (SGA)            :class:`PyGMO.algorithm.sga`                  MI-U-S 
 Vector Evaluated Genetic Algorithm (VEGA) :class:`PyGMO.algorithm.vega`                 MI-U-M      VEGA algorithm, multi-objective extension of SGA
 (N+1)-EA Evol. Algorithm (SEA)            :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
 Non-dominated Sorting GA (NSGA2)          :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
+S-Metric Selection EMOA (SMS-EMOA         :class:`PyGMO.algorithm.sms_emoa`              C-U-M      Relies on the hypervolume computation.
 Parallel Decomposition (PADE)             :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition
 Corana's Simulated Annealing (SA)         :class:`PyGMO.algorithm.sa_corana`             C-U-S 
 Artificial Bee Colony (ABC)               :class:`PyGMO.algorithm.bee_colony`            C-U-S 
@@ -34,7 +35,7 @@ Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.monte_carlo`  
 Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.py_example`           MI-C-S      Written directly in Python
 Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.py_cmaes`              C-U-S      Written directly in Python
 Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.cmaes`                 C-U-S
-========================================= ========================================= =============== ===================================================================
+================================== ========================================= =============== ===================================================================
 
 Meta-algorithms 
 ^^^^^^^^^^^^^^^
@@ -186,6 +187,10 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.nsga_II
 
    .. automethod:: PyGMO.algorithm.nsga_II.__init__
+
+.. autoclass:: PyGMO.algorithm.sms_emoa
+
+   .. automethod:: PyGMO.algorithm.sms_emoa.__init__
 
 .. autoclass:: PyGMO.algorithm.pade
 

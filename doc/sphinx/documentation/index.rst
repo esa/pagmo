@@ -15,4 +15,5 @@ Main Classes and Functions
    island
    algorithms
    problems
+   hypervolume
    

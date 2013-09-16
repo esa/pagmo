@@ -40,6 +40,7 @@
 #include "algorithm/null.h"
 #include "algorithm/pso.h"
 #include "algorithm/pso_generational.h"
+#include "algorithm/pso_generational_racing.h"
 #include "algorithm/sa_corana.h"
 #include "algorithm/sga.h"
 #include "algorithm/sga_gray.h"
@@ -54,6 +55,10 @@
 #include "algorithm/pade.h"
 #include "algorithm/cstrs_immune_system.h"
 #include "algorithm/cstrs_core.h"
+#include "algorithm/sms_emoa.h"
+#include "algorithm/pade.h"
+#include "algorithm/nspso.h"
+#include "algorithm/spea2.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"

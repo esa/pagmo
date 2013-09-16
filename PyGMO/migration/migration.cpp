@@ -87,6 +87,14 @@ BOOST_PYTHON_MODULE(_migration) {
 	migration_s_policy_wrapper<migration::best_kill_s_policy>("best_kill_s_policy","Best Kill migration selection policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
 
+	// Hypervolume greedy selection policy
+	migration_s_policy_wrapper<migration::hv_greedy_s_policy>("hv_greedy_s_policy","Hypervolume Greedy migration selection policy.")
+		.def(init<optional<const double &, migration::rate_type, const double> >());
+
+	// Hypervolume best selection policy
+	migration_s_policy_wrapper<migration::hv_best_s_policy>("hv_best_s_policy","Hypervolume Best migration selection policy.")
+		.def(init<optional<const double &, migration::rate_type, const double> >());
+
 	// Expose migration replacement policies.	
 
 	// Base.
@@ -103,6 +111,14 @@ BOOST_PYTHON_MODULE(_migration) {
 	// Worst replacement policy.
 	migration_r_policy_wrapper<migration::worst_r_policy>("worst_r_policy","Worst migration replacement policy.")
 		.def(init<optional<const double &, migration::rate_type> >());
+
+	// Hypervolume greedy replacement policy.
+	migration_r_policy_wrapper<migration::hv_greedy_r_policy>("hv_greedy_r_policy","Hypervolume greedy migration replacement policy.")
+		.def(init<optional<const double &, migration::rate_type, const double> >());
+
+	// Hypervolume fair replacement policy.
+	migration_r_policy_wrapper<migration::hv_fair_r_policy>("hv_fair_r_policy","Hypervolume fair migration replacement policy.")
+		.def(init<optional<const double &, migration::rate_type, const double> >());
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<migration::base_s_policy_ptr>();

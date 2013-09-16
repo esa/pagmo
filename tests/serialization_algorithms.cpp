@@ -47,8 +47,12 @@ int main()
 	std::vector<algorithm::base_ptr> algos;
 	std::vector<algorithm::base_ptr> algos_new;
 
+
 	// fill it up with algorithm
 	// first the multiobjective ones
+
+	algos.push_back(algorithm::sms_emoa(gen,2,0.5,11,0.3,11).clone());
+	algos_new.push_back(algorithm::sms_emoa().clone());
 	algos.push_back(algorithm::nsga2(gen,0.5,11,0.3,11).clone());
 	algos_new.push_back(algorithm::nsga2().clone());
 	algos.push_back(algorithm::vega(gen,.9,.021,1,algorithm::vega::mutation::RANDOM,0.3,algorithm::vega::crossover::BINOMIAL).clone());
@@ -90,6 +94,8 @@ int main()
 	algos_new.push_back(algorithm::pso().clone());
 	algos.push_back(algorithm::pso_generational(gen,0.5,0.5,0.5,0.5,3,3,3).clone());
 	algos_new.push_back(algorithm::pso_generational().clone());
+	algos.push_back(algorithm::pso_generational_racing(gen,0.5,0.5,0.5,0.5,3,3,3).clone());
+	algos_new.push_back(algorithm::pso_generational_racing().clone());
 	algos.push_back(algorithm::sa_corana(gen*100,5.0,1e-5,25,10,0.5).clone());
 	algos_new.push_back(algorithm::sa_corana().clone());
 	algos.push_back(algorithm::sga(gen,.9, .021, 5, algorithm::sga::mutation::RANDOM, 0.3, algorithm::sga::selection::BEST20, algorithm::sga::crossover::BINOMIAL).clone());

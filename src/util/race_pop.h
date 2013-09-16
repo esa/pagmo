@@ -44,32 +44,58 @@ namespace racing{
 
 /// Racing mechanism for a population
 /**
- * This class contains ...
+ * This class implements the racing routines that can be invoked to race
+ * all or some of the individuals in a population.
+ *
+ * It contains a caching mechanism which allows the reuse of previously
+ * evaluated fitness and constraint vectors, in case an identical individual is
+ * raced more than once, for example each time with different sets of other
+ * individuals.  The caching mechanism ensures that all the data points that
+ * are compared during the race correspond to the same seed.
+ *
+ * Currently the racing is implemented based on F-Race, which invokes Friedman
+ * test iteratively during each race.
+ *
  */
 class __PAGMO_VISIBLE race_pop
 {
 public:
 
-	race_pop(const population&, unsigned int seed = 0);
+	race_pop(const population &, unsigned int seed = 0);
+	race_pop(unsigned int seed = 0);
+
+	enum termination_condition { MAX_BUDGET, MAX_DATA_COUNT };
 
 	// Main method containing all the juice
-	std::pair<std::vector<population::size_type>, unsigned int>  run(
+	std::pair<std::vector<population::size_type>, unsigned int> run(
 		const population::size_type n_final,
 		const unsigned int min_trials,
 		const unsigned int max_count,
 		double delta,
 		const std::vector<population::size_type> &,
+		termination_condition term_cond,
 		const bool race_best,
 		const bool screen_output
 	);
-
+	
+	population::size_type size() const;
 	void reset_cache();
+	void register_population(const population &);
+	void inherit_memory(const race_pop&);
+	std::vector<fitness_vector> get_mean_fitness(const std::vector<population::size_type> &active_set = std::vector<population::size_type>()) const;
+	void set_seed(unsigned int);
 
 private:
 	// Helper methods to validate input data
-	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size);
-	void _validate_problem_stochastic(const problem::base& prob);
-	void _validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size);
+	void _validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size) const;
+	void _validate_problem_stochastic(const problem::base& prob) const;
+	void _validate_racing_params(const population& pop, const population::size_type n_final, double delta) const;
+	void _validate_budget(const unsigned int min_trials, const unsigned int max_f_evals, const std::vector<population::size_type>& in_race) const;
+
+	unsigned int prepare_population_friedman(const std::vector<population::size_type> &in_race, unsigned int count_iter);
+	unsigned int prepare_population_wilcoxon(const std::vector<population::size_type> &in_race, unsigned int count_iter);
+
+	unsigned int compute_required_fevals(const std::vector<population::size_type>& in_race, unsigned int num_iter) const;
 
 	// Atoms of the cache
 	struct eval_data
@@ -92,16 +118,24 @@ private:
 	void cache_delete_entry(unsigned int);
 	bool cache_data_exist(unsigned int, unsigned int) const;
 	const eval_data &cache_get_entry(unsigned int, unsigned int) const;
+	void cache_register_signatures(const population&); 
+	void print_cache_stats(const std::vector<population::size_type> &) const;
 
 	// Seeding control
 	void generate_seeds(unsigned int);
 	unsigned int get_current_seed(unsigned int);
-	
+	unsigned int m_race_seed;
+
 	// Data members
 	racing_population m_pop;
+	racing_population m_pop_wilcoxon;
+	bool m_pop_registered;
 	std::vector<unsigned int> m_seeds;
 	rng_uint32 m_seeder;
+	bool m_use_caching;
 	std::vector<std::vector<eval_data> > m_cache_data;
+	std::vector<eval_data> m_cache_averaged_data;
+	std::vector<decision_vector> m_cache_signatures;
 };
 
 }}}

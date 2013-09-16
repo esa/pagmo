@@ -33,8 +33,12 @@
 #include "migration/best_s_policy.h"
 #include "migration/random_s_policy.h"
 #include "migration/best_kill_s_policy.h"
+#include "migration/hv_greedy_s_policy.h"
+#include "migration/hv_best_s_policy.h"
 #include "migration/fair_r_policy.h"
 #include "migration/random_r_policy.h"
 #include "migration/worst_r_policy.h"
+#include "migration/hv_greedy_r_policy.h"
+#include "migration/hv_fair_r_policy.h"
 
 #endif

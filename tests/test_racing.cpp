@@ -35,6 +35,7 @@
 #include "../src/util/race_pop.h"
 
 using namespace pagmo;
+using namespace util::racing;
 
 const double EPS = 10e-9;
 rng_uint32 rng_seed_provider;
@@ -243,8 +244,8 @@ int test_racing_cache(const problem::base_ptr& prob)
 		active_set.push_back(i);
 	}
 	population::size_type n_final = 1;
-	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev.run(n_final, 0, 500, 0.05, active_set, true, false);
-	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev.run(n_final, 0, 500, 0.05, active_set, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
+	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
 
 	std::cout << "\tfevals: First race consumed " << res1.second << " and second consumed " << res2.second << std::endl;
 
@@ -260,6 +261,160 @@ int test_racing_cache(const problem::base_ptr& prob)
 	std::cout << "\tPASSED Caching." << std::endl;
 	return 0;
 }
+
+int test_racing_cache_transfer(const problem::base_ptr &prob)
+{
+	std::cout << "Testing the caching mechanism (memory transfer aspect) of racing" << std::endl;
+	
+	unsigned int seed = 123;
+	// we create the noisy version of the problem
+	problem::noisy prob_noisy(*prob, 1, 0, 0.5, problem::noisy::NORMAL, seed);
+	std::cout << prob_noisy << std::endl;
+
+	population pop(prob_noisy, 5, seed);
+
+	util::racing::race_pop race_pop_dev1(pop, seed);
+	util::racing::race_pop race_pop_dev2(pop, seed);
+
+	// Race [0,1,2,3,4] using race_pop_dev1, then transfer the memory to
+	// race_pop_dev2, which should accept all the cache data as they contain
+	// identical population, and same seed is being used.
+	std::vector<population::size_type> active_set;
+	for(unsigned int i = 0; i <= 4; i++){
+		active_set.push_back(i);
+	}
+	population::size_type n_final = 1;
+
+	// Race on device 1
+	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev1.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);	
+
+	// Transfer to device 2
+	race_pop_dev2.inherit_memory(race_pop_dev1);
+
+	// Race on device 2
+	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev2.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
+
+	std::cout << "\tfevals: First race consumed " << res1.second << " and second consumed " << res2.second << std::endl;
+
+	if(res1.first != res2.first){
+		std::cout << "\tFAILED Caching: Winners are different!" << std::endl;
+	}
+
+	if(res2.second > 0){
+		std::cout << "\tFAILED Caching: Second race consumed fevals!" << std::endl;
+		return 1;
+	}
+
+	std::cout << "\tPASSED Caching (memory transfer)." << std::endl;
+	return 0;
+}
+
+/// Check if the returned mean fitness by race_pop is sensible
+int test_racing_get_mean_fitness(const problem::base_ptr &prob)
+{
+	std::cout << "Testing get_mean_fitness()" << std::endl;
+	
+	unsigned int seed = 123;
+	// we create the noisy version of the problem
+	problem::noisy prob_noisy(*prob, 1, 0, 0.5, problem::noisy::NORMAL, seed);
+	std::cout << prob_noisy << std::endl;
+
+	population pop(prob_noisy, 5, seed);
+
+	util::racing::race_pop race_pop_dev(pop, seed);
+
+	// Race everyone
+	std::vector<population::size_type> active_set;
+	for(unsigned int i = 0; i < pop.size(); i++){
+		active_set.push_back(i);
+	}
+	population::size_type n_final = 1;
+
+	std::pair<std::vector<population::size_type>, unsigned int> res = race_pop_dev.run(n_final, 0, 5000, 0.05, active_set, race_pop::MAX_BUDGET, true, true);
+
+	// Check that the dimension is correct
+	unsigned int winner_idx = res.first[0];
+	active_set.clear();
+	active_set.push_back(winner_idx);
+	fitness_vector mean_fitness_race = race_pop_dev.get_mean_fitness(active_set)[0];
+	if(mean_fitness_race.size() != prob->get_f_dimension()){
+		std::cout << "\tFAILED get_mean_fitness: Wrong fitness dimension" << std::endl;
+		return 1;
+	}
+	
+	// Check that the returned mean fitness is about the same as the fitness
+	// obtained by repeated evaluation.
+	unsigned int n_evals = 100;
+	fitness_vector mean_fitness_repeated_eval(prob->get_f_dimension(),0);
+	for(unsigned int i = 0; i < n_evals; i++){
+		fitness_vector cur_f = prob->objfun(pop.get_individual(winner_idx).cur_x);
+		for(unsigned int j = 0; j < prob->get_f_dimension(); j++){
+			mean_fitness_repeated_eval[j] += cur_f[j] / (double)n_evals;
+		}
+	}
+
+	// Tolerance is a bit large here as race could not and should not perform
+	// too much evaluation, hence affecting the accuracy.
+	double eps = 0.2;
+	for(unsigned int i = 0; i < mean_fitness_race.size(); i++){
+		if(fabs(mean_fitness_repeated_eval[i]-mean_fitness_race[i]) > eps){	
+			std::cout << "\tFAILED get_mean_fitness: Dimension #"  << i << " had too much deviation" << std::endl;
+			std::cout << "From repeated evaluation: " << mean_fitness_repeated_eval << std::endl;
+			std::cout << "From racing: " << mean_fitness_race << std::endl;
+			return 1;
+		}
+	}
+
+	std::cout << "\tPASSED get_mean_fitness" << std::endl;
+	return 0;
+}
+
+/// Check if the second type of constructor (population deferred) is sane
+int test_race_pop_constructor(const problem::base_ptr& prob)
+{
+	std::cout << "Testing the constructor without population" << std::endl;
+	
+	unsigned int seed = 123;
+	// we create the noisy version of the problem
+	problem::noisy prob_noisy(*prob, 1, 0, 0.5, problem::noisy::NORMAL, seed);
+	std::cout << prob_noisy << std::endl;
+
+	population pop(prob_noisy, 5, seed);
+
+	// Two construction methods
+	util::racing::race_pop race_pop_dev1(pop, seed);
+	util::racing::race_pop race_pop_dev2(seed);
+
+	// [0,1,2,3,4] then again
+	std::vector<population::size_type> active_set;
+	for(unsigned int i = 0; i <= 4; i++){
+		active_set.push_back(i);
+	}
+	population::size_type n_final = 1;
+	std::pair<std::vector<population::size_type>, unsigned int> res1 = race_pop_dev1.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
+
+	// Register the population
+	race_pop_dev2.register_population(pop);
+	// Try to inherit memory from the other race structure
+	race_pop_dev2.inherit_memory(race_pop_dev1);
+
+	std::pair<std::vector<population::size_type>, unsigned int> res2 = race_pop_dev2.run(n_final, 0, 500, 0.05, active_set, race_pop::MAX_BUDGET, true, false);
+
+	std::cout << "\tfevals: First race consumed " << res1.second << " and second consumed " << res2.second << std::endl;
+
+	if(res1.first != res2.first){
+		std::cout << "\tFAILED Caching: Winners are different!" << std::endl;
+	}
+
+	if(res2.second > 0){
+		std::cout << "\tFAILED Caching: Second race consumed fevals!" << std::endl;
+		return 1;
+	}
+
+	std::cout << "\tPASSED race_pop constructor without population." << std::endl;
+	return 0;
+}
+
 
 int main()
 {
@@ -295,5 +450,10 @@ int main()
 		   test_racing_worst(prob_zdt1, 20, 5, 0.03) ||
 		   test_racing_worst(prob_zdt1, 30, 5, 0.03) ||
 
-		   test_racing_cache(prob_ackley); 
+		   test_racing_cache(prob_ackley) ||
+		   test_racing_cache_transfer(prob_ackley) ||
+
+		   test_racing_get_mean_fitness(prob_ackley) ||
+
+		   test_race_pop_constructor(prob_ackley);
 }

@@ -26,6 +26,14 @@ ADD_EXECUTABLE(test_noisy test_noisy.cpp)
 TARGET_LINK_LIBRARIES(test_noisy pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(test_noisy test_noisy)
 
+ADD_EXECUTABLE(hypervolume_test hypervolume_test.cpp)
+TARGET_LINK_LIBRARIES(hypervolume_test pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(hypervolume_test hypervolume_test)
+
+ADD_EXECUTABLE(serialization_hypervolume serialization_hypervolume.cpp)
+TARGET_LINK_LIBRARIES(serialization_hypervolume pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(serialization_hypervolume serialization_hypervolume)
+
 ADD_EXECUTABLE(test_robust test_robust.cpp)
 TARGET_LINK_LIBRARIES(test_robust pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(test_robust test_robust)
@@ -33,6 +41,10 @@ ADD_TEST(test_robust test_robust)
 ADD_EXECUTABLE(test_racing test_racing.cpp)
 TARGET_LINK_LIBRARIES(test_racing pagmo_static ${MANDATORY_LIBRARIES})
 ADD_TEST(test_racing test_racing)
+
+ADD_EXECUTABLE(test_racing_algorithm test_racing_algorithm.cpp)
+TARGET_LINK_LIBRARIES(test_racing_algorithm pagmo_static ${MANDATORY_LIBRARIES})
+ADD_TEST(test_racing_algorithm test_racing_algorithm)
 
 IF(ENABLE_MPI)
 	ADD_EXECUTABLE(mpi_torture_test mpi_torture_test.cpp)

@@ -22,13 +22,23 @@ racing_population::racing_population(const population &pop): population(pop)
 {
 }
 
+/// Constructor based on a problem
+/**
+ * Creates an empty population which can be further manipulated using special
+ * routines in racing_population
+ *
+ * param[in] prob Problem of interest
+ **/
+racing_population::racing_population(const problem::base &prob): population(prob)
+{
+}
+
 /// Update decision_vector without invoking objective function
 /**
  * One of the most bizarre things you could in the world of PaGMO -- setting a
  * decision vector of an individual without evaluating its objective function.
  * This causes the fitness and constraint vectors of that individual to be
- * completely invalid, so as the best_x, best_f, etc. Only use this if you know
- * what you are doing.
+ * completely invalid, so as the best_x, best_f, etc. Use with caution.
  *
  * (Essentially, this is the first halve of the canonical set_x)
  **/
@@ -50,8 +60,8 @@ void racing_population::set_x_noeval(const size_type idx, const decision_vector 
  * One of the most bizarre things you could do in the world of PaGMO --
  * directly setting fitness and constraint vectors. It only does what it says
  * -- set_fc -- meaning cur_x and best_x might become invalid as set_fc simply
- *  ignores and does not check their validity. Only use this if you know what
- *  you are doing.
+ *  ignores and does not check their validity. Another note is that best_f and
+ *  best_c will always mirror cur_f and cur_c. Use with caution.
  *
  *  (Essentially, this is the last halve of the canonical set_x)
  **/
@@ -68,76 +78,96 @@ void racing_population::set_fc(const size_type idx, const fitness_vector &f, con
 	}
 	m_container[idx].cur_f = f;
 	m_container[idx].cur_c = c;
-	if (!m_container[idx].best_x.size() ||
-		problem().compare_fc(m_container[idx].cur_f,m_container[idx].cur_c,m_container[idx].best_f,m_container[idx].best_c))
-	{
-		m_container[idx].best_x = m_container[idx].cur_x;
-		m_container[idx].best_f = m_container[idx].cur_f;
-		m_container[idx].best_c = m_container[idx].cur_c;
-	}
+	// NOTE: As update_dom() uses best_f and best_c when computing Pareto ranks
+	// and hence, racing_population can be used a way to by pass this in order
+	// to respect more the concept of racing
+	m_container[idx].best_f = f;
+	m_container[idx].best_c = c;
 	update_dom(idx);
 }
 
-/// Friedman rank assignment (before every racing iteration)
+
+/// Append individual with given decision vector without invoking objective function
 /**
- * Updates racers with the friedman ranks, assuming that the required individuals
- * in racing_pop have been re-evaluated with the newest seed. Ranking is the same
- * as the one returned by get_best_idx(N), but in case of ties an average rank
- * will be assigned among those who tied.
+ * Only allocates spaces for the incoming decision vector in m_container,
+ * m_dom_list, and m_dom_count. If the fitnesses and contraints will be used,
+ * make sure to call set_fc() prior to using them, or bear the consequences.
  *
- * @param[out] racers Data strcture storing the racing data which will be updated
- * @param[in] racing_pop Population on which racing will run
- *
-**/
-void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_population& racing_pop)
+ * NOTE: Differences compared with the real push_back:
+ * - No evaluation (no set_x)
+ * - No initialization of velocities (v's are all zeros) 
+ * - Champion will not be allocated correctly subsequently (requires real set_x)
+ **/
+void racing_population::push_back_noeval(const decision_vector &x)
 {
-	// Update ranking to be used for stat test
-	// Note that the ranking returned by get_best_idx() requires some post-processing,
-	// as individuals not currently in race should be ignored.
+	// No checking on the validity of x:
+	// Accept a dummy x, as when using racing_population, the main focus is on
+	// the fitness and constraint vectors. The main purpose of this function is
+	// to allocate the spaces but skip the evaluation.
 
-	typedef population::size_type size_type;
+	// Store sizes temporarily.
+	const fitness_vector::size_type f_size = problem().get_f_dimension();
+	const constraint_vector::size_type c_size = problem().get_c_dimension();
+	const decision_vector::size_type p_size = problem().get_dimension();
+	// Push back an empty individual.
+	m_container.push_back(individual_type());
+	m_dom_list.push_back(std::vector<size_type>());
+	m_dom_count.push_back(0);
+	// Resize individual's elements.
+	m_container.back().cur_x.resize(p_size);
+	m_container.back().cur_v.resize(p_size);
+	m_container.back().cur_c.resize(c_size);
+	m_container.back().cur_f.resize(f_size);
 
-	std::vector<size_type> raw_order = racing_pop.get_best_idx(racing_pop.size());
+	// As we bypass set_x which will allocate spaces for bests, they must be
+	// explicitly allocated here.
+	m_container.back().best_f.resize(f_size);
+	m_container.back().best_c.resize(c_size);
+	
+	// Set the individual.
+	set_x_noeval(m_container.size() - 1, x);
+}
+
+
+/// Returns the ``rankings" of the individuals.
+/**
+ * The rankings are obtained using get_best_idx() in the base population class.
+ * The rankings are further processed to cater for possible ties, which is a
+ * step typically required by ranking-based statistical testing.
+ **/
+std::vector<double> racing_population::get_rankings() const
+{
+	std::vector<double> rankings(size());
+	std::vector<size_type> raw_order = get_best_idx(size());
+
 	int cur_rank = 1;
-	std::vector<size_type> ordered_idx_active;
 	for(size_type i = 0; i < raw_order.size(); i++){
 		int ind_idx = raw_order[i];
-		// Note that some individuals would have been dropped along the way and
-		// become inactive. They should do not affect the latest rankings in any way.
-		if(racers[ind_idx].active){
-			racers[ind_idx].m_hist.push_back(cur_rank);
-			cur_rank++;
-			ordered_idx_active.push_back(ind_idx);
-		}
+		rankings[ind_idx] = cur_rank;
+		cur_rank++;
 	}
 	
 	// --Adjust ranking to cater for ties--
 	// 1. Check consecutively ranked individuals whether they are tied.
-	std::vector<bool> tied(ordered_idx_active.size() - 1, false);
-	if(racing_pop.problem().get_f_dimension()==1){
+	std::vector<bool> tied(size() - 1, false);
+	if(problem().get_f_dimension() == 1){
 		// Single-objective case
-		population::trivial_comparison_operator comparator(racing_pop);
-		for(size_type i = 0; i < ordered_idx_active.size() - 1; i++){	
-			size_type idx1 = ordered_idx_active[i];
-			size_type idx2 = ordered_idx_active[i+1];
-			if (!comparator(idx1, idx2) && !comparator(idx2, idx1)){
+		population::trivial_comparison_operator comparator(*this);
+		for(size_type i = 0; i < size() - 1; i++){	
+			if (!comparator(i, i+1) && !comparator(i+1, i)){
 				tied[i] = true;
 			}
 		}
 	}	
 	else{
 		// Multi-objective case
-		// TODO: Possibe big jumps in observation data due to Pareto ranks
-		population::crowded_comparison_operator comparator(racing_pop);
-		for(size_type i = 0; i < ordered_idx_active.size() - 1; i++){	
-			size_type idx1 = ordered_idx_active[i];
-			size_type idx2 = ordered_idx_active[i+1];
-			if (!comparator(idx1, idx2) && !comparator(idx2, idx1)){
+		population::crowded_comparison_operator comparator(*this);
+		for(size_type i = 0; i < size() - 1; i++){	
+			if (!comparator(i, i+1) && !comparator(i+1, i)){
 				tied[i] = true;
 			}
 		}
 	}
-	// std::cout << "Tied stats: "; for(size_type i = 0; i < tied.size(); i++) std::cout << tied[i] <<" "; std::cout<<std::endl;
 
 	// 2. For all the individuals who are tied, modify their rankings to
 	// be the average rankings in case of no tie.
@@ -153,16 +183,11 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_populatio
 		}
 
 		double avg_rank = 0;
-		// std::cout << "Ties between: ";
 		for(size_type i = begin_avg_pos; i <= cur_pos; i++){
-			avg_rank += racers[ordered_idx_active[i]].m_hist.back() / ((double)cur_pos - begin_avg_pos + 1);
-			// std::cout << ordered_idx_active[i] << " (r=" << racers[ordered_idx_active[i]].m_hist.back() << ") ";
+			avg_rank += rankings[i] / ((double)cur_pos - begin_avg_pos + 1);
 		}
-		// std::cout << std::endl;
-		// if(cur_pos - begin_avg_pos + 1 > 1)
-			// std::cout << "Setting tied ranks between " << cur_pos - begin_avg_pos + 1 << " individuals to be " << avg_rank   << std::endl;
 		for(size_type i = begin_avg_pos; i <= cur_pos; i++){
-			racers[ordered_idx_active[i]].m_hist.back() = avg_rank;
+			rankings[i] = avg_rank;
 		}
 
 		// If no tie at all for this begin pos
@@ -170,18 +195,57 @@ void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_populatio
 			cur_pos++;
 		}
 	}
+	return rankings;
+}
 
-	// Update mean of rank (which also reflects the sum of rank, useful for later
-	// pair-wise test)
-	for(size_type i = 0; i < ordered_idx_active.size(); i++){
-		racer_type& cur_racer = racers[ordered_idx_active[i]];
-		cur_racer.m_mean = 0;
-		for(unsigned int i = 0; i < cur_racer.length(); i++){
-			cur_racer.m_mean += (cur_racer.m_hist[i]) / (double)cur_racer.length();
+
+/// Friedman rank assignment (before every racing iteration)
+/**
+ * Updates racers with the friedman ranks, assuming that the required individuals
+ * in racing_pop have been re-evaluated with the newest seed. Ranking is the same
+ * as the one returned by get_best_idx(N), but in case of ties an average rank
+ * will be assigned among those who tied.
+ *
+ * @param[out] racers Data strcture storing the racing data which will be updated
+ * @param[in] racing_pop Population on which racing will run
+ *
+**/
+void f_race_assign_ranks(std::vector<racer_type>& racers, const racing_population& racing_pop_full)
+{
+	// Update ranking to be used for stat test
+	// Note that the ranking returned by get_best_idx() requires some post-processing,
+	// as individuals not currently in race should be ignored.
+
+	typedef population::size_type size_type;
+
+	// Construct a more condensed population with only active individuals
+	racing_population racing_pop(racing_pop_full.problem());
+	decision_vector dummy_x(racing_pop_full.problem().get_dimension(), 0);
+	std::vector<size_type> idx_mapping;
+	for(size_type i = 0; i < racers.size(); i++){
+		if(racers[i].active){
+			racing_pop.push_back_noeval(dummy_x);
+			racing_pop.set_fc(racing_pop.size()-1, racing_pop_full.get_individual(i).cur_f, racing_pop_full.get_individual(i).cur_c);
+			idx_mapping.push_back(i);
 		}
 	}
+	
+	// Get the rankings in the sense of satistical testing
+	std::vector<double> rankings = racing_pop.get_rankings();
+	for(unsigned int i = 0; i < racing_pop.size(); i++){
+		racers[idx_mapping[i]].m_hist.push_back(rankings[i]);
+	}
 
-	//std::cout << "Adjusted ranking: "; for(size_type i = 0; i < ordered_idx_active.size(); i++) std::cout << "(" << ordered_idx_active[i] << ")-" << racers[ordered_idx_active[i]].m_hist.back() << " "; std::cout << std::endl;
+	// Update mean of rank (which also reflects the sum of rank, useful for
+	// later pair-wise test)
+	for(size_type i = 0; i < rankings.size(); i++){
+		racer_type& cur_racer = racers[idx_mapping[i]];
+		cur_racer.m_mean = 0;
+		for(unsigned int j = 0; j < cur_racer.length(); j++){
+			cur_racer.m_mean += (cur_racer.m_hist[j]) / (double)cur_racer.length();
+		}
+	}
+	
 }
 
 /// Rank adjustment (after every racing iteration)
@@ -207,9 +271,7 @@ void f_race_adjust_ranks(std::vector<racer_type>& racers, const std::vector<popu
 			}
 			racers[i].m_hist[j] -= adjustment;
 		}
-		//std::cout << "After deleting, rank of [" << i << "] adjusted as: " << racers[i].m_hist << std::endl;
 	}
-	//TODO: Tie cases not handled yet, worth it?
 }
 
 /// Perform a Friedman test
@@ -225,19 +287,14 @@ void f_race_adjust_ranks(std::vector<racer_type>& racers, const std::vector<popu
  * @param[in] delta Confidence level for the statistical test
  *
  * @return Result of the statistical test 
+ *
  */
-stat_test_result friedman_test(const std::vector<std::vector<double> >& X, double delta)
+stat_test_result core_friedman_test(const std::vector<std::vector<double> >& X, double delta)
 {	
-	// TODO: throw when X is empty
+	pagmo_assert(X.size() > 0);
 	
 	unsigned int N = X.size(); // # of different configurations
 	unsigned int B = X[0].size(); // # of different instances
-
-	// std::cout << "N = " << N << " B = " << B << std::endl;
-
-	// (Now obtained the rankings, done with problems and pop.)
-
-	// ----------- Stat. tests  starts-------------
 
 	// Compute mean rank
 	std::vector<double> X_mean(N, 0);
@@ -274,8 +331,6 @@ stat_test_result friedman_test(const std::vector<std::vector<double> >& X, doubl
 
 	double delta_quantile = quantile(chi_squared_dist, 1 - delta);
 
-	//std::cout << "T1: "<< T1 << "; delta_quantile = " << delta_quantile << std::endl;
-
 	// Null hypothesis 0: All the ranks observed are equally likely
 	bool null_hypothesis_0 = (boost::math::isnan(T1) || T1 < delta_quantile);
 
@@ -296,7 +351,6 @@ stat_test_result friedman_test(const std::vector<std::vector<double> >& X, doubl
 		for(unsigned int i = 0; i < N; i++){
 			for(unsigned int j = i + 1; j < N; j++){
 				double diff_r = fabs(R[i] - R[j]);
-				// std::cout<< "diff_r = " << diff_r << std::endl;
 				// Check if a pair is statistically significantly different
 				if(diff_r > t_delta2_quantile * Q){
 					if(X_mean[i] < X_mean[j]){
@@ -313,6 +367,160 @@ stat_test_result friedman_test(const std::vector<std::vector<double> >& X, doubl
 	return res;
 
 }
+
+/// Returns the pair-wise statistical testing results based on Friedman Test
+/**
+ * @param[in] racers List of racers which will be filled up with rank data
+ * @param[in] pop Population storing the updated fitness and constraint of each
+ * active individual in race.
+ * @return A structure containing the statistical testing results 
+ **/
+stat_test_result friedman_test(std::vector<racer_type> &racers, const std::vector<population::size_type> &in_race, const racing_population &pop, double delta)
+{
+	f_race_assign_ranks(racers, pop);
+
+	// Observation data (TODO: is this necessary ? ... a lot of memory
+	// allocation gets done here and we already have in memory all we need.
+	// could we not pass by reference directly racers and in_race to the
+	// friedman test?)
+	std::vector<std::vector<double> > X;
+	for(unsigned int i = 0; i < in_race.size(); i++){
+		X.push_back(racers[in_race[i]].m_hist);
+	}
+
+	// Friedman Test
+	stat_test_result ss_result = core_friedman_test(X, delta);
+	return ss_result;
+}
+
+/// Returns the pair-wise statistical testing results based on Wilcoxon test
+/**
+ * @param[in] racers Racers structure whose m_hist fields will be updated
+ * @param[in] in_race Indices of the two active individuals
+ * @param[in] pop Population storing full evaluation history of the two active
+ * individuals
+ * @return A structure containing the statistical testing results 
+ **/
+stat_test_result wilcoxon_ranksum_test(std::vector<racer_type> &racers, const std::vector<population::size_type> &in_race, const racing_population& wilcoxon_pop, double delta)
+{
+	pagmo_assert(in_race.size() == 2);
+
+	// Get the rankings of all the data points
+	std::vector<double> rankings = wilcoxon_pop.get_rankings();
+	
+	// Need to update racers in case no statistical significant results can be
+	// found, which will then default to selecting the one with best mean. Two
+	// specific individuals in the wilcoxon_pop correspond to the newest two
+	// evaluated points.
+	racers[in_race[0]].m_hist.push_back(rankings[wilcoxon_pop.size()/2 - 1]);
+	racers[in_race[1]].m_hist.push_back(rankings[wilcoxon_pop.size() - 1]);
+
+	// Compute the mean ranks
+	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); it++){
+		racer_type& cur_racer = racers[*it];
+		cur_racer.m_mean = 0;
+		for(unsigned int j = 0; j < cur_racer.length(); j++){
+			cur_racer.m_mean += (cur_racer.m_hist[j]) / (double)cur_racer.length();
+		}
+	}
+
+	std::vector<std::vector<double> > X(2);
+	unsigned int n_samples = wilcoxon_pop.size() / 2;
+	for(unsigned int i = 0; i < 2; i++){
+		X[i].resize(n_samples);
+	}
+	for(unsigned int i = 0; i < wilcoxon_pop.size(); i++){
+		X[i%2][i/2] = rankings[i];
+	}
+	return core_wilcoxon_ranksum_test(X, delta);
+}
+
+// Helper routine for Wilcoxon test
+std::size_t wilcoxon_faculty( std::size_t n )
+{
+	if( n == 1 )
+		return( 1 );
+
+	return( n * wilcoxon_faculty( n-1 ) );
+}
+
+// Helper routine for Wilcoxon test
+double wilcoxon_frequency( double u, int sampleSizeA, int sampleSizeB )
+{
+	if( u < 0. || sampleSizeA < 0 || sampleSizeB < 0 )
+		return( 0. );
+	
+	if( u == 0 && sampleSizeA >= 0 && sampleSizeB >= 0 )
+		return( 1 );
+
+	return( wilcoxon_frequency( u - sampleSizeB, sampleSizeA - 1, sampleSizeB ) + wilcoxon_frequency( u, sampleSizeA, sampleSizeB - 1 ) );
+}
+
+// Performs Wilcoxon Rank Sum Test (a.k.a.Wilcoxon–Mann–Whitney test)
+// Intended to be used when the number of active racers is only two, as it has
+// been reported that under such circumstances this test is more data efficient
+// than Friedman test.
+stat_test_result core_wilcoxon_ranksum_test(const std::vector<std::vector<double> > &X, double delta)
+{
+	if(X.size() != 2){
+		pagmo_throw(value_error, "Wilcoxon rank-sum test is applicable only when the group size is 2");
+	}
+	unsigned int N = 2;
+
+	// Compute sum of ranks
+	std::vector<double> rank_sum(N, 0);
+	for(unsigned int i = 0; i < N; i++){
+		for(unsigned int j = 0; j < X[i].size(); j++){
+			rank_sum[i] += X[i][j];
+		}
+	}
+
+	// Fill in pair-wise comparison results
+	stat_test_result res(N);
+
+	int sizeA = X[0].size();
+	int sizeB = X[1].size();
+	if(sizeA < 12 && sizeB < 12){
+		// Cannot use normal approximation for the rank-sum statistic when
+		// sample size is small. Boost does not have the required Wilcoxon
+		// rank-sum distribution (currently in their todo list)... This piece
+		// of code is adapted from the Shark machine learning library.
+		int wA = rank_sum[0];
+		//int wB = rank_sum[1];
+		double uA = wA - sizeA * ( sizeA + 1 ) / 2.;
+		//double uB = wB - sizeB * ( sizeB + 1 ) / 2.;
+		double pA = (double)( wilcoxon_faculty( sizeA ) * wilcoxon_faculty( sizeB ) ) / (double)( wilcoxon_faculty( sizeA + sizeB ) ) * wilcoxon_frequency( uA, sizeA, sizeB );
+		//double pB = (double)( wilcoxon_faculty( sizeA ) * wilcoxon_faculty( sizeB ) ) / (double)( wilcoxon_faculty( sizeA + sizeB ) ) * wilcoxon_frequency( uB, sizeA, sizeB );
+		if(pA < delta){
+			res.trivial = false;
+			if(rank_sum[0] > rank_sum[1]){
+				res.is_better[1][0] = true;
+			}
+			else{
+				res.is_better[0][1] = true;
+			}
+		}
+	}	
+	else{
+		// Use the normal approximation
+		using boost::math::normal;
+		int n1 = X[0].size();
+		int n2 = X[1].size();
+		normal normal_dist(n1*n2/2, sqrt(n1*n2*(n1+n2+1.0)/12.0));
+		double delta_quantile_upp = quantile(normal_dist, 1 - delta);
+		if(rank_sum[0] > rank_sum[1] && rank_sum[0] > delta_quantile_upp){
+			res.trivial = false;
+			res.is_better[1][0] = true;
+		}
+		else if(rank_sum[1] > rank_sum[0] && rank_sum[1] > delta_quantile_upp){
+			res.trivial = false;
+			res.is_better[0][1] = true;
+		}
+	}
+
+	return res;
+}
+
 //! @endcond Doxygen comments the following
 
 }}}

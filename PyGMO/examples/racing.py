@@ -114,6 +114,11 @@ def get_rank_sum_errors(prob_orig = problem.ackley(10), noise = 0.3, pop_n = 20,
 	prob_noisy = problem.noisy(prob_orig, 1, 0, noise)
 
 	pop_orig = population(prob_orig, pop_n)
+
+	# Increase the level of difficulty
+	#algo = algorithm.pso(gen=50)
+	#pop_orig = algo.evolve(pop_orig)
+
 	# True ordering of the individuals
 	winners_orig = pop_orig.get_best_idx(pop_n)
 

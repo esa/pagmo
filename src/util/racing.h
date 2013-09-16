@@ -44,8 +44,11 @@ namespace racing{
 	{
 	public:
 		racing_population(const population &);
+		racing_population(const problem::base &);
 		void set_x_noeval(const size_type, const decision_vector &);
 		void set_fc(const size_type, const fitness_vector &, const constraint_vector &);
+		void push_back_noeval(const decision_vector &);
+		std::vector<double> get_rankings() const;
 	};
 
 	struct racer_type
@@ -84,23 +87,34 @@ namespace racing{
 
 	struct stat_test_result{
 		public:
-			stat_test_result(): trivial(true), is_better(0, std::vector<bool>(0, false)) { }
+			stat_test_result(unsigned int N = 0): trivial(true), is_better(N, std::vector<bool>(N, false)) { }
 			bool trivial;
 			std::vector<std::vector<bool> > is_better;
 	};
 
-	// TODO: May create a base class statistical_test_base and then
-	// let specific stat tests derive from there.
-	
-	// Used in F-Race
-	stat_test_result friedman_test(const std::vector<std::vector<double> > &, double delta);
+	// F-Race routines
+	stat_test_result friedman_test(std::vector<racer_type> &,
+	                               const std::vector<population::size_type> &,
+	                               const racing_population&,
+	                               double);
 
-	// Used in Hoeffding / Bernstein race
-	enum bound_type {HOEFFDING = 0, BERNSTEIN = 1};
-	stat_test_result bound_based_test(const std::vector<std::vector<double> > &, double delta, bound_type);
+	stat_test_result core_friedman_test(const std::vector<std::vector<double> > &,
+	                                    double delta);
 
-	void f_race_assign_ranks(std::vector<racer_type> &, const racing_population &);
-	void f_race_adjust_ranks(std::vector<racer_type> &, const std::vector<population::size_type> &);
+	void f_race_assign_ranks(std::vector<racer_type> &,
+	                         const racing_population &);
+
+	void f_race_adjust_ranks(std::vector<racer_type> &,
+	                         const std::vector<population::size_type> &);
+
+	// Wilcoxon rank-sum routines
+	stat_test_result wilcoxon_ranksum_test(std::vector<racer_type> &,
+	                                       const std::vector<population::size_type> &,
+	                                       const racing_population&,
+	                                       double);
+
+	stat_test_result core_wilcoxon_ranksum_test(const std::vector<std::vector<double> > &X,
+	                                            double delta);
 
 //! @endcond
 }

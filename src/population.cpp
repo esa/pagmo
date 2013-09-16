@@ -779,6 +779,7 @@ std::vector<population::size_type> population::get_best_idx(const population::si
 	return retval;
 }
 
+
 /// Repairs the individual at the position idx.
 /**
  * This methods repairs an infeasible individual to make it feasible. The method uses the repairing
@@ -814,6 +815,7 @@ void population::repair(const population::size_type &idx, const algorithm::base_
 
 	this->set_x(idx,pop_repair.get_individual(0).cur_x);
 }
+
 
 /// Return terse human-readable representation.
 /**
@@ -1116,7 +1118,7 @@ std::pair<std::vector<population::size_type>, unsigned int> population::race(con
 {
 	unsigned int seed = m_urng();
 	util::racing::race_pop m_race_pop(*this, seed);
-	return m_race_pop.run(n_final, min_trials, max_count, delta, active_set, race_best, screen_output);
+	return m_race_pop.run(n_final, min_trials, max_count, delta, active_set, util::racing::race_pop::MAX_BUDGET, race_best, screen_output);
 }
 
 /// Overload stream operator for pagmo::population.

@@ -308,7 +308,11 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// Particle Swarm Optimization (generational)
 	algorithm_wrapper<algorithm::pso_generational>("pso_gen", "Particle Swarm Optimization (generational)")
-		.def(init<optional<int,double, double, double, double, int, int, int, bool, unsigned int> >());
+		.def(init<optional<int,double, double, double, double, int, int, int> >());
+
+	// Particle Swarm Optimization (generational with racing mechanism)
+	algorithm_wrapper<algorithm::pso_generational_racing>("pso_gen_racing", "Particle Swarm Optimization (generational with racing)")
+		.def(init<optional<int,double, double, double, double, int, int, int, unsigned int, unsigned int> >());
 	
 	// Simple Genetic Algorithm.
 	algorithm_wrapper<algorithm::sga>("sga", "A simple genetic algorithm (generational)")
@@ -337,6 +341,24 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.value("LOW_DISCREPANCY", algorithm::pade::LOW_DISCREPANCY);
 	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
 		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type, pagmo::fitness_vector> >());
+
+	// SMS-EMOA
+	algorithm_wrapper<algorithm::sms_emoa>("sms_emoa", "The SMS-EMOA algorithm")
+		.def(init<optional<int, int, double, double, double, double> >())
+		.def(init<optional<util::hv_algorithm::base_ptr, int, int, double, double, double, double> >());
+
+	// NSPSO
+	enum_<algorithm::nspso::diversity_mechanism_type>("_diversity_mechanism")
+		.value("CROWDING_DISTANCE", algorithm::nspso::CROWDING_DISTANCE)
+		.value("NICHE_COUNT", algorithm::nspso::NICHE_COUNT)
+		.value("MAXMIN", algorithm::nspso::MAXMIN);
+	algorithm_wrapper<algorithm::nspso>("nspso", "Non-dominated Sorting Particle Swarm Optimizer")
+		.def(init<optional<int, double, double, double, double, double, double, int, algorithm::nspso::diversity_mechanism_type> >());
+	
+	//SPEA2
+	algorithm_wrapper<algorithm::spea2>("spea2", "Strength Pareto Evolutionary Algorithm 2")
+		.def(init<optional<int, double, double, double, double, population::size_type> >());
+
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")

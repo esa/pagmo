@@ -12,11 +12,13 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de_1220.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational_racing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cmaes.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sms_emoa.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
@@ -32,15 +34,21 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pade.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_immune_system.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_core.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nspso.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/spea2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_kill_s_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_greedy_s_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_best_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/worst_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_r_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_greedy_r_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
@@ -117,10 +125,21 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/unconnected.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/watts_strogatz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hypervolume.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/base.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv2d.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv3d.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/wfg.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/bf_approx.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/bf_fpras.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hoy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv4d_cpp_original/hv.c
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv4d.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/racing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/discrepancy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/neighbourhood.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/race_pop.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/race_algo.cpp
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.

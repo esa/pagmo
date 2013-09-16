@@ -1,5 +1,9 @@
 #include "race_pop.h"
+#include "../problems.h"
 #include "../problem/base_stochastic.h"
+
+#include <map>
+#include <utility>
 
 namespace pagmo { namespace util { namespace racing {
 
@@ -11,12 +15,51 @@ namespace pagmo { namespace util { namespace racing {
  * @param[in] pop population containing the individuals to race
  * @param[in] seed seed of the race
  */
-race_pop::race_pop(const population& pop, unsigned int seed): m_pop(pop), m_seeds(), m_seeder(seed), m_cache_data(pop.size())
+race_pop::race_pop(const population& pop, unsigned int seed): m_race_seed(seed), m_pop(pop), m_pop_wilcoxon(pop), m_seeds(), m_seeder(seed), m_use_caching(true), m_cache_data(pop.size()), m_cache_averaged_data(pop.size())
+{
+	register_population(pop);
+}
+
+/// Constructor
+/**
+ * Construct a race_pop object from a seed. The seed will determine all racing
+ * conditions. The exact population on which race will run can be (and must be)
+ * supplied later via register_population().
+ *
+ * @param[in] seed seed of the race
+ */
+race_pop::race_pop(unsigned int seed): m_race_seed(seed), m_pop(population(problem::ackley())), m_pop_wilcoxon(population(problem::ackley())), m_pop_registered(false), m_seeds(), m_seeder(seed), m_use_caching(true), m_cache_data(0), m_cache_averaged_data(0)
 {
 }
 
+/// Update the population on which the race will run
+/**
+ * This also re-allocate the spaces required to the cache entries.
+ *
+ * @param[in] pop The new population
+ **/
+void race_pop::register_population(const population &pop)
+{
+	m_pop = pop;
+	// This is merely to set up the problem in wilcoxon pop
+	m_pop_wilcoxon = pop;
+	reset_cache();
+	if(m_cache_data.size() != pop.size()){
+		m_cache_data.resize(pop.size());
+		m_cache_averaged_data.resize(pop.size());
+	}
+	cache_register_signatures(pop);
+	m_pop_registered = true;
+}
+
+/// Get the number of individuals in the registered population
+population::size_type race_pop::size() const
+{
+	return m_pop.size();
+}
+
 // Check if the provided active_set is valid.
-void race_pop::_validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size)
+void race_pop::_validate_active_set(const std::vector<population::size_type>& active_set, unsigned int pop_size) const
 {
 	if(active_set.size() == 0)
 		return;
@@ -33,7 +76,7 @@ void race_pop::_validate_active_set(const std::vector<population::size_type>& ac
 }
 
 // Check if the problem is stochastic
-void race_pop::_validate_problem_stochastic(const problem::base& prob)
+void race_pop::_validate_problem_stochastic(const problem::base& prob) const
 {
 	try
 	{
@@ -46,7 +89,7 @@ void race_pop::_validate_problem_stochastic(const problem::base& prob)
 }
 
 // Check if the other parameters for racing are sensible
-void race_pop::_validate_racing_params(const population& pop, const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, double delta, unsigned int active_set_size)
+void race_pop::_validate_racing_params(const population& pop, const population::size_type n_final, double delta) const
 {
 	if(n_final > pop.size()){
 		pagmo_throw(value_error, "Number of intended winner is too large");
@@ -54,10 +97,22 @@ void race_pop::_validate_racing_params(const population& pop, const population::
 	if(delta < 0 || delta > 1){
 		pagmo_throw(value_error, "Confidence level should be a small value greater than zero");
 	}
-	if (max_f_evals < active_set_size) {
+}
+
+// Check if the provided budget is sensible
+void race_pop::_validate_budget(const unsigned int min_trials, const unsigned int max_f_evals, const std::vector<population::size_type>& in_race) const
+{
+	// The fevals required to complete the first iteration
+	unsigned int min_required_1 = compute_required_fevals(in_race, 1);
+	if (max_f_evals < min_required_1) {
 		pagmo_throw(value_error, "Maximum number of function evaluations is smaller than the number of racers");
 	}
-	if (max_f_evals < min_trials*active_set_size) {
+	// The fevals required to complete first min_trials-th iterations
+	unsigned int min_required_2 = 0;
+	for(unsigned int i = 1; i <= min_trials; i++){
+		min_required_2 += compute_required_fevals(in_race, i);
+	}
+	if (max_f_evals < min_required_2) {
 		pagmo_throw(value_error, "You are asking for a mimimum amount of trials which cannot be made with the allowed function evaluation budget");
 	}
 }
@@ -92,8 +147,115 @@ std::vector<population::size_type> race_pop::construct_output_list(
 	int sorted_idx = 0;
 	while(output.size() < n_final){
 		output.push_back(argsort[sorted_idx++].second);
-	}
+	}	
+
 	return output;
+}
+
+// Update m_pop with the evaluation data w.r.t current seed for Friedman test
+//
+// The resulting population is aligned with the racers, i.e. m_pop[0]
+// corresponds to racers[0], storing the newest fitness and constraint vector
+// evaluated under the new seed. Evaluation data can come from cache or fresh
+// computation.
+// 
+// @return The number of objective function calls made
+unsigned int race_pop::prepare_population_friedman(const std::vector<population::size_type>& in_race, unsigned int count_iter)
+{
+	unsigned int count_nfes = 0;
+	// Perform re-evaluation on necessary individuals under current seed
+	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it) {
+		// Case 1: Current racer has previous data that can be reused, no
+		// need to be evaluated with this seed
+		if(m_use_caching && cache_data_exist(*it, count_iter-1)){
+			const eval_data& cached_data = cache_get_entry(*it, count_iter-1);
+			m_pop.set_fc(*it, cached_data.f, cached_data.c);
+		}
+		// Case 2: No previous data can be reused, perform actual
+		// re-evaluation and update the cache
+		else{
+			count_nfes++;
+			const population::individual_type &ind = m_pop.get_individual(*it);
+			fitness_vector f_vec = m_pop.problem().objfun(ind.cur_x);
+			constraint_vector c_vec = m_pop.problem().compute_constraints(ind.cur_x);
+			m_pop.set_fc(*it, f_vec, c_vec);
+			if(m_use_caching)
+				cache_insert_data(*it, f_vec, c_vec);
+		}
+	}
+	return count_nfes;
+}
+
+/// Update m_pop_wilcoxon to contain evaluation data required for Wilcoxon test
+/**
+ * In the end, m_pop_wilcoxon should hold all the fc vectors evaluated so far
+ * for the two active individuals. This is to facilitate the rankings required
+ * by Wilcoxon rank-sum test.
+ **/
+unsigned int race_pop::prepare_population_wilcoxon(const std::vector<population::size_type>& in_race, unsigned int count_iter)
+{
+	unsigned int count_nfes = 0;
+	if(in_race.size() != 2){
+		pagmo_throw(value_error, "Wilcoxon rank sum test is only applicable when there are two active individuals");
+	}	
+
+	// Need to bootstrap by pulling all the previous evaluation data into
+	// wilcoxon_pop for the first time when race is left with the two
+	// individuals. Subsequent racing iterations can just re-use this
+	// wilcoxon_pop memory structure and pad in necessary fc data for each
+	// particular iteration.
+	unsigned int start_count_iter;
+	if(m_pop_wilcoxon.size() == 0){
+		start_count_iter = 1;
+	}
+	else{
+		start_count_iter = count_iter;
+	}
+	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); ++it) {
+		decision_vector dummy_x;
+		for(unsigned int i = start_count_iter; i <= count_iter; i++){
+			// Case 1: Current racer has previous data that can be reused, no
+			// need to be evaluated with this seed
+			if(m_use_caching && cache_data_exist(*it, i-1)){
+				m_pop_wilcoxon.push_back_noeval(dummy_x);
+				const eval_data& cached_data = cache_get_entry(*it, i-1);
+				m_pop_wilcoxon.set_fc(m_pop_wilcoxon.size()-1, cached_data.f, cached_data.c);
+			}
+			// Case 2: No previous data can be reused, perform actual
+			// re-evaluation and update the cache
+			else{
+				count_nfes++;
+				const population::individual_type &ind = m_pop.get_individual(*it);
+				fitness_vector f_vec = m_pop.problem().objfun(ind.cur_x);
+				constraint_vector c_vec = m_pop.problem().compute_constraints(ind.cur_x);
+				m_pop_wilcoxon.push_back_noeval(dummy_x);
+				m_pop_wilcoxon.set_fc(m_pop_wilcoxon.size()-1, f_vec, c_vec);
+				if(m_use_caching)
+					cache_insert_data(*it, f_vec, c_vec);
+			}
+		}
+	}
+	return count_nfes;
+}
+
+/// Computes the required number of actual fevals to complete the current iteration
+/*
+ * This function takes into account the existence of cache. For example, if the
+ * cache has already been filled with many data, a call to run race with zero
+ * budget is actually possible.
+ *
+ * @param[in] racers List of racers
+ * @param[in] num_iter Index of current iteration (starts from 1)
+ */
+unsigned int race_pop::compute_required_fevals(const std::vector<population::size_type>& in_race, unsigned int num_iter) const
+{
+	unsigned int required_fevals = 0;
+	for(unsigned int i = 0; i < in_race.size(); i++){
+		if(!cache_data_exist(in_race[i], num_iter-1)){
+			required_fevals++;	
+		}
+	}
+	return required_fevals;
 }
 
 /// Races some individuals in a population
@@ -137,23 +299,21 @@ std::vector<population::size_type> race_pop::construct_output_list(
  * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
  * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
-std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const std::vector<population::size_type>& active_set, const bool race_best, const bool screen_output)
+std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const std::vector<population::size_type>& active_set, termination_condition term_cond, const bool race_best, const bool screen_output)
 {
+	// First check whether the a population has been properly registered
+	if(!m_pop_registered){
+		pagmo_throw(value_error, "Attempt to run race but no population is registered");
+	}
 	// We start validating the inputs:
 	// a - Problem has to be stochastic
 	_validate_problem_stochastic(m_pop.problem());
 	// b - active_set has to contain valid indexes
 	_validate_active_set(active_set, m_pop.size());
 	// c - Other parameters have to be sane
-	_validate_racing_params(m_pop, n_final, min_trials, max_f_evals, delta, active_set.size());
+	_validate_racing_params(m_pop, n_final, delta);
 
 	typedef population::size_type size_type;
-
-	// The stochastic problem's seed will be changed using a pre-determined sequence
-	unsigned int seed_idx = 0;
-
-	// The race will terminate when a given number of function evaluations will be exceeded
-	//race_termination_condition::type term_cond = race_termination_condition::EVAL_COUNT;
 	
 	// Temporary: Consider a fresh start every time race() is called
 	std::vector<racer_type> racers(m_pop.size(), racer_type());
@@ -169,7 +329,7 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 			racers[active_set[i]].active = true;
 		}
 	}
-
+	
 	// Indices of racers who are currently active in the pop's sense
 	// Examples:
 	// (1) in_race.size() == 5 ---> Only 5 individuals are still being raced.
@@ -185,6 +345,11 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		}
 	}
 
+	if(term_cond == MAX_BUDGET){
+		// d - Check if the given budget is too small
+		_validate_budget(min_trials, max_f_evals, in_race);		
+	}
+
 	size_type N_begin = in_race.size();
 	size_type n_final_best;
 
@@ -196,8 +361,15 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		n_final_best = N_begin - n_final;
 	}
 
+	// Reset data holder for wilcoxon test
+	m_pop_wilcoxon.clear();
+	bool use_wilcoxon = false;
+
 	unsigned int count_iter = 0;
 	unsigned int count_nfes = 0;
+
+	// The stochastic problem's seed will be changed using a pre-determined sequence
+	unsigned int seed_idx = 0;
 
 	// Start of the main loop. It will stop as soon as we have decided enough winners or
 	// discarded enough losers
@@ -210,12 +382,29 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 			std::cout << "Decided: " << decided << std::endl;
 			std::cout << "In-race: " << in_race << std::endl;
 			std::cout << "Discarded: " << discarded << std::endl;
+			std::cout << "Mean ranks: ";
+			for(unsigned int i = 0; i < in_race.size(); i++){
+				if(racers[in_race[i]].active){
+					std::cout <<  "(" << in_race[i] << "): " << racers[in_race[i]].m_mean << " ";
+				}
+			}
+			std::cout << std::endl;
+			print_cache_stats(in_race);
 		}
-
-		// Check if there is enough budget for evaluating the individuals in the race 
-		// TODO: Need to discount for caching mechanism
-		if(count_nfes + in_race.size() > max_f_evals){
-			break;
+		
+		if(term_cond == MAX_BUDGET){
+			// Check if there is enough budget for evaluating the individuals in the race 
+			unsigned int required_fevals = compute_required_fevals(in_race, count_iter);
+			if(count_nfes + required_fevals > max_f_evals){
+				break;
+			}
+		}
+		else{
+			// Here max_f_evals has the meaning of "maximum number of data
+			// points" to be considered for each individual
+			if(count_iter > max_f_evals){
+				break;
+			}
 		}
 
 		unsigned int cur_seed = get_current_seed(seed_idx++);
@@ -231,51 +420,30 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		// population, which will not be accessed elsewhere, and the champion
 		// information is not used during racing.
 
-		// Perform re-evaluation on necessary individuals under current seed
-		for(std::vector<size_type>::iterator it = in_race.begin(); it != in_race.end(); ++it) {
-			// Case 1: Current racer has previous data that can be reused, no
-			// need to be evaluated with this seed
-			if(cache_data_exist(*it, count_iter-1)){
-				const eval_data& cached_data = cache_get_entry(*it, count_iter-1);
-				m_pop.set_fc(*it, cached_data.f, cached_data.c);
-			}
-			// Case 2: No previous data can be reused, perform actual
-			// re-evaluation and update the cache
-			else{
-				count_nfes++;
-				const population::individual_type &ind = m_pop.get_individual(*it);
-				fitness_vector f_vec = m_pop.problem().objfun(ind.cur_x);
-				constraint_vector c_vec = m_pop.problem().compute_constraints(ind.cur_x);
-				m_pop.set_fc(*it, f_vec, c_vec);
-				cache_insert_data(*it, f_vec, c_vec);
-			}
+		// Update m_pop with re-evaluation results or possibly data from cache,
+		// and invoke statistical testing routines.
+		stat_test_result ss_result;
+		if(use_wilcoxon && in_race.size() == 2){
+			// Perform Wilcoxon rank-sum test
+			count_nfes += prepare_population_wilcoxon(in_race, count_iter);
+			ss_result = wilcoxon_ranksum_test(racers, in_race, m_pop_wilcoxon, delta);
+		}
+		else{
+			// Perform Friedman test
+			count_nfes += prepare_population_friedman(in_race, count_iter);
+			ss_result = friedman_test(racers, in_race, m_pop, delta);
+
 		}
 
-		f_race_assign_ranks(racers, m_pop);
-
-		// Enforce a minimum required number of trials
 		if(count_iter < min_trials)
 			continue;
-
-		// Observation data (TODO: is this necessary ? ... a lot of memory allocation gets done here and we
-		// already have in memory all we need. could we not pass by reference directly racers and in_race 
-		// to the friedman test?)
-		std::vector<std::vector<double> > X;
-		for(unsigned int i = 0; i < in_race.size(); i++){
-			X.push_back(racers[in_race[i]].m_hist);
-		}
-
-		// Friedman Test
-		stat_test_result ss_result = friedman_test(X, delta);
 
 		if(!ss_result.trivial){
 			// Inside here some pairs must be statistically different, let's find them out
 		
 			const std::vector<std::vector<bool> >& is_better = ss_result.is_better;
 
-			// std::cout << "Null hypothesis 0 rejected!" << std::endl;
-
-			// std::vector<size_type> out_of_race;
+			std::vector<size_type> out_of_race;
 
 			std::vector<bool> to_decide(in_race.size(), false), to_discard(in_race.size(), false);
 
@@ -293,12 +461,11 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 						vote_discard++;
 					}
 				}
-				// std::cout << "[" << *it_i << "]: vote_decide = " << vote_decide << ", vote_discard = " << vote_discard << std::endl;
+
 				if(vote_decide >= N_begin - n_final_best - discarded.size()){
 					to_decide[i] = true;
 				}
 				else if(vote_discard >= n_final_best - decided.size()){
-				//else if(vote_discard >= 1){ // Equivalent to the previous more aggressive approach
 					to_discard[i] = true;
 				}
 			}
@@ -307,10 +474,12 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 			for(unsigned int i = 0; i < in_race.size(); i++){
 				if(to_decide[i]){
 					decided.push_back(in_race[i]);
+					out_of_race.push_back(in_race[i]);
 					racers[in_race[i]].active = false;
 				}
 				else if(to_discard[i]){
 					discarded.push_back(in_race[i]);
+					out_of_race.push_back(in_race[i]);
 					racers[in_race[i]].active = false;
 				}
 				else{
@@ -321,7 +490,9 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 			in_race = new_in_race;
 
 			// Check if this is that important
-			// f_race_adjust_ranks(racers, out_of_race);
+			if(!use_wilcoxon || in_race.size() > 2){
+				f_race_adjust_ranks(racers, out_of_race);
+			}
 		}
 
 	};
@@ -334,13 +505,54 @@ std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const 
 		std::cout << "\nRace ends after " << count_iter << " iterations, incurred nfes = " << count_nfes << std::endl;
 		std::cout << "Returning winners: " << std::vector<size_type>(winners.begin(), winners.end()) << std::endl;
 	}
+
 	return std::make_pair(winners, count_nfes);
+}
+
+/// Returns mean fitness of the individuals based on past evaluation data
+/**
+ * @param[in] ind_list The indices of the individuals whose mean fitness
+ * vectors are to be extracted. If this is empty, mean data of all the
+ * individuals will be returned.
+ * 
+ * @throws value_error if any of the requested individuals has not been raced before.
+ *
+ * @return Mean fitness vectors of the individuals in ind_list
+ **/
+std::vector<fitness_vector> race_pop::get_mean_fitness(const std::vector<population::size_type> &ind_list) const
+{
+	_validate_active_set(ind_list, m_pop.size());
+
+	std::vector<population::size_type> active_set;
+	// If empty list is given then assume all individuals are of interest
+	if(ind_list.size() == 0){
+		active_set.resize(size());
+		for(population::size_type i = 0; i < size(); i++){
+			active_set[i] = i;
+		}
+	}
+	else{
+		active_set = ind_list;
+	}
+
+	std::vector<fitness_vector> mean_fitness(active_set.size());
+	for(unsigned int i = 0; i < active_set.size(); i++){
+		if(m_cache_data[active_set[i]].size() == 0){
+			pagmo_throw(value_error, "Request the mean fitness of an individual which has not been raced before");
+		}
+		mean_fitness[i] = m_cache_averaged_data[active_set[i]].f;
+	}
+	return mean_fitness;
 }
 
 /// Clear all the cache
 void race_pop::reset_cache()
 {
-	m_cache_data.clear();
+	for(unsigned int i = 0; i < m_cache_data.size(); i++){
+		m_cache_data[i].clear();
+		m_cache_averaged_data[i].f.clear();
+		m_cache_averaged_data[i].c.clear();
+	}
 }
 
 /// Insert a data_point
@@ -355,6 +567,25 @@ void race_pop::cache_insert_data(unsigned int key_idx, const fitness_vector &f, 
 		pagmo_throw(index_error, "cache_insert_data: Invalid key index");
 	}
 	m_cache_data[key_idx].push_back(eval_data(f,c));
+	// Update the averaged data to be returned upon each race call
+	if(m_cache_data[key_idx].size() == 1){
+		m_cache_averaged_data[key_idx] = m_cache_data[key_idx].back();
+	}
+	else{
+		unsigned int len = m_cache_data[key_idx].size();
+		// Average for each fitness dimension
+		for(unsigned int i = 0; i < m_cache_averaged_data[key_idx].f.size(); i++){
+			m_cache_averaged_data[key_idx].f[i] =
+				(m_cache_averaged_data[key_idx].f[i]*(len-1) +
+				 m_cache_data[key_idx].back().f[i]) / (double)len;
+		}
+		// Average for each constraint dimension
+		for(unsigned int i = 0; i < m_cache_averaged_data[key_idx].c.size(); i++){
+			m_cache_averaged_data[key_idx].c[i] =
+				(m_cache_averaged_data[key_idx].c[i]*(len-1) +
+				 m_cache_data[key_idx].back().c[i]) / (double)len;
+		}
+	}
 }
 
 /// Delete the data associated with the key index corresponding to the
@@ -392,8 +623,74 @@ const race_pop::eval_data &race_pop::cache_get_entry(unsigned int key_idx, unsig
 	return m_cache_data[key_idx][data_location];
 }
 
+// Each cache entry is dedicated to an individual in the population, and it can
+// be associated with a signature based on the decision vector of the
+// individual. This can be useful to identify a match when trying to inherit
+// memory from another race_pop structure to maximize information reuse.
+void race_pop::cache_register_signatures(const population& pop)
+{
+	m_cache_signatures.clear();	
+	for(population::size_type i = 0; i < pop.size(); i++){
+		m_cache_signatures.push_back(pop.get_individual(i).cur_x);
+	}
+}
+
+// If compatible, inherits past evaluation data from another race_pop object.
+// Generally to be used in scenarios when racing individuals in a cross
+// generation setting.
+void race_pop::inherit_memory(const race_pop& src)
+{
+	// If seeds are different, no memory transfer is possible
+	if(src.m_race_seed != m_race_seed){
+		pagmo_throw(value_error, "Incompatible seed in inherit_memory");
+	}
+	std::map<decision_vector, unsigned int> src_cache_locations;
+	for(unsigned int i = 0; i < src.m_cache_data.size(); i++){
+		src_cache_locations.insert(std::make_pair(src.m_cache_signatures[i], i));
+	}
+	int cnt_transferred = 0;
+	for(unsigned int i = 0; i < m_cache_data.size(); i++){
+		std::map<decision_vector, unsigned int>::iterator it
+			= src_cache_locations.find(m_cache_signatures[i]);
+		if(it != src_cache_locations.end()){
+			if(src.m_cache_data[it->second].size() > m_cache_data[i].size()){
+				m_cache_data[i] = src.m_cache_data[it->second];
+				m_cache_averaged_data[i] = src.m_cache_averaged_data[it->second];
+				cnt_transferred++;
+			}
+		}
+	}
+}
+
+
+/// Print some stats about the cache, for debugging purposes
+void race_pop::print_cache_stats(const std::vector<population::size_type> &in_race) const
+{
+	for(std::vector<population::size_type>::const_iterator it = in_race.begin(); it != in_race.end(); it++){
+		std::cout << "Cache of ind#" << *it << ": length = " << m_cache_data[*it].size() << std::endl;
+	}
+}
+
+
+/// Set a new racing seed.
+/**
+ * Internally, the list of seed is cleared, all cache entry get invalidated,
+ * and a new list of seeds will of be generated as required when racing
+ * starts subsequently.
+ *
+ * @param[in] seed New seed to be set
+ */
+void race_pop::set_seed(unsigned int seed)
+{
+	m_race_seed = seed;
+	m_seeder.seed(seed);
+	m_seeds.clear();
+	reset_cache();
+}
+
 // Produce new seeds and append to the list of seeds
-void race_pop::generate_seeds(unsigned int num_seeds){
+void race_pop::generate_seeds(unsigned int num_seeds)
+{
 	for(unsigned int i = 0; i < num_seeds; i++){
 		m_seeds.push_back(m_seeder());
 	}
@@ -402,7 +699,8 @@ void race_pop::generate_seeds(unsigned int num_seeds){
 // Get the n-th seed to be used for evaluation of the n-th data point. With
 // this we can ensure that all the aligned data points are generated using the
 // same rng seed.
-unsigned int race_pop::get_current_seed(unsigned int seed_idx){
+unsigned int race_pop::get_current_seed(unsigned int seed_idx)
+{
 	if(seed_idx >= m_seeds.size()){
 		const unsigned int expanding_length = 500;
 		generate_seeds(expanding_length);
