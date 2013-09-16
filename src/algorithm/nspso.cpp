@@ -92,6 +92,7 @@ nspso::nspso(int gen, double minW, double maxW, double C1, double C2,
 	}
 }
 
+
 /// Clone method.
 base_ptr nspso::clone() const
 {
@@ -160,9 +161,8 @@ void nspso::evolve(population &pop) const
 	for(int g = 0; g < m_gen; ++g) {
 
 		std::vector<population::size_type> bestNonDomIndices;
-		std::vector<fitness_vector> fit(NP); // particles' current fitness values
-		std::vector<constraint_vector> cons(NP); // particles' current constraints values
-
+		std::vector<fitness_vector> fit(NP);// particles' current fitness values
+		std::vector<constraint_vector> cons(NP);
 		for ( population::size_type i = 0; i<NP; i++ ) {
 			fit[i]	=	nextPopList[i].best_f;
 			cons[i] = nextPopList[i].best_c;
@@ -187,6 +187,7 @@ void nspso::evolve(population &pop) const
 
 		} else if(m_diversity_mechanism == NICHE_COUNT) {
 			std::vector<decision_vector> nonDomChromosomes;
+
 			std::vector<std::vector<population::size_type> > dom_list = compute_domination_list(prob,fit,cons);
 			std::vector<population::size_type> pareto_rank = compute_pareto_rank(dom_list);
 			std::vector<std::vector<population::size_type> > pareto_fronts = compute_pareto_fronts(pareto_rank);
@@ -356,40 +357,6 @@ void nspso::evolve(population &pop) const
 
 }
 
-/// Algorithm name
-std::string nspso::get_name() const
-{
-	return "Non-dominated Sorting Particle Swarm Optimizer (NSPSO)";
-}
-
-/// Extra human readable algorithm info.
-/**
- * Will return a formatted string displaying the parameters of the algorithm.
- */
-std::string nspso::human_readable_extra() const
-{
-	std::ostringstream s;
-	s << "gen:" << m_gen << ' ';
-	s << "minW:" << m_minW << ' ';
-	s << "maxW:" << m_maxW << ' ';
-	s << "C1:" << m_C1 << ' ';
-	s << "C2:" << m_C2 << ' ';
-	s << "CHI:" << m_CHI << ' ';
-	s << "v_coeff:" << m_v_coeff << ' ';
-	s << "leader_selection_range:" << m_leader_selection_range << ' ';
-	s << "diversity_mechanism: ";
-	switch (m_diversity_mechanism)
-	{
-		case CROWDING_DISTANCE : s << "CROWDING_DISTANCE" << ' ';
-			break;
-		case NICHE_COUNT : s << "NICHE_COUNT" << ' ';
-			break;
-		case MAXMIN : s << "MAXMIN" << ' ';
-			break;
-	}
-	return s.str();
-}
-
 double nspso::minfit(unsigned int i, unsigned int j, const std::vector<fitness_vector> &fit) const
 {
 	double min = fit[i][0] - fit[j][0];
@@ -417,6 +384,8 @@ void nspso::compute_maxmin(std::vector<double> &maxmin, const std::vector<fitnes
 		}
 	}
 }
+
+
 
 double nspso::euclidian_distance(const std::vector<double> &x, const std::vector<double> &y) const
 {
@@ -607,6 +576,40 @@ fitness_vector nspso::compute_nadir(const std::vector<fitness_vector> &fit, cons
 	return nadir;
 }
 
+
+/// Algorithm name
+std::string nspso::get_name() const
+{
+	return "Non-dominated Sorting Particle Swarm Optimizer (NSPSO)";
+}
+
+/// Extra human readable algorithm info.
+/**
+ * Will return a formatted string displaying the parameters of the algorithm.
+ */
+std::string nspso::human_readable_extra() const
+{
+	std::ostringstream s;
+	s << "gen:" << m_gen << ' ';
+	s << "minW:" << m_minW << ' ';
+	s << "maxW:" << m_maxW << ' ';
+	s << "C1:" << m_C1 << ' ';
+	s << "C2:" << m_C2 << ' ';
+	s << "CHI:" << m_CHI << ' ';
+	s << "v_coeff:" << m_v_coeff << ' ';
+	s << "leader_selection_range:" << m_leader_selection_range << ' ';
+	s << "diversity_mechanism: ";
+	switch (m_diversity_mechanism)
+	{
+		case CROWDING_DISTANCE : s << "CROWDING_DISTANCE" << ' ';
+			break;
+		case NICHE_COUNT : s << "NICHE_COUNT" << ' ';
+			break;
+		case MAXMIN : s << "MAXMIN" << ' ';
+			break;
+	}
+	return s.str();
+}
 
 
 }} //namespaces
