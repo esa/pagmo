@@ -36,18 +36,45 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
-	// Filter out points sharing the same value of an objective as the reference point
+	// Filter out points that are duplicated, dominated, or sharing the same value of an objective as the reference point
 	// This does not alter the final result of the computation.
 	// Wrapped algorithm is susceptible to such cases, thus it is a precaution measure.
 	std::vector<fitness_vector>::iterator it = points.begin();
 	while (it != points.end()) {
 		bool erase = false;
+
+		// Quick check for sharing an objective with the reference point
 		for (unsigned int d_idx = 0 ; d_idx < 4 ; ++d_idx) {
 			if (fabs(r_point[d_idx] - (*it)[d_idx]) < 1e-10) {
 				erase = true;
 				break;
 			}
 		}
+
+		// If the point was not eliminated during first check, try the domination check
+		if (!erase) {
+			std::vector<fitness_vector>::iterator it2 = points.begin();
+			while (it2 != points.end()){
+				if (it == it2) {
+					++it2;
+					continue;
+				}
+				bool dominates = true;
+				for (unsigned int d_idx = 0 ; d_idx < 4 ; ++d_idx) {
+					if ((*it)[d_idx] < (*it2)[d_idx]) {
+						dominates = false;
+						break;
+					}
+				}
+				if (dominates) {
+					erase = true;
+					break;
+				}
+				++it2;
+			}
+		}
+
+		// Erase the point if necessary
 		if (erase) {
 			it = points.erase(it);
 		} else {

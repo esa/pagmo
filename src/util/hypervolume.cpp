@@ -172,9 +172,9 @@ hv_algorithm::base_ptr hypervolume::get_best_compute(const fitness_vector &r_poi
 		case 3:
 			return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
 			break;
-		//case 4:
-		//	return hv_algorithm::base_ptr(new hv_algorithm::hv4d());
-		//	break;
+		case 4:
+			return hv_algorithm::base_ptr(new hv_algorithm::hv4d());
+			break;
 		default:
 			return hv_algorithm::base_ptr(new hv_algorithm::wfg());
 	}

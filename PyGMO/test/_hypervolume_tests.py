@@ -72,6 +72,21 @@ class HVComputeTest(unittest.TestCase):
 		hv = hypervolume([[1,2,1],[2,1,1]])
 		self.assertEqual(hv.compute([2,2,2]), 0)
 
+	def test4d_dominated(self):
+		hv = hypervolume([[1,1,1,1],[2,2,2,2]])
+		self.assertEqual(hv.compute(r = (3,3,3,3), algorithm=hv_algorithm.hv4d()), 16)
+
+	def test4d_edge(self):
+		hv = hypervolume([[1,1,1,3],[2,2,2,3]])
+		self.assertEqual(hv.compute(r = (3,3,3,3), algorithm=hv_algorithm.hv4d()), 0)
+
+	def test4d_duplicate(self):
+		hv = hypervolume([[1,1,1,1],[1,1,1,1]])
+		self.assertEqual(hv.compute(r = (2,2,2,2), algorithm=hv_algorithm.hv4d()), 1)
+
+		# Duplicate and dominated
+		hv = hypervolume([[1,1,1,1],[1,1,1,1],[0,0,0,0]])
+		self.assertEqual(hv.compute(r = (2,2,2,2), algorithm=hv_algorithm.hv4d()), 16)
 	
 	def test_tuple_ctor(self):
 		# test that hypervolume can be computed using a tuple as well
