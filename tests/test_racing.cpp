@@ -430,7 +430,7 @@ int main()
 		   test_racing_subset(prob_ackley) ||
 		   test_racing(prob_cec2006, 10, 2) ||
 		   test_racing(prob_cec2006, 20, 2) ||
-		   test_racing(prob_cec2006, 100, 5) ||
+		   test_racing(prob_cec2006, 100, 5, 0.05) ||
 		   test_racing(prob_cec2006, 5, 1) ||
 		   test_racing_subset(prob_cec2006) ||
 		   test_racing(prob_zdt1, 10, 5, 0.03) ||
