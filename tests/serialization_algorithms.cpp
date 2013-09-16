@@ -37,19 +37,18 @@ int main()
 	unsigned int pop_size = 20;
 	unsigned int gen = 123;
 
-	//increment this if you add a multiobjective problem
-	unsigned int n_mo = 2;
+	//increment this if you add a multiobjective algo
+	unsigned int n_mo = 3;
 
-	//increment this if you add a constrained problem
+	//increment this if you add a constrained algo
 	unsigned int n_con = 2;
 
 	// create two containers of pagmo::algorithms
 	std::vector<algorithm::base_ptr> algos;
 	std::vector<algorithm::base_ptr> algos_new;
 
-
-	// fill it up with algorithm
-	// first the multiobjective ones
+	// Fill it up with algorithms
+	// 1) first the multiobjective ones
 
 	algos.push_back(algorithm::sms_emoa(gen,2,0.5,11,0.3,11).clone());
 	algos_new.push_back(algorithm::sms_emoa().clone());
@@ -58,14 +57,14 @@ int main()
 	algos.push_back(algorithm::vega(gen,.9,.021,1,algorithm::vega::mutation::RANDOM,0.3,algorithm::vega::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::vega().clone());
 
-	// then the meta-algorithm
+	// 2) then some meta-algorithm
 	algos.push_back(algorithm::cstrs_co_evolution(algorithm::de(gen),algorithm::de(1),20,30,algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS).clone());
 	algos_new.push_back(algorithm::cstrs_co_evolution().clone());
 
-    algos.push_back(algorithm::cstrs_self_adaptive(algorithm::sga(1),gen).clone());
-    algos_new.push_back(algorithm::cstrs_self_adaptive().clone());
+	algos.push_back(algorithm::cstrs_self_adaptive(algorithm::sga(1),gen).clone());
+	algos_new.push_back(algorithm::cstrs_self_adaptive().clone());
 
-	// algorithm
+	// 3) then unconstrained single objective algorithm
 	algos.push_back(algorithm::bee_colony(gen,19).clone());
 	algos_new.push_back(algorithm::bee_colony().clone());
 	algos.push_back(algorithm::cmaes(gen,0.5, 0.5, 0.5, 0.5, 0.7, 1e-5, 1e-5, false).clone());
@@ -141,11 +140,11 @@ int main()
 	algos_new.push_back(algorithm::snopt().clone());
 #endif
 
-	// IPOPT algorithm.
 #ifdef PAGMO_ENABLE_IPOPT
 	algos.push_back(algorithm::ipopt(gen, 2.3E-6, 2.3E-6, 2.3E-6, false, 2.0, 0.234).clone());
 	algos_new.push_back(algorithm::ipopt().clone());
 #endif
+
 	// pick a box-constrained, single objective, continuous problem
 	problem::ackley prob(10);
 	

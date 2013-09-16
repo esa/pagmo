@@ -35,7 +35,7 @@ Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.monte_carlo`  
 Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.py_example`           MI-C-S      Written directly in Python
 Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.py_cmaes`              C-U-S      Written directly in Python
 Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.cmaes`                 C-U-S
-================================== ========================================= =============== ===================================================================
+========================================= ========================================= =============== ===================================================================
 
 Meta-algorithms 
 ^^^^^^^^^^^^^^^
