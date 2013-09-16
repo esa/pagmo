@@ -419,6 +419,7 @@ def _pop_race(self, n_winners, min_trials = 0, max_feval = 500,
 
 	* n_winners: number of winners in the race
 	* min_trials: minimum amount of evaluations before an individual can stop racing
+    * max_feval: budget for objective function evaluation
 	* delta: Statistical test confidence
 	* racers_idx: indices of the individuals in pop to be raced
 	* race_best: when True winners are the best, otherwise winners are the worst

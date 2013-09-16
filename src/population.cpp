@@ -1077,7 +1077,7 @@ std::pair<std::vector<population::size_type>, unsigned int> population::race(con
 {
 	unsigned int seed = m_urng();
 	util::racing::race_pop m_race_pop(*this, seed);
-	return m_race_pop.run(n_final, min_trials, max_count, delta, active_set, race_best, screen_output);
+	return m_race_pop.run(n_final, min_trials, max_count, delta, active_set, util::racing::race_pop::MAX_BUDGET, race_best, screen_output);
 }
 
 /// Overload stream operator for pagmo::population.

@@ -226,12 +226,12 @@ def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.
 pso._orig_init = pso.__init__
 pso.__init__ = _pso_ctor
 
-def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, use_racing = False, max_fevals = -1):
+def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
 	"""
 	Constructs a Particle Swarm Optimization (generational). The position update is applied
 	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
 	
-	USAGE: algorithm.pso_gen(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4])
+	USAGE: algorithm.pso_gen(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4)
 
 	* gen: number of generations
 	* omega: constriction factor (or particle inertia weight) in [0,1]
@@ -259,7 +259,56 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
 		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
 		The minimum outdegree is 1 (the particle always connects back to itself).
-	* use_racing: Whether to use racing
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(omega)
+	arg_list.append(eta1)
+	arg_list.append(eta2)
+	arg_list.append(vcoeff)
+	arg_list.append(variant)
+	arg_list.append(neighb_type)
+	arg_list.append(neighb_param)	
+	self._orig_init(*arg_list)
+pso_gen._orig_init = pso_gen.__init__
+pso_gen.__init__ = _pso_gen_ctor
+
+
+def _pso_gen_racing_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, nr_eval_per_x = 5, max_fevals = 10000000):
+	"""
+	Constructs a Particle Swarm Optimization (generational). The position update is applied
+	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
+	
+	USAGE: algorithm.pso_gen(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, nr_eval_per_x = 5, max_fevals = 10000000)
+
+	* gen: number of generations
+	* omega: constriction factor (or particle inertia weight) in [0,1]
+	* eta1: Cognitive component in [0,4]
+	* eta2: Social component in [0,4]
+	* vcoeff: Maximum velocity coefficient (w.r.t. the box-bounds width) in [0,1]
+	* variant: algoritmic variant to use (one of  [1 .. 6])
+		1. PSO canonical (with inertia weight)
+		2. PSO canonical (with inertia weight
+			and equal random weights of social and cognitive components)
+		3. PSO variant (with inertia weight
+			same random number for all components.)
+		4. PSO variant (with inertia weight
+			same random number for all components
+			and equal weights of social and cognitive components)
+		5. PSO canonical (with constriction factor)
+		6. Fully Informed Particle Swarm (FIPS)
+	* neighb_type: defines the particle neighbourhood (used for the social component)
+		1. gbest neighbourhood topology (fully connected)
+		2. lbest neighbourhood topology (ring)
+		3. Von-Neumann neighbourhood topology (square lattice)
+		4. Randomly-varying neighbourhood topology
+	* neighb_param: if the lbest topology is selected, it represents each particle's indegree
+		(also outdegree) in the swarm topology. Particles have neighbours up
+		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
+		The minimum outdegree is 1 (the particle always connects back to itself).
+    * nr_eval_per_x: Specify the expected budget to be allocated during racing
 	* max_fevals: When specified other than -1, this serve as another termination condition -- maximium number of objective function evaluations
 	"""
 	# We set the defaults or the kwargs
@@ -272,12 +321,12 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 	arg_list.append(variant)
 	arg_list.append(neighb_type)
 	arg_list.append(neighb_param)	
-	arg_list.append(use_racing)
+	arg_list.append(nr_eval_per_x)
 	if max_fevals > 0:
 		arg_list.append(max_fevals)
 	self._orig_init(*arg_list)
-pso_gen._orig_init = pso_gen.__init__
-pso_gen.__init__ = _pso_gen_ctor
+pso_gen_racing._orig_init = pso_gen_racing.__init__
+pso_gen_racing.__init__ = _pso_gen_racing_ctor
 
 
 
@@ -399,9 +448,69 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	if z != None:
 		arg_list.append(z)
 	self._orig_init(*arg_list)
-pade._orig_init = pade.__init__
-pade.__init__ = _pade_ctor
-del decompose
+	pade._orig_init = pade.__init__
+	pade.__init__ = _pade_ctor
+	del decompose
+
+_algorithm.nspso.CROWDING_DISTANCE = _algorithm._diversity_mechanism.CROWDING_DISTANCE
+_algorithm.nspso.NICHE_COUNT = _algorithm._diversity_mechanism.NICHE_COUNT
+_algorithm.nspso.MAXMIN = _algorithm._diversity_mechanism.MAXMIN
+def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+		CHI = 1.0, v_coeff = 0.5, leader_selection_range = 5, diversity_mechanism = nspso.MAXMIN):
+	"""
+	Constructs a Multi Objective PSO
+	
+	USAGE: algorithm.nspso(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+		CHI = 1.0, v_coeff = 0.5, leader_selection = 5, diversity_mechanism = nspso.MAXMIN):
+
+	* gen: number of generations
+	* minW: minimum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
+	* maxW: maximum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
+	* C1: magnitude of the force, applied to the particle's velocity, in the direction of its previous best position
+	* C2: magnitude of the force, applied to the particle's velocity, in the direction of its global best (leader)
+   	* CHI: velocity scaling factor
+	* v_coeff: velocity coefficient (determining the maximum allowed particle velocity)
+	* leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(minW)
+	arg_list.append(maxW)
+	arg_list.append(C1)
+	arg_list.append(C2)
+	arg_list.append(CHI)
+	arg_list.append(v_coeff)
+	arg_list.append(leader_selection_range)
+	arg_list.append(diversity_mechanism)
+	self._orig_init(*arg_list)
+	nspso._orig_init = nspso.__init__
+	nspso.__init__ = _mopso_ctor
+
+def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, archive_size = -1):
+	"""
+	Constructs a Strenght Pareto Evolutionary Algorithm 2
+	
+	USAGE: algorithm.spea2(gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50)
+
+	* gen: number of generations
+	* cr:
+	* eta_c
+	* m
+	* eta_m
+	* archive_size
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(eta_c)
+	arg_list.append(m)
+	arg_list.append(eta_m)
+	arg_list.append(archive_size)
+	self._orig_init(*arg_list)
+	spea2._orig_init = spea2.__init__
+	spea2.__init__ = _spea2_ctor
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""

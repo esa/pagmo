@@ -22,44 +22,46 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_PSO_GENERATIONAL_H
-#define PAGMO_ALGORITHM_PSO_GENERATIONAL_H
+#ifndef PAGMO_ALGORITHM_PSO_GENERATIONAL_RACING_H
+#define PAGMO_ALGORITHM_PSO_GENERATIONAL_RACING_H
 
 #include "../config.h"
 #include "../serialization.h"
 #include "base.h"
-
+#include "../util/race_pop.h"
+#include <limits>
 
 namespace pagmo { namespace algorithm {
 
-/// Particle Swarm optimization generational
+/// Particle Swarm optimization generational with racing
 /**
- * As opposed to the main PSO algorithm implemented in Pagmo, that is pagmo::algorithm::pso, this
- * version of Particle Swarm Optimization is generational. In other words, the velocity is first
- * calculated for all particles, then the position is updated.
+ * Compared to the generational version of Particle Swarm Optimization, this
+ * PSO is further extended with racing mechanisms for individuals.
  *
- * NOTE: this PSO is suitable for stochastic optimization problems. The random seed is changed at the end
- * of each generation
- *
- * @see http://www.particleswarm.info/ for a repository of information related to PSO
- * @see http://dx.doi.org/10.1007/s11721-007-0002-0 for a recent survey
- * @see http://www.engr.iupui.edu/~shi/Coference/psopap4.html for the first paper on this algorithm
- *
- * @author Dario Izzo (dario.izzo@googlemail.com)
- * @author Luis Simoes (luis.f.m.simoes@gmail.com)
  */
 
-class __PAGMO_VISIBLE pso_generational: public base
+class __PAGMO_VISIBLE pso_generational_racing: public base
 {
 public:
-	pso_generational(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4 );
+	pso_generational_racing(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4, unsigned int nr_eval_per_x = 5, unsigned int max_fevals = std::numeric_limits<unsigned int>::max());
 	base_ptr clone() const;
 	void evolve(population &) const;
-	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob ) const;
+	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob) const;
 	void initialize_topology__gbest( const population &pop, decision_vector &gbX, fitness_vector &gbfit, std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__von( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__adaptive_random( std::vector< std::vector<int> > &neighb ) const;
+
+	// Handles the averaging of stochastic fitness
+	void particle__average_fitness(const problem::base &, fitness_vector &, const decision_vector &) const;
+	//void particle__average_fitness_set_best(const problem::base &, std::vector<fitness_vector &, const decision_vector &) const;
+	void particle__average_fitness_set_best(const problem::base &base, std::vector<fitness_vector> &F, population::size_type& best_idx, fitness_vector& best_fit, const std::vector<decision_vector> &X) const;
+
+	// Helper routines for racing related features
+	decision_vector particle__racing_get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, util::racing::race_pop& ) const;
+	void racing__construct_race_environment( util::racing::race_pop & race_structure, const problem::base& prob, const std::vector<decision_vector> &x_list1, const std::vector<decision_vector> &x_list2 ) const;
+	std::pair<population::size_type, unsigned int> racing__race_for_winner( util::racing::race_pop &race_structure, int idx1, int idx2, unsigned int max_fevals) const;
+
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
@@ -77,6 +79,8 @@ private:
 		ar & const_cast<int &>(m_variant);
 		ar & const_cast<int &>(m_neighb_type);
 		ar & const_cast<int &>(m_neighb_param);
+		ar & m_fevals;
+		ar & const_cast<unsigned int&>(m_max_fevals);
 	}
 	// Number of generations
 	const int m_gen;
@@ -94,10 +98,17 @@ private:
 	const int m_neighb_type;
 	// parameterization of the swarm topology
 	const int m_neighb_param;
+	// Parameter controlling how many times a stochastic objective function
+	// will be called for averaging
+	const unsigned int m_nr_eval_per_x;
+	// Incurred objective function evaluation
+	mutable unsigned int m_fevals;
+	// Maximum allowable fevals before algo terminates
+	const unsigned int m_max_fevals;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pso_generational);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pso_generational_racing);
 
-#endif // PAGMO_ALGORITHM_PSO_GENERATIONAL_H
+#endif // PAGMO_ALGORITHM_PSO_GENERATIONAL_RACING_H

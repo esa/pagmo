@@ -188,7 +188,10 @@ class __PAGMO_VISIBLE population
 		
 		/// Const iterator.
 		typedef container_type::const_iterator const_iterator;
-		explicit population(const problem::base &, int = 0, const boost::uint32_t &seed = rng_generator::get<rng_uint32>()());
+		explicit population(const problem::base &, int = 0, const boost::uint32_t &seed = getSeed());
+		static const boost::uint32_t getSeed(){
+			return rng_generator::get<rng_uint32>()();
+		}
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
@@ -279,11 +282,11 @@ class __PAGMO_VISIBLE population
 		// Container of individuals. Needs to be protected so that a derived class can override
 		// the set_x mechanism avoiding function re-evaluations. (use this option at your own risk)
 		container_type					m_container;
-	private:
 		// List of dominated individuals.
 		std::vector<std::vector<size_type> >		m_dom_list;
 		// Domination Count (number of dominant individuals)
 		std::vector<size_type>				m_dom_count;
+	private:
 		// Population champion.
 		champion_type					m_champion;
 		// Pareto rank

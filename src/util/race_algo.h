@@ -22,73 +22,52 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHMS_H
-#define PAGMO_ALGORITHMS_H
+#ifndef PAGMO_UTIL_RACE_ALGO_H
+#define PAGMO_UTIL_RACE_ALGO_H
 
-// Header including all algorithms implemented in PaGMO.
+#include <iostream>
+#include <string>
+#include <vector>
 
-// Heuristics
-#include "algorithm/base.h"
-#include "algorithm/cs.h"
-#include "algorithm/de.h"
-#include "algorithm/de_1220.h"
-#include "algorithm/sea.h"
-#include "algorithm/jde.h"
-#include "algorithm/ihs.h"
-#include "algorithm/mde_pbx.h"
-#include "algorithm/monte_carlo.h"
-#include "algorithm/null.h"
-#include "algorithm/pso.h"
-#include "algorithm/pso_generational.h"
-#include "algorithm/pso_generational_racing.h"
-#include "algorithm/sa_corana.h"
-#include "algorithm/sga.h"
-#include "algorithm/nsga2.h"
-#include "algorithm/bee_colony.h"
-#include "algorithm/firefly.h"
-#include "algorithm/cmaes.h"
-#include "algorithm/aco.h"
-#include "algorithm/nsga2.h"
-#include "algorithm/sms_emoa.h"
-#include "algorithm/pade.h"
-#include "algorithm/nspso.h"
-#include "algorithm/spea2.h"
+#include "../config.h"
+#include "../serialization.h"
+#include "../problem/base.h"
+#include "../problem/ackley.h"
+#include "../algorithm/base.h"
 
-// Hyper-heuristics
-#include "algorithm/mbh.h"
-#include "algorithm/ms.h"
+namespace pagmo { namespace util { namespace racing {
 
-// SNOPT algorithm.
-#ifdef PAGMO_ENABLE_SNOPT
-	#include "algorithm/snopt.h"
-#endif
+/// Racing mechanism for algorithms
+/**
+ * This class allows the racing of a set of algorithms on a problem or a set of
+ * problems. It supports the racing over single objective box-constrained and
+ * equality / inequality constrained problems.
+ */
+class __PAGMO_VISIBLE race_algo
+{
+	public:
+		race_algo(const std::vector<algorithm::base_ptr> &algos = std::vector<algorithm::base_ptr>(), const problem::base &prob = problem::ackley(), unsigned int pop_size = 100, unsigned int seed = 0);
+		race_algo(const std::vector<algorithm::base_ptr> &algos = std::vector<algorithm::base_ptr>(), const std::vector<problem::base_ptr> &prob = std::vector<problem::base_ptr>(), unsigned int pop_size = 100, unsigned int seed = 0);
 
-// IPOPT algorithm.
-#ifdef PAGMO_ENABLE_IPOPT
-	#include "algorithm/ipopt.h"
-#endif
+		// Main method containing all the juice
+		std::pair<std::vector<unsigned int>, unsigned int> run(
+			const unsigned int n_final,
+			const unsigned int min_trials,
+			const unsigned int max_count,
+			double delta,
+			const std::vector<unsigned int> &,
+			const bool race_best,
+			const bool screen_output
+		);
 
-// GSL algorithms.
-#ifdef PAGMO_ENABLE_GSL
-	#include "algorithm/base_gsl.h"
-	#include "algorithm/gsl_bfgs.h"
-	#include "algorithm/gsl_bfgs2.h"
-	#include "algorithm/gsl_fr.h"
-	#include "algorithm/gsl_nm.h"
-	#include "algorithm/gsl_nm2.h"
-	#include "algorithm/gsl_nm2rand.h"
-	#include "algorithm/gsl_pr.h"
-#endif
+	private:
 
-// NLopt algorithms.
-#ifdef PAGMO_ENABLE_NLOPT
-	#include "algorithm/nlopt_bobyqa.h"
-	#include "algorithm/nlopt_cobyla.h"
-	#include "algorithm/nlopt_sbplx.h"
-	#include "algorithm/nlopt_slsqp.h"
-	#include "algorithm/nlopt_mma.h"
-	#include "algorithm/nlopt_aug_lag.h"
-	#include "algorithm/nlopt_aug_lag_eq.h"
-#endif
+		std::vector<algorithm::base_ptr> m_algos;
+		std::vector<problem::base_ptr> m_probs;
+		unsigned int m_pop_size;
+		unsigned int m_seed;
+};
+
+}}}
 
 #endif

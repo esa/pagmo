@@ -12,6 +12,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de_1220.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational_racing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cmaes.cpp
@@ -27,6 +28,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pade.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nspso.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/spea2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
@@ -122,6 +125,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/util/discrepancy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/neighbourhood.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util/race_pop.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/race_algo.cpp
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.
