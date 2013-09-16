@@ -55,6 +55,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] CHI velocity scaling factor
  * @param[in] m_v_coeff velocity coefficient (determining the maximum allowed particle velocity)
  * @param[in] leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
+ * @param[in] diversity_mechanism technique to mantain diversity between individuals in the front (crowding distance, niche counting or maximin definition of the fitness function)
  *
  * @throws value_error if gen is negative
  */

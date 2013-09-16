@@ -57,6 +57,7 @@ int main()
 	}
 	return 0;
     */
+
     pagmo::problem::zdt2 prob(30);
 	pagmo::algorithm::spea2 alg(100);
 

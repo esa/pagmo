@@ -40,6 +40,7 @@ namespace pagmo { namespace algorithm {
  * @author Annalisa Riccardi (nina1983@gmail.com)
  *
  * @see "Xiaodong Li - A Non-dominated Sorting Particle Swarm Optimizer for Multiobjective Optimization"
+ * @see "Xiaodong Li - Better Spread and Convergence: Particle Swarm Multiobjective Optimization Using the Maximin Fitness Function"
  * @see "Carlos M. Fonseca, Peter J. Fleming - Genetic Algorithms for Multiobjective Optimization: Formulation, Discussion and Generalization"
  **/
 
@@ -126,6 +127,7 @@ private:
 		ar & const_cast<double &>(m_CHI);
 		ar & const_cast<double &>(m_v_coeff);
 		ar & const_cast<int &>(m_leader_selection_range);
+		ar & const_cast<diversity_mechanism_type &>(m_diversity_mechanism);
 
 	}
 	//Number of generations

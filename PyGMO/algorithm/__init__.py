@@ -382,7 +382,7 @@ def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 	Constructs a Multi Objective PSO
 	
 	USAGE: algorithm.nspso(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
-		CHI = 1.0, v_coeff = 0.5, leader_selection = 5):
+		CHI = 1.0, v_coeff = 0.5, leader_selection = 5, diversity_mechanism = nspso.MAXMIN):
 
 	* gen: number of generations
 	* minW: minimum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
