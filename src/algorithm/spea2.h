@@ -32,16 +32,6 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Non-dominated Sorting Particle Swarm Optimizer (spea2)
-/**
- *
- * asd
- *
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
- * @author Annalisa Riccardi (nina1983@gmail.com)
- *
- * @see "Xiaodong Li - A Non-dominated Sorting Particle Swarm Optimizer for Multiobjective Optimization"
- **/
 class  distance_sorter {
 public:
 	distance_sorter(const std::vector<std::vector<pagmo::population::size_type>  > &neighbours,
@@ -63,9 +53,21 @@ private:
 	const std::vector<fitness_vector> &m_fit;
 };
 
-
-
-
+/// "Strength Pareto Evolutionary Algorithm (SPEA2)"
+/**
+ *
+ * Strength Pareto Evolutionary Algorithm (SPEA2) is a multi-objective optimization algorithm.
+ * The quality of an individual is measured taking into consideration its pareto strenght and its distance to its
+ * K-th neighbour, where \f$ K=\sqrt{pop size + archive size} \f$
+ * It uses an external archive in which are stored the non dominated solutions found so far.
+ * The size of the archive is kept constant throughout the run by mean of a truncation operator taking into
+ * consideration the distance of each individual to its closest neighbours.
+ *
+ * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @author Annalisa Riccardi (nina1983@gmail.com)
+ *
+ * @see Eckart Zitzler, Marco Laumanns, and Lothar Thiele -- "SPEA2: Improving the Strength Pareto Evolutionary Algorithm"
+ **/
 class __PAGMO_VISIBLE spea2: public base
 {
 public:
@@ -83,9 +85,6 @@ private:
 		fitness_vector f;
 		constraint_vector c;
 	};
-	std::vector<population::size_type> order_by_delta(const std::vector<std::vector<pagmo::population::size_type>  > &,
-													  const std::vector<fitness_vector> &) const;
-	std::vector<population::size_type> complement(std::vector<population::size_type> v, population::size_type N) const;
 	void compute_spea2_fitness(std::vector<double> &,
 				int K,
 				const std::vector<spea2_individual> &pop,

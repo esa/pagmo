@@ -27,8 +27,10 @@ Vector Evaluated Genetic Algorithm (VEGA) :class:`PyGMO.algorithm.vega`         
 (N+1)-EA Evol. Algorithm (SEA)            :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
 Non-dominated Sorting GA (NSGA2)          :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
 S-Metric Selection EMOA (SMS-EMOA         :class:`PyGMO.algorithm.sms_emoa`              C-U-M      Relies on the hypervolume computation.
-Parallel Decomposition (PADE)             :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition
 Corana's Simulated Annealing (SA)         :class:`PyGMO.algorithm.sa_corana`             C-U-S 
+Parallel Decomposition (PADE)		  :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition
+Non-dominated Sorting PSO (NSPSO)	  :class:`PyGMO.algorithm.nspso`		 C-U-M      Multi-Objective PSO
+Strength Pareto EA 2 (SPEA2)              :class:`PyGMO.algorithm.spea2`                 C-U-M      Strength Pareto Evolutionary Algorithm 2
 Artificial Bee Colony (ABC)               :class:`PyGMO.algorithm.bee_colony`            C-U-S 
 Improved Harmony Search (IHS)             :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
 Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.monte_carlo`          MI-C-S
@@ -194,6 +196,38 @@ Detailed Documentation
 .. autoclass:: PyGMO.algorithm.pade
 
    .. automethod:: PyGMO.algorithm.pade.__init__
+   
+   .. attribute:: PyGMO.algorithm.pade.RANDOM
+
+     Random generation of the weight vector
+   
+   .. attribute:: PyGMO.algorithm.pade.GRID
+
+     Weight vectors are generated to equally divide the search space (requires a particular population size)
+
+   .. attribute:: PyGMO.algorithm.pade.LOW_DISCREPANCY
+
+     Weight vector are generated using a low discrepancy sequence
+
+.. autoclass:: PyGMO.algorithm.nspso
+
+   .. automethod:: PyGMO.algorithm.nspso.__init__
+   
+   .. attribute:: PyGMO.algorithm.nspso.CROWDING_DISTANCE
+
+     Individual with better crowding distance are prefered
+
+   .. attribute:: PyGMO.algorithm.nspso.NICHE_COUNT
+
+     Individuals with better niche count are prefered
+
+   .. attribute:: PyGMO.algorithm.nspso.MAXMIN
+
+     The MaxMin method is used to obtain the non-dominated set and to mantain diversity
+
+.. autoclass:: PyGMO.algorithm.spea2
+
+   .. automethod:: PyGMO.algorithm.spea2.__init__
 
 .. autoclass:: PyGMO.algorithm.sa_corana
 

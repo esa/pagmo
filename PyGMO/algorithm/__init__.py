@@ -510,6 +510,8 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	pade._orig_init = pade.__init__
 	pade.__init__ = _pade_ctor
 	del decompose
+pade._orig_init = pade.__init__
+pade.__init__ = _pade_ctor
 
 _algorithm.nspso.CROWDING_DISTANCE = _algorithm._diversity_mechanism.CROWDING_DISTANCE
 _algorithm.nspso.NICHE_COUNT = _algorithm._diversity_mechanism.NICHE_COUNT
@@ -530,6 +532,7 @@ def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
    	* CHI: velocity scaling factor
 	* v_coeff: velocity coefficient (determining the maximum allowed particle velocity)
 	* leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
+	* diversity_mechanism the diversity mechanism to use to mantein diversity on the pareto front
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -543,21 +546,22 @@ def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 	arg_list.append(leader_selection_range)
 	arg_list.append(diversity_mechanism)
 	self._orig_init(*arg_list)
-	nspso._orig_init = nspso.__init__
-	nspso.__init__ = _mopso_ctor
+
+nspso._orig_init = nspso.__init__
+nspso.__init__ = _nspso_ctor
 
 def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, archive_size = -1):
 	"""
 	Constructs a Strenght Pareto Evolutionary Algorithm 2
 	
-	USAGE: algorithm.spea2(gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50)
-
-	* gen: number of generations
-	* cr:
-	* eta_c
-	* m
-	* eta_m
-	* archive_size
+	USAGE: algorithm.spea2(gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, archive_size = -1)
+	
+	* gen: Number of generations to evolve.
+	* cr: Crossover probability
+	* eta_c: Distribution index for crossover
+	* m: Mutation probability
+	* eta_m: Distribution index for mutation
+	* archive_size: the size of the non_dominated archive. If -1 then the archive size is set equal to the population size. The population returned after evolve has a size equal to archive_size
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -568,8 +572,9 @@ def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, arch
 	arg_list.append(eta_m)
 	arg_list.append(archive_size)
 	self._orig_init(*arg_list)
-	spea2._orig_init = spea2.__init__
-	spea2.__init__ = _spea2_ctor
+
+spea2._orig_init = spea2.__init__
+spea2.__init__ = _spea2_ctor
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""

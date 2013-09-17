@@ -34,7 +34,10 @@ namespace pagmo { namespace algorithm {
 /// Non-dominated Sorting Particle Swarm Optimizer (NSPSO)
 /**
  *
- * asd
+ * Non-dominated Sorting Particle Swarm Optimizer (NSPSO) is a modified version of PSO for multi-objective optimization.
+ * It extends the basic ideas of PSO by making a better use of personal bests and offspring for non-dominated comparison.
+ * In order to increase the diversity of the pareto front it is possible to choose between 3 different niching methods:
+ * crowding distance, niche count and maxmin.
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  * @author Annalisa Riccardi (nina1983@gmail.com)

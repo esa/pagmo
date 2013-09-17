@@ -55,7 +55,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] CHI velocity scaling factor
  * @param[in] m_v_coeff velocity coefficient (determining the maximum allowed particle velocity)
  * @param[in] leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
- * @param[in] diversity_mechanism technique to mantain diversity between individuals in the front (crowding distance, niche counting or maximin definition of the fitness function)
+ * @param[in] diversity_mechanism the diversity mechanism to use to mantein diversity on the pareto front
  *
  * @throws value_error if gen is negative
  */
@@ -92,11 +92,6 @@ nspso::nspso(int gen, double minW, double maxW, double C1, double C2,
 	}
 }
 
-/*
-/// Copy constructor. Performs a deep copy. Necessary as a pointer to a base algorithm is here contained
-nspso::nspso(const nspso &algo):base(algo), m_gen(algo.m_gen),m_minW(algo.m_minW), m_maxW(algo.m_maxW),m_C1(algo.m_C1),
-	m_C2(algo.m_C2), m_CHI(algo.m_CHI), m_v_coeff(algo.m_v_coeff), m_leader_selection_range(algo.m_leader_selection_range)
-{}*/
 
 /// Clone method.
 base_ptr nspso::clone() const
@@ -164,12 +159,10 @@ void nspso::evolve(population &pop) const
 	}
 
 	for(int g = 0; g < m_gen; ++g) {
-		std::cout << "gen: " << g << std::endl;
 
 		std::vector<population::size_type> bestNonDomIndices;
 		std::vector<fitness_vector> fit(NP);// particles' current fitness values
 		std::vector<constraint_vector> cons(NP);
-		// Copy the population chromosomes into X
 		for ( population::size_type i = 0; i<NP; i++ ) {
 			fit[i]	=	nextPopList[i].best_f;
 			cons[i] = nextPopList[i].best_c;
@@ -195,7 +188,6 @@ void nspso::evolve(population &pop) const
 		} else if(m_diversity_mechanism == NICHE_COUNT) {
 			std::vector<decision_vector> nonDomChromosomes;
 
-			//compute non dominated_population (for niche count)
 			std::vector<std::vector<population::size_type> > dom_list = compute_domination_list(prob,fit,cons);
 			std::vector<population::size_type> pareto_rank = compute_pareto_rank(dom_list);
 			std::vector<std::vector<population::size_type> > pareto_fronts = compute_pareto_fronts(pareto_rank);
@@ -252,7 +244,8 @@ void nspso::evolve(population &pop) const
 			bestNonDomIndices = std::vector<population::size_type>(bestNonDomIndices.begin(), bestNonDomIndices.begin() + i); //keep just the non dominated
 		}
 
-		const double W  = m_maxW - (m_maxW-m_minW)/m_gen * g; //W decreased from maxW to minW troughout the run
+		//decrease W from maxW to minW troughout the run
+		const double W  = m_maxW - (m_maxW-m_minW)/m_gen * g;
 
 		//2 - Move the points
 		for(population::size_type idx = 0; idx < NP; ++idx) {
@@ -312,7 +305,7 @@ void nspso::evolve(population &pop) const
 			nextPopList[idx+NP].best_c = nextPopList[idx+NP].cur_c;
 		}
 
-		//Select the best NP individuals in the new population (of size 2*NP) according to pareto dominance
+		//3 - Select the best NP individuals in the new population (of size 2*NP) according to pareto dominance
 		std::vector<fitness_vector> nextPop_fit(nextPopList.size());
 		std::vector<constraint_vector> nextPop_cons(nextPopList.size());
 		for(unsigned int i=0; i<nextPopList.size(); ++i) {
@@ -354,7 +347,7 @@ void nspso::evolve(population &pop) const
 		nextPopList = tmpPop;
 	}
 
-	//3 - Evolution is over, copy the last population back to the orginal population
+	//4 - Evolution is over, copy the last population back to the orginal population
 	pop.clear();
 	for(population::size_type i = 0; i < NP; ++i){
 		pop.push_back(nextPopList[i].best_x);
