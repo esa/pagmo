@@ -21,7 +21,7 @@ DE with p-best crossover (mde_pbx)        :class:`PyGMO.algorithm.mde_pbx`      
 Differential Evolution (DE)               :class:`PyGMO.algorithm.de_1220`               C-U-S      Our own brew. self adaptive F, CR and variants 
 Particle Swarm Optimization (PSO)         :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
 Particle Swarm Optimization (PSO)         :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
-Simple Genetic Algorithm GRAY (SGA_GRAY)  :class:`PyGMO.algorithm.sga`                   C-U-S      Simple genetic algorithm with gray binary encoding
+Simple Genetic Algorithm GRAY (SGA_GRAY)  :class:`PyGMO.algorithm.sga_gray`              C-U-S      Simple genetic algorithm with gray binary encoding
 Simple Genetic Algorithm (SGA)            :class:`PyGMO.algorithm.sga`                  MI-U-S 
 Vector Evaluated Genetic Algorithm (VEGA) :class:`PyGMO.algorithm.vega`                 MI-U-M      VEGA algorithm, multi-objective extension of SGA
 (N+1)-EA Evol. Algorithm (SEA)            :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
@@ -48,9 +48,9 @@ Penalty Function (PF)                                                           
 Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag`          C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
 Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`       C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
 Cstrs co-evolution                 :class:`PyGMO.algorithm.cstrs_co_evolution`    C-C-S         Minimization assumed
-Cstrs Self-Adaptive                :class:`PyGMO.algorithm.csrts_self_adaptive`   C-C-S         Minimization assumed
+Cstrs Self-Adaptive                :class:`PyGMO.algorithm.cstrs_self_adaptive`   C-C-S         Minimization assumed
 Cstrs Immune System                :class:`PyGMO.algorithm.cstrs_immune_system`   C-C-S         Immune system constraints handling technique
-Cstrs CORE                         :`PyGMO.algorithm.cstrs_core`                  C-C-S         CORE constraints handling technique (repairing technique)
+Cstrs CORE                         :class:`PyGMO.algorithm.cstrs_core`            C-C-S         CORE constraints handling technique (repairing technique)
 ================================== ============================================ =============== ===========================================
 
 Local optimization 

@@ -201,7 +201,7 @@ void cstrs_immune_system::evolve(population &pop) const
 			}
 
 			// a subset of the best antigens in the pool is selected to compute the fitness average
-			int pop_antigens_subset_size = std::max((int)(m_phi * pop_antigens_pool_size),1);
+			population::size_type pop_antigens_subset_size = std::max((population::size_type)(m_phi * pop_antigens_pool_size),(population::size_type)1);
 
 			// we compute the mean fitness value from the subset of the best individuals in the population
 			double mean_fitness = 0.;
@@ -230,8 +230,8 @@ void cstrs_immune_system::evolve(population &pop) const
 			// generates the antigens population
 			int pop_antigens_size = std::max((int)(m_gamma * pop_antigens_pool_size), 1);
 
-			int begin_antigen_idx = mean_position_idx - pop_antigens_size/2;
-			int end_antigen_idx = mean_position_idx + pop_antigens_size/2;
+			population::size_type begin_antigen_idx = mean_position_idx - pop_antigens_size/2;
+			population::size_type end_antigen_idx = mean_position_idx + pop_antigens_size/2;
 
 			// move the selection range depending on the boundaries
 			if(mean_position_idx - pop_antigens_size/2 < 0) {
@@ -301,7 +301,7 @@ void cstrs_immune_system::evolve(population &pop) const
 				}
 
 				// fill the antigens with the best ones
-				int pop_antigens_size = std::max((int)(m_gamma * pop_antigens_pool_size), 1);
+				population::size_type pop_antigens_size = std::max((population::size_type)(m_gamma * pop_antigens_pool_size), (population::size_type)1);
 
 				for(population::size_type i=0; i<pop_antigens_size; i++) {
 					population::size_type current_individual_idx = pop_antigens_pool.at(i);
@@ -365,7 +365,7 @@ void cstrs_immune_system::evolve(population &pop) const
 			}
 
 			// ensure that the antibodies population has at least 6 individuals for de, sga, 8 for jde...
-			int extra_antibodies_size = min_individual_for_algo - pop_antibodies_size;
+			population::size_type extra_antibodies_size = min_individual_for_algo - pop_antibodies_size;
 
 			// this test is needed as for some reason i<extra_antibodies_size can provoque an
 			// infinite loop if extra_antibodies_size < 0! Due to population::size_type?

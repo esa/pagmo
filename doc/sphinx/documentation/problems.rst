@@ -191,6 +191,10 @@ Detailed Documentation
 
    .. automethod:: PyGMO.problem.con2mo.__init__
 
+.. autoclass:: PyGMO.problem.con2uncon
+
+   .. automethod:: PyGMO.problem.con2uncon.__init__
+
 .. autoclass:: PyGMO.problem.shifted
 
    .. automethod:: PyGMO.problem.shifted.__init__
@@ -234,10 +238,6 @@ Detailed Documentation
    .. attribute:: weights
       
       The weights vector
-   
-.. autoclass:: PyGMO.problem.con2uncon
-
-   .. automethod:: PyGMO.problem.con2uncon.__init__
    
 .. autoclass:: PyGMO.problem.ackley
 

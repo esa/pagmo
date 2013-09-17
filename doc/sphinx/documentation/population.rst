@@ -138,7 +138,7 @@ Population
    .. method:: get_best_idx((int) n)
 
       Returns the n best indexes of the :class:`PyGMO.individual` in a *population*. The best 
-      :class:`PyGMO.individual`s are computed according to non-dominated sorting in populations that
+      :class:`PyGMO.individual` are computed according to non-dominated sorting in populations that
       have a multi-objective problem.
 
    .. method:: get_worst_idx()
