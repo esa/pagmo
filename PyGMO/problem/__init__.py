@@ -578,7 +578,7 @@ def _decompose_ctor(self, problem = None, method = decompose.WEIGHTED, weights =
 
 	NOTE: this meta-problem constructs a new single-objective problem
 
-	USAGE: problem.decompose(problem=PyGMO.zdt1(2), method = problem.decompose.decomposition_method.WEIGHTED, weights=a random vector (summing to one), z= a zero vector)
+	USAGE: problem.decompose(problem=PyGMO.zdt1(2), method = problem.decompose.WEIGHTED, weights=a random vector (summing to one), z= a zero vector)
 
 	* problem: PyGMO problem one wants to decompose
 	* method: the decomposition method to use (WEIGHTED, TCHEBYCHEEF or BI)

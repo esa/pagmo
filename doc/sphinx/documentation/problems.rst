@@ -17,7 +17,7 @@ Common Name                        Name in PyGMO                             Com
 Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
 Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
 Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
-Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
+Noisy                              :class:`PyGMO.problem.noisy`		     from V1.1.5
 Decompose                          :class:`PyGMO.problem.decompose`          from V1.1.5
 Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5
 Constraints to MO                  :class:`PyGMO.problem.con2mo`             from V1.1.5
@@ -238,6 +238,18 @@ Detailed Documentation
    .. attribute:: weights
       
       The weights vector
+
+   .. attribute:: PyGMO.problem.decompose.WEIGHTED
+      
+      Weighted decomposition method
+
+   .. attribute:: PyGMO.problem.decompose.TCHEBYCHEFF
+      
+      Tchebycheff decomposition method
+
+   .. attribute:: PyGMO.problem.decompose.BI
+      
+      Boundary Intersection decomposition method
    
 .. autoclass:: PyGMO.problem.ackley
 
