@@ -58,14 +58,12 @@ cstrs_co_evolution::cstrs_co_evolution(const base &problem, const algorithm::cst
 		 0,
 		 0.),
 	m_original_problem(problem.clone()),
-	m_method(method),
 	m_penalty_coeff(),
-	m_decision_vector_hash(),
+	m_method(method),
 	m_map_fitness(),
-	m_map_constraint()
+	m_map_constraint(),
+	m_decision_vector_hash()
 {
-	population pop(*m_original_problem,0);
-
 	if(m_original_problem->get_c_dimension() <= 0){
 		pagmo_throw(value_error,"The original problem has no constraints.");
 	}
@@ -88,11 +86,11 @@ cstrs_co_evolution::cstrs_co_evolution(const base &problem, const population& po
 		 0,
 		 0.),
 	m_original_problem(problem.clone()),
-	m_method(method),
 	m_penalty_coeff(),
-	m_decision_vector_hash(),
+	m_method(method),
 	m_map_fitness(),
-	m_map_constraint()
+	m_map_constraint(),
+	m_decision_vector_hash()
 {
 	if(m_original_problem->get_c_dimension() <= 0){
 		pagmo_throw(value_error,"The original problem has no constraints.");
@@ -134,9 +132,9 @@ cstrs_co_evolution::cstrs_co_evolution(const cstrs_co_evolution &prob):
 	m_original_problem(prob.m_original_problem->clone()),
 	m_penalty_coeff(prob.m_penalty_coeff),
 	m_method(prob.m_method),
-	m_decision_vector_hash(prob.m_decision_vector_hash),
 	m_map_fitness(prob.m_map_fitness),
-	m_map_constraint(prob.m_map_constraint)
+	m_map_constraint(prob.m_map_constraint),
+	m_decision_vector_hash(prob.m_decision_vector_hash)
 {
 	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
@@ -460,7 +458,7 @@ void cstrs_co_evolution_penalty::objfun_impl(fitness_vector &f, const decision_v
 {
 	// search where the x vector is located
 	int position=-1;
-	for(int i=0; i<m_pop_2_x_vector.size(); i++) {
+	for(std::vector<decision_vector>::size_type i=0; i<m_pop_2_x_vector.size(); i++) {
 		if(m_pop_2_x_vector.at(i) == x) {
 			position = i;
 			break;
@@ -537,11 +535,7 @@ void cstrs_co_evolution_penalty::update_penalty_coeff(population::size_type &ind
 	double sum_viol_temp = 0.;
 	int num_viol_temp = 0;
 	for(population::size_type i=0; i<pop_1_size; i++) {
-
-		const decision_vector &current_x = pop_1.get_individual(i).cur_x;
 		const fitness_vector &current_f = pop_1.get_individual(i).cur_f;
-
-
 		const decision_vector &current_c = pop_1.get_individual(i).cur_c;
 
 		if(m_original_problem->feasibility_c(current_c)) {

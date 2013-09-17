@@ -52,7 +52,7 @@ public:
 
 public:
 	//constructors
-	con2uncon(const base & = cec2006(4), const method_type & = OPTIMALITY);
+	con2uncon(const base & = cec2006(4), const method_type = OPTIMALITY);
 
 	//copy constructor
 	con2uncon(const con2uncon &);

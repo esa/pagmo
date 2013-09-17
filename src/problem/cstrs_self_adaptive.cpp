@@ -61,9 +61,9 @@ cstrs_self_adaptive::cstrs_self_adaptive(const base &problem, const population &
 	m_i_hat_down(0.0),
 	m_i_hat_up(0.0),
 	m_i_hat_round(0.0),
-	m_decision_vector_hash(),
 	m_map_fitness(),
-	m_map_constraint()
+	m_map_constraint(),
+	m_decision_vector_hash()
 {
 	if(m_original_problem->get_c_dimension() <= 0){
 		pagmo_throw(value_error,"The original problem has no constraints.");
@@ -99,9 +99,9 @@ cstrs_self_adaptive::cstrs_self_adaptive(const base &problem):
 	m_i_hat_down(0.0),
 	m_i_hat_up(0.0),
 	m_i_hat_round(0.0),
-	m_decision_vector_hash(),
 	m_map_fitness(),
-	m_map_constraint()
+	m_map_constraint(),
+	m_decision_vector_hash()
 {
 	population pop(*m_original_problem,0);
 	
@@ -136,9 +136,9 @@ cstrs_self_adaptive::cstrs_self_adaptive(const cstrs_self_adaptive &prob):
 	m_i_hat_down(prob.m_i_hat_down),
 	m_i_hat_up(prob.m_i_hat_up),
 	m_i_hat_round(prob.m_i_hat_round),
-	m_decision_vector_hash(prob.m_decision_vector_hash),
 	m_map_fitness(prob.m_map_fitness),
-	m_map_constraint(prob.m_map_constraint)
+	m_map_constraint(prob.m_map_constraint),
+	m_decision_vector_hash(prob.m_decision_vector_hash)
 {
 	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }

@@ -92,8 +92,8 @@ private:
 	const algorithm::cstrs_immune_system::distance_method_type m_method;
 
 	// encoding size
-	int m_max_encoding_integer;
 	int m_bit_encoding;
+	int m_max_encoding_integer;
 
 	// function to compute the distance
 	double compute_distance(const decision_vector &x) const;

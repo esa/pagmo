@@ -50,8 +50,8 @@ antibodies_problem::antibodies_problem(const base &problem, const algorithm::cst
 		 0,
 		 0.),
 	m_original_problem(problem.clone()),
-	m_method(method),
-	m_pop_antigens()
+	m_pop_antigens(),
+	m_method(method)
 {
 	if(m_original_problem->get_c_dimension() <= 0){
 		pagmo_throw(value_error,"The original problem has no constraints.");
@@ -62,11 +62,11 @@ antibodies_problem::antibodies_problem(const base &problem, const algorithm::cst
 		pagmo_throw(value_error,"The original fitness dimension of the problem must be one, multi objective problems can't be handled with co-evolution meta problem.");
 	}
 
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
-
 	// encoding for hamming distance
 	m_bit_encoding = 25;
 	m_max_encoding_integer = int(std::pow(2., m_bit_encoding));
+
+	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
 
 /// Copy Constructor. Performs a deep copy
@@ -165,7 +165,7 @@ double antibodies_problem::compute_distance(const decision_vector &x) const {
 
 				std::vector<int> antigens_binary_gene = double_to_binary((m_pop_antigens.at(j)).at(i), lb.at(i), ub.at(i));
 
-				for(int k=0; k<antigens_binary_gene.size(); k++) {
+				for(std::vector<int>::size_type k=0; k<antigens_binary_gene.size(); k++) {
 					distance += antigens_binary_gene.at(k) && current_binary_gene.at(k);
 				}
 			}

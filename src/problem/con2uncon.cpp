@@ -36,8 +36,10 @@ namespace pagmo { namespace problem {
  * Constructor using initial constrained problem
  *
  * @param[in] problem base::problem to be con2unconed
+ * @param[in] method to be used: OPTIMALITY or FEASIBILITY.
+ *
  */
-con2uncon::con2uncon(const base &problem, const method_type &method):
+con2uncon::con2uncon(const base &problem, const method_type method):
 	base((int)problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),

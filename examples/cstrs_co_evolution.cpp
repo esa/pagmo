@@ -133,7 +133,11 @@ std::string get_solutions(archipelago a) {
 }
 
 problem::base_ptr get_constrained_prob(problem::base_ptr prob, int i) {
-	return prob;
+		switch(i) {
+			default:
+			return prob;
+			break;
+		}
 }
 
 algorithm::base_ptr get_constrained_algo(algorithm::base_ptr algo_1, algorithm::base_ptr algo_2, int i, int penaltysize, int gen) {

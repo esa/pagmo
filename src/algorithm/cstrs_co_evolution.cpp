@@ -65,11 +65,10 @@ cstrs_co_evolution::cstrs_co_evolution(const base &original_algo, const base &or
 									   int gen,method_type method, double pen_lower_bound,
 									   double pen_upper_bound,
 									   double ftol, double xtol):
-	base(),m_gen(gen),m_pop_penalties_size(pop_penalties_size),m_method(method),
+	base(),m_original_algo(original_algo.clone()), m_original_algo_penalties(original_algo_penalties.clone()),
+	m_gen(gen),m_pop_penalties_size(pop_penalties_size),m_method(method),
 	m_pen_lower_bound(pen_lower_bound),m_pen_upper_bound(pen_upper_bound),m_ftol(ftol),m_xtol(xtol)
 {
-	m_original_algo = original_algo.clone();
-	m_original_algo_penalties = original_algo_penalties.clone();
 	if(gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}

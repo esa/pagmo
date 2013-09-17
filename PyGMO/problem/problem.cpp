@@ -423,7 +423,7 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Constrained to unconstrained meta-problem.
 	problem_wrapper<problem::con2uncon>("con2uncon","Constrained to unconstrained problem")
-		.def(init<optional<const problem::base &, const problem::con2uncon::method_type &> >());
+		.def(init<optional<const problem::base &, problem::con2uncon::method_type> >());
 
 	// Shifted meta-problem
 	problem_wrapper<problem::shifted>("shifted","Shifted problem")
