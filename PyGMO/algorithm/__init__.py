@@ -477,7 +477,7 @@ _algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
 _algorithm.pade.GRID = _algorithm._weight_generation.GRID
 _algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
 from PyGMO.problem import decompose
-def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM, z = None):
+def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(100), T = 8, weights = pade.RANDOM, z = None):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	
@@ -486,7 +486,7 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	At the end of the evolution the population is set as the best individual in each single-objective island.
 	This algorithm, original with PaGMO, builds upon the MOEA/D framework
 	
-	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(10), T = 8, weights = pade.RANDOM, z = None)
+	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(100), T = 8, weights = pade.RANDOM, z = None)
 
 	* gen: number of generations
 	* max_parallelism: the maximum number of single-objective problems to solve at the same time
@@ -507,11 +507,9 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	if z != None:
 		arg_list.append(z)
 	self._orig_init(*arg_list)
-	pade._orig_init = pade.__init__
-	pade.__init__ = _pade_ctor
-	del decompose
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
+del decompose
 
 _algorithm.nspso.CROWDING_DISTANCE = _algorithm._diversity_mechanism.CROWDING_DISTANCE
 _algorithm.nspso.NICHE_COUNT = _algorithm._diversity_mechanism.NICHE_COUNT
