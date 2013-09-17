@@ -47,7 +47,7 @@ class __PAGMO_VISIBLE race_algo
 {
 	public:
 		race_algo(const std::vector<algorithm::base_ptr> &algos = std::vector<algorithm::base_ptr>(), const problem::base &prob = problem::ackley(), unsigned int pop_size = 100, unsigned int seed = 0);
-		race_algo(const std::vector<algorithm::base_ptr> &algos = std::vector<algorithm::base_ptr>(), const std::vector<problem::base_ptr> &prob = std::vector<problem::base_ptr>(), unsigned int pop_size = 100, unsigned int seed = 0);
+		race_algo(const std::vector<algorithm::base_ptr> &algos, const std::vector<problem::base_ptr> &prob, unsigned int pop_size = 100, unsigned int seed = 0);
 
 		// Main method containing all the juice
 		std::pair<std::vector<unsigned int>, unsigned int> run(

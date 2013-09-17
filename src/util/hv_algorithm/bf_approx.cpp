@@ -143,7 +143,7 @@ unsigned int bf_approx::extreme_contributor(std::vector<fitness_vector> &points,
 	for(std::vector<fitness_vector>::size_type idx = 0 ; idx < points.size() ; ++idx) {
 		m_boxes[idx] = compute_bounding_box(points, r_point, idx);
 		m_box_volume[idx] = base::volume_between(points[idx], m_boxes[idx]);
-		r_delta = fmax(r_delta, m_box_volume[idx]);
+		r_delta = std::max(r_delta, m_box_volume[idx]);
 
 		for(std::vector<fitness_vector>::size_type idx2 = 0 ; idx2 < points.size() ; ++idx2) {
 			if (idx == idx2) {
@@ -251,7 +251,7 @@ void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const 
 
 				for(unsigned int p_idx = 0 ; p_idx < sub_front.size() ; ++p_idx) {
 					for(unsigned int d_idx = 0 ; d_idx < sub_front[0].size() ; ++d_idx) {
-						sub_front[p_idx][d_idx] = fmax( p[d_idx], points[bp[p_idx]][d_idx] );
+						sub_front[p_idx][d_idx] = std::max( p[d_idx], points[bp[p_idx]][d_idx] );
 					}
 				}
 
@@ -388,7 +388,7 @@ fitness_vector bf_approx::compute_bounding_box(const std::vector<fitness_vector>
 			}
 		}
 		if (worse_dim_idx != -1){ // if given point was worse only in one dimension it's the potential candidate for the bouding box reductor
-			z[worse_dim_idx] = fmin(z[worse_dim_idx], points[idx][worse_dim_idx]); // reduce the bounding box
+			z[worse_dim_idx] = std::min(z[worse_dim_idx], points[idx][worse_dim_idx]); // reduce the bounding box
 		}
 	}
 	return z;

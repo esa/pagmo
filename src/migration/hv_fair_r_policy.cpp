@@ -134,7 +134,7 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 
 			// Update the nadir point manually for efficiency.
 			for (unsigned int d_idx = 0 ; d_idx < fronts_f[f_idx][p_idx].size() ; ++d_idx) {
-				refpoint[d_idx] = fmax(refpoint[d_idx], fronts_f[f_idx][p_idx][d_idx]);
+				refpoint[d_idx] = std::max(refpoint[d_idx], fronts_f[f_idx][p_idx][d_idx]);
 			}
 		}
 	}

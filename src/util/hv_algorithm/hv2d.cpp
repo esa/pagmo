@@ -59,7 +59,7 @@ double hv2d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 	double w = r_point[0] - points[0][0];
 	for(unsigned int idx = 0 ; idx < points.size() - 1 ; ++idx) {
 		hypervolume += (points[idx + 1][1] - points[idx][1]) * w;
-		w = fmax(w, r_point[0] - points[idx+1][0]);
+		w = std::max(w, r_point[0] - points[idx+1][0]);
 	}
 	hypervolume += (r_point[1] - points[points.size() - 1][1]) * w;
 
@@ -107,7 +107,7 @@ double hv2d::compute(double** points, unsigned int n_points, double* r_point) co
 	double w = r_point[0] - points[0][0];
 	for(unsigned int idx = 0 ; idx < n_points - 1 ; ++idx) {
 		hypervolume += (points[idx + 1][1] - points[idx][1]) * w;
-		w = fmax(w, r_point[0] - points[idx+1][0]);
+		w = std::max(w, r_point[0] - points[idx+1][0]);
 	}
 	hypervolume += (r_point[1] - points[n_points - 1][1]) * w;
 

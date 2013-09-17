@@ -19,9 +19,9 @@ Shifted                            :class:`PyGMO.problem.shifted`            fro
 Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
 Noisy                              :class:`PyGMO.problem.normalized`         from V1.1.5
 Decompose                          :class:`PyGMO.problem.decompose`          from V1.1.5
-Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5
-Constraints to MO                  :class:`PyGMO.problem.con2mo`             from V1.1.5
-Con2uncon                          :class:`PyGMO.problem.con2uncon`          from V1.1.5
+Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5. Minimization assumed.
+Constrained to MO                  :class:`PyGMO.problem.con2mo`             from V1.1.5
+Constrained to Unconstrained       :class:`PyGMO.problem.con2uncon`          from V1.1.5
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective

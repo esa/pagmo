@@ -44,7 +44,6 @@ Common Name                        Name in PyGMO                                
 ================================== ============================================ =============== ===========================================
 Monotonic Basin Hopping (MBH)      :class:`PyGMO.algorithm.mbh`                    N/A          
 Multistart (MS)                    :class:`PyGMO.algorithm.ms`                     N/A      
-Penalty Function (PF)                                                                           Planned 
 Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag`          C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
 Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`       C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
 Cstrs co-evolution                 :class:`PyGMO.algorithm.cstrs_co_evolution`    C-C-S         Minimization assumed

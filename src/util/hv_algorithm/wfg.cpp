@@ -176,7 +176,7 @@ void wfg::limitset(const unsigned int begin_idx, const unsigned int p_idx, const
 		}
 
 		for(fitness_vector::size_type f_idx = 0; f_idx < m_current_slice; ++f_idx) {
-			frame[no_points][f_idx] = fmax(points[idx][f_idx], p[f_idx]);
+			frame[no_points][f_idx] = std::max(points[idx][f_idx], p[f_idx]);
 		}
 
 		int cmp_results[no_points];
@@ -235,7 +235,7 @@ double wfg::compute_hv(const unsigned int rec_level) const
 			+ base::volume_between(points[1], m_refpoint, m_current_slice);
 		double isect = 1.0;
 		for(unsigned int i=0;i<m_current_slice;++i) {
-			isect *= (m_refpoint[i] - fmax(points[0][i], points[1][i]));
+			isect *= (m_refpoint[i] - std::max(points[0][i], points[1][i]));
 		}
 		return hv - isect;
 	}

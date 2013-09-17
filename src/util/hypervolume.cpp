@@ -440,7 +440,7 @@ fitness_vector hypervolume::get_nadir_point(const double epsilon) const
 	for (std::vector<fitness_vector>::size_type idx = 1 ; idx < m_points.size() ; ++ idx){
 		for (fitness_vector::size_type f_idx = 0 ; f_idx < m_points[0].size() ; ++f_idx){
 			// assuming minimization problem, thus maximum value by each dimension is taken
-			nadir_point[f_idx] = fmax(nadir_point[f_idx], m_points[idx][f_idx]);
+			nadir_point[f_idx] = std::max(nadir_point[f_idx], m_points[idx][f_idx]);
 		}
 	}
 	for (fitness_vector::size_type f_idx = 0 ; f_idx < nadir_point.size() ; ++f_idx) {

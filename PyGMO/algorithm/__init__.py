@@ -396,7 +396,7 @@ def _sga_gray_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga_gray.muta
 	"""
 	Constructs a Simple Genetic Algorithm with gray binary encoding (generational)
 	
-	USAGE: algorithm.sga+gray(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.UNIFORM, selection=sga.selection.ROULETTE, crossover=sga.crossover.SINGLE_POINT)
+	USAGE: algorithm.sga_gray(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.UNIFORM, selection=sga.selection.ROULETTE, crossover=sga.crossover.SINGLE_POINT)
   
 	* gen: Number of generations to evolve.
 	* cr: crossover factor in [0,1]
@@ -731,32 +731,32 @@ mbh.__init__ = _mbh_ctor
 # Renaming and placing the enums
 _algorithm.cstrs_co_evolution.method = _algorithm._co_evo_method_type
 
-def _cstrs_co_evolution_ctor(self,algorithm = _algorithm.jde(),algorithm_2 = _algorithm.jde(),pop_2_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.,f_tol = 1e-15,x_tol = 1e-15):
+def _cstrs_co_evolution_ctor(self,original_algo = _algorithm.jde(),original_algo_penalties = _algorithm.jde(),pop_penalties_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.,f_tol = 1e-15,x_tol = 1e-15):
 	"""
 	Constructs a co-evolution adaptive algorithm.
 	
-	USAGE: algorithm.cstrs_co_evolution(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), pop_2_size = 30, gen = 20, method = cstrs_co_evolution.method.SIMPLE, pen_lower_bound = 0, pen_upper_bound = 100000,f_tol = 1e-15,x_tol = 1e-15);
-	*
-	* algorithm: optimizer to use as 'original' optimization method
-	* algorithm_2: optimizer to use as 'original' optimization method for population 2
-	* pop_2_size: population size for the penalty encoding population.
+	USAGE: algorithm.cstrs_co_evolution(original_algo = _algorithm.jde(), original_algo_penalties = _algorithm.jde(), pop_penalties_size = 30, gen = 20, method = cstrs_co_evolution.method.SIMPLE, pen_lower_bound = 0, pen_upper_bound = 100000,f_tol = 1e-15,x_tol = 1e-15):
+
+	* original_algo: optimizer to use as 'original' optimization method
+	* original_algo_penalties: optimizer to use as 'original' optimization method for population 2
+	* pop_penalties_size: population size for the penalty encoding population.
 	* gen: number of generations.
 	* method: cstrs_co_evolution.method.SIMPLE by default, the method used for the population 2.
-	* Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
-	* The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
-	* splits the equalities and inequalities constraints in two different sets for the
-	* penalty weigths, containing respectively inequalities and equalities weigths. The
-	* SPLIT_CONSTRAINTS splits the constraints in M set of weigths with M the number of
-	* constraints.
+		Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
+		The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
+		splits the equalities and inequalities constraints in two different sets for the
+		penalty weigths, containing respectively inequalities and equalities weigths. The
+		SPLIT_CONSTRAINTS splits the constraints in M set of weigths with M the number of
+		constraints.
 	* pen_lower_bound: the lower boundary used for penalty.
 	* pen_upper_bound: the upper boundary used for penalty.
 	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
 	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
 	arg_list=[]
-	arg_list.append(algorithm)
-	arg_list.append(algorithm_2)
-	arg_list.append(pop_2_size)
+	arg_list.append(original_algo)
+	arg_list.append(original_algo_penalties)
+	arg_list.append(pop_penalties_size)
 	arg_list.append(gen)
 	arg_list.append(method)
 	arg_list.append(pen_lower_bound)
@@ -776,8 +776,8 @@ def _cstrs_immune_system_ctor(self,algorithm = _algorithm.jde(), algorithm_immun
 	"""
 	Constructs an immune system constraints handling algorithm.
 	
-	USAGE: algorithm._cstrs_immune_system(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., ftol = 1e-15, xtol = 1e-15);
-	*
+	USAGE: algorithm._cstrs_immune_system(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., ftol = 1e-15, xtol = 1e-15):
+
 	* algorithm: optimizer to use as 'original' optimization method. Its number of generations should be set to 1.
 	* algorithm_2: optimizer to use as 'original' optimization method for the immune system.
 	* gen: number of generations.

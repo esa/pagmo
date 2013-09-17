@@ -4,36 +4,43 @@
 Death penalty
 =======================================================================
 
-Death penalty is a constraints handling method which consists in
-penalizing individuals that are not satisfying the constraints. In this
-tutorial we will learn how to use this specific constraints handling
-technique using PaGMO/PyGMO.
+Death penalty is a static penalty constraints handling technique:
+individuals that are not satisfying the constraints are penalized with 
+a huge constraint value. The technique assumes minimization and it can be 
+applyed to both single and multi-objective constrained problems.
+In this tutorial we will learn how to use this specific constraints 
+handling technique using PaGMO/PyGMO.
 
 Method
 ##########
-The death penalty is based on meta-problems that allow to modify a
-specific problem to add features. In our case, the meta-problem takes
-a constrained problem, remove its constraints resulting in a
-unconstrained problem that can be solved by any optimization algorithm
-dedicated to unconstrained problems. 
+The death penalty technique is implemented through a meta-problem. 
+In our case, the meta-problem takes a constrained problem, removes 
+its constraints and penalizes the original objective function value 
+with a factor that is a measure of the point infeasibility.
+The derived meta-problem can then be solved by any optimization 
+algorithm for unconstrained optimization. 
 
 In PaGMO/PyGMO, two different death penalty techniques are implemented.
-The first one is the simple death penalty where individuals not 
-satisfying the constraint are given a high cost value. The second one
-is the Kuri technique where the penalization also depends on the number
-of satisfied constraints.
+The first one is the simple death penalty method where infeasibility is
+penalized assigning to the objective value the maximum machine-finite value 
+[boost::numeric::bounds<double>::highest()].
+The second one is the Kuri technique where the same penalization value 
+is applyed according to a rate of constraints satisfaction.
 
 Application
 ###########
 The problem considered here is the problem g04 from the Congress on 
-Evolutionary Computation 2006 (CEC2006). This problem is a quadratic
-function with 6 non linear constraints. The optimum solution has 2
-active constraints. To solve this problem we will use the Differential
-Evolution (DE) and the Simple Genetic algorithms. The population size
-is 70 and we perform 5000 generations, which gives a total number of 
-evaluation of 350000. Of course these parameters can be changed as
-wanted. 25 separate runs are done to get statistics as the mean value,
-the best one and the standard deviation.
+Evolutionary Computation 2006 (CEC2006). This problem has a quadratic
+objective function with six non linear inequality constraints. 
+In the optimum two constraints are active. 
+
+To solve this problem two heuristic techniques are used: the Differential
+Evolution (DE) and the Simple Genetic Algorithm (SGA). The population size
+is 70 and 5000 generations are performed, which gives a total number of 
+functions evaluation equal to 350000. These parameters can be set as preferred in
+the constructor of problem and algorithms. 
+To get statistical meaning 25 runs are performed per each algorithm and mean objective value,
+the best optimum found and the standard deviation are computed.
 
 The code is very explicit by itself. Copy it to a file named run.py
 in example, and run this file with python.
@@ -90,7 +97,7 @@ in example, and run this file with python.
         print(' Example of found x:\t' + str(best_x[0]))
         print(' Example of found constraints:\t' + str(prob_cec.compute_constraints((best_x[0]))))
 
-In this example, we have used two different meta-problems for each death
+In this example, we have used two different meta-problems one for each death
 penalty techniques, both contained in the prob_list variable. By looking at
 the output given by the original problem and the first meta problem, 
 it is important to see that the original constrained problem output has 6 
@@ -173,12 +180,15 @@ If run directly into python, you would get the following output:
     Example of found x:	(78.04964811877262, 33.07572602463478, 30.150381195899435, 44.965160220602215, 36.46285810358295)
     Example of found constraints:	(-0.03509668936189314, -91.9649033106381, -11.170496308902116, -8.829503691097884, -4.989167173895257, -0.010832826104742566)
 
-The results of this optimization under constraints shows that the 
+
+This example shows that the 
 Differential Algorithm with both the simple and the Kuri death
 penalty methods converges to the best known decision vector.
-Furthermore, it is seen that on this case, the Differential
+Furthermore, it is noticeable that on this case, the Differential
 Evolution algorithm outperforms the Simple Genetic Algorithm.
 
-Note that the death penalty constraints handling method is
+Please note that, from the literature, it is stated that the death penalty constraints handling method is
 not well suited to solve highly constrained problems or problems
-with equality constraints.
+with equality constraints. Indeed if at initialization no feasible individuals 
+are present, all the individuals will have assigned the same penalty value and the 
+algorithm will have no preferible direction to follow and will proceeds just with random tentatives.

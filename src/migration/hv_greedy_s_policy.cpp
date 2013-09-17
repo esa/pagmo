@@ -81,7 +81,7 @@ std::vector<population::individual_type> hv_greedy_s_policy::select(population &
 
 			// Update the nadir point manually for efficiency.
 			for (unsigned int d_idx = 0 ; d_idx < fronts_f[f_idx][p_idx].size() ; ++d_idx) {
-				refpoint[d_idx] = fmax(refpoint[d_idx], fronts_f[f_idx][p_idx][d_idx]);
+				refpoint[d_idx] = std::max(refpoint[d_idx], fronts_f[f_idx][p_idx][d_idx]);
 			}
 		}
 	}

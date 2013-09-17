@@ -4,23 +4,31 @@
 Multi-objective transformation
 =======================================================================
 The multi-objective transformation is a technique to solve constrained
-problem by transforming the initial problem into a multi-objective
-problem. In this tutorial, we are going to solve a constrained problem
+problem by transforming the initial single (or multi) objective constrained problem 
+into a multi-objective unconstrained problem with the number of objectives
+equal to the sum of the number of objectives and the number of constraints. 
+In this tutorial, we are going to solve a single objective constrained problem
 using this technique.
 
 Method
 ##########
 The multi-objective transformation consists in treating each
-constraints of a constrained problem as objectives of a multi-objective
-problem, the first objective being the cost function by itself. Three
+constraints of a constrained optimization problem as objectives of a multi-objective
+problem, the first objective(s) being the cost function(s) itself. Three
 different implementation of this method are available in PaGMO/PyGMO.
+
 The first one called OBJ_CSTRS splits all the constraints into 
-different objectives. The second one called OBJ_CSTRSVIO has two
-objectives, the first one is the function to optimize and the
-second objective is the sum of the constraints. The third one has three
-objectives, the first one is the objective function, the second the
-sum of inequality constraints and the third one the sum of equality
-constraints. In all cases, when a constraint is satisfied, the 
+different objectives, generating a problem with *nobj+m* objectives (where
+*nobj* is the number of objectives and *m* is the numbe rof constraints). 
+The second one called OBJ_CSTRSVIO has *nobj+1* objectives, the first nobj 
+are the objective functions to be optimized and the
+last objective is the sum of the constraints violations. 
+The third methodology has *nobj+2*
+objectives, the first nobj are the objective functions, the second is the
+sum of inequality constraints violation and the third one is the sum of equality
+constraints violation. 
+
+In all cases, when a constraint is satisfied, the 
 associated objective is either a measure of the number of the violated
 constraints, if at least one constraint is violated, or the objective 
 function by itself. That way, each objectives commonly helps to reduce
@@ -28,21 +36,21 @@ the number of constraints violation to find feasible solutions.
 
 Application
 ###########
-We consider here the constrained problem g04 from the Congress on 
-Evolutionary Computation 2006 (CEC2006). This problem is a quadratic
-problem with 6 nonlinear inequality constraints and 2 active
-constraints. To solve it, we use a multi-objective optimizer called 
-VEGA. This optimizer is a simple extention of simple genetic algorithm 
-to solve multi-objective algorithms. It is coupled with this 
-constraints handling technique. To do so in PaGMO/PyGMO, we use a 
-meta-problem that modifies the original constrained problem into a 
-multi-objective one. For the population, we consider 40 individuals 
-per objectives or a total of 280 individuals: (6+1) * 40 = 280. In 
-fact, this constraints handling technique automatically splits the 
-initial population to equaly split it in the number of objectives.
+The problem considered here is the problem g04 from the Congress on 
+Evolutionary Computation 2006 (CEC2006). This problem has a quadratic
+objective function with six non linear inequality constraints. 
+In the optimum two constraints are active.
 
-Step by step, we first import the PyGMO library and choose the
-populations size and the number of generation for the algorithm.
+To solve it, in PaGMO/PyGMO, the
+meta-problem that modifies the original constrained problem into a 
+multi-objective one is used. Then a multi-objective optimizer called 
+VEGA is used to solve it. This optimizer is a simple extention of simple genetic algorithm 
+to solve multi-objective algorithms. The population considered is composed 
+by 280 individulas (40 individuals per objectives: (6+1) * 40 = 280 since VEGA equally
+divides the original population into a number of subpopulations equal to the number of objectives). 
+
+Step by step, the PyGMO library is imported and the
+populations size and the number of generation for the algorithm are initialized.
 
 .. code-block:: python
 
@@ -50,7 +58,7 @@ populations size and the number of generation for the algorithm.
    In [2]: pop_size = 280
    In [3]: n_gen = 500
 
-Then we create the problem, the meta-problem and the algorithm.
+Then the problem, the meta-problem (using the first methodology OBJ_CSTRS) and the algorithm are created.
 
 .. code-block:: python
 
@@ -65,7 +73,7 @@ The next step consists in creating the population and evolving it.
    In [7]: pop = population(prob_mo, pop_size)
    In [8]: pop = algo_mo.evolve(pop)
 
-From that point, we can print the solutions.
+From that point, the obtained solutions can be printed.
 
 .. code-block:: python
 
@@ -77,8 +85,7 @@ From that point, we can print the solutions.
    (-30476.229905572058,)
    (-0.2613258099525382, -91.73867419004746, -11.284338550618045, -8.715661449381955, -4.980246388885227, -0.019753611114772696)
 
-The solution found by this algorithm is close to the optimum given
-with the following:
+The solution found by this algorithm is close to the optimum value:
 
 .. code-block:: python
 
@@ -90,7 +97,6 @@ with the following:
    ((-30665.538671783317,),)
    ((0.0, -92.0, -11.159499691073137, -8.840500308926863, -4.9999999999999964, -3.552713678800501e-15),)
 
-Of course, you will not get exactly the same results as we did 
-due to the stochastic behavior of the algorithm. We invite you
+Due to the stochastic behavior of the algorithm in a single run it might not converge to the exact optimum. We invite you
 to play with the population size and the number of generations 
 to see the behavior of this constraints handling technique.

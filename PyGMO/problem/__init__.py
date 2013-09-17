@@ -758,7 +758,9 @@ def _con2mo_ctor(self, problem = None, method = None):
 	USAGE: problem.con2mo(problem=PyGMO.cec2006(4), method=con2mo.method.OBJ_CSTRS)
 
 	* problem: PyGMO constrained problem one wants to treat with a multi-objective approach
-	* method: Coello constraints to multi-objective set with OBJ_CSTRS, COMOGA method set with OBJ_CSTRSVIO and COMOGA with splitting of inequality and equality constraints set with OBJ_EQVIO_INEQVIO
+	* method: Coello constraints to multi-objective set with OBJ_CSTRS, COMOGA method 
+		set with OBJ_CSTRSVIO and COMOGA with splitting of inequality and equality 
+		constraints set with OBJ_EQVIO_INEQVIO
 	"""
 
 	# We construct the arg list for the original constructor exposed by boost_python
