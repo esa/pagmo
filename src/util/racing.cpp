@@ -3,6 +3,7 @@
 #include "../problem/base_stochastic.h"
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/students_t.hpp>
+#include <boost/math/distributions/normal.hpp>
 
 #include <utility>
 

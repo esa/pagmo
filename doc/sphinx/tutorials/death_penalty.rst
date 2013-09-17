@@ -39,6 +39,7 @@ The code is very explicit by itself. Copy it to a file named run.py
 in example, and run this file with python.
 
 .. code-block:: python
+
    from PyGMO import *
    from numpy import *
 
@@ -96,7 +97,9 @@ it is important to see that the original constrained problem output has 6
 constraints while the meta-problem doens't have any as expected.
 
 If run directly into python, you would get the following output:
+
 .. code-block:: python
+
    Out[1]:
    -----------------------------
 

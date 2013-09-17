@@ -411,9 +411,19 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("OBJ_CSTRS", problem::con2mo::OBJ_CSTRS)
 		.value("OBJ_CSTRSVIO", problem::con2mo::OBJ_CSTRSVIO)
 		.value("OBJ_EQVIO_INEQVIO", problem::con2mo::OBJ_EQVIO_INEQVIO);
+
 	// Constrained to multi-objective meta-problem.
 	problem_wrapper<problem::con2mo>("con2mo","Constrained to multi-objective problem")
 		.def(init<optional<const problem::base &, problem::con2mo::method_type> >());
+
+	// con2uncon penalty enums
+	enum_<problem::con2uncon::method_type>("_con2uncon_method_type")
+		.value("OPTIMALITY", problem::con2uncon::OPTIMALITY)
+		.value("FEASIBILITY", problem::con2uncon::FEASIBILITY);
+
+	// Constrained to unconstrained meta-problem.
+	problem_wrapper<problem::con2uncon>("con2uncon","Constrained to unconstrained problem")
+		.def(init<optional<const problem::base &, const problem::con2uncon::method_type &> >());
 
 	// Shifted meta-problem
 	problem_wrapper<problem::shifted>("shifted","Shifted problem")

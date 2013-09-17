@@ -743,7 +743,7 @@ _problem.con2mo.method = _problem._con2mo_method_type
 
 def _con2mo_ctor(self, problem = None, method = None):
 	"""
-	Implements a meta-problem class that wraps some other constrained problems,
+	Implements a meta-problem class that wraps some other constrained problems, 
 	resulting in multi-objective problem.
  
 	Three implementations of the constrained to multi-objective are available. For a problem with m constraints,
@@ -755,11 +755,10 @@ def _con2mo_ctor(self, problem = None, method = None):
 	The third implementation is the same as the second one but splitting the sum of violations between equality
 	and inequality constraints, resulting in a total of three objectives problem.
 	
-	USAGE: problem.(problem=PyGMO.cec2006(4), method=con2mo.method.OBJ_CSTRS)
+	USAGE: problem.con2mo(problem=PyGMO.cec2006(4), method=con2mo.method.OBJ_CSTRS)
 
 	* problem: PyGMO constrained problem one wants to treat with a multi-objective approach
-	* method: Coello constraints to multi-objective set with OBJ_CSTRS, COMOGA method set with OBJ_CSTRSVIO
-	and COMOGA with splitting of inequality and equality constraints set with OBJ_EQVIO_INEQVIO
+	* method: Coello constraints to multi-objective set with OBJ_CSTRS, COMOGA method set with OBJ_CSTRSVIO and COMOGA with splitting of inequality and equality constraints set with OBJ_EQVIO_INEQVIO
 	"""
 
 	# We construct the arg list for the original constructor exposed by boost_python
@@ -771,6 +770,40 @@ def _con2mo_ctor(self, problem = None, method = None):
 	arg_list.append(problem)
 	arg_list.append(method)
 	self._orig_init(*arg_list)
+
 con2mo._orig_init = con2mo.__init__
 con2mo.__init__ = _con2mo_ctor
+
+# Renaming and placing the enums
+_problem.con2uncon.method = _problem._con2uncon_method_type
+
+def _con2uncon_ctor(self, problem = None, method = None):
+	"""
+	Implements a meta-problem class that wraps some other constrained problems,
+	resulting in unconstrained problem by removing the constraints. Two methods
+ 	are available for the objective function: OPTIMALITY and FEASIBILITY.
+ 	The OPTIMALITY uses the objective function of the original problem. The
+ 	FEASIBILITY computes the sum of the constraints.
+
+	Implements a meta-problem class that wraps some other constrained problems,
+	resulting in multi-objective problem.
+	
+	USAGE: problem.con2uncon(problem=PyGMO.cec2006(4), method=con2uncon.method.OPTIMALITY)
+
+	* problem: PyGMO constrained problem one wants to remove the constraints
+	* method: OPTIMALITY uses the objective function of the original problem. The FEASIBILITY computes the sum of the constraints
+	"""
+
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	if problem == None:
+		problem = cec2006(4)
+	if method == None:
+		method = con2uncon.method.OPTIMALITY
+	arg_list.append(problem)
+	arg_list.append(method)
+	self._orig_init(*arg_list)
+
+con2uncon._orig_init = con2uncon.__init__
+con2uncon.__init__ = _con2uncon_ctor
 

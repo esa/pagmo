@@ -43,44 +43,52 @@ initial population to equaly split it in the number of objectives.
 
 Step by step, we first import the PyGMO library and choose the
 populations size and the number of generation for the algorithm.
+
 .. code-block:: python
+
    In [1]: from PyGMO import *
    In [2]: pop_size = 280
    In [3]: n_gen = 500
 
 Then we create the problem, the meta-problem and the algorithm.
+
 .. code-block:: python
+
    In [4]: prob = problem.cec2006(4)
    In [5]: prob_mo = problem.con2mo(prob,problem.con2mo.method.OBJ_CSTRS)
    In [6]: algo_mo = algorithm.vega(gen = n_gen)
 
 The next step consists in creating the population and evolving it.
+
 .. code-block:: python
+
    In [7]: pop = population(prob_mo, pop_size)
    In [8]: pop = algo_mo.evolve(pop)
 
 From that point, we can print the solutions.
+
 .. code-block:: python
+
    In [9]: print(pop.champion.x)
    In [10]: print(pop.champion.f)
    In [11]: print(pop.champion.c)
-
    Out [1]:
-(78.09947909827132, 33.30065259242254, 30.894527032856043, 44.013876005779935, 35.07762608948753)
-(-30476.229905572058,)
-(-0.2613258099525382, -91.73867419004746, -11.284338550618045, -8.715661449381955, -4.980246388885227, -0.019753611114772696)
+   (78.09947909827132, 33.30065259242254, 30.894527032856043, 44.013876005779935, 35.07762608948753)
+   (-30476.229905572058,)
+   (-0.2613258099525382, -91.73867419004746, -11.284338550618045, -8.715661449381955, -4.980246388885227, -0.019753611114772696)
 
 The solution found by this algorithm is close to the optimum given
 with the following:
+
 .. code-block:: python
+
    In [12: print(prob.best_x)
    In [13]: print(prob.best_f)
    In [14]: print(prob.best_c)
-
    Out [2]:
-((78.0, 33.0, 29.9952560256816, 45.0, 36.77581290578821),)
-((-30665.538671783317,),)
-((0.0, -92.0, -11.159499691073137, -8.840500308926863, -4.9999999999999964, -3.552713678800501e-15),)
+   ((78.0, 33.0, 29.9952560256816, 45.0, 36.77581290578821),)
+   ((-30665.538671783317,),)
+   ((0.0, -92.0, -11.159499691073137, -8.840500308926863, -4.9999999999999964, -3.552713678800501e-15),)
 
 Of course, you will not get exactly the same results as we did 
 due to the stochastic behavior of the algorithm. We invite you

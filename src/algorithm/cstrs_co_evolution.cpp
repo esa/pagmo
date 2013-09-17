@@ -126,7 +126,7 @@ void cstrs_co_evolution::evolve(population &pop) const
 	}
 
 	//get the dimension of the chromosome of P2
-	int pop_2_dim = 0;
+	unsigned int pop_2_dim = 0;
 	switch(m_method)
 	{
 	case algorithm::cstrs_co_evolution::SIMPLE:
