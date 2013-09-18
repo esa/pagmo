@@ -548,7 +548,7 @@ def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
 nspso._orig_init = nspso.__init__
 nspso.__init__ = _nspso_ctor
 
-def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, archive_size = -1):
+def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, archive_size = 0):
 	"""
 	Constructs a Strenght Pareto Evolutionary Algorithm 2
 	
@@ -559,7 +559,7 @@ def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, arch
 	* eta_c: Distribution index for crossover
 	* m: Mutation probability
 	* eta_m: Distribution index for mutation
-	* archive_size: the size of the non_dominated archive. If -1 then the archive size is set equal to the population size. The population returned after evolve has a size equal to archive_size
+	* archive_size: the size of the non_dominated archive. If archive_size=0 then the archive size is set equal to the population size. The population returned after evolve has a size equal to archive_size
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]

@@ -71,7 +71,7 @@ private:
 class __PAGMO_VISIBLE spea2: public base
 {
 public:
-	spea2(int gen=100, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50, int archive_size = -1);
+	spea2(int gen=100, double cr = 0.95, double eta_c = 10, double m = 0.01, double eta_m = 50, int archive_size = 0);
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;

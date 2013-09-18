@@ -52,7 +52,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] eta_c Distribution index for crossover
  * @param[in] m Mutation probability
  * @param[in] eta_m Distribution index for mutation
- * @param[in] archive_size the size of the non_dominated archive. If -1 then the archive size is set equal to the population size. The population returned after evolve has a size equal to archive_size
+ * @param[in] archive_size the size of the non_dominated archive. If archive_size=0 then the archive size is set equal to the population size. The population returned after evolve has a size equal to archive_size
  *
  * @throws value_error if gen is negative
  */
@@ -62,8 +62,8 @@ spea2::spea2(int gen, double cr, double eta_c, double m, double eta_m, int archi
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
-	if (archive_size < -1) {
-		pagmo_throw(value_error,"archive_size must be positive or -1");
+	if (archive_size < 0) {
+		pagmo_throw(value_error,"archive_size must be positive or 0 (in which case the archive size is set to the population size)");
 	}
 }
 
@@ -88,7 +88,7 @@ void spea2::evolve(population &pop) const
 	const population::size_type      NP = pop.size();
 	population::size_type archive_size;
 
-	if(m_archive_size == -1) {
+	if(m_archive_size == 0) {
 		archive_size = NP;
 	} else {
 		archive_size = static_cast<population::size_type>(m_archive_size);
