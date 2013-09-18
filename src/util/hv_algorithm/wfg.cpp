@@ -179,7 +179,8 @@ void wfg::limitset(const unsigned int begin_idx, const unsigned int p_idx, const
 			frame[no_points][f_idx] = std::max(points[idx][f_idx], p[f_idx]);
 		}
 
-		int cmp_results[no_points];
+		std::vector<int> cmp_results;
+		cmp_results.resize(no_points);
 		double* s = frame[no_points];
 
 		bool keep_s = true;

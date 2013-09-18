@@ -83,7 +83,7 @@ double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 	}
 
 	// Prepare the initial data to suit the original code
-	double data[points.size() * 4];
+	double* data = new double[points.size() * 4];
 	double refpoint[4];
 	for (unsigned int d_idx = 0 ; d_idx < 4 ; ++d_idx) {
 		refpoint[d_idx] = r_point[d_idx];
@@ -95,7 +95,9 @@ double hv4d::compute(std::vector<fitness_vector> &points, const fitness_vector &
 		}
 	}
 
-	return guerreiro_hv4d(data, points.size(), refpoint);
+	double hv = guerreiro_hv4d(data, points.size(), refpoint);
+	delete[] data;
+	return hv;
 }
 
 /// Exclusive method
