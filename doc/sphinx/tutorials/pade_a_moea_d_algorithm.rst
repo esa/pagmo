@@ -22,7 +22,7 @@ We will get the following
 .. image:: ../images/tutorials/pade/basic_pade_front.png
     :width: 500pt
 
-Each point on the pareto front corresponds to the solution to a single-objective problem. In order for the point to be well spreaded is then crucial to choose the proper decomposition method and the proper weight vectors. It is possible to do that as follow
+Each point on the pareto front corresponds to the solution to a single-objective problem. In order for the point to be well spread is then crucial to choose the proper decomposition method and the proper weight vectors. It is possible to do that as follow
 
 .. code-block:: python
 
@@ -33,7 +33,7 @@ Each point on the pareto front corresponds to the solution to a single-objective
 .. image:: ../images/tutorials/pade/bi_grid_zdt1.png
     :width: 500pt
 
-As we can see the points on the pareto front are much better spreaded.
+As we can see the points on the pareto front are much better spread.
 
 In the following plots we see how different weight generation methods perform on the 3-objective benchmark problem DTLZ1. First we will use a RANDOM weight generation.
 
@@ -74,7 +74,7 @@ As we can see from the error message we cannot use any population size. The erro
 .. image:: ../images/tutorials/pade/bi_grid_dtlz1.png
     :width: 500pt
 
-As we can see the front is much better spreaded. The only drawback of the GRID method is that we are not free to choose any population size. To have a better spread than the one obtained with the RANDOM method but still be able to choose any population size, we can use the LOW_DISCREPANCY method.
+As we can see the front is much better spread. The only drawback of the GRID method is that we are not free to choose any population size. To have a better spread than the one obtained with the RANDOM method but still be able to choose any population size, we can use the LOW_DISCREPANCY method.
 
 .. code-block:: python
 
@@ -94,7 +94,7 @@ It is possible to choose which single-objective algorithm to use to solve each s
 
 	In [1]: alg = algorithm.pade(solver = algorithm.jde(50))
 
-Moreover, as said at the begining of the tutorial, PADE solves the single-objective problems in parallel. It is possible to set how many threads to run. This should be ideally equal to the number of logic cores available in the machine which runs the code.
+Moreover, as said at the beginning of the tutorial, PADE solves the single-objective problems in parallel. It is possible to set how many threads to run. This should be ideally equal to the number of logic cores available in the machine which runs the code.
 
 .. code-block:: python
 

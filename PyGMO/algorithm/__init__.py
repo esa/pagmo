@@ -477,7 +477,7 @@ _algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
 _algorithm.pade.GRID = _algorithm._weight_generation.GRID
 _algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
 from PyGMO.problem import decompose
-def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(100), T = 8, weights = pade.RANDOM, z = None):
+def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.BI, solver = jde(100), T = 8, weights = pade.LOW_DISCREPANCY, z = []):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	
@@ -504,8 +504,7 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIG
 	arg_list.append(solver)
 	arg_list.append(T)
 	arg_list.append(weights)
-	if z != None:
-		arg_list.append(z)
+	arg_list.append(z)
 	self._orig_init(*arg_list)
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
@@ -514,13 +513,13 @@ del decompose
 _algorithm.nspso.CROWDING_DISTANCE = _algorithm._diversity_mechanism.CROWDING_DISTANCE
 _algorithm.nspso.NICHE_COUNT = _algorithm._diversity_mechanism.NICHE_COUNT
 _algorithm.nspso.MAXMIN = _algorithm._diversity_mechanism.MAXMIN
-def _nspso_ctor(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
-		CHI = 1.0, v_coeff = 0.5, leader_selection_range = 5, diversity_mechanism = nspso.MAXMIN):
+def _nspso_ctor(self, gen=100, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+		CHI = 1.0, v_coeff = 0.5, leader_selection_range = 5, diversity_mechanism = nspso.CROWDING_DISTANCE):
 	"""
 	Constructs a Multi Objective PSO
 	
 	USAGE: algorithm.nspso(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
-		CHI = 1.0, v_coeff = 0.5, leader_selection = 5, diversity_mechanism = nspso.MAXMIN):
+		CHI = 1.0, v_coeff = 0.5, leader_selection = 5, diversity_mechanism = nspso.CROWDING_DISTANCE):
 
 	* gen: number of generations
 	* minW: minimum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)

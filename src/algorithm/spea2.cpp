@@ -142,7 +142,6 @@ void spea2::evolve(population &pop) const
 			}
 		}
 
-		std::cout << "Gen: " << g << std::endl;
 		std::vector<double> F(new_pop.size(),0);
 
 		

@@ -570,7 +570,7 @@ normalized.__init__ = _normalized_ctor
 _problem.decompose.WEIGHTED = _problem._decomposition_method.WEIGHTED
 _problem.decompose.BI = _problem._decomposition_method.BI
 _problem.decompose.TCHEBYCHEFF = _problem._decomposition_method.TCHEBYCHEFF
-def _decompose_ctor(self, problem = None, method = decompose.WEIGHTED, weights = None, z = None):
+def _decompose_ctor(self, problem = None, method = decompose.WEIGHTED, weights = [], z = []):
 	"""
 	Implements a meta-problem class resulting in a decomposed version
 	of the multi-objective input problem, i.e. a single-objective problem
@@ -593,10 +593,8 @@ def _decompose_ctor(self, problem = None, method = decompose.WEIGHTED, weights =
 		problem=zdt1(2)
 	arg_list.append(problem)
 	arg_list.append(method)
-	if weights != None:
-		arg_list.append(weights)
-	if z != None:
-		arg_list.append(z)
+	arg_list.append(weights)
+	arg_list.append(z)
 	self._orig_init(*arg_list)
 decompose._orig_init = decompose.__init__
 decompose.__init__ = _decompose_ctor
