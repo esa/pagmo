@@ -4,13 +4,18 @@
 Approximating the hypervolume
 ================================================================
 
+Determining the hypervolume indicator is a computationally-heavy task.
+Even in case of a reasonably small dimension size and number of points (e.g. 100 points in 10 dimensions), there are no known algorithms that can yield the results fast enough for multiple-objective optimizers.
+
 In this tutorial we will show a way to compute the hypervolume indicator faster, at the cost of accuracy.
 Two algorithms found in `PyGMO.hv_algorithm` are capable of computing the hypervolume approximately:
 
 #. `PyGMO.hv_algorithm.bf_fpras` - capable of approximating the hypervolume indicator
-#. `PyGMO.hv_algorithm.bf_approx` - capable of approximating the least contributor
+#. `PyGMO.hv_algorithm.bf_approx` - capable of approximating the least and the greatest contributor
 
-
+**Note**: `PyGMO.hypervolume` object will never delegate the computation to any of the approximated algorithms.
+The only way to use the approximated algorithms is though the explicit request (see the beginning of the tutorial :ref:`advanced_hypervolume_computation_and_analysis` for more information on how to do that).
+Here, in just under 3 seconds, you can approximate the answer to these as well.
 
 FPRAS
 ================
@@ -42,9 +47,9 @@ By the *relative* error, we mean the scenario in which the approximation is accu
 Running time
 ------------------
 
-Plot below presents the measured running time (average and MAX out of 10) of FPRAS for varying **N** and **f_dim**.
+Plot below presents the measured running time (average and MAX out of 10) of FPRAS for varying **Front size** and **Dimension**.
 The algorithm was instantiated with **eps=0.1** and **delta=0.1**.
-Notice the lack of any significant increase in time as the dimension number increases.
+Notice the lack of any significant increase in time as the dimension increases.
 
 .. image:: ../images/tutorials/hv_compute_fpras_runtime.png
   :width: 850px
@@ -52,18 +57,25 @@ Notice the lack of any significant increase in time as the dimension number incr
 .. image:: ../images/tutorials/hv_MAX_compute_fpras_runtime.png
   :width: 850px
 
+Since FPRAS scales so well with the dimension size, let us present a more extreme example of fronts for which we again will measure the execution time:
+
+.. image:: ../images/tutorials/hv_fpras_extreme.png
+  :width: 850px
+
+Now, that is quite a feat! A front of 1000 points in 100 dimensions is an impossible case even for the state of the art algorithms that rely on the exact computation.
+
 Accuracy
 -----------------
 
 This experiment measures the accuracy of the `PyGMO.hv_algorithm.bf_fpras` algorithm.
 Plot below describe the relative accuracy of FPRAS and exact hypervolume methods.
-Z axis is the average accuracy, computed over ten DTLZ-2 fronts for given **N** and **f_dim**.
+Z axis is the average accuracy, computed over ten DTLZ-2 fronts.
 
 .. image:: ../images/tutorials/hv_fpras_accuracy.png
   :width: 850px
 
 Bringmann-Friedrich approximation for the least contributor
-===============
+===========================================================
 
 Running time
 ------------------

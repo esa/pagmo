@@ -1,5 +1,7 @@
+.. _hypervolume:
+
 Hypervolume
-==========
+===========
 
 A Quick Look
 ------------
