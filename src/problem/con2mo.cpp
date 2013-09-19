@@ -117,21 +117,29 @@ void con2mo::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	constraint_vector c(m_original_problem->get_c_dimension(),0.);
 	m_original_problem->compute_constraints(c,x);
 
+	decision_vector original_f(m_original_problem->get_f_dimension(),0.);
+	m_original_problem->objfun(original_f,x);
+
+	f_size_type original_nbr_obj = original_f.size();
+	c_size_type number_of_constraints = c.size();
+	c_size_type number_of_eq_constraints = number_of_constraints - m_original_problem->get_ic_dimension();
+	c_size_type number_of_violated_constraints = 0;
+	
+	// computes the number of satisfied constraints
+	if(m_method==OBJ_CSTRS){
+		for(c_size_type i=0; i<number_of_constraints; i++){
+			if(!m_original_problem->test_constraint(c,i))
+				number_of_violated_constraints += 1;
+		}
+	}
+
 	// modify equality constraints to behave as inequality constraints:
-	c_size_type number_of_eq_constraints = m_original_problem->get_c_dimension() -
-			m_original_problem->get_ic_dimension();
 
 	const std::vector<double> &c_tol = m_original_problem->get_c_tol();
 
 	for(c_size_type i=0; i<number_of_eq_constraints; i++) {
 		c[i] = std::abs(c.at(i)) - c_tol.at(i);
 	}
-
-	decision_vector original_f(m_original_problem->get_f_dimension(),0.);
-	m_original_problem->objfun(original_f,x);
-
-	fitness_vector::size_type original_nbr_obj = original_f.size();
-	constraint_vector::size_type number_of_constraints = c.size();
 
 	// clean the fitness vector
 	for(f_size_type i=0; i<f.size(); i++) {
@@ -147,13 +155,6 @@ void con2mo::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	{
 	case OBJ_CSTRS:
 	{
-		constraint_vector::size_type number_of_violated_constraints = 0;
-
-		// computes the number of satisfied constraints
-		for(c_size_type i=0; i<number_of_constraints; i++){
-			if(!m_original_problem->test_constraint(c,i))
-				number_of_violated_constraints += 1;
-		}
 
 		for(c_size_type i=0; i<number_of_constraints; i++) {
 			if(c.at(i) > 0.) {

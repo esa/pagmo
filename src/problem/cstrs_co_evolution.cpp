@@ -289,11 +289,10 @@ int cstrs_co_evolution::get_penalty_coeff_size() {
 void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vector<int> &num_viol, const decision_vector &x) const
 {
 	// get the constraints dimension
-	constraint_vector c(m_original_problem->get_c_dimension(), 0.);
 	problem::base::c_size_type prob_c_dimension = m_original_problem->get_c_dimension();
-	problem::base::c_size_type number_of_eq_constraints =
-			m_original_problem->get_c_dimension() -
-			m_original_problem->get_ic_dimension();
+	constraint_vector c(prob_c_dimension, 0.);
+	constraint_vector c_vio(prob_c_dimension, 0.);
+	problem::base::c_size_type number_of_eq_constraints = prob_c_dimension - m_original_problem->get_ic_dimension();
 
 	const std::vector<double> &c_tol = m_original_problem->get_c_tol();
 
@@ -308,12 +307,12 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 	}
 	
 
-	// sets the right definition of the constraints
+	// sets the right definition of the constraints violation
 	for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
-		c[j] = std::abs(c.at(j)) - c_tol.at(j);
+		c_vio[j] = std::abs(c.at(j)) - c_tol.at(j);
 	}
 	for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
-		c[j] = std::max(0.,c.at(j));
+		c_vio[j] = std::max(0.,c.at(j));
 	}
 
 	// updates the vectors depending on the method
@@ -328,7 +327,7 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 
 		// update sum_num_viol
 		for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
-			sum_viol[0] += c.at(j);
+			sum_viol[0] += c_vio.at(j);
 		}
 
 		for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
@@ -347,10 +346,10 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 
 		// update sum_num_viol
 		for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
-			sum_viol[0] += c.at(j);
+			sum_viol[0] += c_vio.at(j);
 		}
 		for(problem::base::c_size_type j=number_of_eq_constraints; j<prob_c_dimension; j++) {
-			sum_viol[1] += c.at(j);
+			sum_viol[1] += c_vio.at(j);
 		}
 
 		for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
@@ -374,7 +373,7 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 
 		// update sum_num_viol
 		for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
-			sum_viol[j] += c.at(j);
+			sum_viol[j] += c_vio.at(j);
 		}
 
 		for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
@@ -572,9 +571,7 @@ void cstrs_co_evolution_penalty::compute_penalty(double &sum_viol, int &num_viol
 {
 	// get the constraints dimension
 	problem::base::c_size_type prob_c_dimension = m_original_problem->get_c_dimension();
-	problem::base::c_size_type number_of_eq_constraints =
-			m_original_problem->get_c_dimension() -
-			m_original_problem->get_ic_dimension();
+	problem::base::c_size_type number_of_eq_constraints = prob_c_dimension - m_original_problem->get_ic_dimension();
 
 	const std::vector<double> &c_tol = m_original_problem->get_c_tol();
 

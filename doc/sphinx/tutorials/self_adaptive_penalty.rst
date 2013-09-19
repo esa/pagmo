@@ -4,36 +4,58 @@
 Self-adaptive penalty
 =======================================================================
 The self-adaptive penalty is a method to handle constraints in
-optimization problems. In this tutorial, we are going to solve a
+optimization problems. It is an adaptive penalty method where the 
+penalization factor is computed dynamically according to the 
+individuals in the population at the current generation.
+In this tutorial, it is explained how to solve a single objective
 constrained problem using the self-adaptive technique.
 
 Method
 ##########
-The self-adaptive is a part of what is called penalty constrained
-handling techniques. The idea is to penalize in term of cost function
-the individuals that do not satisfy the constraints. Unfortunately,
-the penalization must be well tuned for the method to be effective.
-Given a population, the self-adaptive technique automatically adapt
-the penalty to apply, depending on some infeasibility measure of
-the individuals. The aim is not to reject completely indifiduals that 
+The self-adaptive is a part of what is called adaptive penalty
+methods for constrained optimization. 
+The idea is to penalize in term of cost function
+the infeasible individuals. Minimization is assumed in the design of the algorithm.
+
+The infeasibility measure is computed through a two-stage penalty approach. 
+The first stage applies just if there is one or more infeasible solution in the 
+population that has a lower, hence potentially better, objective function value 
+than the best feasible solution in the population. The penalty is hence applied 
+to all the infeasible solutions in the population according to the relative 
+order of infeasibility, in such a way that the solution with a high infeasibility 
+rate but a low objective function has a fitness value close to the one of the best 
+individual in the population. This is to avoid the elimination of infeasible solutions 
+potentially close to the real optimum.
+The second stage penalizes exponentially all the infeasible individual according to 
+their infeasibility rate and a scaling factor that is a measure, in the fitness space, 
+of the distance between the infeasible solution with the lower objective and the 
+individual in the population with the highest objective function.
+
+The aim of the technique is not to reject completely individuals that 
 are not totally feasible, or in other words that slightly violate some
 of the constraints. The actual implementation of the self-adaptive 
 method in PaGMO/PyGMO is based on population fitness evaluation 
-modification.
+modification that adapts at each algorithm generation.
+The main advantages of this techniques are that it does not require parameter 
+tuning and can be used also without a feasible solution in the initial
+population. 
 
 Application
 ###########
-We consider here the constrained problem g01 from the Congress on 
-Evolutionary Computation 2006 (CEC2006). This problem is a quadratic
-problem with 9 linear inequality constraints and 6 active constraints.
-To solve it, we use a simple genetic algorithm with gray encoding
-coupled with this constraints handling technique. To do so in 
-PaGMO/PyGMO, we use a meta-algorithm that modifies the original 
-algorithm that was only dedicated to solve unconstrained problems. In 
-the population, 70 individuals are present. 
+The problem considered here is the problem g01 from the Congress on 
+Evolutionary Computation 2006 (CEC2006). This problem has a quadratic
+objective function with nine linear inequality constraints. 
+In the optimum six constraints are active. 
 
-Step by step, we first import the PyGMO library and choose the
-populations size and the number of generation for the meta-algorithm.
+To solve it, a simple genetic algorithm with Gray encoding has been used
+in the meta-algorithm defined by the constraints handling technique described above. 
+The meta-algorithm wraps the original 
+algorithm that was only dedicated to solve unconstrained problems. It assignes to the population
+a modified problem that performes the adaptive penalization. In the example 70 individuals 
+are considered into the population. 
+
+Step by step, the PyGMO library is imported and the
+populations size and the number of generation for the algorithm are initialized.
 
 .. code-block:: python
 
@@ -41,7 +63,7 @@ populations size and the number of generation for the meta-algorithm.
    In [2]: pop_size = 70
    In [3]: n_gen = 20000
 
-Then we create the problem, the associated population and the algorithm.
+Then the problem is created, a corresponding population randomly initialized and the genetic algorithm instantiated.
 
 .. code-block:: python
 
@@ -49,7 +71,7 @@ Then we create the problem, the associated population and the algorithm.
    In [5]: pop = population(prob,pop_size)
    In [6]: algo = algorithm.sga_gray(gen=1,cr=0.9,m=0.004,elitism=0,mutation=algorithm.sga_gray.mutation.UNIFORM,selection=algorithm.sga_gray.selection.ROULETTE,crossover=algorithm.sga_gray.crossover.SINGLE_POINT)
 
-The algorithm has a crossover probability of 90%, a mutation probability 
+In this example the genetic algorithm has a crossover probability of 90%, a mutation probability 
 of 0.4%. Furthermore, it uses a uniform mutation, a roulette selection 
 and a single point crossover. For more details on this algorithm, please
 refer to its documentation.
@@ -58,10 +80,9 @@ The important point here is the number of generation of the algorithm.
 In fact, as the number of generation is governed by the meta-algorithm
 and that the meta-algorithm modifies the fitness of the population at
 each iterations, the number of generation of the algorithm must be set
-to 1 to work properly. The same comment holds for the elitism, with
-this algorithm, it is possible to 
+to 1 to work properly. The same comment holds for the elitism.
 
-The next step consists in creating the meta-algorithm.
+The next step consists in creating the meta-algorithm that implements the self-adaptive constraints handling technique presented.
 
 .. code-block:: python
 
@@ -96,4 +117,4 @@ with the following:
 Even if the solutions are really close to the optimum, the exact 
 same performances of this algorithm as described by R. Farmani 
 and J. A. Wright in their paper could not be retrieved with our 
-configuration.
+configuration. This might be due to a different implementation of the heuristic technique used for the optimization.

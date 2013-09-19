@@ -92,6 +92,7 @@ setup_cdllist(double *data, int n, const double *ref)
     dlnode_t *head;
     dlnode_t **scratch;
     int i, j;
+	double * data2;
 
     head  = malloc ((n+1) * sizeof(dlnode_t));
 
@@ -115,7 +116,7 @@ setup_cdllist(double *data, int n, const double *ref)
 
     qsort(scratch, n, sizeof(dlnode_t*), compare_node);
 
-    double * data2 = (double *) malloc (n * 4 * sizeof(double));
+    data2 = (double *) malloc (n * 4 * sizeof(double));
     for(i = 0; i < n; i++){
         for(j = 0; j < d; j++){
             data2[i*d + j] = scratch[i]->x[j];
@@ -247,16 +248,24 @@ static double close_boxes_right(boxlist *bl, double x, double uz){
 
 static double close_boxes_left(boxlist *bl, double y, double uz){
 
-    if(y >= bl->head->uy)
+    double volume;	
+    box * b;
+
+    double lastlx;
+    double lx;
+    double ly;
+    double lz;
+
+	if(y >= bl->head->uy)
         return 0;
 
-    double volume = 0;	
-    box * b = bl->head;
+	volume = 0;	
+    b = bl->head;
 
-    double lastlx = b->ux;
-    double lx = b->lx;
-    double ly = b->ly;
-    double lz = b->lz;
+    lastlx = b->ux;
+    lx = b->lx;
+    ly = b->ly;
+    lz = b->lz;
 
     while(b != NULL && b->uy >= y){
 
@@ -573,12 +582,12 @@ static void add_sentinels(dlnode_t * list, const double * ref){
 
 double guerreiro_hv4d(double *data, int n, const double *ref)
 {
+    dlnode_t *list;
+    double hyperv;
+
     if (n == 0) {
 		return 0.0;
     }
-
-    dlnode_t *list;
-    double hyperv;
 
     list = setup_cdllist(data, n, ref);
 

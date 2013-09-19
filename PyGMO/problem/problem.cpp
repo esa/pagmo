@@ -401,10 +401,11 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Death penalty enums
 	enum_<problem::death_penalty::method_type>("_death_method_type")
 		.value("SIMPLE", problem::death_penalty::SIMPLE)
-		.value("KURI", problem::death_penalty::KURI);
+		.value("KURI", problem::death_penalty::KURI)
+		.value("WEIGHTED", problem::death_penalty::WEIGHTED);
 	// Death penalty meta-problem
 	problem_wrapper<problem::death_penalty>("death_penalty","Constrained death penalty problem")
-		.def(init<optional<const problem::base &, problem::death_penalty::method_type> >());
+		.def(init<optional<const problem::base &, problem::death_penalty::method_type, const std::vector<double> &> >());
 
 	// con2mo penalty enums
 	enum_<problem::con2mo::method_type>("_con2mo_method_type")

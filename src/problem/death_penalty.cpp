@@ -39,10 +39,11 @@ namespace pagmo { namespace problem {
  * @param[in] problem base::problem to be modified to use a death penalty
  * as constraints handling technique.
  * @param[in] death_penalty_methos int to be modified to use a simple death penalty
- * if defined with SIMPLE and a Kuri death penalty with KURI.
+ * if defined with SIMPLE, a Kuri death penalty with KURI and a WEIGHTED method that applies
+ * static penalties parameters to each constraint violation.
  *
  */
-death_penalty::death_penalty(const base &problem, const method_type method):
+death_penalty::death_penalty(const base &problem, const method_type method, const std::vector<double> & penalty_factors):
 	base((int)problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
@@ -50,14 +51,19 @@ death_penalty::death_penalty(const base &problem, const method_type method):
 		 0,
 		 0.),
 	m_original_problem(problem.clone()),
-	m_method(method)
+	m_method(method),
+	m_penalty_factors(penalty_factors)
 {
 	if(m_original_problem->get_c_dimension() <= 0){
 		pagmo_throw(value_error,"The original problem has no constraints.");
 	}
 
-	if( method > 1 || method < 0) {
-		pagmo_throw(value_error, "the death penalty method must be set to 0 for simple death or to 1 for Kuri death.");
+	if( method > 2 || method < 0) {
+		pagmo_throw(value_error, "the death penalty method must be set to 0 for simple death, 1 for Kuri death and 2 for static penalty with predefined penalty coefficients.");
+	}
+
+	if(method == 2 && m_penalty_factors.size() != m_original_problem->get_c_dimension()){
+		pagmo_throw(value_error, "the vector of penalties factors is missing or needs to match constraints size");
 	}
 
 	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
@@ -118,6 +124,33 @@ void death_penalty::objfun_impl(fitness_vector &f, const decision_vector &x) con
 			double penalization = high_value * (1. - (double)number_of_satisfied_constraints / (double)number_of_constraints);
 
 			std::fill(f.begin(),f.end(),penalization);
+			break;
+		}
+		case WEIGHTED:
+		{
+			m_original_problem->objfun(f, x);
+			const std::vector<double> &c_tol = m_original_problem->get_c_tol();
+
+			// modify equality constraints to behave as inequality constraints:
+			c_size_type number_of_constraints = m_original_problem->get_c_dimension();
+			c_size_type number_of_eq_constraints = m_original_problem->get_c_dimension() - m_original_problem->get_ic_dimension();
+			double penalization = 0;
+
+			for(c_size_type i=0; i<number_of_eq_constraints; i++) {
+					c[i] = std::abs(c.at(i)) - c_tol.at(i);
+			}
+
+			for(c_size_type i=0; i<number_of_eq_constraints; i++) {
+				if(c.at(i) > 0.) {
+					penalization += m_penalty_factors[i]*c.at(i);
+				}
+			}
+
+			// penalizing the objective with the sum of the violation, weighted with the given factors
+			for(f_size_type i=0; i<f.size(); i++){
+				f[i] += penalization;
+			}
+
 			break;
 		}
 		default:

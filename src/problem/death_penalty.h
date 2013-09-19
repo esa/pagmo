@@ -62,10 +62,10 @@ class __PAGMO_VISIBLE death_penalty : public base
 		* fitness function according to the rate of satisfied constraints.
 		*/
 		//death penalty type simple or kuri
-		enum method_type {SIMPLE = 0, KURI = 1};
+		enum method_type {SIMPLE = 0, KURI = 1, WEIGHTED = 2};
 
 		//constructors
-		death_penalty(const base & = cec2006(4), const method_type = SIMPLE);
+		death_penalty(const base & = cec2006(4), const method_type = SIMPLE, const std::vector<double>& = std::vector<double>());
 
 		//copy constructor
 		death_penalty(const death_penalty &);
@@ -85,10 +85,12 @@ class __PAGMO_VISIBLE death_penalty : public base
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_original_problem;
 			ar & const_cast<method_type &>(m_method);
+			ar & m_penalty_factors;
 		}
 		base_ptr m_original_problem;
 
 		const method_type m_method;
+		std::vector<double> m_penalty_factors;
 };
 
 }} //namespaces

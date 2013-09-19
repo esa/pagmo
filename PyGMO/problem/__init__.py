@@ -712,18 +712,18 @@ robust.__init__ = _robust_ctor
 # Renaming and placing the enums
 _problem.death_penalty.method = _problem._death_method_type
 
-def _death_penalty_ctor(self, problem = None, method = None):
+def _death_penalty_ctor(self, problem = None, method = None, penalty_factors = None):
 	"""
 	Implements a meta-problem class that wraps some other constrained problems, resulting in death penalty constraints handling.
-	Two implementations of the death penalty are available. The first one is the most common simple death penalty. The second one is the death
+	Three implementations of the death penalty are available. The first one is the most common simple death penalty. The second one is the death
 	penalty defined by Angel Kuri Morales et al. (Kuri Morales, A. and Quezada, C.C. A Universal eclectic genetic algorithm for constrained optimization, Proceedings 6th European Congress on Intelligent Techniques & Soft Computing, EUFIT'98, 518-522, 1998.)
 	Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
-	fitness function according to the rate of satisfied constraints.
+	fitness function according to the rate of satisfied constraints. The third one is a weighted static penalization. It penalizes the objective with the sum of the constraints violation, each one penalized tih a given factor.
 	
 	USAGE: problem.death_penalty(problem=PyGMO.cec2006(4), method=death_penalty.method.SIMPLE)
 
 	* problem: PyGMO constrained problem one wants to treat with a death penalty approach
-	* method: Simple death method set with SIMPLE and Kuri method set with KURI
+	* method: Simple death method set with SIMPLE, Kuri method set with KURI, weighted static penalization with WEIGHTED
 	"""
 
 	# We construct the arg list for the original constructor exposed by boost_python
@@ -734,6 +734,8 @@ def _death_penalty_ctor(self, problem = None, method = None):
 		method = death_penalty.method.SIMPLE
 	arg_list.append(problem)
 	arg_list.append(method)
+	if penalty_factors != None:
+		arg_list.append(penalty_factors)
 	self._orig_init(*arg_list)
 death_penalty._orig_init = death_penalty.__init__
 death_penalty.__init__ = _death_penalty_ctor
