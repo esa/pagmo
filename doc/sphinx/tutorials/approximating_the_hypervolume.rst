@@ -15,7 +15,6 @@ Two algorithms found in `PyGMO.hv_algorithm` are capable of computing the hyperv
 
 **Note**: `PyGMO.hypervolume` object will never delegate the computation to any of the approximated algorithms.
 The only way to use the approximated algorithms is though the explicit request (see the beginning of the tutorial :ref:`advanced_hypervolume_computation_and_analysis` for more information on how to do that).
-Here, in just under 3 seconds, you can approximate the answer to these as well.
 
 FPRAS
 ================
