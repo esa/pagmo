@@ -4,23 +4,21 @@
 Getting started with hypervolumes
 ================================================================
 
-This tutorial will cover the features introduced by the hypervolume computation features of PyGMO.
-First we will describe how the user interface to hypervolume computation was designed, and point out important notions that ought to be taken into account.
-Later, we will go over several examples, in order to get you started with the hypervolume computation.
+This tutorial will cover the features introduced by the hypervolume funtionality of PyGMO.
+First, we will describe how the user interface was designed and point out important notions that ought to be taken into account.
+Later, we will give several examples in order to get you started with the basic hypervolume computations.
 
-Hypervolume Interface and Construction
+Hypervolume interface and construction
 ======================================
 
-Main class used for the computation of the hypervolume indicator (also known as Lebesgue Measure or S-Metric) and other measures that derive from it, is the `PyGMO.util.hypervolume` class.
-You can import the hypervolume features using the following:
+The main class used for the computation of the hypervolume indicator (also known as Lebesgue Measure or S-Metric) and hypervolume contributions is the `PyGMO.util.hypervolume` class. You can import the hypervolume class using the following:
 
 .. code-block:: python
 
-  from PyGMO.util import hypervolume
+  from PyGMO import hypervolume
   'hypervolume' in dir()  # Returns True
     
-Since whole feature of the computation of hypervolume is bound tightly to many optimization algorithms, we provide two constructors for the hypervolume object.
-The first one uses the fitness values of the individuals of a population as a point set:
+Since the computation of the hypervolume indicator and the hypervolume contributions are bound tightly to multi-objective optimization, we provide two ways of constructing a hypervolume object. The first one uses the fitness values of the individuals of a population for the input point set:
 
 .. code-block:: python
 
@@ -30,7 +28,10 @@ The first one uses the fitness values of the individuals of a population as a po
   pop = population(prob, 50)  # Construct the population object
   hv = hypervolume(pop)  # Construct the hypervolume object from the population object
   
-Second method uses and explicit representation of coordinates as point set:
+
+Note that you need to reconstruct the hypervolume object if the fitness values of the population are changing. The point set which is saved in the hypervolume object is not updated automatically.
+
+The second way of construction uses an explicit representation of coordinates for the input point set:
 
 .. code-block:: python
 
@@ -38,17 +39,23 @@ Second method uses and explicit representation of coordinates as point set:
 
   hv = hypervolume([[1,0],[0.5,0.5],[0,1]])
 
-This type of explicit constructor is especially useful when the problem at hand is outside of the scope of the optimization framework.
+This type of construction is especially useful when you have an explicit geometry you want to analyze rather than implicit coordinates by the fitness values of a population that rely on the objective function of the corresponding problem.
 
-Computing the hypervolume indicator and other features
-======================================================
+Computing the hypervolume indicator and hypervolume contributions
+=================================================================
 
-Before we give an overview of each hypervolume feature, let us discuss the assumptions we make regarding the reference point, and the set of points in general:
+Before we give an overview of each hypervolume feature, let us discuss the assumptions we make regarding the reference point and the input set of points to be valid:
 
 1. We assume **minimization** in every dimension, that is, a reference point is required to be numerically larger or equal in each objective, and strictly larger in at least one of them.
-2. Although the hypervolume for one dimension is well defined mathematically, we require any input data to have a matching dimensionality of least 2-dimensional, including the reference point.
+2. Although the hypervolume for one dimension is well defined mathematically, we require any input data to have a matching dimension of at least 2, including the reference point.
 
-For simplicity, we will support every example below based on this simple 2-dimensional front:
+PyGMO helps you with these assumptions as it performs checks upon construction and also before each computation and will give you an error if your input set or your reference point does not fulfill these criteria. This check can be turned off using
+
+.. code-block:: python
+
+  hv = hypervolume([ (1,0), (0.5,0.5), (0,1) ], verify=False)
+
+For simplicity, we will use this simple 2-dimensional front as an example to show you the basic features of a hypervolume object:
 
 .. code-block:: python
 
@@ -58,7 +65,7 @@ For simplicity, we will support every example below based on this simple 2-dimen
   ref_point = (2,2)
   hv.compute(r=ref_point)  # Returns 3.25 as an answer
 
-We will refer to each point by it's position on X axis, e.g. first point is the point (0,1), fourth point is (1.5, 0.75) etc.
+We will refer to each point by it's position on the x-axis, e.g. first point is the point (0,1), fourth point is (1.5, 0.75) etc. The plot below shows you the overall geometry of the example with the reference point painted red.
 
 .. image:: ../images/tutorials/hv_front_2d_simple.png
   :width: 750px
@@ -72,7 +79,7 @@ Once the hypervolume object is created, it allows for the computation of the fol
   # hv and ref_point refer to the data above
   hv.compute(r=ref_point)  # Returns 3.25 as an answer
 
-2. **exclusive** - Returns the exclusive hypervolume by the point at given index (indexing starts at 0).
+2. **exclusive** - Returns the exclusive hypervolume by the point at given index. The exclusive hypervolume is defined as the part of the space dominated exclusively by one point and is also called its (hypervolume) contribution.
 
 .. code-block:: python
 
@@ -80,14 +87,14 @@ Once the hypervolume object is created, it allows for the computation of the fol
   hv.exclusive(1, r=ref_point)  # Returns 0.25 as an answer
   hv.exclusive(3, r=ref_point)  # Returns 0.0 as an answer since third point is dominated
 
-3. **least_contributor** - Returns the index of the point contributing the least to the hypervolume.
+3. **least_contributor** - Returns the index of a point contributing the least to the hypervolume.
 
 .. code-block:: python
 
   # hv and ref_point refer to the data above
   hv.least_contributor(r=ref_point)  # Returns 3 as an answer, since third point contributes no hypervolume
 
-4. **greatest_contributor** - Returns the index of the point contributing the most to the hypervolume.
+4. **greatest_contributor** - Returns the index of a point contributing the most to the hypervolume.
 
 .. code-block:: python
 
@@ -96,9 +103,8 @@ Once the hypervolume object is created, it allows for the computation of the fol
 
 **Note:** In case of several least/greatest contributors, PyGMO returns only one contributor out of all candidates arbitrarily.
 
-5. **contributions** - Returns a list of contributions for each of the point in a set.
-  This should return the same results as the successive call to the *exclusive* method for each of the points.
-  Due to implementation details, explicit request for all contributions at once may be much faster (in the best case by the *O(n)* time) than computing each contribution using the *exclusive* method.
+5. **contributions** - Returns a list of contributions for all points in the set.
+  This returns the same results as the successive call to the *exclusive* method for each of the points. Due to the implementation, calling *contributions* once can be much faster (up to a linear factor) than computing all contributions separately by using *exclusive*.
 
 .. code-block:: python
 
@@ -107,18 +113,17 @@ Once the hypervolume object is created, it allows for the computation of the fol
 
 Since all of the methods above require a reference point, it is often useful to generate one automatically:
 
-6. **get_nadir_point** - Generates a point that is "worst" than any other point in each of the objectives.
-   By default, it generates a point whose objectives are the minima among objectives for the whole set.
-   Additionally, it is possible to provide an offset which is added to each objective of the reference point.
-   This way any point sharing the "worst" value for given objective with the reference point, is not automatically contributing 0 hypervolume.
+6. **get_nadir_point** - Generates a point that is "worse" than any other point in each of the objectives.
+   By default, it generates a point whose objectives are maximal among each objective for the whole point set, called the nadir point.
+   Additionally, it is possible to provide an offset which is added to each coordinate of the nadir point. Doing so is recommended since any point sharing the "worst" value for a given objective with the reference point will contribute zero to the overall hypervolume otherwise.
 
-Short script below will present the features mentioned above on a concrete example:
+This following short script presents all features mentioned above as an easy example:
 
 .. code-block:: python
 
   from PyGMO import *
 
-  # Initiate the 4-objective problem
+  # Initiate a 4-objective problem
   # and a population of 100 individuals
   prob = problem.dtlz4(fdim=4)
   pop = population(prob, 100)
@@ -128,20 +133,18 @@ Short script below will present the features mentioned above on a concrete examp
   hv = hypervolume(pop)
   ref_point = hv.get_nadir_point(1.0)
 
-  print hv.compute(r=ref_point)
-  print hv.exclusive(p_idx=0, r=ref_point)
-  print hv.least_contributor(r=ref_point)
-  print hv.greatest_contributor(r=ref_point)
-  print hv.contributions(r=ref_point)
+  print hv.compute(ref_point)
+  print hv.exclusive(0, ref_point)
+  print hv.least_contributor(ref_point)
+  print hv.greatest_contributor(ref_point)
+  print hv.contributions(ref_point)
 
-  # Evolve the population a little bit
-  algo = algorithm.sms_emoa(gen=100)
-  for _ in xrange(10):
-    pop = algo.evolve(pop)
+  # Evolve the population some generations
+  algo = algorithm.sms_emoa(gen=2000)
+  pop = algo.evolve(pop)
 
-  # Measure the quality again
-  # This time we can expect the higher value for the hypervolume,
-  # as SMS-EMOA evolves the population, by trying to maximize the hypervolume indicator.
+  # Compute the hypervolume indicator again. 
+  # This time we expect a higher value as SMS-EMOA evolves the population
+  # by trying to maximize the hypervolume indicator.
   hv = hypervolume(pop)
-  ref_point = hv.get_nadir_point(1.0)
-  print hv.compute(r=ref_point)
+  print hv.compute(ref_point)
