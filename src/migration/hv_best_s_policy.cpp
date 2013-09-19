@@ -65,7 +65,7 @@ std::vector<population::individual_type> hv_best_s_policy::select(population &po
 		return best_s_policy(m_rate, m_type).select(pop);
 	}
 
-	pagmo_assert(get_n_individuals(pop) <= pop.size() && get_n_individuals(pop) >=0);
+	pagmo_assert(get_n_individuals(pop) <= pop.size());
 
 	// Gets the number of individuals to select
 	const population::size_type migration_rate = get_n_individuals(pop);
