@@ -7,7 +7,7 @@ CMakeCache.txt
 *~
 *.swp
 *.swo
-
+*.o
 *.pyc
 CMakeFiles/
 
