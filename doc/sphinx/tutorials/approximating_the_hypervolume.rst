@@ -76,8 +76,19 @@ Z axis is the average accuracy, computed over ten DTLZ-2 fronts.
 Bringmann-Friedrich approximation for the least contributor
 ===========================================================
 
-Running time
-------------------
+Additionally to FPRAS, PyGMO has an approximated algorithm, dedicated for the computation of the least/greatest contributor.
+This is especially important when we want to utilize evolutionary algorithms which rely on that feature, on the problems with many objectives.
 
-Accuracy
------------------
+.. code-block:: python
+
+  from PyGMO import *
+  # Problem with 30 objectives and 300 individuals
+  prob = problem.dtlz3(fdim=30)
+  pop = population(prob, 300)
+
+  alg = hv_algorithm.bf_approx(eps=0.1, delta=0.1)
+  hv = hypervolume(pop)
+  ref = hv.get_nadir_point(1.0)
+  hv.least_contributor(ref, algorithm=alg)  # Will compute the approximated least contributor
+
+**Note:** bf_approx algorithm provides only two features - computation of the least and the greatest contributor. Request for the computation of any other measure will raise and exception.

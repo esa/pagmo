@@ -85,14 +85,14 @@ Once the hypervolume object is created, it allows for the computation of the fol
 
   # hv and ref_point refer to the data above
   hv.exclusive(1, r=ref_point)  # Returns 0.25 as an answer
-  hv.exclusive(3, r=ref_point)  # Returns 0.0 as an answer since third point is dominated
+  hv.exclusive(3, r=ref_point)  # Returns 0.0 as an answer since point at index 3 (fourth from the left) is dominated
 
 3. **least_contributor** - Returns the index of a point contributing the least to the hypervolume.
 
 .. code-block:: python
 
   # hv and ref_point refer to the data above
-  hv.least_contributor(r=ref_point)  # Returns 3 as an answer, since third point contributes no hypervolume
+  hv.least_contributor(r=ref_point)  # Returns 3 as an answer, since point at that index contributes no hypervolume
 
 4. **greatest_contributor** - Returns the index of a point contributing the most to the hypervolume.
 
