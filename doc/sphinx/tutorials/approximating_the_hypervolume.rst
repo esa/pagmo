@@ -14,7 +14,7 @@ Two algorithms found in `PyGMO.hv_algorithm` are capable of computing the hyperv
 #. `PyGMO.hv_algorithm.bf_approx` - capable of approximating the least and the greatest contributor
 
 **Note**: `PyGMO.hypervolume` object will never delegate the computation to any of the approximated algorithms.
-The only way to use the approximated algorithms is though the explicit request (see the beginning of the tutorial :ref:`advanced_hypervolume_computation_and_analysis` for more information on how to do that).
+The only way to use the approximated algorithms is through the explicit request (see the beginning of the tutorial :ref:`advanced_hypervolume_computation_and_analysis` for more information on how to do that).
 
 FPRAS
 ================
@@ -37,9 +37,9 @@ Since many approximated algorithms based on the Monte Carlo approach allow for s
 #. *eps* - relative accuracy of the approximation
 #. *delta* - probability of error
 
-First parameter (**eps**) decides how accurate the approximation aims to be.
-The smaller the epsilon, the longer it will take for the algorithm to evaluate.
-Parameter **delta** models the uncertainty of the approximation, e.g. for given **eps0** and **delta0** we are **1 - delta0** certain that the obtained answer is relatively no further from the exact hypervolume by **eps0**.
+For given parameters **eps=eps0** and **delta=delta0**, the obtained solution is (with probability **1 - delta0**) within a factor of **1 +/- eps0** from the exact hypervolume.
+
+**Note**: Of course, the smaller the **eps** and **delta**, the longer it will take for the algorithm to evaluate.
 
 By the *relative* error, we mean the scenario in which the approximation is accurate within given order of magnitude, e.g. 312.32 and 313.41, are accurate within **eps = 0.1**, because they are accurate within two orders of magnitude. At the same time, these are NOT accurate within **eps = 0.01**.
 
@@ -61,23 +61,13 @@ Since FPRAS scales so well with the dimension size, let us present a more extrem
 .. image:: ../images/tutorials/hv_fpras_extreme.png
   :width: 850px
 
-Now, that is quite a feat! A front of 1000 points in 100 dimensions is an impossible case even for the state of the art algorithms that rely on the exact computation.
-
-Accuracy
------------------
-
-This experiment measures the accuracy of the `PyGMO.hv_algorithm.bf_fpras` algorithm.
-Plot below describe the relative accuracy of FPRAS and exact hypervolume methods.
-Z axis is the average accuracy, computed over ten DTLZ-2 fronts.
-
-.. image:: ../images/tutorials/hv_fpras_accuracy.png
-  :width: 850px
+Now, that is quite a feat! A front of 1000 points in 100 dimensions is beyond the reach of the algorithms that rely on the exact computation.
 
 Bringmann-Friedrich approximation for the least contributor
 ===========================================================
 
-Additionally to FPRAS, PyGMO has an approximated algorithm, dedicated for the computation of the least/greatest contributor.
-This is especially important when we want to utilize evolutionary algorithms which rely on that feature, on the problems with many objectives.
+Additionally to FPRAS, PyGMO provides an approximated algorithm, dedicated for the computation of the least/greatest contributor.
+This is useful when we want to utilize evolutionary algorithms which rely on that feature, especially when the problems has many objectives.
 
 .. code-block:: python
 

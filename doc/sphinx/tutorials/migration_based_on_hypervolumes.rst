@@ -12,58 +12,78 @@ There are in total 4 migration policies which are based on the hypervolume featu
 #. `PyGMO.migration.hv_best_s_policy`
 #. `PyGMO.migration.hv_fair_r_policy`
 
-In general, migration policy is a intermediate step in the archipelago evolution, which assigns a certain ordering to individuals on given island in order to establish the best/worst subset of the population.
-Information about the subsets is later used for the selection of the "best" individuals, as well as for the replacement of the inferior subset with a subset from another island.
-Migration based on hypervolume use the exclusive contribution feature to establish the ordering of individuals.
+For more information on migration policies, please visit the corresponding documentation page :ref:`migration`.
 
-Code below establishes an archipelago with SMS-EMOA algorithm, and the hv_best_s/hv_fair_r migration policies.
-The topology of the archipelago is either `PyGMO.topology.fully_connected` - direct migration is possible between any two islands, or `PyGMO.topology.unconnected`, which leaves the migration virtually non-existing.
+Code below establishes an archipelago with SMS-EMOA algorithm, using the `PyGMO.migration.hv_best_s_policy` and `PyGMO.migration.hv_fair_r_policy`.
+As a comparison, random migration policies `PyGMO.migration.random_s_policy` and `PyGMO.migration.random_r_policy` are also employed for the task.
 
 .. code-block:: python
 
-  # Set up problem as DTLZ-3 with 3 objectives, evolved using SMS-EMOA
-  prob = problem.dtlz3(fdim=3)
-  alg = algorithm.sms_emoa(gen = 100)
-  
-  # Construct the hv_best/fair migration policies
-  s_pol = migration.hv_best_s_policy(0.25, migration.rate_type.fractional)
-  r_pol = migration.hv_fair_r_policy(0.25, migration.rate_type.fractional)
-  
-  # Set up the archipelago
-  n_islands = 16
-  n_individuals = 16
+  from PyGMO import *
 
-  # Swap the comment between lines below to use the unconnected topology
-  #top = topology.unconnected()
-  top = topology.fully_connected()
+  def run_evolution(islands, prob):
+    """
+    Creates archipelago and proceeds with the evolution
+    """
 
-  arch = archipelago(topology=top)
-  isls = [island(alg, prob, n_individuals, s_policy=s_pol, r_policy=r_pol) for i in xrange(n_islands)]
-  for isl in isls:
-  	arch.push_back(isl)
+    # Create the archipelago, and push the islands
+  	arch = archipelago(topology=topology.fully_connected())
+  	for isl in islands:
+  		arch.push_back(isl)
   
-  # Evolve
-  n_steps = 50
-  for s in xrange(n_steps):
-  	arch.evolve(1)
+  	# Evolve for 130 steps
+  	n_steps = 130
+  	for s in xrange(n_steps):
+  		print "Evolving archipelago, step %d/%d" % (s, n_steps)
+  		arch.evolve(1)
   
-  # Merge all populations across the islands together
-  pop = population(prob)
-  for isl in arch:
-  	for ind in isl.population:
-  		pop.push_back(ind.cur_x)
+  	# Merge all populations across the islands together
+  	pop = population(prob)
+  	for isl in arch:
+  		for ind in isl.population:
+  			pop.push_back(ind.cur_x)
   
-  print prob.p_distance(pop)
-  prob.plot(pop)
+  	print "Final P-Distance: ", prob.p_distance(pop)
+  	prob.plot(pop)
+  
+  def main():
+  	# Set up problem as DTLZ-3 with 3 objectives and the algorithm as SMS-EMOA
+  	prob = problem.dtlz3(fdim=3)
+  	alg = algorithm.sms_emoa(gen = 100)
+  
+  	# Construct the hv_best/fair migration policies
+  	s_pol = migration.hv_best_s_policy(0.25, migration.rate_type.fractional)
+  	r_pol = migration.hv_fair_r_policy(0.25, migration.rate_type.fractional)
+  
+  	# Construct the random policies
+  	r_s_pol = migration.random_s_policy(0.25, migration.rate_type.fractional)
+  	r_r_pol = migration.random_r_policy(0.25, migration.rate_type.fractional)
+  
+  	# Set up the archipelago
+  	n_islands = 16
+  	n_individuals = 64
+  
+  	# Create and evolve the archipelago using the hypervolume-based migration policies
+  	isls_hv = [island(alg, prob, n_individuals, s_policy=s_pol, r_policy=r_pol) for i in xrange(n_islands)]
+  	run_evolution(isls_hv, prob)
+  
+  	# Create and evolve the archipelago using the random migration policies
+  	isls_rnd = [island(alg, prob, n_individuals, s_policy=r_s_pol, r_policy=r_r_pol) for i in xrange(n_islands)]
+  	run_evolution(isls_rnd, prob)
 
-After 50 evolutionary steps, the first scenario produces a population which have converged to a proper solution, not far from the pareto front.
-The plot below is a result of the evolution with a fully connected topology:
+  if __name__ == "__main__":
+    main()
+
+**Note**: You can save the code above, and execute it by issuing the following in the command line: **python tutorial.py** (assuming the first argument is the name of the file).
+
+After 130 evolutionary steps, the first scenario produces a population which has converged to a solution not far from the true pareto front.
+The plot below is a result of the evolution of an archipelago using the hypervolume-based migration policies:
 
 .. image:: ../images/tutorials/hv_best_fair_migration_policy.png
   :width: 750px
 
-In case of unconnected topology, the individuals are still far from the optimal front, which suggests that the migration policy might have helped in the establishing of the good solution.
-Plot below is a result of the evolution with no connections between the islands.
+In case of the random migration policies, the individuals are still far from the optimal front, which suggests that the hypervolume-based migration policies might have helped in the establishing of the good solution.
+Plot below is a result of the evolution of an archipelago using the random migration policies:
 
-.. image:: ../images/tutorials/hv_best_fair_unconnected.png
+.. image:: ../images/tutorials/random_migration_policy.png
   :width: 750px

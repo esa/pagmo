@@ -167,3 +167,24 @@ In order to bypass the copying of points, a getter/setter is available:
 **Caution:**
 Bypassing the copying of points will most likely lead to the alteration of the internal representation of points.
 This has its benefits only when the hypervolume object is to be treated as a single use instance.
+
+Bonus
+------
+Additional small trick you can employ for your own experiments is pulling only the first front from the population object, which will in turn speed up the computation:
+
+.. code-block:: python
+
+  from PyGMO import *
+  prob = problem.dtlz7(fdim=6)
+  pop = population(prob, 100)
+
+  hv = hypervolume(pop)
+  ref_point = hv.get_nadir_point(1.0)
+  print hv.compute(r=ref_point)
+
+  # Code below may yield the same result faster
+  hv2 = hypervolume([pop[i].cur_f for i in pop.compute_pareto_fronts()[0]])
+  print hv2.compute(r=ref_point)
+
+**Note**: Be cautious about employing such optimizations when computing the exclusive hypervolume!
+In most cases, second front is relevant to the exclusive contributions of the points from the first front. Also, the indexing of the points will not reflect the indices of the individuals anymore (unless you store them first).

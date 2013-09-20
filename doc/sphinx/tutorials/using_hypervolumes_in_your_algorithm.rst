@@ -11,42 +11,59 @@ As it is often the case in the tutorials, we will present a fairly simple MOO al
 
 .. code-block:: python
 
+  from PyGMO import *
+  import random
+
   class my_hv_moo_alg(algorithm.base):
   	"""
   	A custom steady-state algorithm, based on the hypervolume computation.
   	"""
   
-  	def __init__(self, gen = 10):
+  	def __init__(self, gen = 10, p_m = 0.02):
   	   """
-  	   Constructs a Monte-Carlo (random sampling) algorithm
+  	   Constructs an instance of the algorithm.
   
-  	   USAGE: my_hv_moo_alg(gen = 10)
+  	   USAGE: my_hv_moo_alg(gen=10, p_m=0.02)
   
-  	   NOTE: 1. Generates a new individual. 2.Selects the least contributor of the population, and removes it.
+  	   NOTE: Evolves the population using the least contributor feature.
   
   	   * gen: number of generations
+  	   * p_m: probability of mutation
   	   """
   	   #We start calling the base constructor
   	   super(my_hv_moo_alg,self).__init__()
   	   # Store the number of generations
   	   self.__gen = gen
+  	   self.__p_m = p_m
   
   	# Performs a very simple crossover step
   	def cross(self, ind1, ind2):
-  		import random
   		x1 = ind1.cur_x
   		x2 = ind2.cur_x
   		return tuple(random.choice((x1[i], x2[i],)) for i in xrange(len(x1)))
   
+	# Gaussian mutation
+	def mutate(self, x, lb, ub):
+
+		# Implementation of the Gaussian operator
+		def _g_op(i):
+			return min(max(random.gauss(x[i], (ub[i]-lb[i]) * 0.1), lb[i]), ub[i])
+
+		# Condition for the mutation to happen
+		def _rnd_mut():
+			return random.random() < self.__p_m
+
+		return tuple(_g_op(i) if _rnd_mut() else x[i] for i in xrange(len(x)))
   
   	# Evolve method
-  	def evolve(self,pop):
+  	def evolve(self, pop):
   		#If the population is empty (i.e. no individuals) nothing happens
   		if len(pop) == 0:
   		 	 return pop
   
-  		import random
   		#The algorithm now starts manipulating the population
+  		prob = pop.problem
+  		lb, ub = prob.lb, prob.ub
   		for s in range(self.__gen):
   			# Initiate new individual by a crossover of two random individuals
   			idx1 = random.randint(0, len(pop) - 1)
@@ -54,7 +71,8 @@ As it is often the case in the tutorials, we will present a fairly simple MOO al
   			ind1 = pop[idx1]
   			ind2 = pop[idx2]
   
-  			new_x = self.cross(ind1, ind2)
+  			new_x = self.mutate(self.cross(ind1, ind2), lb, ub)
+  			#new_x = self.cross(ind1, ind2)
   			pop.push_back(new_x)
   
   			# Remove the least contributor
@@ -68,17 +86,26 @@ As it is often the case in the tutorials, we will present a fairly simple MOO al
   	def get_name(self):
   		   return "Custom HV-based MOO"
 
-  prob = problem.dtlz3(fdim=3)
-  alg = my_hv_moo_alg(gen = 100)
-  pop = population(prob, 100)
-  for _ in xrange(100):
-    pop = alg.evolve(pop)
-    print prob.p_distance(pop)
+  def main():
+  	prob = problem.dtlz3(fdim=3)
+  	alg = my_hv_moo_alg(gen = 100, p_m=0.02)
+  	pop = population(prob, 100)
+  	# Establish a constant reference point, so the increase is noticed
+  	ref_point = (3000,) * 3
+  	for _ in xrange(50):
+  		pop = alg.evolve(pop)
+  		print "P-Distance: %.5f, Hypervolume: %.5f" % (prob.p_distance(pop), hypervolume(pop).compute(ref_point))
+
+  if __name__ == "__main__":
+    main()
+
+You can copy the whole code above and save it as a python script (e.g. **my_alg.py**), this way you can execute it yourself by issuing the following in the command line: **python my_alg.py**.
 
 The algorithm does the following in the *evolve* method:
 
 #. Establish a new individual by performing a very simple crossover on two random individuals
-#. Push it to the population
+#. Apply the Gaussian mutation operator
+#. Push the newly obtained vector to the population
 #. Establish the least contributor using the `PyGMO.hypervolume` module
 #. Remove the least contributor from the population
 
@@ -94,4 +121,5 @@ Script above should produce an output similar to the one below:
   P-Distance: 80.06343, Hypervolume: 26998134491.62578
   P-Distance: 79.00453, Hypervolume: 26998134491.62579
 
-The end effect is not spectacular as the algorithm itself is terribly simple, yet we can observe an improvement over the consecutive generations both in the P-Distance and the hypervolume.
+The end effect is far from spectacular as the algorithm itself is quite limited.
+However, we can observe an improvement over the consecutive generations both in the P-Distance and the hypervolume.
