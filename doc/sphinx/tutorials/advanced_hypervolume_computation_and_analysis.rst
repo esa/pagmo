@@ -4,15 +4,13 @@
 Advanced hypervolume computation and analysis
 =============================================
 
-In this tutorial we will cover some more advanced topics of hypervolume computation.
-We will present some more use cases for the computation and give out details on the expected performance of the engine.
+In this tutorial we will cover some more advanced topics regarding hypervolume computation and explain details on the expected performance of the engine.
 
-Computing hypervolume using specific algorithm
+Computing hypervolume using a specific algorithm
 ==============================================
 
-PyGMO uses different algorithms for computing the hypervolume indicator and the features measuring the exclusive contribution of points.
-By default it picks the algorithm which is *expected* to yield the fastest computation with respect to the dimensionality of the point-set.
-This selection can be bypassed by using an explicit hv_algorithm object as a parameter of the corresponding method:
+PyGMO uses different algorithms for computing the hypervolume indicator and the hypervolume contributions. By default 
+it picks the algorithm which is *expected* to yield the fastest computation with respect to the dimensionality of the given point-set. This selection can be bypassed by using an explicit hv_algorithm object as a parameter of the corresponding method:
 
 .. code-block:: python
 
@@ -20,8 +18,15 @@ This selection can be bypassed by using an explicit hv_algorithm object as a par
   hv = hypervolume([[1,0,1],[1,1,0],[-1,2,2]])
   hv.compute(r=(5,)*3, algorithm=hv_algorithm.wfg())
   
-Code above will compute the 3-dimensional problem, using the WFG algorithm.
-Notice that two names visible in the global scope that rely to hypervolume computation are *hypervolume*, which is a class containing the easy user interface for computation, and the *hv_algorithm*, which contains specific implementations of various algorithms.
+The code above will compute the hypervolume indicator using the WFG algorithm, whereas
+
+.. code-block:: python
+
+  hv.compute(r=(5,)*3)
+
+would use (by default) the hv3d algorithm, since it is expected to be faster for three dimensions.
+
+Notice that the two names visible in the global scope that relate to hypervolume computations are *hypervolume*, which is a class containing the easy user interface for computation, and the *hv_algorithm*, which contains specific implementations of various algorithms.
 The list of available algorithms can be easily obtained by executing the following in the *IPython* session:
 
 .. code-block:: python
@@ -55,9 +60,8 @@ We will discuss the details on the approximated hypervolume in the tutorial :ref
 Runtime analysis of the hypervolume computation
 ===============================================
 
-Over the course of development we have gathered a wide range of algorithms to choose from when facing given problem.
-We utilize this fact to provide users with an efficient computation engine.
-During the course of the experiment, we have measured the practical capabilities of our engine for fronts with varying **Front size** (number of points) and **Dimension**.
+We have gathered a wide range of algorithms to choose from when in need to compute hypervolumes.
+We utilize this fact to provide users with an efficient computation engine that will most likely pick the fastest algorithm on default. During the course of the experiment, we have measured the practical capabilities of our engine for fronts with varying **Front size** (number of points) and **Dimension**.
 
 **Note:**
 The obtained results are specific to the hardware and the architecture of the computer on which these experiments were executed. Main idea of the plots in this and the following tutorials is to present the relative scaling of the execution time for various settings of **Front size** and **Dimension**.
@@ -76,10 +80,9 @@ The Z axis as well as the color indicate the execution time in seconds.
 As you can see, computation of the hypervolume of 100 points and below is pretty fast, even when facing a 10-dimensional problem.
 When you're designing your own experiment, be wary that the worst case complexity of hypervolume algorithms is exponential.
 
-Although the hypervolume indicator is the most common metric, as it measures the quality of given pareto front.
-Many multiple-objective optimizers require slightly different measure, that evaluates the quality of given individual within population.
-This is resolved by computing the exclusive contribution of given individual to the population, and in most cases boils down to eliminating the individual that contributes the least.
-For that reason, we would also want to make sure that **least_contributor** method is usable in practice, which resulted in the following experiment:
+Although the hypervolume indicator is a very common quality indicator for pareto fronts, many multiple-objective optimizers require a slightly different figure that evaluates the quality of a given individual within the population.
+This is resolved by computing the exclusive contribution of a given individual to the population, and in most cases boils down to eliminating the individual that contributes the least.
+For that reason, we would also want to make sure that the **least_contributor** method is efficient, which resulted in the following experiment:
 
 .. image:: ../images/tutorials/hv_lc_runtime_plot.png
   :width: 850px
@@ -88,14 +91,14 @@ For that reason, we would also want to make sure that **least_contributor** meth
   :width: 850px
   
 The increase in the execution time is progressing in a strikingly similar fashion, yet the Z axis is now scaled by a factor of 10.
-This data is especially crucial if you want to use the SMS-EMOA algorithm, which is based on the least contributor feature.
+This data is especially crucial if you want to use the SMS-EMOA algorithm, which is based on iterative computations of the current least contributor.
 
 Algorithm comparison
 ====================
 
-In this section we will present a quick comparison of the available algorithms, which will support our our choice for the default set of algorithms.
-Since in many cases, multiple objective problems are either 2 or 3-dimensional, it was important to have a dedicated algorithm for each of the scenarios.
-At the moment, there are five exact algorithms in PaGMO, three of which dedicated for certain dimensions:
+In this section we will present a quick comparison of the available algorithms, which will support our choice for the default set of algorithms.
+Since in many cases, multiple objective problems are either 2 or 3-dimensional, it was important to have a dedicated algorithm for each of these scenarios.
+At the moment, there are five exact algorithms in PaGMO, three of which are dedicated for certain dimensions:
 
 #. `PyGMO.hv_algorithm.hv2d`
 #. `PyGMO.hv_algorithm.hv3d`
@@ -104,14 +107,13 @@ At the moment, there are five exact algorithms in PaGMO, three of which dedicate
 #. `PyGMO.hv_algorithm.hoy`
 
 As of yet, PaGMO contains two general purpose algorithms - WFG (by the Walking Fish Group) and HOY (Hypervolume by Overmars and Yap).
-We have measured the empirical effectiveness of both algorithms, and we have noted a significant difference in the running time in favor of the WFG.
-For that reason, WFG is the default general purpose algorithm in PaGMO. Since HOY is a fairly known and tested algorithm, it was useful to keep it as a reference.
-Be wary that its performance, especially for 7 and more dimensions, is far worse than that of WFG.
+We have measured the empirical effectiveness of both algorithms on multiple fronts, and we have noted a significant difference in the running time in favor of the WFG.
+For that reason, WFG is the default general purpose algorithm in PaGMO. Since HOY is a fairly known and tested algorithm, it was useful to keep it as a reference, but it is currently never used by default. Be aware that its performance, especially for 7 and more dimensions, is most likely far worse than that of WFG.
 
 Even though WFG is regarded one of the state of the art algorithms for hypervolume computation, several algorithms specific to lower dimensions have been derived as well.
 We will show that dedicated algorithms for 2, 3 and 4 dimensions do in fact perform better than the general purpose ones in terms of running time.
 Since current version of WFG progresses through dimension slicing, it stops once it obtains a 2-dimensional subproblem.
-In such case WFG delegates the computation to the `PyGMO.hv_algorithm.hv2d` algorithm.
+In this case, WFG delegates the computation to the `PyGMO.hv_algorithm.hv2d` algorithm.
 For that reason it is pointless to measure its efficiency against direct execution of `PyGMO.hv_algorithm.hv2d`.
 As for the latter, certain measurements were done to obtain the following comparisons of WFG (also for the variant in which we slice back to 3-dimensional front) and the dedicated algorithms:
 
@@ -126,12 +128,12 @@ It is clear that the dedicated algorithms for 3 and 4 dimensions perform better 
 Pushing efficiency further
 ===============================
 
-Since the computation of the hypervolume is often the bottle-neck of the MOO, we pay special attention
-to resolving the task as efficient as possible.
+Since the computation of the hypervolume is a computationally expensive operation, we pay special attention
+to resolve this task as efficient as possible.
 By default, `PyGMO.hypervolume` object will verify the input data to make sure they meet the criteria pointed out at the beginning of this tutorial. Also, in order to preserve the internal representation of the points intact, before doing any computation a copy of the original set of points is made.
 These precautions are not always necessary.
 
-In order to turn off the verification of the input data, user can initiate the hypervolume object in the following way:
+In order to turn off the verification of the input data, you can instantiate the hypervolume object in the following way:
 
 .. code-block:: python
 
@@ -152,7 +154,7 @@ Additionally, a getter/setter is available as well:
 
 **Note:** The only way to bypass the verification of the set of points is through the flag in the constructor.
 
-In order to bypass the copying of points, a getter/setter is available:
+Another feature that can be disabled to improve runtime is the copying of points. This is possible via the following set-method:
 
 .. code-block:: python
 
@@ -166,11 +168,11 @@ In order to bypass the copying of points, a getter/setter is available:
 
 **Caution:**
 Bypassing the copying of points will most likely lead to the alteration of the internal representation of points.
-This has its benefits only when the hypervolume object is to be treated as a single use instance.
+This has its benefits only when the hypervolume object is to be treated as a single use instance. We strongly discourage using the hypervolume object more than once when copying was disabled.
 
 Bonus
 ------
-Additional small trick you can employ for your own experiments is pulling only the first front from the population object, which will in turn speed up the computation:
+An additional small trick you can employ for your own experiments is pulling only the first front from the population object, which will speed up the computation of the hypervolume indicator as long as there are dominated points in your input:
 
 .. code-block:: python
 
@@ -186,5 +188,5 @@ Additional small trick you can employ for your own experiments is pulling only t
   hv2 = hypervolume([pop[i].cur_f for i in pop.compute_pareto_fronts()[0]])
   print hv2.compute(r=ref_point)
 
-**Note**: Be cautious about employing such optimizations when computing the exclusive hypervolume!
-In most cases, second front is relevant to the exclusive contributions of the points from the first front. Also, the indexing of the points will not reflect the indices of the individuals anymore (unless you store them first).
+**Note**: Be cautious about employing this trick when computing any hypervolume contribution!
+In most cases, the dominated points are relevant to the exclusive contributions of the points from the first front. Also, the indexing of the points will not reflect the indices of the individuals anymore (unless you store them first).

@@ -122,4 +122,4 @@ Script above should produce an output similar to the one below:
   P-Distance: 79.00453, Hypervolume: 26998134491.62579
 
 The end effect is far from spectacular as the algorithm itself is quite limited.
-However, we can observe an improvement over the consecutive generations both in the P-Distance and the hypervolume.
+However, we can observe an improvement over the consecutive generations both in the distance towards the Pareto front (P-Distance) and the hypervolume indicator itself.

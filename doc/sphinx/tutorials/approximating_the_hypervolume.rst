@@ -4,10 +4,10 @@
 Approximating the hypervolume
 ================================================================
 
-Determining the hypervolume indicator is a computationally-heavy task.
-Even in case of a reasonably small dimension size and number of points (e.g. 100 points in 10 dimensions), there are no known algorithms that can yield the results fast enough for multiple-objective optimizers.
+Determining the hypervolume indicator is a computationally expensive task.
+Even in case of a reasonably small dimension and low number of points (e.g. 100 points in 10 dimensions), there are currently no known algorithms that can yield the results fast enough for most multiple-objective optimizers.
 
-In this tutorial we will show a way to compute the hypervolume indicator faster, at the cost of accuracy.
+In this tutorial we will show a way to compute the hypervolume indicator faster, but at the cost of accuracy.
 Two algorithms found in `PyGMO.hv_algorithm` are capable of computing the hypervolume approximately:
 
 #. `PyGMO.hv_algorithm.bf_fpras` - capable of approximating the hypervolume indicator
@@ -19,8 +19,7 @@ The only way to use the approximated algorithms is through the explicit request 
 FPRAS
 ================
 
-Algorithm `PyGMO.hv_algorithm.bf_fpras` found in PyGMO is an implementation of FPRAS (Fully Polynomial-Time Randomized Approximation Scheme) accustomed for the computation of the hypervolume problems.
-You can invoke the algorithm by creating an instance of the algorithm:
+Algorithm `PyGMO.hv_algorithm.bf_fpras` found in PyGMO is a Fully Polynomial-Time Randomized Approximation Scheme accustomed for the computation of the hypervolume indicator. You can invoke the FPRAS by creating an instance of the hv_algorithm:
 
 .. code-block:: python
 
@@ -32,7 +31,7 @@ You can invoke the algorithm by creating an instance of the algorithm:
   ref = hv.get_nadir_point(1.0)
   hv.compute(ref, algorithm=fpras)  # Will compute the approximated hypervolume
 
-Since many approximated algorithms based on the Monte Carlo approach allow for some customization, it is possible to provide the following keyword arguments to the constructor of `hv_algorithm.bf_fpras`:
+To influence the accuracy of the FPRAS, it is possible to provide the following keyword arguments to its constructor:
 
 #. *eps* - relative accuracy of the approximation
 #. *delta* - probability of error
@@ -48,7 +47,7 @@ Running time
 
 Plot below presents the measured running time (average and MAX out of 10) of FPRAS for varying **Front size** and **Dimension**.
 The algorithm was instantiated with **eps=0.1** and **delta=0.1**.
-Notice the lack of any significant increase in time as the dimension increases.
+Notice the lack of any exponential increase in time as the dimension increases.
 
 .. image:: ../images/tutorials/hv_compute_fpras_runtime.png
   :width: 850px
@@ -63,10 +62,10 @@ Since FPRAS scales so well with the dimension size, let us present a more extrem
 
 Now, that is quite a feat! A front of 1000 points in 100 dimensions is beyond the reach of the algorithms that rely on the exact computation.
 
-Bringmann-Friedrich approximation for the least contributor
-===========================================================
+Approximation of the least contributor
+==========================================
 
-Additionally to FPRAS, PyGMO provides an approximated algorithm, dedicated for the computation of the least/greatest contributor.
+Additionally to FPRAS, PyGMO provides an approximated algorithm dedicated for the computation of the least/greatest contributor.
 This is useful when we want to utilize evolutionary algorithms which rely on that feature, especially when the problems has many objectives.
 
 .. code-block:: python

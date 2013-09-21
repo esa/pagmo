@@ -4,7 +4,7 @@
 Getting started with hypervolumes
 ================================================================
 
-This tutorial will cover the features introduced by the hypervolume funtionality of PyGMO.
+This tutorial will cover the features introduced by the hypervolume functionality of PyGMO.
 First, we will describe how the user interface was designed and point out important notions that ought to be taken into account.
 Later, we will give several examples in order to get you started with the basic hypervolume computations.
 
@@ -117,7 +117,7 @@ Since all of the methods above require a reference point, it is often useful to 
    By default, it generates a point whose objectives are maximal among each objective for the whole point set, called the nadir point.
    Additionally, it is possible to provide an offset which is added to each coordinate of the nadir point. Doing so is recommended since any point sharing the "worst" value for a given objective with the reference point will contribute zero to the overall hypervolume otherwise.
 
-This following short script presents all features mentioned above as an easy example:
+This following short script presents all features mentioned above:
 
 .. code-block:: python
 

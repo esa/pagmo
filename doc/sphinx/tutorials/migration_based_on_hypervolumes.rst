@@ -12,10 +12,10 @@ There are in total 4 migration policies which are based on the hypervolume featu
 #. `PyGMO.migration.hv_best_s_policy`
 #. `PyGMO.migration.hv_fair_r_policy`
 
-For more information on migration policies, please visit the corresponding documentation page :ref:`migration`.
+For more information on migration policies, please visit the corresponding documentation page on :ref:`migration`.
 
-Code below establishes an archipelago with SMS-EMOA algorithm, using the `PyGMO.migration.hv_best_s_policy` and `PyGMO.migration.hv_fair_r_policy`.
-As a comparison, random migration policies `PyGMO.migration.random_s_policy` and `PyGMO.migration.random_r_policy` are also employed for the task.
+Code below establishes an archipelago with the SMS-EMOA algorithm, using the `PyGMO.migration.hv_best_s_policy` and `PyGMO.migration.hv_fair_r_policy`.
+As a comparison, the random migration policies `PyGMO.migration.random_s_policy` and `PyGMO.migration.random_r_policy` are also employed for the task.
 
 .. code-block:: python
 
