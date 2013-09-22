@@ -102,14 +102,46 @@ Hypervolume computation plays a significant role in establishing the *best* subs
 Hypervolume-based selection policy
 ----------------------------------
 
-Let us assume a population of 10 individuals, and we want to select the set of immigrants of size 3.
+Let us assume an island with 10 individuals, out of which we want to determine a set of 4 emigrants (outgoing individuals).
+First step would be computing the contributions of each individual, and then selecting a subset of 4 individuals that contributed the most volume.
+Plot on the left visualizes the computed exclusive contributions of 10 individuals.
+Plot on the right, are the same individuals ordered descending by their contribution.
+First four individuals in new ordering are candidates for emigrants.
 
 .. image:: ../images/tutorials/hv_migration_selection.png
   :width: 750px
 
+Description above is almost exactly what happens in `PyGMO.migration.hv_best_s_policy`.
+The main difference in what hypervolume-based "best" policy does is not computing the contributions for the whole population in a single call, but doing it *per-front*, starting from the first one.
+This is mainly a precaution for selecting the best emigrants possible in the early stages of the algorithm.
+Since many points are dominated (thus having a zero contribution) we would act more or less arbitrarily if we were to just rely on that measure.
+
+In order to do that we first compute the contributions among the individuals in the first front (as every individual in other front has a contribution of 0).
+If the requested number of individuals for emigration was not met yet, we remove the first front from the temporary population, and continue to fill up the list of emigrants with the greatest contributors from the original second front. This continues until we find the requested number of emigrants.
+
+Although the general idea of `PyGMO.migration.hv_greedy_s_policy` is the same, there are few differences among them:
+We don't establish the ordering of individuals also according to the exclusive hypervolume, but this time this is done iteratively.
+Instead of computing the contributions of all individuals at once (see `PyGMO.hypervolume.contributions`), we explicitly request for the computation of the greatest contributor (see `PyGMO.hypervolume.greatest_contributor`).
+The *per-front* policy also applies here.
+After the greatest contributor is found we immediately remove it from the temporary population, and continue computation of the next greatest contributor (this continues until we have found sufficient number of greatest contributors).
+It's easy to notice that once given point is removed from the population, the exclusive contributions of other points may change.
+
 Hypervolume-based replacement policy
 ------------------------------------
+
+Replacement policy works in a similar fashion, except this time it's the *K* least contributors of the merged sets of immigrants (incoming individuals) and islanders (individuals belonging to given island).
+Plot on the left visualizes a set of 10 islanders and 5 immigrants merged together.
+In thus created set of 15 individuals, we determine a subset of 5 least contributors, either by computing all contributions as once (`PyGMO.migration.hv_fair_r_policy`) or iteratively (`PyGMO.migration.hv_greedy_r_policy`) by removing each least contributor (`PyGMO.hypervolume.least_contributor`) once it was established.
+Plot on the right visualizes the ordered set, out of which 5 least contributors were selected.
+Since there are 3 islanders in the set of 5 least contributors, it is possible to make 3 fair replacements: 3 *discarded* islanders (crossed-over bar) and 3 *non-discarded* immigrants.
 
 .. image:: ../images/tutorials/hv_migration_replacement.png
   :width: 750px
 
+.. note::
+ The *per-front* policy also applies here. Least contributors are established first from the **last** front of the population, progressing upwards to the individuals in the first front.
+
+Additional thing both greedy and fair migrations do is filtering-out the duplicated individuals.
+It is likely that strong individuals will start to prevail among the immigrants.
+If given individual is already on given island, we would like to make sure it is not added to the population, as having a diverse chromosome pool is crucial.
+In order to make sure, no scenario like that happens, the set of immigrants is matched against a set of islanders. Any duplicated immigrants are thus discarded up-front.
