@@ -28,8 +28,8 @@ Since the computation of the hypervolume indicator and the hypervolume contribut
   pop = population(prob, 50)  # Construct the population object
   hv = hypervolume(pop)  # Construct the hypervolume object from the population object
   
-
-Note that you need to reconstruct the hypervolume object if the fitness values of the population are changing. The point set which is saved in the hypervolume object is not updated automatically.
+.. note::
+ You need to reconstruct the hypervolume object if the fitness values of the population are changing. The point set which is saved in the hypervolume object is not updated automatically.
 
 The second way of construction uses an explicit representation of coordinates for the input point set:
 
@@ -72,14 +72,14 @@ We will refer to each point by it's position on the x-axis, e.g. first point is 
 
 Once the hypervolume object is created, it allows for the computation of the following figures:
 
-1. **compute** - Returns the joint hypervolume of the set of points (S-Metric).
+1. ``compute`` - Returns the joint hypervolume of the set of points (S-Metric).
 
 .. code-block:: python
 
   # hv and ref_point refer to the data above
   hv.compute(r=ref_point)  # Returns 3.25 as an answer
 
-2. **exclusive** - Returns the exclusive hypervolume by the point at given index. The exclusive hypervolume is defined as the part of the space dominated exclusively by one point and is also called its (hypervolume) contribution.
+2. ``exclusive`` - Returns the exclusive hypervolume by the point at given index. The exclusive hypervolume is defined as the part of the space dominated exclusively by one point and is also called its (hypervolume) contribution.
 
 .. code-block:: python
 
@@ -87,23 +87,24 @@ Once the hypervolume object is created, it allows for the computation of the fol
   hv.exclusive(1, r=ref_point)  # Returns 0.25 as an answer
   hv.exclusive(3, r=ref_point)  # Returns 0.0 as an answer since point at index 3 (fourth from the left) is dominated
 
-3. **least_contributor** - Returns the index of a point contributing the least to the hypervolume.
+3. ``least_contributor`` - Returns the index of a point contributing the least to the hypervolume.
 
 .. code-block:: python
 
   # hv and ref_point refer to the data above
   hv.least_contributor(r=ref_point)  # Returns 3 as an answer, since point at that index contributes no hypervolume
 
-4. **greatest_contributor** - Returns the index of a point contributing the most to the hypervolume.
+4. ``greatest_contributor`` - Returns the index of a point contributing the most to the hypervolume.
 
 .. code-block:: python
 
   # hv and ref_point refer to the data above
   hv.greatest_contributor(r=ref_point)  # Returns either 0 or 2 as an answer
 
-**Note:** In case of several least/greatest contributors, PyGMO returns only one contributor out of all candidates arbitrarily.
+.. note::
+ In case of several least/greatest contributors, PyGMO returns only one contributor out of all candidates arbitrarily.
 
-5. **contributions** - Returns a list of contributions for all points in the set.
+5. ``contributions`` - Returns a list of contributions for all points in the set.
   This returns the same results as the successive call to the *exclusive* method for each of the points. Due to the implementation, calling *contributions* once can be much faster (up to a linear factor) than computing all contributions separately by using *exclusive*.
 
 .. code-block:: python
@@ -113,7 +114,7 @@ Once the hypervolume object is created, it allows for the computation of the fol
 
 Since all of the methods above require a reference point, it is often useful to generate one automatically:
 
-6. **get_nadir_point** - Generates a point that is "worse" than any other point in each of the objectives.
+6. ``get_nadir_point`` - Generates a point that is "worse" than any other point in each of the objectives.
    By default, it generates a point whose objectives are maximal among each objective for the whole point set, called the nadir point.
    Additionally, it is possible to provide an offset which is added to each coordinate of the nadir point. Doing so is recommended since any point sharing the "worst" value for a given objective with the reference point will contribute zero to the overall hypervolume otherwise.
 

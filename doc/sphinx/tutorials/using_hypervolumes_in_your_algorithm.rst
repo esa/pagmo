@@ -123,3 +123,48 @@ Script above should produce an output similar to the one below:
 
 The end effect is far from spectacular as the algorithm itself is quite limited.
 However, we can observe an improvement over the consecutive generations both in the distance towards the Pareto front (P-Distance) and the hypervolume indicator itself.
+
+Let us give the algorithm some more time, and see whether it actually converges to a decent front.
+For this, we will employ the information from the previous tutorial `migration_based_on_hypervolumes`. Substitute the ``main()`` in the script above with the following experiment, which will initiate an archipelago with our custom algorithm on-board.
+
+.. code-block:: python
+
+ def main():
+   	prob = problem.dtlz3(fdim=3)
+   	alg = my_hv_moo_alg(gen = 100, p_m=0.02)
+
+	# Initiate the migration policies
+	s_pol = migration.hv_best_s_policy(0.25, migration.rate_type.fractional)
+	r_pol = migration.hv_fair_r_policy(0.25, migration.rate_type.fractional)
+
+	# Set up the archipelago
+	n_islands = 16
+	n_individuals = 64
+	arch = archipelago(topology=topology.fully_connected())
+	islands = [island(alg, prob, n_individuals, s_policy=s_pol, r_policy=r_pol) for i in xrange(n_islands)]
+	for i in islands:
+		arch.push_back(i)
+
+	# Evolve
+	n_steps = 130
+	for s in xrange(n_steps):
+		print "Evolving archipelago %d/%d" % (s, n_steps)
+		arch.evolve(1)
+
+	# Merge all populations across the islands together
+	pop = population(prob)
+	for isl in arch:
+		for ind in isl.population:
+			pop.push_back(ind.cur_x)
+
+	print "P-Distance: ", prob.p_distance(pop)
+	prob.plot(pop)
+
+.. note::
+ Be wary that python implementations of algorithms are much slower than their C++ equivalents.
+ The script above may take up to several minutes to evaluate.
+
+The result of the script should be a plot similar to the one below:
+
+.. image:: ../images/tutorials/hv_custom_algo.png
+  :width: 850px

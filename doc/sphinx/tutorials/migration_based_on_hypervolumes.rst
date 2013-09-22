@@ -74,7 +74,8 @@ As a comparison, the random migration policies `PyGMO.migration.random_s_policy`
   if __name__ == "__main__":
     main()
 
-**Note**: You can save the code above, and execute it by issuing the following in the command line: **python tutorial.py** (assuming the first argument is the name of the file).
+.. note::
+ You can save the code above, and execute it by issuing the following in the command line: **python tutorial.py** (assuming the first argument is the name of the file).
 
 After 130 evolutionary steps, the first scenario produces a population which has converged to a solution not far from the true pareto front.
 The plot below is a result of the evolution of an archipelago using the hypervolume-based migration policies:
