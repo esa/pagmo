@@ -243,7 +243,8 @@ The Classes
    The comparison between individuals is made according to the exclusive hypervolume they contribute to the population
    (see `PyGMO.hypervolume` for more details). The resulting set of individuals is created iteratively, with each step consisting of selecting the
    greatest contributor, and then removing it from the population to prevent it fromt diminishing the exclusive contributions of the
-   remaining individuals. The additional argument ``nadir_eps`` reflects the small value added to each objective of the reference point.
+   remaining individuals.
+   The reference point for all hypervolume computations is the current nadir-point of the population with an off-set determined by the ``nadir_eps``.
 
    NOTE: This migration applies only to multi-objective problems. In case of a single-objective problem, the `PyGMO.migration.best_s_policy` is used instead.
 
@@ -261,7 +262,7 @@ The Classes
    The comparison between individuals is made according to the exclusive hypervolume they contribute to the population
    (see `PyGMO.hypervolume` for more details). The resulting set of individuals is created by computing all contributions
    for each of the individuals of the population, and then selecting ``n`` greatest contributors.
-   The additional argument ``nadir_eps`` reflects the small value added to each objective of the reference point.
+   The reference point for all hypervolume computations is the current nadir-point of the population with an off-set determined by the ``nadir_eps``.
 
    NOTE: This migration applies only to multi-objective problems. In case of a single-objective problem, the `PyGMO.migration.best_s_policy` is used instead.
 
@@ -326,10 +327,11 @@ The Classes
    A replacement policy that replaces the worst n :class:`PyGMO.individual` in the :class:`PyGMO.island`'s
    :class:`PyGMO.population` with the best n immigrants. Each replacement takes place if and only if
    the migrant is considered better.  The comparison between individuals is made according to the exclusive hypervolume they contribute to the population
-   (see `PyGMO.hypervolume` for more details).  If type is migration.rate_type.fractional then n, in [0,1], is interpreted
-   as the fraction of the population to be replaced.
+   (see `PyGMO.hypervolume` for more details).
+   If type is migration.rate_type.fractional then n, in [0,1], is interpreted as the fraction of the population to be replaced.
+   The reference point for all hypervolume computations is the current nadir-point of the population with an off-set determined by the ``nadir_eps``.
 
-   The sets of worst and best individuals are determined according to the exclusive contribution by each individual.
+   The sets of worst islanders and best immigrants are determined according to the exclusive contribution by each individual.
    This is done ``iteratively``; after each request for the least (in case of worst set) or greatest (in case of best set) contributor,
    the individual is removed from the working population, in order to prevent it from diminishing the exclusive contributions by other points.
 
@@ -348,11 +350,12 @@ The Classes
    A replacement policy that replaces the worst n :class:`PyGMO.individual` in the :class:`PyGMO.island`'s
    :class:`PyGMO.population` with the best n immigrants. Each replacement takes place if and only if
    the migrant is considered better.  The comparison between individuals is made according to the exclusive hypervolume they contribute to the population
-   (see `PyGMO.hypervolume` for more details).  If type is migration.rate_type.fractional then n, in [0,1], is interpreted
-   as the fraction of the population to be replaced.
+   (see `PyGMO.hypervolume` for more details).
+   If type is migration.rate_type.fractional then n, in [0,1], is interpreted as the fraction of the population to be replaced.
+   The reference point for all hypervolume computations is the current nadir-point of the population with an off-set determined by the ``nadir_eps``.
 
-   The sets of worst and best individuals are determined according to the exclusive contribution by each individual.
-   This is done by a single computation of the exclusive contribution by each of the individuals.
+   The sets of worst islanders and best immigrants are determined according to the exclusive contribution by each individual.
+   This is done by a single computation of the exclusive contributions over a joined population of original individuals and the immigrants.
    The vector of contributions serves as a mean for determining the required sets.
 
    NOTE: This migration applies only to multi-objective problems. In case of a single-objective problem, the `PyGMO.migration.fair_r_policy` is used instead.

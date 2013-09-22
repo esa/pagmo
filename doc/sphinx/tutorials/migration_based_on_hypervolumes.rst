@@ -88,3 +88,28 @@ Plot below is a result of the evolution of an archipelago using the random migra
 
 .. image:: ../images/tutorials/random_migration_policy.png
   :width: 750px
+
+How does the migration work ?
+=============================
+
+We owe you an explanation on what had just happened behind the curtains of that archipelago migration.
+The core idea of having the evolution happen on the archipelago are the occasional migrations - some individuals from given island
+may occasionally be copied and sent to a neighbouring island.
+The island to which the individuals have travelled is able to pick and choose the newly arrived immigrants, and use the information stored in their chromosome to advance the evolution further.
+
+Hypervolume computation plays a significant role in establishing the *best* subset of individuals (these are the candidates for emigration), as well as the *worst* subset (which may be replaced by available set of immigrants). 
+
+Hypervolume-based selection policy
+----------------------------------
+
+Let us assume a population of 10 individuals, and we want to select the set of immigrants of size 3.
+
+.. image:: ../images/tutorials/hv_migration_selection.png
+  :width: 750px
+
+Hypervolume-based replacement policy
+------------------------------------
+
+.. image:: ../images/tutorials/hv_migration_replacement.png
+  :width: 750px
+

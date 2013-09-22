@@ -125,6 +125,35 @@ As for the latter, certain measurements were done to obtain the following compar
 
 It is clear that the dedicated algorithms for 3 and 4 dimensions perform better than WFG.
 
+Short summary of algorithms
+---------------------------
+
+We have used the kind of experiments above to derive the default interface of the hypervolume engine.
+For more information on which method is called by default, refer to the table below:
+
+======================= ==== ==== ==== =========
+hypervolume method      2D   3D   4D   5D and up
+======================= ==== ==== ==== =========
+``compute``             hv2d hv3d hv4d wfg
+``contribution-based*`` hv2d hv3d wfg  wfg
+======================= ==== ==== ==== =========
+
+*contribution-based** - The following methods are considered contribution-based: ``exclusive``, ``least_contributor``, ``greatest_contributor``, ``contributions``
+
+For the information on what method is supported by given hypervolume algorithm, refer to the table below:
+
+============= ======= ========= ================= ==================== =============
+hv_algorithm  compute exclusive least_contributor greatest_contributor contributions
+============= ======= ========= ================= ==================== =============
+``hv2d``      Yes     Yes       Yes               Yes                  Yes
+``hv3d``      Yes     Yes       Yes               Yes                  Yes
+``hv4d``      Yes     No        No                No                   No
+``wfg``       Yes     Yes       Yes               Yes                  Yes
+``hoy``       Yes     Yes       Yes               Yes                  Yes
+``bf_approx`` No      No        Yes               Yes                  No
+``bf_fpras``  Yes     Yes       Yes               Yes                  Yes
+============= ======= ========= ================= ==================== =============
+
 Pushing efficiency further
 ===============================
 
