@@ -99,6 +99,11 @@ The selection policy is the object responsible to choose out of a :class:`PyGMO.
 
 * 'migration.random_s_policy': Individuals are selected uniformly at random.
 
+* 'migration.hv_greedy_s_policy': Select the best individuals for a single-objective optimization problem. For a multi-objective optimization problem, and individual is considered better than another individual if its exclusive contribution to the hypervolume (see `PyGMO.hypervolume` for more details) is greater. The set of best individuals is created iteratively - after each selection of the individual, it is removed from the population so it does not diminish the contributions of other individuals.
+
+* 'migration.hv_best_s_policy': Select the best individuals for a single-objective optimization problem. For a multi-objective optimization problem, and individual is considered better than another individual if its exclusive contribution to the hypervolume (see `PyGMO.hypervolume` for more details) is greater. The main distinction between this policy and `PyGMO.hv_best_s_policy` is computing all the contributions at once (without the removal step).
+
+
 The selection policy is set by the 's_policy' kwarg in the :class:`PyGMO.island` constructor
 
 .. code-block:: python
@@ -123,6 +128,14 @@ migrants. All replacement policies derive from the same base class and currently
 
 * 'migration.worst_r_policy': replaces the worst individuals in the island with the best of the incoming migrants. In a multi-objective setting, the meaning of *better* is like in 'migration.fair_r_policy' or 'migration.best_s_policy').
 
+* 'migration.hv_greedy_r_policy': Replaces a the worst individuals in the island with the best of the incoming immigrants.
+  The distinction between individuals is made based on their exclusive contribution to the hypervolume (see `PyGMO.hypervolume` for more details).
+  Both sets are determined iteratively - set of worst islanders is determined by choosing the least contributor among them, and then removing it from the population in order to prevent it from diminishing the contributions of other individuals.
+  Likewise, the set of best immigrants is determined by their exclusive contribution to the hypervolume in an iterative fashion, except this time the greatest contributor is chosen.
+
+* 'migration.hv_fair_r_policy': 
+  The distinction between individuals is made based on their exclusive contribution to the hypervolume (see `PyGMO.hypervolume` for more details).
+  Both sets are determined by computing the contributions to the hypervolume at once, without the removal step (as opposed to the 'migration.hv_greedy_r_policy').
 
 The replacement policy is set by the 'r_policy' kwarg in the island constructor
 
@@ -224,6 +237,41 @@ The Classes
       isl1 = island(algo,prob,50,s_policy = best10) #10 random individuals will be selected for migration
       isl2 = island(algo,prob,50,s_policy = best10) #the 10 best individuals will be selected for migration
 
+.. class:: PyGMO.migration.hv_greedy_s_policy([n=1, type = migration.rate_type.absolute, nadir_eps=1.0])
+
+   This selection policy selects n :class:`PyGMO.individual` in the :class:`PyGMO.island`'s :class:`PyGMO.population`.
+   The comparison between individuals is made according to the exclusive hypervolume they contribute to the population
+   (see `PyGMO.hypervolume` for more details). The resulting set of individuals is created iteratively, with each step consisting of selecting the
+   greatest contributor, and then removing it from the population to prevent it fromt diminishing the exclusive contributions of the
+   remaining individuals. The additional argument ``nadir_eps`` reflects the small value added to each objective of the reference point.
+
+   NOTE: This migration applies only to multi-objective problems. In case of a single-objective problem, the `PyGMO.migration.best_s_policy` is used instead.
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.dtlz3(fdim=5)
+      algo = algorithm.nsga_II(gen = 10) #instantiates the NSGA-II algorithm
+      hv_greedy_10 = migration.hv_greedy_s_policy(10)
+      isl = island(algo, prob, 50, s_policy = hv_greedy_10) #10 random individuals will be selected for migration
+
+.. class:: PyGMO.migration.hv_best_s_policy([n=1, type = migration.rate_type.absolute, nadir_eps=1.0])
+
+   This selection policy selects n :class:`PyGMO.individual` in the :class:`PyGMO.island`'s :class:`PyGMO.population`.
+   The comparison between individuals is made according to the exclusive hypervolume they contribute to the population
+   (see `PyGMO.hypervolume` for more details). The resulting set of individuals is created by computing all contributions
+   for each of the individuals of the population, and then selecting ``n`` greatest contributors.
+   The additional argument ``nadir_eps`` reflects the small value added to each objective of the reference point.
+
+   NOTE: This migration applies only to multi-objective problems. In case of a single-objective problem, the `PyGMO.migration.best_s_policy` is used instead.
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.dtlz3(fdim=5)
+      algo = algorithm.nsga_II(gen = 10) #instantiates the NSGA-II algorithm
+      hv_greedy_10 = migration.hv_greedy_s_policy(10)
+      isl = island(algo, prob, 50, s_policy = hv_greedy_10) #10 random individuals will be selected for migration
 
 .. class:: PyGMO.migration.fair_r_policy([n=1, type = migration.rate_type.absolute])
 
@@ -272,6 +320,50 @@ The Classes
       algo = algorithm.bee_colony(gen = 10) #instantiates artificial bee colony with default params and 10 generations
       worst2 = migration.worst_r_policy(2)
       isl = island(algo,prob,10,r_policy = worst2)  #the 2 worst individuals will be replaced by the best migrants
+
+.. class:: PyGMO.migration.hv_greedy_r_policy([n=1, type = migration.rate_type.absolute, nadir_eps = 1.0])
+
+   A replacement policy that replaces the worst n :class:`PyGMO.individual` in the :class:`PyGMO.island`'s
+   :class:`PyGMO.population` with the best n immigrants. Each replacement takes place if and only if
+   the migrant is considered better.  The comparison between individuals is made according to the exclusive hypervolume they contribute to the population
+   (see `PyGMO.hypervolume` for more details).  If type is migration.rate_type.fractional then n, in [0,1], is interpreted
+   as the fraction of the population to be replaced.
+
+   The sets of worst and best individuals are determined according to the exclusive contribution by each individual.
+   This is done ``iteratively``; after each request for the least (in case of worst set) or greatest (in case of best set) contributor,
+   the individual is removed from the working population, in order to prevent it from diminishing the exclusive contributions by other points.
+
+   NOTE: This migration applies only to multi-objective problems. In case of a single-objective problem, the `PyGMO.migration.fair_r_policy` is used instead.
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.dltz3(fdim=5)
+      algo = algorithm.nsga_II(gen=10) # Instantiates the NSGA-II algorithm
+      hv_greedy = migration.hv_greedy_r_policy(2)
+      isl = island(algo,prob,10,r_policy = hv_greedy)  # 2 of the worst individuals will be considered for replacement
+
+.. class:: PyGMO.migration.hv_fair_r_policy([n=1, type = migration.rate_type.absolute, nadir_eps = 1.0])
+
+   A replacement policy that replaces the worst n :class:`PyGMO.individual` in the :class:`PyGMO.island`'s
+   :class:`PyGMO.population` with the best n immigrants. Each replacement takes place if and only if
+   the migrant is considered better.  The comparison between individuals is made according to the exclusive hypervolume they contribute to the population
+   (see `PyGMO.hypervolume` for more details).  If type is migration.rate_type.fractional then n, in [0,1], is interpreted
+   as the fraction of the population to be replaced.
+
+   The sets of worst and best individuals are determined according to the exclusive contribution by each individual.
+   This is done by a single computation of the exclusive contribution by each of the individuals.
+   The vector of contributions serves as a mean for determining the required sets.
+
+   NOTE: This migration applies only to multi-objective problems. In case of a single-objective problem, the `PyGMO.migration.fair_r_policy` is used instead.
+
+   .. code-block:: python
+
+      from PyGMO import *
+      prob = problem.dltz3(fdim=5)
+      algo = algorithm.nsga_II(gen=10) # Instantiates the NSGA-II algorithm
+      hv_fair = migration.hv_fair_r_policy(3)
+      isl = island(algo,prob,10,r_policy = hv_fair)  # 3 of the worst individuals will be considered for replacement
 
 .. class:: PyGMO.distribution_type
 
