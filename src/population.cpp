@@ -814,6 +814,7 @@ void population::repair(const population::size_type &idx, const algorithm::base_
     repair_algo->evolve(pop_repair);
 
 	this->set_x(idx,pop_repair.champion().x);
+
 }
 
 

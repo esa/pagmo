@@ -133,14 +133,14 @@ void death_penalty::objfun_impl(fitness_vector &f, const decision_vector &x) con
 
 			// modify equality constraints to behave as inequality constraints:
 			c_size_type number_of_constraints = m_original_problem->get_c_dimension();
-			c_size_type number_of_eq_constraints = m_original_problem->get_c_dimension() - m_original_problem->get_ic_dimension();
+			c_size_type number_of_eq_constraints = number_of_constraints - m_original_problem->get_ic_dimension();
 			double penalization = 0;
 
 			for(c_size_type i=0; i<number_of_eq_constraints; i++) {
 					c[i] = std::abs(c.at(i)) - c_tol.at(i);
 			}
 
-			for(c_size_type i=0; i<number_of_eq_constraints; i++) {
+			for(c_size_type i=0; i<number_of_constraints; i++) {
 				if(c.at(i) > 0.) {
 					penalization += m_penalty_factors[i]*c.at(i);
 				}
@@ -188,6 +188,10 @@ std::string death_penalty::human_readable_extra() const
 			oss << "KURI ";
 			break;
 			}
+		case WEIGHTED: {
+			oss << "WEIGHTED ";
+			break;
+			}
 	}
 	oss << std::endl;
 	return oss.str();
@@ -204,6 +208,10 @@ std::string death_penalty::get_name() const
 		}
 		case KURI: {
 			method = "KURI ";
+			break;
+			}
+		case WEIGHTED: {
+			method = "WEIGHTED ";
 			break;
 			}
 	}

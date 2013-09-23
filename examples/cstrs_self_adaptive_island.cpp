@@ -130,7 +130,7 @@ std::string get_solutions(archipelago a) {
 	return sol.str();
 }
 
-problem::base_ptr get_constrained_prob(problem::base_ptr prob, int i) {
+problem::base_ptr get_constrained_prob(problem::base_ptr prob) {
 	return prob;
 }
 
@@ -260,7 +260,7 @@ int main()
 			myfile << " & " << probs[pr]->get_name() << " & " << probs[pr]->get_best_f()[0][0];
 
 			// we generate the constrained problem
-			problem::base_ptr constrained_problem = get_constrained_prob(probs[pr], ch);
+			problem::base_ptr constrained_problem = get_constrained_prob(probs[pr]);
 
 			std::cout << std::endl << "Problem: " << constrained_problem->get_name()<<std::endl;
 

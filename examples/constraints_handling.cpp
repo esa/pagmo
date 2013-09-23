@@ -44,7 +44,7 @@ double best(archipelago a, problem::base_ptr original_problem) {
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
 		// test feasibility
 		if(original_problem->feasibility_x(a.get_island(i)->get_population().champion().x))
-			retval = fmin(retval, a.get_island(i)->get_population().champion().f[0]);
+			retval = std::min(retval, a.get_island(i)->get_population().champion().f[0]);
 	}
 	return retval;
 }
@@ -53,7 +53,7 @@ double worst(archipelago a, problem::base_ptr original_problem) {
 	for (archipelago::size_type i = 0; i< a.get_size(); ++i) {
 		// test feasibility
 		if(original_problem->feasibility_x(a.get_island(i)->get_population().champion().x))
-			retval = fmax(retval, a.get_island(i)->get_population().champion().f[0]);
+			retval = std::max(retval, a.get_island(i)->get_population().champion().f[0]);
 	}
 	return retval;
 }
