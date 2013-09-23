@@ -113,13 +113,25 @@ std::vector<population::individual_type> hv_best_s_policy::select(population &po
 			}
 			remaining_individuals -= front_size;
 		} else {
+			// Store the original (true) size of the front in case it gets extended
+			unsigned int true_front_size = fronts_f[front_idx].size();
+
+			// If there is a lower front available, merge it as well
+			if (front_idx + 1 < fronts_f.size()) {
+				// Make room for the new front
+				fronts_f[front_idx].resize(true_front_size + fronts_f[front_idx + 1].size());
+				for(unsigned int i = 0 ; i < fronts_f[front_idx + 1].size() ; ++i) {
+					fronts_f[front_idx][true_front_size + i] = fronts_f[front_idx + 1][i];
+				}
+
+			}
 			hypervolume hv(fronts_f[front_idx], false);
 			std::vector<double> c = hv.contributions(refpoint);
 
 			std::vector<std::pair<unsigned int, double> > point_pairs;
-			point_pairs.resize(c.size());
+			point_pairs.resize(true_front_size);
 
-			for(unsigned int i = 0 ; i < c.size() ; ++i) {
+			for(unsigned int i = 0 ; i < true_front_size ; ++i) {
 				point_pairs[i] = std::make_pair(i, c[i]);
 			}
 

@@ -116,6 +116,51 @@ double bf_fpras::compute(std::vector<fitness_vector> &points, const fitness_vect
 	}
 }
 
+/// Exclusive method
+/**
+ * This algorithm does not support this method.
+ */
+double bf_fpras::exclusive(const unsigned int p_idx, std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	(void)p_idx;
+	(void)points;
+	(void)r_point;
+	pagmo_throw(value_error, "This method is not supported by the bf_fpras algorithm");
+}
+
+/// Least contributor method
+/**
+ * This algorithm does not support this method.
+ */
+unsigned int bf_fpras::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	(void)points;
+	(void)r_point;
+	pagmo_throw(value_error, "This method is not supported by the bf_fpras algorithm");
+}
+
+/// Greatest contributor method
+/**
+ * This algorithm does not support this method.
+ */
+unsigned int bf_fpras::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	(void)points;
+	(void)r_point;
+	pagmo_throw(value_error, "This method is not supported by the bf_fpras algorithm");
+}
+
+/// Contributions method
+/**
+ * As of yet, this algorithm does not support this method, even in its naive form, due to a poor handling of the dominated points.
+ */
+std::vector<double> bf_fpras::contributions(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	(void)points;
+	(void)r_point;
+	pagmo_throw(value_error, "This method is not supported by the bf_fpras algorithm");
+}
+
 /// Clone method.
 base_ptr bf_fpras::clone() const
 {

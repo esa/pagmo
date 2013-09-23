@@ -153,7 +153,7 @@ unsigned int bf_approx::extreme_contributor(std::vector<fitness_vector> &points,
 			if (op == 1) {
 				m_box_points[idx].push_back(idx2);
 			} else if (ec_type == LEAST) {
-				// Execute extra checks for least contributor
+				// Execute extra checks specifically for the least contributor
 				switch(op) {
 					case 2:
 						// since contribution by idx is guaranteed to be 0.0 (as the point is dominated) we might as well return it as the least contributor right away
@@ -181,10 +181,10 @@ unsigned int bf_approx::extreme_contributor(std::vector<fitness_vector> &points,
 			sampling_round(points, r_delta , round_no, idx, log_factor);
 		}
 
-		// sample the least contributor
+		// sample the extreme contributor
 		sampling_round(points, m_alpha * r_delta , round_no, EC, log_factor);
 
-		// find the new least contributor
+		// find the new extreme contributor
 		for(unsigned int _i = 0 ; _i < m_point_set.size() ; ++_i) {
 			unsigned int idx = m_point_set[_i];
 			if(cmp_func(m_approx_volume[idx], m_approx_volume[EC])) {
@@ -192,7 +192,7 @@ unsigned int bf_approx::extreme_contributor(std::vector<fitness_vector> &points,
 			}
 		}
 
-		// erase known non-least contributors
+		// erase known non-extreme contributors
 		std::vector<unsigned int>::iterator it = m_point_set.begin();
 		while(it != m_point_set.end()) {
 			unsigned int idx = *it;
