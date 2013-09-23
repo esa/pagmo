@@ -87,7 +87,7 @@ As it is often the case in the tutorials, we will present a fairly simple MOO al
   		   return "Custom HV-based MOO"
 
   def main():
-  	prob = problem.dtlz3(fdim=3)
+  	prob = problem.dtlz2(fdim=3)
   	alg = my_hv_moo_alg(gen = 100, p_m=0.02)
   	pop = population(prob, 100)
   	# Establish a constant reference point, so the increase is noticed
@@ -137,7 +137,7 @@ For this, we will employ the information from the previous tutorial `migration_b
 .. code-block:: python
 
  def main():
-	prob = problem.dtlz3(fdim=3)
+	prob = problem.dtlz2(fdim=3)
 	alg = my_hv_moo_alg(gen = 100, p_m=0.02)
 
 	# Initiate the migration policies
