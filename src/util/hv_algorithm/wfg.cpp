@@ -66,8 +66,9 @@ wfg::wfg(const unsigned int stop_dimension) : m_current_slice(0), m_stop_dimensi
 double wfg::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	allocate_wfg_members(points, r_point);
-	return compute_hv(1);
+	double hv = compute_hv(1);
 	free_wfg_members();
+	return hv;
 }
 
 /// Contributions method

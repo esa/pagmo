@@ -56,8 +56,8 @@ public:
 	pade(
 		  int gen=10, 
 		  unsigned int max_parallelism = 1, 
-		  pagmo::problem::decompose::method_type =  pagmo::problem::decompose::WEIGHTED,
-		  const pagmo::algorithm::base & = pagmo::algorithm::jde(10), 
+		  pagmo::problem::decompose::method_type =  pagmo::problem::decompose::BI,
+		  const pagmo::algorithm::base & = pagmo::algorithm::jde(100),
 		  population::size_type = 8,
 		  weight_generation_type = LOW_DISCREPANCY, 
 		  const fitness_vector & = std::vector<double>()

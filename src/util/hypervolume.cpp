@@ -35,10 +35,9 @@ namespace pagmo { namespace util {
  */
 hypervolume::hypervolume(boost::shared_ptr<population> pop, const bool verify) : m_copy_points(true), m_verify(verify)
 	{
-	std::vector<std::vector<population::size_type> > pareto_fronts = pop->compute_pareto_fronts();
-	m_points.resize(pareto_fronts[0].size());
-	for (population::size_type idx = 0 ; idx < pareto_fronts[0].size() ; ++idx) {
-		m_points[idx] = fitness_vector(pop->get_individual(pareto_fronts[0][idx]).cur_f);
+	m_points.resize(pop->size());
+	for (population::size_type idx = 0 ; idx < pop->size() ; ++idx) {
+		m_points[idx] = fitness_vector(pop->get_individual(idx).cur_f);
 	}
 
 	if (m_verify) {
