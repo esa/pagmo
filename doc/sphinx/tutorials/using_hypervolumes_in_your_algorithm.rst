@@ -92,7 +92,7 @@ As it is often the case in the tutorials, we will present a fairly simple MOO al
   	pop = population(prob, 100)
   	# Establish a constant reference point, so the increase is noticed
   	ref_point = (3000,) * 3
-  	for _ in xrange(50):
+  	for _ in xrange(100):
   		pop = alg.evolve(pop)
   		print "P-Distance: %.5f, Hypervolume: %.5f" % (prob.p_distance(pop), hypervolume(pop).compute(ref_point))
 
@@ -118,11 +118,18 @@ Script above should produce an output similar to the one below:
   .
   .
   .
-  P-Distance: 80.06343, Hypervolume: 26998134491.62578
-  P-Distance: 79.00453, Hypervolume: 26998134491.62579
+  P-Distance: 175.55168, Hypervolume: 26999891371.53866
+  P-Distance: 159.27361, Hypervolume: 26999893128.48610
+  P-Distance: 166.28669, Hypervolume: 26999898041.68138
+
+.. note::
+
+  Output above (especially the final value of ``P-Distance``) may differ over the executions of the script.
+  In most cases you should observe the final ``P-Distance`` to be within a range of 50 to 300, and the ``Hypervolume`` to increase monotonically.
 
 The end effect is far from spectacular as the algorithm itself is quite limited.
 However, we can observe an improvement over the consecutive generations both in the distance towards the Pareto front (P-Distance) and the hypervolume indicator itself.
+
 
 Let us give the algorithm some more time, and see whether it actually converges to a decent front.
 For this, we will employ the information from the previous tutorial `migration_based_on_hypervolumes`. Substitute the ``main()`` in the script above with the following experiment, which will initiate an archipelago with our custom algorithm on-board.
@@ -130,8 +137,8 @@ For this, we will employ the information from the previous tutorial `migration_b
 .. code-block:: python
 
  def main():
-   	prob = problem.dtlz3(fdim=3)
-   	alg = my_hv_moo_alg(gen = 100, p_m=0.02)
+	prob = problem.dtlz3(fdim=3)
+	alg = my_hv_moo_alg(gen = 100, p_m=0.02)
 
 	# Initiate the migration policies
 	s_pol = migration.hv_best_s_policy(0.25, migration.rate_type.fractional)
@@ -161,10 +168,10 @@ For this, we will employ the information from the previous tutorial `migration_b
 	prob.plot(pop)
 
 .. note::
- Be wary that python implementations of algorithms are much slower than their C++ equivalents.
- The script above may take up to several minutes to evaluate.
+  Be wary that python implementations of algorithms are much slower than their C++ equivalents.
+  The script above may take up to several minutes to evaluate.
 
-The result of the script should be a plot similar to the one below:
+The result of the script should be a plot similar to the one below (sometimes it may take more than one run of the script to obtain it):
 
 .. image:: ../images/tutorials/hv_custom_algo.png
   :width: 850px
