@@ -98,7 +98,7 @@ Algorithm comparison
 
 In this section we will present a quick comparison of the available algorithms, which will support our choice for the default set of algorithms.
 Since in many cases, multiple objective problems are either 2 or 3-dimensional, it was important to have a dedicated algorithm for each of these scenarios.
-At the moment, there are five exact algorithms in PaGMO, three of which are dedicated for certain dimensions:
+At the moment, there are five exact algorithms in PyGMO, three of which are dedicated for certain dimensions:
 
 #. `PyGMO.hv_algorithm.hv2d`
 #. `PyGMO.hv_algorithm.hv3d`
@@ -106,9 +106,9 @@ At the moment, there are five exact algorithms in PaGMO, three of which are dedi
 #. `PyGMO.hv_algorithm.wfg`
 #. `PyGMO.hv_algorithm.hoy`
 
-As of yet, PaGMO contains two general purpose algorithms - WFG (by the Walking Fish Group) and HOY (Hypervolume by Overmars and Yap).
+As of yet, PyGMO contains two general purpose algorithms - WFG (by the Walking Fish Group) and HOY (Hypervolume by Overmars and Yap).
 We have measured the empirical effectiveness of both algorithms on multiple fronts, and we have noted a significant difference in the running time in favor of the WFG.
-For that reason, WFG is the default general purpose algorithm in PaGMO. Since HOY is a fairly known and tested algorithm, it was useful to keep it as a reference, but it is currently never used by default. Be aware that its performance, especially for 7 and more dimensions, is most likely far worse than that of WFG.
+For that reason, WFG is the default general purpose algorithm in PyGMO. Since HOY is a fairly known and tested algorithm, it was useful to keep it as a reference, but it is currently never used by default. Be aware that its performance, especially for 7 and more dimensions, is most likely far worse than that of WFG.
 
 Even though WFG is regarded one of the state of the art algorithms for hypervolume computation, several algorithms specific to lower dimensions have been derived as well.
 We will show that dedicated algorithms for 2, 3 and 4 dimensions do in fact perform better than the general purpose ones in terms of running time.
