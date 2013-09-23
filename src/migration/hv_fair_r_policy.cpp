@@ -170,12 +170,27 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 			--front_idx;
 
 			// Compute contributions
-			hypervolume hv(fronts_f[front_idx], false);
-			std::vector<double> c = hv.contributions(refpoint);
+			std::vector<double> c;
+
+			// If there exist a dominated front for front at index front_idx
+			if (front_idx + 1 < fronts_f.size()) {
+				std::vector<fitness_vector> merged_front;
+				// Reserve the memory and copy the fronts
+				merged_front.reserve(fronts_f[front_idx].size() + fronts_f[front_idx + 1].size());
+
+				copy(fronts_f[front_idx].begin(), fronts_f[front_idx].end(), back_inserter(merged_front));
+				copy(fronts_f[front_idx + 1].begin(), fronts_f[front_idx +1].end(), back_inserter(merged_front));
+
+				hypervolume hv(merged_front, false);
+				c = hv.contributions(refpoint);
+			} else {
+				hypervolume hv(fronts_f[front_idx], false);
+				c = hv.contributions(refpoint);
+			}
 
 			// Initiate the pairs and sort by second item (exclusive volume)
-			point_pairs.resize(c.size());
-			for(unsigned int i = 0 ; i < c.size() ; ++i) {
+			point_pairs.resize(fronts_f[front_idx].size());
+			for(unsigned int i = 0 ; i < fronts_f[front_idx].size() ; ++i) {
 				point_pairs[i] = std::make_pair(i, c[i]);
 			}
 			current_point = 0;
