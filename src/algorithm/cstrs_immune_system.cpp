@@ -145,8 +145,6 @@ void cstrs_immune_system::evolve(population &pop) const
 	// Main Co-Evolution loop
 	for(int k=0; k<m_gen; k++) {
 
-		std::cout << "iter: " << k << std::endl;
-
 		pop_antigens.clear();
 
 		// clearing the pools
@@ -365,11 +363,9 @@ void cstrs_immune_system::evolve(population &pop) const
 			}
 
 			// ensure that the antibodies population has at least 6 individuals for de, sga, 8 for jde...
-			population::size_type extra_antibodies_size = min_individual_for_algo - pop_antibodies_size;
+			if(min_individual_for_algo>pop_antibodies_size){
+				population::size_type extra_antibodies_size = min_individual_for_algo - pop_antibodies_size;
 
-			// this test is needed as for some reason i<extra_antibodies_size can provoque an
-			// infinite loop if extra_antibodies_size < 0! Due to population::size_type?
-			if(extra_antibodies_size > 0) {
 				// add extra needed by randomly selecting the individuals in the pool
 				for(population::size_type i=0; i<extra_antibodies_size; i++) {
 					if(initial_pop_antibodies_pool_size > 1) {
@@ -383,7 +379,7 @@ void cstrs_immune_system::evolve(population &pop) const
 
 			pop_antigens_size = pop_antigens.size();
 			pop_antibodies_size = pop_antibodies.size();
-
+			
 			// run the immune system
 			m_original_algo_immune->evolve(pop_antibodies);
 

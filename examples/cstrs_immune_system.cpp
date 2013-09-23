@@ -193,7 +193,7 @@ int main()
 	std::cout << std::setprecision(5);
 
 	//0 - Experiment parameters
-	size_t number_of_islands = 1;//20;
+	size_t number_of_islands = 20;
 	size_t number_of_individuals = 70;
 	// size_t function_evaluations = 100;
 	size_t number_of_migrations = 1;
