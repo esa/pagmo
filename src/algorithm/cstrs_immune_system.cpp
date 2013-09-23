@@ -342,9 +342,9 @@ void cstrs_immune_system::evolve(population &pop) const
 
 			population::size_type pop_antigens_size = pop_antigens.size();
 
-			int min_individual_for_algo = 8;
+			population::size_type min_individual_for_algo = 8;
 
-			population::size_type pop_antibodies_size = std::max( (int)(m_sigma * pop_antigens_size), min_individual_for_algo);
+			population::size_type pop_antibodies_size = std::max( (int)(m_sigma * pop_antigens_size), (int)min_individual_for_algo);
 			pop_antibodies_size = std::min(pop_antibodies_size, initial_pop_antibodies_pool_size);
 
 			//population::size_type pop_antibodies_size = std::max((int)(0.5 * pop_antigens_size), 6);
