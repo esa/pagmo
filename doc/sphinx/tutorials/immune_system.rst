@@ -3,47 +3,48 @@
 =======================================================================
 Immune system method for constraint handling
 =======================================================================
-The immune system method is a constraints handling method in which the 
-a immune system simulation ius performed in order to reduce the number
-of non feasible individuals in the population. In this tutorial, we 
+The immune system method is a constraints handling method in which  
+a immune system simulation is performed in order to reduce the number
+of non feasible individuals in the population through the action of an 
+antibody population. In this tutorial, we 
 will learn how to solve a constrained problem with this technique.
 
 Method
 ##########
-The immune system method implemented in PaGMO/PyGMO has the same 
-construction as the co-evolution method. It uses two populations, 
+The immune system method implemented in PaGMO/PyGMO has a similar 
+design to the one of the co-evolution method. It uses two populations, 
 the first population is associated to the initial problem 
-from which the constraints are removed. The second population is used 
-for the simulation of the immune system when antibodies are evolved 
+from which the constraints are removed. The second population emulates 
+the immune system where antibodies are evolved 
 to match a certain number of antigens. These antigens are selected to 
-be the best individuals in term of feasibility in the first population.
+be the best individuals, in term of feasibility, of the first population.
 Once found, the best antibodies are fed back into the first population.
 In PaGMO/PyGMO, the matching process is done with a simple algorithm 
-associated with a problem that reduce a distance between antibodies 
-and antigens. This distance or matching function is simply either the
-Hamming or Euclidean distance. It means that the matching process do 
-not depend on the actual objective function value of the individuals. 
-This method is thus computationaly efficient. The final implementation 
+associated with a problem that reduces the distance between antibodies 
+and antigens. This distance or matching function is either the
+Hamming or Euclidean distance. It means that the matching process does 
+not require additional evaluations of the objective or constraints functions. 
+This step is thus computationaly efficient. The final implementation 
 is based on a meta-algorithm, that takes the initial population to be 
-optimized and two algorithms to evolve both the modified problem and 
-the immune system. In the following we are going to see how to use 
-this constraints handling technique.
+optimized and two algorithms to evolve both the population associated to
+the modified problem and the immune system. 
+In the following we are going to see how to use this constraints handling technique.
 
 Application
 ###########
 The problem considered here is the problem g06 from the Congress on 
-Evolutionary Computation 2006 (CEC2006). This problem is a cubic
-function with 2 non linear inequality constraints. To solve this 
-problem we will use the Differential Evolution (DE) for both the 
-first and second populations. The number of iterations for the first 
-algorithm must be set to 1 as the number of iterations is defined by
-the meta-algorithm itself. We choose 5000 iterations here, but the
-algorithm will stop before that if it has converged. The number of
-iterations for the immune system is set to 70. Furthermore, we 
-consider here a population size of 90 individuals.
+Evolutionary Computation 2006 (CEC2006). 
+This problem has a cubic
+objective function with two non linear inequality constraints. 
+To solve this problem the Differential Evolution (DE) algorithm is used for both the 
+first and the second population. The number of iterations for the first 
+algorithm must be set to 1 as the overall number of iterations is driven by
+the meta-algorithm itself. The number of iteration of the meta-algorithm is set to 5000, 
+however the algorithm will stop as soon as it reaches convergence. The number of
+iterations for the immune system is set to 70 and a initial population of 90 individuals is chosen.
 
-First import the PyGMO library and choose the populations size and the
-number of generation for the meta-algorithm.
+First import the PyGMO library and choose the population size and the
+number of generations for the meta-algorithm.
 
 .. code-block:: python
    
@@ -75,13 +76,13 @@ Creates the meta-algorithm with these informations.
 
 Here we have selected the infeasibility method where the antigen 
 population is set by selecting individuals based on their 
-infeasibility. The original selection where only the best individual 
-is selected for the population, from COELLO did not give satisfactory 
+infeasibility. The original selection, where only the best infeasible individual 
+is selected for the population, from Coello did not give satisfactory 
 results on this problem. The injected antibodies are a copy of the 
 champion and the distance to evolve the antibodies is the Euclidean 
 distance.
 
-We can then evolve the algorithm.
+Evolve the population with the mat-algorithm described.
 
 .. code-block:: python
 
@@ -99,7 +100,7 @@ And finally, print the solutions.
    (-6961.813875580156,)
    (-3.552713678800501e-15, 0.0)
 
-As a comparison, you can print the best known solution for this
+As a comparison, the best known solution can be printed for this
 particular problem:
 
 .. code-block:: python

@@ -716,7 +716,8 @@ def _death_penalty_ctor(self, problem = None, method = None, penalty_factors = N
 	Three implementations of the death penalty are available. The first one is the most common simple death penalty. The second one is the death
 	penalty defined by Angel Kuri Morales et al. (Kuri Morales, A. and Quezada, C.C. A Universal eclectic genetic algorithm for constrained optimization, Proceedings 6th European Congress on Intelligent Techniques & Soft Computing, EUFIT'98, 518-522, 1998.)
 	Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
-	fitness function according to the rate of satisfied constraints. The third one is a weighted static penalization. It penalizes the objective with the sum of the constraints violation, each one penalized tih a given factor.
+	fitness function according to the rate of satisfied constraints. The third one is a weighted static penalization. 
+	It penalizes the objective with the sum of the constraints violation, each one penalized with a given factor.
 	
 	USAGE: problem.death_penalty(problem=PyGMO.cec2006(4), method=death_penalty.method.SIMPLE)
 
@@ -757,7 +758,7 @@ def _con2mo_ctor(self, problem = None, method = None):
 	
 	USAGE: problem.con2mo(problem=PyGMO.cec2006(4), method=con2mo.method.OBJ_CSTRS)
 
-	* problem: PyGMO constrained problem one wants to treat with a multi-objective approach
+	* problem: original PyGMO constrained problem 
 	* method: Coello constraints to multi-objective set with OBJ_CSTRS, COMOGA method 
 		set with OBJ_CSTRSVIO and COMOGA with splitting of inequality and equality 
 		constraints set with OBJ_EQVIO_INEQVIO
@@ -781,19 +782,19 @@ _problem.con2uncon.method = _problem._con2uncon_method_type
 
 def _con2uncon_ctor(self, problem = None, method = None):
 	"""
-	Implements a meta-problem class that wraps some other constrained problems,
-	resulting in unconstrained problem by removing the constraints. Two methods
- 	are available for the objective function: OPTIMALITY and FEASIBILITY.
- 	The OPTIMALITY uses the objective function of the original problem. The
- 	FEASIBILITY computes the sum of the constraints.
+	Implements a meta-problem class that wraps constrained problems,
+	resulting in an unconstrained problem. Two methods
+ 	are available for definig the objective function of the meta-problem: OPTIMALITY and FEASIBILITY.
+ 	The OPTIMALITY uses as objective function the original objective function, it basically removes the constraints from the original problem. The
+ 	FEASIBILITY uses as objective function the sum of the violation of the constraints, the meta-problem hence optimize just the level of infeasibility.
 
 	Implements a meta-problem class that wraps some other constrained problems,
 	resulting in multi-objective problem.
 	
 	USAGE: problem.con2uncon(problem=PyGMO.cec2006(4), method=con2uncon.method.OPTIMALITY)
 
-	* problem: PyGMO constrained problem one wants to remove the constraints
-	* method: OPTIMALITY uses the objective function of the original problem. The FEASIBILITY computes the sum of the constraints
+	* problem: original PyGMO constrained problem
+	* method: OPTIMALITY uses the objective function of the original problem. The FEASIBILITY computes the sum of the constraints violation
 	"""
 
 	# We construct the arg list for the original constructor exposed by boost_python

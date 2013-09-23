@@ -730,25 +730,50 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, scree
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
 
+def _cstrs_self_adaptive_ctor(self, algorithm = _algorithm.jde(), max_iter = 100, f_tol = 1e-15, x_tol = 1e-15):
+	"""
+	Constructs a Self-Adaptive Fitness constraints handling Meta Algorithm.
+
+	The key idea of this constraint handling technique is to represent the
+	constraint violation by a single infeasibility measure, and to adapt
+	dynamically the penalization of infeasible solutions.
+	
+	USAGE: algorithm.self_adaptive(algorithm = algorithm.jde(), max_iter  = 100, f_tol = 1e-15, x_tol = 1e-15);
+
+	* algorithm: original optimizer
+	* max_iter: stop-criteria (number of iterations)
+	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
+	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(algorithm)
+	arg_list.append(max_iter)
+	arg_list.append(f_tol)
+	arg_list.append(x_tol)
+	self._orig_init(*arg_list)
+cstrs_self_adaptive._orig_init = cstrs_self_adaptive.__init__
+cstrs_self_adaptive.__init__ = _cstrs_self_adaptive_ctor
+
 # Renaming and placing the enums
 _algorithm.cstrs_co_evolution.method = _algorithm._co_evo_method_type
 
 def _cstrs_co_evolution_ctor(self,original_algo = _algorithm.jde(),original_algo_penalties = _algorithm.jde(),pop_penalties_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.,f_tol = 1e-15,x_tol = 1e-15):
 	"""
-	Constructs a co-evolution adaptive algorithm.
+	Constructs a co-evolution adaptive penalty algorithm for constrained optimization.
 	
 	USAGE: algorithm.cstrs_co_evolution(original_algo = _algorithm.jde(), original_algo_penalties = _algorithm.jde(), pop_penalties_size = 30, gen = 20, method = cstrs_co_evolution.method.SIMPLE, pen_lower_bound = 0, pen_upper_bound = 100000,f_tol = 1e-15,x_tol = 1e-15):
 
 	* original_algo: optimizer to use as 'original' optimization method
-	* original_algo_penalties: optimizer to use as 'original' optimization method for population 2
-	* pop_penalties_size: population size for the penalty encoding population.
+	* original_algo_penalties: optimizer to use as 'original' optimization method for population encoding penalties coefficients
+	* pop_penalties_size: size of the population encoding the penalty parameters.
 	* gen: number of generations.
-	* method: cstrs_co_evolution.method.SIMPLE by default, the method used for the population 2.
+	* method: cstrs_co_evolution.method.SIMPLE by default, the method used for the population encoding penalties coefficients.
 		Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
 		The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
 		splits the equalities and inequalities constraints in two different sets for the
 		penalty weigths, containing respectively inequalities and equalities weigths. The
-		SPLIT_CONSTRAINTS splits the constraints in M set of weigths with M the number of
+		SPLIT_CONSTRAINTS splits the constraints in M set of weigths wehere M is the number of
 		constraints.
 	* pen_lower_bound: the lower boundary used for penalty.
 	* pen_upper_bound: the upper boundary used for penalty.
@@ -776,12 +801,12 @@ _algorithm.cstrs_immune_system.distance_method = _algorithm._immune_distance_met
 
 def _cstrs_immune_system_ctor(self,algorithm = _algorithm.jde(), algorithm_immune = _algorithm.jde(), gen = 1, select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., f_tol = 1e-15, x_tol = 1e-15):
 	"""
-	Constructs an immune system constraints handling algorithm.
+	Constructs an immune system algorithm for constrained optimization.
 	
 	USAGE: algorithm._cstrs_immune_system(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., ftol = 1e-15, xtol = 1e-15):
 
 	* algorithm: optimizer to use as 'original' optimization method. Its number of generations should be set to 1.
-	* algorithm_2: optimizer to use as 'original' optimization method for the immune system.
+	* algorithm_2: optimizer to use as 'original' optimization method for the evolution of the immune system.
 	* gen: number of generations.
 	* select_method: cstrs_immune_system.select_method.BEST_ANTIBODY by default, the method used for selecting the antibodies.
 	* inject_method: cstrs_immune_system.inject_method.CHAMPION by default, the method used for reinjecting the antibodies.
@@ -811,7 +836,7 @@ cstrs_immune_system.__init__ = _cstrs_immune_system_ctor
 
 def _cstrs_core_ctor(self,algorithm = _algorithm.jde(), repair_algorithm = _algorithm.jde(), gen = 1, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15):
 	"""
-	Constructs CORE constraints handling algorithm (repairing technique).
+	Constructs CORE (Constrained Optimization by Random Evolution) algorithm for constrained optimization (belong to the family of repairing techniques).
 	
 	USAGE: algorithm._cstrs_core(algorithm = _algorithm.jde(), algorithm = _algorithm.jde(), gen = 1, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15):
 
@@ -819,8 +844,7 @@ def _cstrs_core_ctor(self,algorithm = _algorithm.jde(), repair_algorithm = _algo
 	* repair_algorithm: optimizer to use as 'repairing' algorithm. It should be able to deal with population of size 1.
 	* gen: number of generations.
 	* repair_frequency: The infeasible are repaired at each repair frequency generations.
-	* repair_ratio: It the repair ratio is the ratio of repaired individuals over infeasible
-	* ones (a ratio of 1 will repair all the individuals).
+	* repair_ratio: ratio of repaired individuals over infeasible (a ratio of 1 will repair all the individuals).
 	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
 	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
@@ -917,31 +941,6 @@ def _monte_carlo_ctor(self, iter = 10000):
 	self._orig_init(*arg_list)
 monte_carlo._orig_init = monte_carlo.__init__
 monte_carlo.__init__ = _monte_carlo_ctor
-
-def _cstrs_self_adaptive_ctor(self, algorithm = _algorithm.jde(), max_iter = 100, f_tol = 1e-15, x_tol = 1e-15):
-	"""
-	Constructs a Self-Adaptive Fitness constraints handling Meta Algorithm.
-
-	The key idea of this constraint handling technique is to represent the
-	constraint violation by a single infeasibility measure, and to adapt
-	dynamically the penalization of infeasible solutions.
-	
-	USAGE: algorithm.self_adaptive(algorithm = algorithm.jde(), max_iter  = 100, f_tol = 1e-15, x_tol = 1e-15);
-
-	* algorithm: original optimizer
-	* max_iter: stop-criteria (number of iterations)
-	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
-	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
-	"""
-	# We set the defaults or the kwargs
-	arg_list=[]
-	arg_list.append(algorithm)
-	arg_list.append(max_iter)
-	arg_list.append(f_tol)
-	arg_list.append(x_tol)
-	self._orig_init(*arg_list)
-cstrs_self_adaptive._orig_init = cstrs_self_adaptive.__init__
-cstrs_self_adaptive.__init__ = _cstrs_self_adaptive_ctor
 
 #NLOPT algorithms (only if PyGMO has been compiled woth nlopt option activated)
 if "nlopt" in str(_get_algorithm_list()):

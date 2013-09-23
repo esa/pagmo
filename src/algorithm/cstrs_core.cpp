@@ -135,25 +135,20 @@ void cstrs_core::evolve(population &pop) const
 		pop_uncon.push_back(pop.get_individual(i).cur_x);
 	}
 
-	// vector containing the feasible and infeasibles positions
-	//std::vector<population::size_type> pop_feasibles;
+	// vector containing the infeasibles positions
 	std::vector<population::size_type> pop_infeasibles;
 
 	// Main CORE loop
 	for(int k=0; k<m_gen; k++) {
 
 		if(k%m_repair_frequency) {
-			//pop_feasibles.clear();
 			pop_infeasibles.clear();
 
-			// get the non feasible individuals
+			// get the infeasible individuals
 			for(population::size_type i=0; i<pop_size; i++) {
 				if(!prob.feasibility_c(pop.get_individual(i).cur_c)) {
 					pop_infeasibles.push_back(i);
 				}
-//				else {
-//					pop_feasibles.push_back(i);
-//				}
 			}
 
 			// random shuffle of infeasibles?

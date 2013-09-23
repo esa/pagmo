@@ -60,9 +60,9 @@ public:
 	/// Type of immune system antibody selection method.
 	/**
 	* Definition of two types of antibody selections method: BEST_ANTIBODY, and INFEASIBILITY.
-	* The BEST_ANTIBODY, is the selection defined by COELLO, where only the antigen population
+	* The BEST_ANTIBODY, is the selection defined by COELLO, where the antigen population
 	* contains only one antigen which is the individual with lowest constraints violation.
-	* INFEASIBILITY is an extension where the antigen population contain selected individuals
+	* INFEASIBILITY is an extension where the antigen population contains selected individuals
 	* based on their infeasibility.
 	*/
 	// Immune system antibody selection method: best antibody, infeasibility

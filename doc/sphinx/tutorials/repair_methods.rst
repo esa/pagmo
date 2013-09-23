@@ -4,31 +4,33 @@
 Repair methods
 =======================================================================
 Repair methods is a constraints handling technique that consists in 
-repairing infeasible some individuals from the population to make 
-them feasible. In this tutorial, we will learn how to solve a 
+repairing infeasible individuals of the population to make 
+them approaching the feasible region. In this tutorial, we will learn how to solve a 
 constrained problem with this technique.
 
 Method
 ##########
 The repairing method implemented in PaGMO/PyGMO is extremely simple.
-It is based on a meta-algorithm where the initial problem is 
-transformed to a unconstrained problem by simply removing the 
-constraints. The problem is solved as it and from time to time, 
+It is based on a meta-algorithm where to the initial problem is 
+associated an unconstrained problem obtained simply removing the 
+constraints an leaving unvaried the original objective function. 
+The problem is solved for optimality and after a predefined number of generations, 
 infeasible individuals are repaired. The name of this meta-algorithm
-is CORE. The repairing method uses a simple gradient descent methods
-to minimize the infeasibility of the repaired individual. Thus, the
-meta algorithm takes two algorithms, one to evolve the main population,
-and the other one to repair the individuals. 
+is CORE (Constrained Optimization by Random Evolution). 
+The repairing method uses a simple gradient descent methods
+to repri the infeasibility of the individuals. Thus, the
+meta algorithm takes two algorithms, one to evolve the main population towards optimality,
+and one for repairing. 
 
 Application
 ###########
 The problem considered here is the problem g05 from the Congress on 
-Evolutionary Computation 2006 (CEC2006). This problem is a cubic
-function with 2 linear inequality and 3 non linear equality 
-constraints. To solve this problem we will use the Differential
-Evolution (DE) as the main algorithm and a simplex method as a repair 
-algorithm from the GSL Library. That means that you should have 
-compiled PyGMO/PaGMO with the GSL option activated. The population 
+Evolutionary Computation 2006 (CEC2006). This problem has a cubic
+ojective function with two linear inequality and three non linear equality 
+constraints. To solve this problem the Differential
+Evolution (DE) is chosen as the main evolutionary technique and a simplex method as the repair 
+algorithm. The simplex method used is included into the GSL library. This means that PyGMO/PaGMO
+needs to be compiled with the GSL option activated. The population 
 contains 90 individuals.
 
 First import the PyGMO library and choose the populations size and the
@@ -41,9 +43,9 @@ number of generation for the meta-algorithm.
    In [3]: n_gen = 1000
    In [4]: n_repair_gen = 100
 
-Then creates the algorithms you wish to use. The generation of the
+Then instantiate the algorithms you wish to use. The generation of the
 first main algorithm must be set to 1 as the number of iterations is
-controled by the meta-algorithm.
+driven by the meta-algorithm.
 
 .. code-block:: python
 
@@ -64,10 +66,10 @@ Creates the meta-algorithm with these informations.
 
    In [9]: algo_meta = algorithm.cstrs_core(algorithm = algo_1, repair_algorithm = algo_repair, gen = n_gen, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15)
 
-We have selected here a repairing frequency of 10 generations, and 
-we try to repair all the individuals, set by the ratio of 1.
+A repairing frequency of 10 generations is selected, and 
+all the infeasible individuals are repaired, hence the ratio is set to 1.
 
-We can then evolve the algorithm.
+The evolution is then performed.
 
 .. code-block:: python
 
@@ -102,12 +104,12 @@ particular problem:
 Note that you might need to multiple run this tutorial to get a
 feasible solution.
 
-If for any reason you wich to repair by hand any individual of the 
+If for any reason you wish to repair by hand any individual of the 
 population, you can proceed as follow:
 
 .. code-block:: python
 
    In [11]: pop.repair(0,algo_repair)
 
-In that case, we repair the individual 0 with the algorithm 
+In this case, the individual at index 0 is repaired with the algorithm 
 algo_repair.

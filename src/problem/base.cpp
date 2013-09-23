@@ -647,7 +647,8 @@ std::string base::human_readable() const
 	s << m_lb << '\n';
 	s << "\tUpper bounds: ";
 	s << m_ub << '\n';
-	s << "\tConstraints tolerance:\t\t\t" << m_c_tol << '\n';
+	s << "\tConstraints tolerance: ";
+	s << m_c_tol << '\n';
 	s << human_readable_extra();
 	return s.str();
 }
