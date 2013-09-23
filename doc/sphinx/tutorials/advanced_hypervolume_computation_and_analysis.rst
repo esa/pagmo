@@ -151,7 +151,7 @@ hv_algorithm  compute exclusive least_contributor greatest_contributor contribut
 ``wfg``       Yes     Yes       Yes               Yes                  Yes
 ``hoy``       Yes     Yes       Yes               Yes                  Yes
 ``bf_approx`` No      No        Yes               Yes                  No
-``bf_fpras``  Yes     Yes       Yes               Yes                  Yes
+``bf_fpras``  Yes     No        No                No                   No
 ============= ======= ========= ================= ==================== =============
 
 Pushing efficiency further
