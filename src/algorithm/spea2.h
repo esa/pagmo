@@ -38,14 +38,23 @@ public:
 					const std::vector<fitness_vector> &fit):
 		m_neighbours(neighbours),
 		m_fit(fit) {}
-	bool operator()(int a, int b) {
+	bool operator()(unsigned int a, unsigned int b) {
+		if(a>=m_fit.size() || a>=m_neighbours.size()){
+			pagmo_throw(value_error,"SPEA2 sorting of KNN values failure");
+		}
+		if(b>=m_fit.size() || b>=m_neighbours.size()){
+			pagmo_throw(value_error,"SPEA2 sorting of KNN values failure");
+		}
 		double delta_a, delta_b;
 		unsigned int i = 0;
 		do{
+			if(m_neighbours[b][i]>=m_fit.size() || m_neighbours[a][i]>=m_fit.size()){
+				pagmo_throw(value_error,"SPEA2 sorting of KNN values failure");
+			}
 			delta_a = pagmo::util::neighbourhood::euclidian::distance(m_fit[a], m_fit[m_neighbours[a][i]]);
 			delta_b = pagmo::util::neighbourhood::euclidian::distance(m_fit[b], m_fit[m_neighbours[b][i]]);
 			i++;
-		} while (i<m_fit.size() && delta_a == delta_b);
+		} while (i<m_neighbours[0].size() && delta_a == delta_b);
 		return delta_a > delta_b;
 	}
 private:

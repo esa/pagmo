@@ -191,6 +191,7 @@ void spea2::evolve(population &pop) const
 						//Remove all the occurencies of idx_to_delete
 						if (neighbours_nd[i][j] == idx_to_delete) {
 							neighbours_nd[i].erase(neighbours_nd[i].begin() + j);
+							j--;
 						//Adjust all the indexes after idx_to_delete
 						} else if (neighbours_nd[i][j] > idx_to_delete) {
 							neighbours_nd[i][j]--;

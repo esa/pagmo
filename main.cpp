@@ -34,7 +34,7 @@ using namespace pagmo;
 
 int main()
 {
-	pagmo::problem::zdt2 prob(30);
+	pagmo::problem::dtlz7 prob(20);
 	pagmo::algorithm::spea2 alg(100);
 
 	std::cout << alg << std::endl;
