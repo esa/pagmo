@@ -56,11 +56,11 @@ int main()
 	algos_new.push_back(algorithm::nsga2().clone());
 	algos.push_back(algorithm::vega(gen,.9,.021,1,algorithm::vega::mutation::RANDOM,0.3,algorithm::vega::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::vega().clone());
-	algos.push_back(algorithm::nspso(gen, 0.5, 1.0, 2.0, 2.0, 1.0, 0.5, 10, algorithm::nspso::diversity_mechanism_type::MAXMIN).clone());
+	algos.push_back(algorithm::nspso(gen, 0.5, 1.0, 2.0, 2.0, 1.0, 0.5, 10, algorithm::nspso::MAXMIN).clone());
 	algos_new.push_back(algorithm::nspso().clone());
 	algos.push_back(algorithm::spea2(gen,0.95, 11, 0.012, 50, 0).clone());
 	algos_new.push_back(algorithm::spea2().clone());
-	algos.push_back(algorithm::pade(gen, 1, pagmo::problem::decompose::method_type::TCHEBYCHEFF, pagmo::algorithm::jde(80), 9, algorithm::pade::weight_generation_type::GRID, std::vector<double>()).clone());
+	algos.push_back(algorithm::pade(gen, 1, pagmo::problem::decompose::TCHEBYCHEFF, pagmo::algorithm::jde(80), 9, algorithm::pade::GRID, std::vector<double>()).clone());
 	algos_new.push_back(algorithm::pade().clone());
 
 	// 2) then some meta-algorithm
