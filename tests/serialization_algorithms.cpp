@@ -34,14 +34,17 @@
 using namespace pagmo;
 int main()
 {
-	unsigned int pop_size = 20;
+	unsigned int pop_size = 40;
 	unsigned int gen = 123;
 
 	//increment this if you add a multiobjective algo
 	unsigned int n_mo = 6;
 
 	//increment this if you add a constrained algo
-	unsigned int n_con = 2;
+	unsigned int n_con = 3;
+#ifdef PAGMO_ENABLE_GSL
+	n_con++;
+#endif
 
 	// create two containers of pagmo::algorithms
 	std::vector<algorithm::base_ptr> algos;
@@ -69,6 +72,22 @@ int main()
 
 	algos.push_back(algorithm::cstrs_self_adaptive(algorithm::sga(1),gen).clone());
 	algos_new.push_back(algorithm::cstrs_self_adaptive().clone());
+
+	algos.push_back(algorithm::cstrs_immune_system(algorithm::de(1, 0.8, 0.9, 2, 1e-15, 1e-15),
+												   algorithm::de(70, 0.8, 0.9, 2, 1e-15, 1e-15),
+												   100,
+												   algorithm::cstrs_immune_system::INFEASIBILITY,
+												   algorithm::cstrs_immune_system::CHAMPION).clone());
+	algos_new.push_back(algorithm::cstrs_immune_system(algorithm::sga(),
+													   algorithm::sga(),
+													   100).clone());
+
+#ifdef PAGMO_ENABLE_GSL
+	algos.push_back(algorithm::cstrs_core(algorithm::de(1, 0.8, 0.9, 2, 1e-15, 1e-15),
+										  algorithm::gsl_nm2(100, 1e-5, 0.02),
+										  100).clone());
+	algos_new.push_back(algorithm::cstrs_core().clone());
+#endif
 
 	// 3) then unconstrained single objective algorithm
 	algos.push_back(algorithm::bee_colony(gen,19).clone());
@@ -105,6 +124,8 @@ int main()
 	algos_new.push_back(algorithm::sa_corana().clone());
 	algos.push_back(algorithm::sga(gen,.9, .021, 5, algorithm::sga::mutation::RANDOM, 0.3, algorithm::sga::selection::BEST20, algorithm::sga::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::sga().clone());
+	algos.push_back(algorithm::sga_gray(gen,.9, .021, 5, algorithm::sga_gray::mutation::UNIFORM, algorithm::sga_gray::selection::BEST20, algorithm::sga_gray::crossover::SINGLE_POINT).clone());
+	algos_new.push_back(algorithm::sga_gray().clone());
 
 
 #ifdef PAGMO_ENABLE_GSL

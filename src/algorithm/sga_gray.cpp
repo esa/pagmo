@@ -223,7 +223,7 @@ void sga_gray::evolve(population &pop) const
 /// Algorithm name
 std::string sga_gray::get_name() const
 {
-	return "A Simple Genetic Algorithm";
+	return "A Simple Genetic Algorithm with Gray encoding";
 }
 
 /// Extra human readable algorithm info.

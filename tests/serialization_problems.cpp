@@ -182,6 +182,9 @@ int main()
     probs.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
     probs_new.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
 
+    probs.push_back(problem::death_penalty(cec2006_before_cstrs_handling,problem::death_penalty::KURI).clone());
+    probs_new.push_back(problem::death_penalty(cec2006_before_cstrs_handling,problem::death_penalty::SIMPLE).clone());
+
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	probs.push_back(problem::cassini_1(2).clone());
 	probs_new.push_back(problem::cassini_1().clone());
