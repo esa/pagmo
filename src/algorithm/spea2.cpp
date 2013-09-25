@@ -81,6 +81,7 @@ base_ptr spea2::clone() const
  */
 void spea2::evolve(population &pop) const
 {
+	std::cout<<"call to evolve, population size: "<<pop.size()<<std::endl;
 	// Let's store some useful variables.
 	const problem::base             &prob = pop.problem();
 	const problem::base::size_type   D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
@@ -132,6 +133,7 @@ void spea2::evolve(population &pop) const
 	}
 
 	std::vector<spea2_individual> archive(archive_size,spea2_individual());
+	std::vector<population::size_type> ordered_by_fitness;
 
 	//the cycle is until m_gen+1, at the last generation we just calculate the archive and return it as new population (no variation operatotions are performed)
 	for(int g = 0; g <= m_gen; ++g) {
@@ -148,10 +150,10 @@ void spea2::evolve(population &pop) const
 		//1 - Computation of individuals' fitness (according to raw fitness and density)
 		compute_spea2_fitness(F, sqrt(new_pop.size()), new_pop, prob);
 
-		std::vector<population::size_type> ordered_by_fitness = pagmo::util::neighbourhood::order(F);
+		ordered_by_fitness = pagmo::util::neighbourhood::order(F);
 
 		unsigned int n_non_dominated;
-		for(n_non_dominated = 0; n_non_dominated < NP+archive_size && F[ordered_by_fitness[n_non_dominated]] < 1; ++n_non_dominated);
+		for(n_non_dominated = 0; n_non_dominated < F.size() && F[ordered_by_fitness[n_non_dominated]] < 1; ++n_non_dominated);
 
 		//2 - Fill the archive (Environmental selection)
 		if(n_non_dominated > archive_size) { //truncate according to delta
@@ -269,8 +271,13 @@ void spea2::evolve(population &pop) const
 
 	//4 - return the current archive as population
 	pop.clear();
-	for(unsigned int i=0; i<archive_size; ++i) {
-		pop.push_back(archive[i].x);
+	for(unsigned int i=0; i<NP; ++i) {
+		if(i<archive_size){
+			pop.push_back(archive[i].x);
+		}
+		else{
+			pop.push_back(new_pop[ordered_by_fitness[i]].x);
+		}
 	}
 }
 
