@@ -43,7 +43,8 @@ int main()
 	pagmo::island isl = island(alg, prob, 100);
 
 	for (size_t i = 0; i<1; ++i){
-		isl.evolve(1);
+		isl.evolve(100);
+		isl.join();
 		std::cout << "Distance from Pareto Front (p-distance): " << prob.p_distance(isl.get_population()) << std::endl;
 		//std::cout << "Original fitness: " << isl.get_population() << std::endl;
 		//std::cout << "Decomposed fitness: " << decomposed_problem.objfun(isl.get_population().champion().x) << std::endl;
