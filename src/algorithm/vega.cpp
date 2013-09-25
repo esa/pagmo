@@ -400,7 +400,7 @@ void vega::evolve(population &pop) const
 /// Algorithm name
 std::string vega::get_name() const
 {
-	return "Vector evaluated genetic algorithm";
+	return "Vector evaluated genetic algorithm (VEGA)";
 }
 
 /// Extra human readable algorithm info.

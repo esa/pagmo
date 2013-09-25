@@ -200,7 +200,7 @@ void nspso::evolve(population &pop) const
 			std::vector<double> ideal = compute_ideal(fit, pareto_rank);
 
 			//Fonseca-Fleming setting for delta
-			double delta;
+			double delta = 1.0;
 			if (prob_f_dimension == 2) {
 				delta = ( (nadir[0] - ideal[0]) + (nadir[1] - ideal[1]) ) / (nonDomChromosomes.size()-1);
 			} else if (prob_f_dimension == 3) {

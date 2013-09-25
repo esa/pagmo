@@ -38,7 +38,7 @@ int main()
 	unsigned int gen = 123;
 
 	//increment this if you add a multiobjective algo
-	unsigned int n_mo = 3;
+	unsigned int n_mo = 6;
 
 	//increment this if you add a constrained algo
 	unsigned int n_con = 2;
@@ -56,6 +56,12 @@ int main()
 	algos_new.push_back(algorithm::nsga2().clone());
 	algos.push_back(algorithm::vega(gen,.9,.021,1,algorithm::vega::mutation::RANDOM,0.3,algorithm::vega::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::vega().clone());
+	algos.push_back(algorithm::nspso(gen, 0.5, 1.0, 2.0, 2.0, 1.0, 0.5, 10, algorithm::nspso::diversity_mechanism_type::MAXMIN).clone());
+	algos_new.push_back(algorithm::nspso().clone());
+	algos.push_back(algorithm::spea2(gen,0.95, 11, 0.012, 50, 0).clone());
+	algos_new.push_back(algorithm::spea2().clone());
+	algos.push_back(algorithm::pade(gen, 1, pagmo::problem::decompose::method_type::TCHEBYCHEFF, pagmo::algorithm::jde(80), 9, algorithm::pade::weight_generation_type::GRID, std::vector<double>()).clone());
+	algos_new.push_back(algorithm::pade().clone());
 
 	// 2) then some meta-algorithm
 	algos.push_back(algorithm::cstrs_co_evolution(algorithm::de(gen),algorithm::de(1),20,30,algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS).clone());
