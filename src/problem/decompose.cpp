@@ -66,6 +66,10 @@ decompose::decompose(const base & p, method_type method, const std::vector<doubl
 		pagmo_throw(value_error,"non existing decomposition method");
 	}
 
+	if (p.get_f_dimension() == 1) {
+		pagmo_throw(value_error,"decompose works only for multi-objective problems, you are trying to decompose a single objective one.");
+	}
+
 	//1 - Checks whether the weight vector has a dimension, if not, sets its default value
 	if (m_weights.size() == 0) {
 		//Initialise a random weight vector
@@ -83,7 +87,6 @@ decompose::decompose(const base & p, method_type method, const std::vector<doubl
 			pagmo_throw(value_error,"the weight vector must have length equal to the fitness size");
 		}
 
-
 		//1.2 - Checks whether the weight vector sums to 1
 		double sum = 0.0;
 		for (std::vector<double>::size_type i=0; i<m_weights.size(); ++i) {
@@ -92,9 +95,16 @@ decompose::decompose(const base & p, method_type method, const std::vector<doubl
 		if (fabs(sum-1.0) > 1E-8) {
 			pagmo_throw(value_error,"the weight vector should sum to 1 with a tolerance of E1-8");
 		}
+		
+		//1.4 - Checks that all weights are positive
+		for (std::vector<double>::size_type i=0; i<m_weights.size(); ++i) {
+			if (m_weights[i] < 0) {
+				pagmo_throw(value_error,"the weight vector should contain only positive values");
+			}
+		}
 	}
 
-	//2 - Checks whether the reference point has a dimension, if not, sets its default value
+	//2 - Checks whether the reference point has a dimension, if not, sets its default value m_z = (0, ..., 0)
 	if (m_z.size() == 0) {
 		m_z = std::vector<double>((int)p.get_f_dimension(), 0.0); //by default m_z = (0, ..., 0)
 	} else {

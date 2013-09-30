@@ -26,9 +26,9 @@ Simple Genetic Algorithm (SGA)            :class:`PyGMO.algorithm.sga`          
 Vector Evaluated Genetic Algorithm (VEGA) :class:`PyGMO.algorithm.vega`                 MI-U-M      VEGA algorithm, multi-objective extension of SGA
 (N+1)-EA Evol. Algorithm (SEA)            :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
 Non-dominated Sorting GA (NSGA2)          :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
-S-Metric Selection EMOA (SMS-EMOA         :class:`PyGMO.algorithm.sms_emoa`              C-U-M      Relies on the hypervolume computation.
+S-Metric Selection EMOA (SMS-EMOA)        :class:`PyGMO.algorithm.sms_emoa`              C-U-M      Relies on the hypervolume computation.
 Corana's Simulated Annealing (SA)         :class:`PyGMO.algorithm.sa_corana`             C-U-S 
-Parallel Decomposition (PADE)		  :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition
+Parallel Decomposition (PADE)		  :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition (based on the MOEA/D framework)
 Non-dominated Sorting PSO (NSPSO)	  :class:`PyGMO.algorithm.nspso`		 C-U-M      Multi-Objective PSO
 Strength Pareto EA 2 (SPEA2)              :class:`PyGMO.algorithm.spea2`                 C-U-M      Strength Pareto Evolutionary Algorithm 2
 Artificial Bee Colony (ABC)               :class:`PyGMO.algorithm.bee_colony`            C-U-S 
