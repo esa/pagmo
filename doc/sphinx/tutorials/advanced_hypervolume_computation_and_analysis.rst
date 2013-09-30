@@ -14,7 +14,7 @@ it picks the algorithm which is *expected* to yield the fastest computation with
 
 .. code-block:: python
 
-  from PyGMO.util import hypervolume
+  from PyGMO.util import hypervolume, hv_algorithm
   hv = hypervolume([[1,0,1],[1,1,0],[-1,2,2]])
   hv.compute(r=(5,)*3, algorithm=hv_algorithm.wfg())
   
@@ -31,7 +31,7 @@ The list of available algorithms can be easily obtained by executing the followi
 
 .. code-block:: python
 
-  In [1]: from PyGMO import *
+  In [1]: from PyGMO.util import *
   In [2]: hv_algorithm?  # Will reveal the extended doc string of this method
   
 As of yet, the list contains the following implementations:
@@ -48,12 +48,12 @@ You can get more information on the implementation of specific algorithm, its re
 
 .. code-block:: python
 
-  In [1]: from PyGMO import *
+  In [1]: from PyGMO.util import *
   In [2]: hv_algorithm.wfg?  # Will reveal extended doc string of this method
   
 .. note::
  Some algorithms may not provide certain functionalities, e.g.: *hv4d* algorithm which is designed for efficient computation of 4-dimensional hypervolumes, supports only the "compute" method.
- When the `PyGMO.hypervolume` object is initiated with 4-dimensional list of points, and the computation of any of the exclusive contribution features is requested, it is actually the `PyGMO.hv_algorithm.wfg` algorithm handles it. Under no circumstances `PyGMO.hypervolume` object will use any of the approximated algorithms, so the only way to use them is by the explicit request.
+ When the `PyGMO.util.hypervolume` object is initiated with 4-dimensional list of points, and the computation of any of the exclusive contribution features is requested, it is actually the `PyGMO.util.hv_algorithm.wfg` algorithm handles it. Under no circumstances `PyGMO.util.hypervolume` object will use any of the approximated algorithms, so the only way to use them is by the explicit request.
 
 We will discuss the details on the approximated hypervolume in the tutorial :ref:`approximating_the_hypervolume`. This tutorial will focus only on the exact methods.
 
@@ -100,11 +100,11 @@ In this section we will present a quick comparison of the available algorithms, 
 Since in many cases, multiple objective problems are either 2 or 3-dimensional, it was important to have a dedicated algorithm for each of these scenarios.
 At the moment, there are five exact algorithms in PyGMO, three of which are dedicated for certain dimensions:
 
-#. `PyGMO.hv_algorithm.hv2d`
-#. `PyGMO.hv_algorithm.hv3d`
-#. `PyGMO.hv_algorithm.hv4d`
-#. `PyGMO.hv_algorithm.wfg`
-#. `PyGMO.hv_algorithm.hoy`
+#. `PyGMO.util.hv_algorithm.hv2d`
+#. `PyGMO.util.hv_algorithm.hv3d`
+#. `PyGMO.util.hv_algorithm.hv4d`
+#. `PyGMO.util.hv_algorithm.wfg`
+#. `PyGMO.util.hv_algorithm.hoy`
 
 As of yet, PyGMO contains two general purpose algorithms - WFG (by the Walking Fish Group) and HOY (Hypervolume by Overmars and Yap).
 We have measured the empirical effectiveness of both algorithms on multiple fronts, and we have noted a significant difference in the running time in favor of the WFG.
@@ -113,8 +113,8 @@ For that reason, WFG is the default general purpose algorithm in PyGMO. Since HO
 Even though WFG is regarded one of the state of the art algorithms for hypervolume computation, several algorithms specific to lower dimensions have been derived as well.
 We will show that dedicated algorithms for 2, 3 and 4 dimensions do in fact perform better than the general purpose ones in terms of running time.
 Since current version of WFG progresses through dimension slicing, it stops once it obtains a 2-dimensional subproblem.
-In this case, WFG delegates the computation to the `PyGMO.hv_algorithm.hv2d` algorithm.
-For that reason it is pointless to measure its efficiency against direct execution of `PyGMO.hv_algorithm.hv2d`.
+In this case, WFG delegates the computation to the `PyGMO.util.hv_algorithm.hv2d` algorithm.
+For that reason it is pointless to measure its efficiency against direct execution of `PyGMO.util.hv_algorithm.hv2d`.
 As for the latter, certain measurements were done to obtain the following comparisons of WFG (also for the variant in which we slice back to 3-dimensional front) and the dedicated algorithms:
 
 .. image:: ../images/tutorials/hv_wfg_hv3d.png
@@ -159,7 +159,7 @@ Pushing efficiency further
 
 Since the computation of the hypervolume is a computationally expensive operation, we pay special attention
 to resolve this task as efficient as possible.
-By default, `PyGMO.hypervolume` object will verify the input data to make sure they meet the criteria pointed out at the beginning of this tutorial. Also, in order to preserve the internal representation of the points intact, before doing any computation a copy of the original set of points is made.
+By default, `PyGMO.util.hypervolume` object will verify the input data to make sure they meet the criteria pointed out at the beginning of this tutorial. Also, in order to preserve the internal representation of the points intact, before doing any computation a copy of the original set of points is made.
 These precautions are not always necessary.
 
 In order to turn off the verification of the input data, you can instantiate the hypervolume object in the following way:
@@ -175,7 +175,7 @@ Additionally, a getter/setter is available as well:
 
 .. code-block:: python
 
-  # Assuming that 'hv' is an instance of the PyGMO.hypervolume
+  # Assuming that 'hv' is an instance of the PyGMO.util.hypervolume
   hv.set_verify(False)
   print hv.get_verify()
   ref_point = hv.get_nadir_point(1.0)
@@ -188,7 +188,7 @@ Another feature that can be disabled to improve runtime is the copying of points
 
 .. code-block:: python
 
-  # Assuming that 'hv' is an instance of the PyGMO.hypervolume
+  # Assuming that 'hv' is an instance of the PyGMO.util.hypervolume
   hv.set_copy_points(False)
   print hv.get_copy_points()
 
@@ -207,6 +207,7 @@ An additional small trick you can employ for your own experiments is pulling onl
 .. code-block:: python
 
   from PyGMO import *
+  from PyGMO.util import *
   prob = problem.dtlz7(fdim=6)
   pop = population(prob, 100)
 

@@ -137,7 +137,7 @@ class __PAGMO_VISIBLE archipelago
 		topology::base_ptr get_topology() const;
 		void set_topology(const topology::base &);
 		void evolve(int = 1);
-        void evolve_batch(int, unsigned int);
+		void evolve_batch(int, unsigned int);
 		void evolve_t(int);
 		bool busy() const;
 		void interrupt();

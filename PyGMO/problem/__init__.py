@@ -20,7 +20,7 @@ except ImportError:
 try:
 	from _mit_spheres import visualize as _visualize
 	mit_spheres.visualize = _visualize
-	def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0):
+	def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0, sides = [0.6,0.7,0.8]):
 		"""
 		Construct a Neurocontroller Evolution problem that seeks to drive three point masses to form a triangle
 		This problem was used to design a contorller for the MIT SPHERES test bed on boear the ISS
@@ -33,6 +33,8 @@ try:
 		* seed: integer used as starting random seed to build the pseudorandom sequences used to generate the sample
 		* symmetric: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
 		* simulation_time: when True activates a Neural Network having symmetric weights (i.e. purely homogeneuos agents)
+		* sides: sides of the triangle
+
 	"""
 
 		# We construct the arg list for the original constructor exposed by boost_python
@@ -43,6 +45,7 @@ try:
 		arg_list.append(seed)
 		arg_list.append(symmetric)
 		arg_list.append(simulation_time)
+		arg_list.append(sides)
 		self._orig_init(*arg_list)
 	mit_spheres._orig_init = mit_spheres.__init__
 	mit_spheres.__init__ = _mit_spheres_ctor

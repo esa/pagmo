@@ -85,6 +85,7 @@ def _hypervolume_ctor(self, data_src = None, verify = True, *args, **kwargs):
 
 	USAGE:
 		from PyGMO import *
+		from PyGMO.util import *
 		hv = hypervolume(pop)  # pulls the points from the population's pareto front at index 0
 		hv = hypervolume([[1,1,2],[2,1,2],[2,2,3]])
 		hv = hypervolume(((1,2), (3,0.5), (1.5, 1.5))

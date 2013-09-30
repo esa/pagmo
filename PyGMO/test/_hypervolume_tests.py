@@ -1,4 +1,5 @@
 from PyGMO import *
+from PyGMO.util import *
 import unittest
 
 class HVCtorTest(unittest.TestCase):

@@ -8,23 +8,24 @@ Determining the hypervolume indicator is a computationally expensive task.
 Even in case of a reasonably small dimension and low number of points (e.g. 100 points in 10 dimensions), there are currently no known algorithms that can yield the results fast enough for most multiple-objective optimizers.
 
 In this tutorial we will show a way to compute the hypervolume indicator faster, but at the cost of accuracy.
-Two algorithms found in `PyGMO.hv_algorithm` are capable of computing the hypervolume approximately:
+Two algorithms found in `PyGMO.util.hv_algorithm` are capable of computing the hypervolume approximately:
 
-#. `PyGMO.hv_algorithm.bf_fpras` - capable of approximating the hypervolume indicator
-#. `PyGMO.hv_algorithm.bf_approx` - capable of approximating the least and the greatest contributor
+#. `PyGMO.util.hv_algorithm.bf_fpras` - capable of approximating the hypervolume indicator
+#. `PyGMO.util.hv_algorithm.bf_approx` - capable of approximating the least and the greatest contributor
 
 .. note::
- `PyGMO.hypervolume` object will never delegate the computation to any of the approximated algorithms.
+ `PyGMO.util.hypervolume` object will never delegate the computation to any of the approximated algorithms.
  The only way to use the approximated algorithms is through the explicit request (see the beginning of the tutorial :ref:`advanced_hypervolume_computation_and_analysis` for more information on how to do that).
 
 FPRAS
 ================
 
-Algorithm `PyGMO.hv_algorithm.bf_fpras` found in PyGMO is a Fully Polynomial-Time Randomized Approximation Scheme accustomed for the computation of the hypervolume indicator. You can invoke the FPRAS by creating an instance of the hv_algorithm:
+Algorithm `PyGMO.util.hv_algorithm.bf_fpras` found in PyGMO is a Fully Polynomial-Time Randomized Approximation Scheme accustomed for the computation of the hypervolume indicator. You can invoke the FPRAS by creating an instance of the hv_algorithm:
 
 .. code-block:: python
 
   from PyGMO import *
+  from PyGMO.util import *
   prob = problem.dtlz3(fdim=10)
   pop = population(prob, 100)
   fpras = hv_algorithm.bf_fpras(eps=0.1, delta=0.1)
@@ -73,6 +74,7 @@ This is useful when we want to utilize evolutionary algorithms which rely on tha
 .. code-block:: python
 
   from PyGMO import *
+  from PyGMO.util import *
   # Problem with 30 objectives and 300 individuals
   prob = problem.dtlz3(fdim=30)
   pop = population(prob, 300)

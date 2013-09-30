@@ -50,11 +50,12 @@ namespace pagmo { namespace problem {
  *
  * The objective function is the average over multiple runs of the following fitness
  * \f[
- * 	F = |L^2 - r_{12}^2| + |L^2 - r_{13}^2| + |L^2 - r_{23}^2| + (|v_1^2| + |v_2^2| + |v_3^2|) / 2
+ * 	F = |L1^2 - r_1^2| + |L2^2 - r_2^2| + |L3^2 - r_3^2| + (|v_{f1}^2| + |v_{f2}^2| + |v_{f3}^2|) / 2
  * \f]
  *
  * rewarding neurocontrollers that drive the spheres towards a triangular configuration in space
- * with zero absolute velocity.
+ * with final zero absolute velocity. L1<L2<L3 are the three sides of the trianlgular formation desired and
+ * \f$ r_1<r_2<r_3 \f$ the three actual interspheres distances at the end of one simulation.
  *
  * NOTE: the dynamical model of the spheres is here that of point masses. As a consequence, each sphere
  * perception and action (sensing and actuating) must be defined with respect to a reference frame that is known
@@ -81,9 +82,10 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		 * @param[in] symmetric a boolean value that, if true, indicates that the neural network
 		 * does not distinguish among permutations of its input values due to sphere ID exchange.
 		 * @param[in] sim_time Time after wich the fitness is evaluated in the simualtion
+		 * @param[in] sides The three sides of the trianglular formation to acquire and maintain
 
 */
-		spheres(int n_evaluations = 10, int n_hidden = 10, double ode_prec = 1E-3, unsigned int seed = 0, bool symmetric = false, double sim_time = 50.0);
+		spheres(int n_evaluations = 10, int n_hidden = 10, double ode_prec = 1E-6, unsigned int seed = 0, bool symmetric = false, double sim_time = 50.0, const std::vector<double>& sides = std::vector<double>(3,0.5));
 
 		/// Copy Constructor
 		/**
@@ -119,9 +121,10 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		 * @return A vector containing, for each time, a vector of [t, states]
 		 */
 		std::vector<std::vector<double> > simulate(const decision_vector & x, const std::vector<double> &ic, int N) const;
-    		std::string get_name() const;
+		std::string get_name() const;
 		base_ptr clone() const;
-
+		
+		std::vector<double> get_nn_weights(decision_vector x) const;
 
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
@@ -165,16 +168,18 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 			ar & m_ic;
 			ar & m_symm;
 			ar & m_sim_time;
+			ar & m_sides;
 		}
 		gsl_odeiv2_driver*				m_gsl_drv_pntr;
 		gsl_odeiv2_system				m_sys;
 		mutable ffnn					m_ffnn;
-		int 						m_n_evaluations;
-		int 						m_n_hidden_neurons;
+		int								m_n_evaluations;
+		int								m_n_hidden_neurons;
 		const double					m_numerical_precision;
-		mutable std::vector<double>			m_ic;	
-		bool						m_symm;
-		double						m_sim_time;
+		mutable std::vector<double>		m_ic;	
+		bool							m_symm;
+		double							m_sim_time;
+		std::vector<double>				m_sides;
 };
 
 }} //namespaces

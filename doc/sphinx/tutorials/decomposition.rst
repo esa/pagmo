@@ -13,10 +13,10 @@ Let us start creating a decomposed problem from a multi-objective one.
    
 	In [1]: from PyGMO import *
 	In [2]: orig_prob = problem.zdt1(10)
-	In [3]: prob = problem.decompose(orig_prob, [0.5, 0.5])
+	In [3]: prob = problem.decompose(problem = orig_prob, weights = [0.5, 0.5])
 
 In this way the 2 objectives of the original problem are equally weighted. If we don't define the
-weight vector then it is randomly generated.
+weight vector, then it is randomly generated.
 
 We then proceed by solving the new decomposed problem using a single-objective optimization algorithm.
 
