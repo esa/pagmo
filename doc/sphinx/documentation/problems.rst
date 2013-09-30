@@ -14,14 +14,14 @@ Meta-problems
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
-Rotated                            :class:`PyGMO.problem.rotated`            from V1.1.5
-Shifted                            :class:`PyGMO.problem.shifted`            from V1.1.5
-Normalized                         :class:`PyGMO.problem.normalized`         from V1.1.5
-Noisy                              :class:`PyGMO.problem.noisy`		     from V1.1.5
-Decompose                          :class:`PyGMO.problem.decompose`          from V1.1.5
-Death-penalty                      :class:`PyGMO.problem.death_penalty`      from V1.1.5. Minimization assumed.
-Constrained to MO                  :class:`PyGMO.problem.con2mo`             from V1.1.5
-Constrained to Unconstrained       :class:`PyGMO.problem.con2uncon`          from V1.1.5
+Rotated                            :class:`PyGMO.problem.rotated`            
+Shifted                            :class:`PyGMO.problem.shifted`            
+Normalized                         :class:`PyGMO.problem.normalized`        
+Noisy                              :class:`PyGMO.problem.noisy`
+Decompose                          :class:`PyGMO.problem.decompose`    
+Death-penalty                      :class:`PyGMO.problem.death_penalty`      Minimization assumed.
+Constrained to MO                  :class:`PyGMO.problem.con2mo`             
+Constrained to Unconstrained       :class:`PyGMO.problem.con2uncon`         
 ================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective

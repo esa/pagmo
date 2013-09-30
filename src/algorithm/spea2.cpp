@@ -62,8 +62,13 @@ spea2::spea2(int gen, double cr, double eta_c, double m, double eta_m, int archi
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
-	if (archive_size < 0) {
-		pagmo_throw(value_error,"archive_size must be positive or 0 (in which case the archive size is set to the population size)");
+
+	if ((archive_size!=0) && (archive_size<5)) {
+		pagmo_throw(value_error,"archive_size must larger than 4 or 0 (in this last case the archive size is set to the population size)");
+	}
+	
+	if (archive_size%4) {
+		pagmo_throw(value_error,"archive_size must be a multiple of 4");
 	}
 }
 
@@ -81,7 +86,6 @@ base_ptr spea2::clone() const
  */
 void spea2::evolve(population &pop) const
 {
-	std::cout<<"call to evolve, population size: "<<pop.size()<<std::endl;
 	// Let's store some useful variables.
 	const problem::base             &prob = pop.problem();
 	const problem::base::size_type   D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
@@ -106,10 +110,6 @@ void spea2::evolve(population &pop) const
 
 	if( prob_f_dimension < 2 ){
 		pagmo_throw(value_error,"The problem is not multi-objective. Use a single-objectie optimization algorithm instead");
-	}
-
-	if (archive_size < 5 || (archive_size % 4 != 0) ) {
-		pagmo_throw(value_error, "for SPEA2 at least 5 individuals in the archive are needed and the archive size must be a multiple of 4");
 	}
 
 	if (NP < 5 || (NP % 4 != 0) ) {
