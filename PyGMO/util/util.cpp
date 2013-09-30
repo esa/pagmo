@@ -133,6 +133,7 @@ void expose_hypervolume()
 		.def("get_nadir_point", &util::hypervolume::get_nadir_point)
 		.def("set_copy_points", &util::hypervolume::set_copy_points)
 		.def("get_copy_points", &util::hypervolume::get_copy_points)
+		.def("get_points", &util::hypervolume::get_points)
 		.def("set_verify", &util::hypervolume::set_verify)
 		.def("get_verify", &util::hypervolume::get_verify);
 }

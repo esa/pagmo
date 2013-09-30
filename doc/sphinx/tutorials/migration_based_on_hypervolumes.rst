@@ -20,6 +20,7 @@ As a comparison, the random migration policies `PyGMO.migration.random_s_policy`
 .. code-block:: python
 
     from PyGMO import *
+    from PyGMO.util import *
 
     def run_evolution(islands, prob):
         """
@@ -96,13 +97,18 @@ We owe you an explanation on what had happened behind the curtains of that archi
 A main advantage of evolving an archipelago are the occasional migrations: individuals spreading from one island to a neighbouring island.
 The island to which the individuals have travelled is able to pick and choose the newly arrived immigrants, and use the information stored in their chromosome to advance the evolution further.
 
-Hypervolume computation plays a significant role in establishing the *best* subset of individuals (these are the candidates for emigration), as well as the *worst* subset (which may be replaced by available set of immigrants). In our example, the selection and replacement of individuals by using the hypervolume allows a faster convergence (= less function evaluations) towards the Pareto-front than the random migration strategy.
+Hypervolume computation plays a significant role in establishing the *best* subset of individuals (these are the candidates for emigration), as well as the *worst* subset (which may be replaced by available set of immigrants).
+In our example, the selection and replacement of individuals by using the hypervolume allows a faster convergence (= less function evaluations) towards the Pareto-front than the random migration strategy.
 
 Hypervolume-based selection policy
 ----------------------------------
 
 Let us assume an island with 10 individuals. We want to determine a set of 4 emigrants (outgoing individuals).
-First step is computing the contributions of each individual according to some valid reference point. After this we select the 4 individuals that contributed the most. The plot on the left visualizes the computed exclusive contributions of 10 individuals. On the right are the same individuals ordered ascending by their contribution. The last four individuals in this ordering are selected for migration.
+First step is computing the contributions of each individual according to some valid reference point.
+After this we select the 4 individuals that contributed the most.
+The plot on the left visualizes the computed exclusive contributions of 10 individuals.
+On the right are the same individuals ordered ascending by their contribution.
+The last four individuals in this ordering are selected for migration.
 
 .. image:: ../images/tutorials/hv_migration_selection.png
   :width: 750px
@@ -112,15 +118,19 @@ The main difference in what hypervolume-based "best" policy does is that it comp
 This is mainly a precaution for selecting the best emigrants possible in the early stages of the algorithm, when we expect several different fronts.
 Since the points with higher front ranks are dominated (and thus having a contribution of zero) we could not give a preference beyond the individuals of the first front for selection.
 
-To avoid this problem, we first compute the contributions among the individuals in the first front. If there are more individuals requested as available in the first front, we remove it temporarily from the population, recompute contributions of the population and continue to fill up the list of emigrants with the greatest contributors from the original second front and so on. This process continues until we have selected the requested number of emigrants.
+To avoid this problem, we first compute the contributions among the individuals in the first front.
+If there are more individuals requested as available in the first front, we remove it temporarily from the population, recompute contributions of the population and continue to fill up the list of emigrants with the greatest contributors from the original second front and so on.
+This process continues until we have selected the requested number of emigrants.
 
-Although the general idea of `PyGMO.migration.hv_greedy_s_policy` is the same, there is one main difference. Instead of computing the contributions of all individuals at once (see `PyGMO.hypervolume.contributions`), we iteratively compute the *single* greatest contributor (see `PyGMO.hypervolume.greatest_contributor`). After the greatest contributor was found, we temporarily remove it from the population (which most likely will change the contributions from other points) and compute the new greatest contributor to select the second emigrant and so on.
+Although the general idea of `PyGMO.migration.hv_greedy_s_policy` is the same, there is one main difference.
+Instead of computing the contributions of all individuals at once (see `PyGMO.util.hypervolume.contributions`), we iteratively compute the *single* greatest contributor (see `PyGMO.util.hypervolume.greatest_contributor`).
+After the greatest contributor was found, we temporarily remove it from the population (which most likely will change the contributions from other points) and compute the new greatest contributor to select the second emigrant and so on.
 
 Hypervolume-based replacement policy
 ------------------------------------
 
 The hypervolume replacement policies work in a similar fashion, except this time the least contributing islanders are computed and replaced by the highest contributing immigrants, if any. The plot on the left visualizes a population of 10 islanders (green) merged together with 5 immigrants (blue).
-In this set of 15 individuals, we determine the 5 least contributors, either by computing all contributions at once (`PyGMO.migration.hv_fair_r_policy`) or iteratively (`PyGMO.migration.hv_greedy_r_policy`) by removing each least contributor (`PyGMO.hypervolume.least_contributor`) once it was established.
+In this set of 15 individuals, we determine the 5 least contributors, either by computing all contributions at once (`PyGMO.migration.hv_fair_r_policy`) or iteratively (`PyGMO.migration.hv_greedy_r_policy`) by removing each least contributor (`PyGMO.util.hypervolume.least_contributor`) once it was established.
 The plot on the right visualizes the ordered population, out of which 5 least contributors were selected.
 Since there are 3 islanders in the set of 5 least contributors, it is possible to make 3 fair replacements: 3 *discarded* islanders (crossed-over bar) with 3 *non-discarded* immigrants.
 

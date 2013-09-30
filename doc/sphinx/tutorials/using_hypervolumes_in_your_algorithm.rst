@@ -12,6 +12,7 @@ As it is often the case in the tutorials, we will present a fairly simple MOO al
 .. code-block:: python
 
   from PyGMO import *
+  from PyGMO.util import *
   import random
 
   class my_hv_moo_alg(algorithm.base):
@@ -107,7 +108,7 @@ The algorithm does the following in the *evolve* method:
 #. Establish a new individual by performing a very simple crossover on two random individuals
 #. Apply the Gaussian mutation operator
 #. Push the newly obtained vector to the population
-#. Establish the least contributor using the `PyGMO.hypervolume` module
+#. Establish the least contributor using the `PyGMO.util.hypervolume` object
 #. Remove the least contributor from the population
 
 Script above should produce an output similar to the one below:

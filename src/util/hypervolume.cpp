@@ -455,7 +455,7 @@ fitness_vector hypervolume::get_nadir_point(const double epsilon) const
  *
  * @return const reference to the vector containing the fitness_vectors representing the points in the hyperspace.
  */
-const std::vector<fitness_vector> &hypervolume::get_points() const
+const std::vector<fitness_vector> hypervolume::get_points() const
 {
 	return m_points;
 }

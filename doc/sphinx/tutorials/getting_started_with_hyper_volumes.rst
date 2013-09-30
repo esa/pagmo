@@ -15,14 +15,16 @@ The main class used for the computation of the hypervolume indicator (also known
 
 .. code-block:: python
 
-  from PyGMO import hypervolume
+  from PyGMO.util import hypervolume
   'hypervolume' in dir()  # Returns True
     
-Since the computation of the hypervolume indicator and the hypervolume contributions are bound tightly to multi-objective optimization, we provide two ways of constructing a hypervolume object. The first one uses the fitness values of the individuals of a population for the input point set:
+Since the computation of the hypervolume indicator and the hypervolume contributions are bound tightly to multi-objective optimization, we provide two ways of constructing a hypervolume object.
+The first one uses the fitness values of the individuals of a population for the input point set:
 
 .. code-block:: python
 
   from PyGMO import *
+  from PyGMO.util import *
 
   prob = problem.dtlz2(fdim=3)  # Construct DTLZ-2 problem with 3-dimensional fitness space
   pop = population(prob, 50)  # Construct the population object
@@ -35,7 +37,7 @@ The second way of construction uses an explicit representation of coordinates fo
 
 .. code-block:: python
 
-  from PyGMO import *
+  from PyGMO.util import *
 
   hv = hypervolume([[1,0],[0.5,0.5],[0,1]])
 
@@ -59,7 +61,7 @@ For simplicity, we will use this simple 2-dimensional front as an example to sho
 
 .. code-block:: python
 
-  from PyGMO import *
+  from PyGMO.util import *
 
   hv = hypervolume( ((1, 0), (0.5, 0.5), (0, 1), (1.5, 0.75)) )
   ref_point = (2,2)
@@ -123,6 +125,7 @@ This following short script presents all features mentioned above:
 .. code-block:: python
 
   from PyGMO import *
+  from PyGMO.util import *
 
   # Initiate a 4-objective problem
   # and a population of 100 individuals

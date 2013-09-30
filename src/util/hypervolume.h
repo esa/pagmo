@@ -85,7 +85,7 @@ public:
 	fitness_vector get_nadir_point(const double epsilon = 0.0) const;
 
 	hypervolume_ptr clone() const;
-	const std::vector<fitness_vector> &get_points() const;
+	const std::vector<fitness_vector> get_points() const;
 
 private:
 	hv_algorithm::base_ptr get_best_compute(const fitness_vector &) const;
