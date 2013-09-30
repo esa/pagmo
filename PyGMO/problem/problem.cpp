@@ -584,9 +584,10 @@ BOOST_PYTHON_MODULE(_problem) {
 #ifdef PAGMO_ENABLE_GSL
 	// Spheres Problems
 	stochastic_problem_wrapper<problem::spheres>("mit_spheres", "Spheres problem, a neurocontroller for the MIT test-bed (absolute perception-action)")
-		.def(init< optional<int,int,double,unsigned int, bool, double> >())
+		.def(init< optional<int,int,double,unsigned int, bool, double, std::vector<double> > >())
 		.def("post_evaluate", &problem::spheres::post_evaluate)
 		.def("simulate", &problem::spheres::simulate)
+		.def("get_nn_weights", &problem::spheres::get_nn_weights)
 		.add_property("seed",&problem::spheres::get_seed,&problem::spheres::set_seed,"Random seed used in the objective function evaluation.");
 
 

@@ -25,6 +25,7 @@
 #include<gsl/gsl_odeiv2.h>
 #include<gsl/gsl_errno.h>
 #include<cmath>
+#include<algorithm>
 
 #include "../exceptions.h"
 #include "../types.h"
@@ -36,8 +37,6 @@ static const int nr_input = 8;
 static const int nr_output = 3;
 static const int nr_spheres = 3;
 static const int nr_eq = 9;
-static const double target_distance2 = 0.25;
-static const double target_distance = 0.5;
 
 static double norm2(double v[3]) {
 	return(v[0]*v[0] + v[1]*v[1] +v[2]*v[2]);
@@ -46,11 +45,11 @@ static double norm2(double v[3]) {
 namespace pagmo { namespace problem {
 
 spheres::spheres(int n_evaluations, int n_hidden_neurons,
-		 double numerical_precision, unsigned int seed, bool symmetric, double sim_time) :
+		 double numerical_precision, unsigned int seed, bool symmetric, double sim_time, const std::vector<double>& sides) :
 	base_stochastic((nr_input/(int(symmetric)+1) + 1) * n_hidden_neurons + (n_hidden_neurons + 1) * nr_output, seed),
 	m_ffnn(nr_input,n_hidden_neurons,nr_output), m_n_evaluations(n_evaluations),
 	m_n_hidden_neurons(n_hidden_neurons), m_numerical_precision(numerical_precision),
-	m_ic(nr_eq), m_symm(symmetric), m_sim_time(sim_time) {
+	m_ic(nr_eq), m_symm(symmetric), m_sim_time(sim_time), m_sides(sides) {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
 	set_lb(-1);
 	set_ub(1);
@@ -58,13 +57,16 @@ spheres::spheres(int n_evaluations, int n_hidden_neurons,
 	gsl_odeiv2_system sys = {ode_func,NULL,nr_eq,&m_ffnn};
 	m_sys = sys;
 	m_gsl_drv_pntr = gsl_odeiv2_driver_alloc_y_new(&m_sys, gsl_odeiv2_step_rk8pd, 1e-6,m_numerical_precision,0.0);
+	// And make sure the three sides are ordered and squared here
+	std::sort(m_sides.begin(),m_sides.end());
+	m_sides[0]*=m_sides[0];	m_sides[1]*=m_sides[1];	m_sides[2]*=m_sides[2];
 }
 
 spheres::spheres(const spheres &other):
 	base_stochastic(other),
 	m_ffnn(other.m_ffnn),
 	m_n_evaluations(other.m_n_evaluations),m_n_hidden_neurons(other.m_n_hidden_neurons),
-	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic), m_symm(other.m_symm), m_sim_time(other.m_sim_time)
+	m_numerical_precision(other.m_numerical_precision),m_ic(other.m_ic), m_symm(other.m_symm), m_sim_time(other.m_sim_time),m_sides(other.m_sides)
 {
 	// Here we set the bounds for the problem decision vector, i.e. the nn weights
 	gsl_odeiv2_system sys = {ode_func,NULL,nr_eq,&m_ffnn};
@@ -84,6 +86,8 @@ base_ptr spheres::clone() const
 
 //This function evaluates the fitness of a given spheres configuration ....
 double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural_net) const {
+
+
 	double	fit = 0.0;
 	double	context[8], vel_f[3];
 	int	k;
@@ -100,7 +104,7 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 		}
 
 		// context now contains the relative position vectors (6 components) in the absolute frame
-		// we write, on the last two components of context, the norms of these relative positions
+		// we write, on the last two components of context, the norms2 of these relative positions
 		context[6] = context[0]*context[0] + context[1]*context[1] + context[2]*context[2];
 		context[7] = context[3]*context[3] + context[4]*context[4] + context[5]*context[5];
 
@@ -110,21 +114,31 @@ double spheres::single_fitness( const std::vector<double> &y, const ffnn& neural
 		vel_f[1] = vel_f[1] * 2 * 0.3 - 0.3;
 		vel_f[2] = vel_f[2] * 2 * 0.3 - 0.3;
 
-		//first add |L² - R²| to the fitness
-		double temp = std::abs(target_distance2 - context[6]);
-		fit += temp;
-		temp = std::abs(target_distance2 - context[7]);
-		fit += temp;
-
 		//and we add the final velocity violation (two times since we will divide by two later)
-		//fit += 2 *(norm2(vel_f));
+		fit += 2 *(norm2(vel_f));
 
 		//and we keep them within the box [-1 1]
 		//if (std::abs(y[i*3]) > 1)   fit += std::abs(y[i*3]);
 		//if (std::abs(y[i*3+1]) > 1) fit += std::abs(y[i*3+1]);
 		//if (std::abs(y[i*3+2]) > 1) fit += std::abs(y[i*3+2]);
 	}
-	return (fit/2);
+	fit = fit/2;
+	
+	// Here we compute the violation from the desired velocity
+#define SRT_PAIR(a,b) if ((b)<(a)) {(tmp=a);(a=b);(b=tmp);}
+	double tmp = 0;
+	double a2 = (y[0]-y[3])*(y[0]-y[3]) + (y[1]-y[4])*(y[1]-y[4]) + (y[2]-y[5])*(y[2]-y[5]);
+	double b2 = (y[0]-y[6])*(y[0]-y[6]) + (y[1]-y[7])*(y[1]-y[7]) + (y[2]-y[8])*(y[2]-y[8]);
+	double c2 = (y[6]-y[3])*(y[6]-y[3]) + (y[7]-y[4])*(y[7]-y[4]) + (y[8]-y[5])*(y[8]-y[5]);
+
+	SRT_PAIR(a2,b2)
+	SRT_PAIR(b2,c2)
+	SRT_PAIR(a2,b2)
+#undef SRT_PAIR
+
+	fit += (a2-m_sides[0])*(a2-m_sides[0])+(b2-m_sides[1])*(b2-m_sides[1])+(c2-m_sides[2])*(c2-m_sides[2]);
+	//fit += std::abs(a2-m_sides[0])+std::abs(b2-m_sides[1])+std::abs(c2-m_sides[2]);
+	return fit;
 }
 
 int spheres::ode_func( double t, const double y[], double f[], void *params ) {
@@ -363,6 +377,11 @@ std::vector<std::vector<double> > spheres::simulate(const decision_vector &x, co
 	return ( ret );
 }
 
+std::vector<double> spheres::get_nn_weights(decision_vector x) const {
+	set_nn_weights(x);
+	return m_ffnn.m_weights;
+}
+
 std::string spheres::get_name() const
 {
 	return "MIT SPHERES - Neurocontroller Evolution";
@@ -381,6 +400,7 @@ std::string spheres::human_readable_extra() const
 	oss << "\tSeed: " << m_seed << '\n';
 	oss << "\tSymmetric Weights: " << m_symm << '\n';
 	oss << "\tSimulation time: " << m_sim_time << '\n';
+	oss << "\tTriangle sides (squared): " << m_sides << '\n';
 	return oss.str();
 }
 
