@@ -66,7 +66,7 @@ Select the problem and associate a population to this problem.
 .. code-block:: python
 
    In [7]: prob = problem.cec2006(6)
-   In [8]: pop = population(prob,pop_size);
+   In [8]: pop = population(prob,pop_size)
 
 Creates the meta-algorithm with these informations.
 

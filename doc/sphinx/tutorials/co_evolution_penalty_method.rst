@@ -75,13 +75,13 @@ Select the problem and associate a population to this problem.
 .. code-block:: python
 
    In [7]: prob = problem.cec2006(5)
-   In [8]: pop = population(prob,pop_1_size);
+   In [8]: pop = population(prob,pop_1_size)
 
 Creates the meta-algorithm with these informations.
 
 .. code-block:: python
 
-   In [9]: algo_coevo = algorithm.cstrs_co_evolution(algorithm = algo_1, algorithm_2 = algo_2, pop_2_size = pop_2_size, gen = n_gen)
+   In [9]: algo_coevo = algorithm.cstrs_co_evolution(algorithm = algo_1, algorithm_2 = algo_2, pop_penalties_size = pop_2_size, gen = n_gen)
 
 Evolve the algorithm.
 

@@ -57,8 +57,8 @@ in example, and run this file with python.
    prob_cec = problem.cec2006(4)
 
    prob_list = []
-   prob_list.append(problem.death_penalty(prob_cec,problem.death_penalty.method.SIMPLE));
-   prob_list.append(problem.death_penalty(prob_cec,problem.death_penalty.method.KURI));
+   prob_list.append(problem.death_penalty(prob_cec,problem.death_penalty.method.SIMPLE))
+   prob_list.append(problem.death_penalty(prob_cec,problem.death_penalty.method.KURI))
 
    print('\n-----------------------------')
    print('\nOriginal problem: ')
@@ -90,12 +90,12 @@ in example, and run this file with python.
                    best.append(isl.population.champion.f)
                    best_x.append(isl.population.champion.x)
 
-        print(' Best:\t' + str(min(best)[0]))
-        print(' Mean:\t' + str(mean(best)))
-        print(' Std:\t' + str(std(best)))
+           print(' Best:\t' + str(min(best)[0]))
+           print(' Mean:\t' + str(mean(best)))
+           print(' Std:\t' + str(std(best)))
 
-        print(' Example of found x:\t' + str(best_x[0]))
-        print(' Example of found constraints:\t' + str(prob_cec.compute_constraints((best_x[0]))))
+           print(' Example of found x:\t' + str(best_x[0]))
+           print(' Example of found constraints:\t' + str(prob_cec.compute_constraints((best_x[0]))))
 
 In this example, we have used two different meta-problems one for each death
 penalty techniques, both contained in the prob_list variable. By looking at
