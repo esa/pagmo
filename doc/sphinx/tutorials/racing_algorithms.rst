@@ -45,7 +45,7 @@ populations to be evolved should be, while each algorithm is being evaluated.
 
 .. code-block:: python
 
-    racer = util.race_algo(algo_list, prob, pop_size=100, 0)
+    racer = util.race_algo(algo_list, prob, pop_size=100, seed=0)
     winners, n_evaluation = racer.run(n_final=1)
 
 There are a couple of arguments that can be specified for ``run``, such as
@@ -57,8 +57,8 @@ In addition, it is possible to cover a range of problems simultaneously.
 
 .. code-block:: python
 
-    probs = [problem.ackely(), problem.griewank()]
-    racer = util.race_algo(algo_list, prob, pop_size=100, 0)
+    probs = [problem.ackley(), problem.griewank()]
+    racer = util.race_algo(algo_list, probs, pop_size=100, seed=0)
     winners, n_evaluation = racer.run(n_final=1)
 
 Internally, when ``race_algo`` is assigning a performance measure to each
@@ -90,7 +90,7 @@ parameters as shown in the following code.
     algo_list = []
     for p in pars:
         args = {}
-        args['Variant'], args['neighb_type'], args['neighb_param'] = p
+        args['variant'], args['neighb_type'], args['neighb_param'] = p
         algo_list.append(algorithm.pso(gen=100,**args))
 
     racer = util.race_algo(algo_list, prob, pop_size=pop_size, seed=0)
@@ -98,7 +98,7 @@ parameters as shown in the following code.
 
     print 'Winning algorithm:'
     for i in winners:
-        print zip(['Variant', 'neighb_type', 'neighb_param'], pars[i])
+        print zip(['variant', 'neighb_type', 'neighb_param'], pars[i])
         
     print 'Evaluated algorithms for %d times' % n_evaluated
 
@@ -110,16 +110,16 @@ parameters as shown in the following code.
     print 'Default algorithm:', pop_default.champion.f
     print 'Selected algorithm:', pop_selected.champion.f
 
-The output are as follows:
+The output should be similar to the following (feel free to try a few more times due to the effects of random population initialization):
 
 .. code-block:: python
 
     Winning algorithm:
-    [('Variant', 5), ('neighb_type', 1), ('neighb_param', 1)]
-    [('Variant', 5), ('neighb_type', 1), ('neighb_param', 2)]
-    [('Variant', 5), ('neighb_type', 1), ('neighb_param', 3)]
-    [('Variant', 5), ('neighb_type', 1), ('neighb_param', 4)]
-    [('Variant', 5), ('neighb_type', 1), ('neighb_param', 5)]
+    [('variant', 5), ('neighb_type', 1), ('neighb_param', 1)]
+    [('variant', 5), ('neighb_type', 1), ('neighb_param', 2)]
+    [('variant', 5), ('neighb_type', 1), ('neighb_param', 3)]
+    [('variant', 5), ('neighb_type', 1), ('neighb_param', 4)]
+    [('variant', 5), ('neighb_type', 1), ('neighb_param', 5)]
     Evaluated algorithms for 354 times
     Default algorithm: (0.8463040459318276,)
     Selected algorithm: (0.05200250235673254,)
