@@ -309,39 +309,35 @@ std::vector<std::vector<double> > spheres::post_evaluate(const decision_vector &
 }
 
 void spheres::set_nn_weights(const decision_vector &x) const {
-	switch (m_symm) {
-		case true: {//symmetric weigths activated
-			int w = 0;
-			for(unsigned int h = 0; h < m_ffnn.m_n_hidden; h++)
+	if(m_symm) {//symmetric weigths activated
+		int w = 0;
+		for(unsigned int h = 0; h < m_ffnn.m_n_hidden; h++)
+		{
+			int start_index = h * 5; // (nr_input/2+1)
+			// bias, dx1, dy1, dz1
+			for(int j = 0; j < 4; j++)
 			{
-				int start_index = h * 5; // (nr_input/2+1)
-				// bias, dx1, dy1, dz1
-				for(int j = 0; j < 4; j++)
-				{
-					m_ffnn.m_weights[w] = x[start_index+j]; w++;
-				}
-				// dx2, dy2, dz2
-				for(int j = 1; j <= 3; j++)
-				{
-					m_ffnn.m_weights[w] = x[start_index+j]; w++;
-				}
-				// distance 1
-				m_ffnn.m_weights[w] = x[start_index+4]; w++;
-				// distance 2
-				m_ffnn.m_weights[w] = x[start_index+4]; w++;
+				m_ffnn.m_weights[w] = x[start_index+j]; w++;
 			}
-			int ind = 0;
-			for(unsigned int ww = w; ww < m_ffnn.m_weights.size(); ww++)
+			// dx2, dy2, dz2
+			for(int j = 1; j <= 3; j++)
 			{
-				m_ffnn.m_weights[ww] = x[(nr_input/2+1)*m_ffnn.m_n_hidden+ind];
-				ind++;
+				m_ffnn.m_weights[w] = x[start_index+j]; w++;
 			}
-			break;
+			// distance 1
+			m_ffnn.m_weights[w] = x[start_index+4]; w++;
+			// distance 2
+			m_ffnn.m_weights[w] = x[start_index+4]; w++;
 		}
-		case false: {//no symmetric weights
-			m_ffnn.m_weights = x;
-			break;
+		int ind = 0;
+		for(unsigned int ww = w; ww < m_ffnn.m_weights.size(); ww++)
+		{
+			m_ffnn.m_weights[ww] = x[(nr_input/2+1)*m_ffnn.m_n_hidden+ind];
+			ind++;
 		}
+
+	} else {//no symmetric weights
+		m_ffnn.m_weights = x;
 	}
 }
 
