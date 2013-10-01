@@ -67,8 +67,14 @@ namespace pagmo { namespace algorithm {
 pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::method_type method,
 		   const pagmo::algorithm::base & solver, population::size_type T, weight_generation_type weight_generation,
 		   const fitness_vector &z)
-	:base(),m_gen(gen),m_max_parallelism(max_parallelism),
-	  m_method(method),m_solver(solver.clone()),m_T(T),m_weight_generation(weight_generation),m_z(z)
+	  :base(),
+	  m_gen(gen),
+	  m_max_parallelism(max_parallelism),
+	  m_method(method),
+	  m_solver(solver.clone()),
+	  m_T(T),
+	  m_weight_generation(weight_generation),
+	  m_z(z)
 {
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
@@ -81,9 +87,15 @@ pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::met
 }
 
 /// Copy constructor. Performs a deep copy. Necessary as a pointer to a base algorithm is here contained
-pade::pade(const pade &algo):base(algo), m_gen(algo.m_gen),m_max_parallelism(algo.m_max_parallelism),
-	m_method(algo.m_method),m_solver(algo.m_solver->clone()),m_T(algo.m_T),
-	m_weight_generation(algo.m_weight_generation),m_z(algo.m_z)
+pade::pade(const pade &algo):
+	  base(algo),
+	  m_gen(algo.m_gen),
+	  m_max_parallelism(algo.m_max_parallelism),
+	  m_method(algo.m_method),
+	  m_solver(algo.m_solver->clone()),
+	  m_T(algo.m_T),
+	  m_weight_generation(algo.m_weight_generation),
+	  m_z(algo.m_z)
 {}
 
 /// Clone method.
@@ -317,6 +329,7 @@ std::string pade::human_readable_extra() const
 		case GRID : s << "GRID" << ' ';
 			break;
 	}
+	s << "ref. point" << m_z;
 	return s.str();
 }
 

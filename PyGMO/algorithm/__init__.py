@@ -448,7 +448,7 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 
 	USAGE: algorithm.sms_emoa(self, gen=100, sel_m = 2, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
 
-	* hv_algorithm: hypervolume algorithm object used for the computation of the hypervolume
+	* hv_algorithm: hypervolume algorithm object used for the computation of the hypervolume. By default its chosen dynamically
 	* gen: number of generations
 	* sel_m: selection method for points in dominated fronts. 1 - always use least contributor, 2 - use domination count for fronts > 1
 	* cr: crossover factor [0,1]
@@ -477,7 +477,7 @@ _algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
 _algorithm.pade.GRID = _algorithm._weight_generation.GRID
 _algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
 from PyGMO.problem import decompose
-def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.BI, solver = jde(100), T = 8, weights = pade.LOW_DISCREPANCY, z = []):
+def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.BI, solver = None, T = 8, weights = pade.LOW_DISCREPANCY, z = []):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	
@@ -501,6 +501,8 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.BI, 
 	arg_list.append(gen)
 	arg_list.append(max_parallelism)
 	arg_list.append(decomposition)
+	if solver==None:
+		solver=jde(100)
 	arg_list.append(solver)
 	arg_list.append(T)
 	arg_list.append(weights)
@@ -659,7 +661,7 @@ sea.__init__ = _sea_ctor
 #firefly._orig_init = firefly.__init__
 #firefly.__init__ = _firefly_ctor
 
-def _ms_ctor(self, algorithm = _algorithm.de(), iter = 1):
+def _ms_ctor(self, algorithm = None, iter = 1):
 	"""
 	Constructs a Multistart Algorithm
 	
@@ -674,6 +676,8 @@ def _ms_ctor(self, algorithm = _algorithm.de(), iter = 1):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
+	if algorithm = None:
+		algorithm = _algorithm.jde()
 	arg_list.append(algorithm)
 	arg_list.append(iter)
 	self._orig_init(*arg_list)
@@ -703,7 +707,7 @@ def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction
 cs._orig_init = cs.__init__
 cs.__init__ = _cs_ctor
 
-def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, screen_output = False):
+def _mbh_ctor(self, algorithm = None, stop = 5, perturb = 5e-2, screen_output = False):
 	"""
 	Constructs a Monotonic Basin Hopping Algorithm (generalized to accept any algorithm)
 	
@@ -722,6 +726,8 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, scree
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
+	if algorithm==None:
+		algorithm=_algorithm.cs()
 	arg_list.append(algorithm)
 	arg_list.append(stop)
 	arg_list.append(perturb)
@@ -730,7 +736,7 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, scree
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
 
-def _cstrs_self_adaptive_ctor(self, algorithm = _algorithm.jde(), max_iter = 100, f_tol = 1e-15, x_tol = 1e-15):
+def _cstrs_self_adaptive_ctor(self, algorithm = None, max_iter = 100, f_tol = 1e-15, x_tol = 1e-15):
 	"""
 	Constructs a Self-Adaptive Fitness constraints handling Meta Algorithm.
 
@@ -747,7 +753,8 @@ def _cstrs_self_adaptive_ctor(self, algorithm = _algorithm.jde(), max_iter = 100
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	arg_list.append(algorithm)
+	if algorithm==None:
+		arg_list.append(_algorithm.jde())
 	arg_list.append(max_iter)
 	arg_list.append(f_tol)
 	arg_list.append(x_tol)
@@ -758,7 +765,7 @@ cstrs_self_adaptive.__init__ = _cstrs_self_adaptive_ctor
 # Renaming and placing the enums
 _algorithm.cstrs_co_evolution.method = _algorithm._co_evo_method_type
 
-def _cstrs_co_evolution_ctor(self,original_algo = _algorithm.jde(),original_algo_penalties = _algorithm.jde(),pop_penalties_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.,f_tol = 1e-15,x_tol = 1e-15):
+def _cstrs_co_evolution_ctor(self,original_algo = None,original_algo_penalties = None,pop_penalties_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.,f_tol = 1e-15,x_tol = 1e-15):
 	"""
 	Constructs a co-evolution adaptive penalty algorithm for constrained optimization.
 	
@@ -781,8 +788,10 @@ def _cstrs_co_evolution_ctor(self,original_algo = _algorithm.jde(),original_algo
 	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
 	arg_list=[]
-	arg_list.append(original_algo)
-	arg_list.append(original_algo_penalties)
+	if original_algo==None:
+		arg_list.append(algorithm.jde())
+	if original_algo_penalties==None:
+		arg_list.append(algorithm.jde())
 	arg_list.append(pop_penalties_size)
 	arg_list.append(gen)
 	arg_list.append(method)
@@ -799,11 +808,11 @@ _algorithm.cstrs_immune_system.select_method = _algorithm._immune_select_method_
 _algorithm.cstrs_immune_system.inject_method = _algorithm._immune_inject_method_type
 _algorithm.cstrs_immune_system.distance_method = _algorithm._immune_distance_method_type
 
-def _cstrs_immune_system_ctor(self,algorithm = _algorithm.jde(), algorithm_immune = _algorithm.jde(), gen = 1, select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., f_tol = 1e-15, x_tol = 1e-15):
+def _cstrs_immune_system_ctor(self,algorithm = None, algorithm_immune = None, gen = 1, select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., f_tol = 1e-15, x_tol = 1e-15):
 	"""
 	Constructs an immune system algorithm for constrained optimization.
 	
-	USAGE: algorithm._cstrs_immune_system(algorithm = _algorithm.jde(), algorithm_2 = _algorithm.jde(), select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., ftol = 1e-15, xtol = 1e-15):
+	USAGE: algorithm._cstrs_immune_system(algorithm = _algorithm.jde(), algorithm_immune = _algorithm.jde(), gen = 1, select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., ftol = 1e-15, xtol = 1e-15):
 
 	* algorithm: optimizer to use as 'original' optimization method. Its number of generations should be set to 1.
 	* algorithm_2: optimizer to use as 'original' optimization method for the evolution of the immune system.
@@ -819,8 +828,10 @@ def _cstrs_immune_system_ctor(self,algorithm = _algorithm.jde(), algorithm_immun
 	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
 	arg_list=[]
-	arg_list.append(algorithm)
-	arg_list.append(algorithm_immune)
+	if original_algo==None:
+		arg_list.append(algorithm.jde())
+	if algorithm_immune==None:
+		arg_list.append(algorithm.jde())
 	arg_list.append(gen)
 	arg_list.append(select_method)
 	arg_list.append(inject_method)
@@ -834,11 +845,11 @@ def _cstrs_immune_system_ctor(self,algorithm = _algorithm.jde(), algorithm_immun
 cstrs_immune_system._orig_init = cstrs_immune_system.__init__
 cstrs_immune_system.__init__ = _cstrs_immune_system_ctor
 
-def _cstrs_core_ctor(self,algorithm = _algorithm.jde(), repair_algorithm = _algorithm.jde(), gen = 1, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15):
+def _cstrs_core_ctor(self,algorithm = None, repair_algorithm = None, gen = 1, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15):
 	"""
 	Constructs CORE (Constrained Optimization by Random Evolution) algorithm for constrained optimization (belong to the family of repairing techniques).
 	
-	USAGE: algorithm._cstrs_core(algorithm = _algorithm.jde(), algorithm = _algorithm.jde(), gen = 1, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15):
+	USAGE: algorithm._cstrs_core(algorithm = _algorithm.jde(), repair_algorithm = _algorithm.jde(), gen = 1, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15):
 
 	* algorithm: optimizer to use as 'original' optimization method. Its number of generations should be set to 1.
 	* repair_algorithm: optimizer to use as 'repairing' algorithm. It should be able to deal with population of size 1.
@@ -849,8 +860,10 @@ def _cstrs_core_ctor(self,algorithm = _algorithm.jde(), repair_algorithm = _algo
 	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
 	arg_list=[]
-	arg_list.append(algorithm)
-	arg_list.append(repair_algorithm)
+	if original_algo==None:
+		arg_list.append(algorithm.jde())
+	if repair_algorithm==None:
+		arg_list.append(repair_algorithm.jde())
 	arg_list.append(gen)
 	arg_list.append(repair_frequency)
 	arg_list.append(repair_ratio)

@@ -86,6 +86,7 @@ private:
 		ar & const_cast<base_ptr &>(m_solver);
 		ar & const_cast<population::size_type &>(m_T);
 		ar & const_cast<weight_generation_type &>(m_weight_generation);
+		ar & m_z;
 	}
 	//Number of generations
 	const int m_gen;

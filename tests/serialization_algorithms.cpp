@@ -53,6 +53,8 @@ int main()
 	// Fill it up with algorithms
 	// 1) first the multiobjective ones
 
+	algos.push_back(algorithm::pade(gen, 1, pagmo::problem::decompose::TCHEBYCHEFF, pagmo::algorithm::jde(80), 9, algorithm::pade::GRID, std::vector<double>()).clone());
+	algos_new.push_back(algorithm::pade().clone());
 	algos.push_back(algorithm::sms_emoa(gen,2,0.5,11,0.3,11).clone());
 	algos_new.push_back(algorithm::sms_emoa().clone());
 	algos.push_back(algorithm::nsga2(gen,0.5,11,0.3,11).clone());
@@ -63,8 +65,7 @@ int main()
 	algos_new.push_back(algorithm::nspso().clone());
 	algos.push_back(algorithm::spea2(gen,0.95, 11, 0.012, 50, 0).clone());
 	algos_new.push_back(algorithm::spea2().clone());
-	algos.push_back(algorithm::pade(gen, 1, pagmo::problem::decompose::TCHEBYCHEFF, pagmo::algorithm::jde(80), 9, algorithm::pade::GRID, std::vector<double>()).clone());
-	algos_new.push_back(algorithm::pade().clone());
+
 
 	// 2) then some meta-algorithm
 	algos.push_back(algorithm::cstrs_co_evolution(algorithm::de(gen),algorithm::de(1),20,30,algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS).clone());
@@ -223,6 +224,7 @@ int main()
 			pop1 = population(pop_original);
 			pop2 = population(pop_original);
 		}
+		std::cout << *algos[i] << *algos_new[i] << std::endl;
 		algos[i]->evolve(pop1);
 		algos_new[i]->evolve(pop2);
 		std::cout << std::endl << std::setw(80) << algos[i]->get_name();
