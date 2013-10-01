@@ -70,7 +70,7 @@ private:
 		GREATEST = 2
 	};
 
-	unsigned int extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, extreme_contrib_type, bool (*cmp_func)(double, double),
+	unsigned int approx_extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, extreme_contrib_type, bool (*cmp_func)(double, double),
 		bool (*erase_condition)(unsigned int, unsigned int, std::vector<double> &, std::vector<double> &), double (*end_condition)(unsigned int, unsigned int, std::vector<double> &, std::vector<double> &)) const;
 
 	static double lc_end_condition(unsigned int, unsigned int, std::vector<double>&, std::vector<double>&);

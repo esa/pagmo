@@ -336,7 +336,7 @@ void spheres::set_nn_weights(const decision_vector &x) const {
 			ind++;
 		}
 	} else {//no symmetric weights
-			m_ffnn.m_weights = x;
+		m_ffnn.m_weights = x;
 	}
 }
 

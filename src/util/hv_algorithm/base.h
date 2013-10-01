@@ -213,7 +213,7 @@ private:
 		}
 	};
 
-	struct boost::shared_ptr<cmp_fun> m_cmp_obj;
+	boost::shared_ptr<cmp_fun> m_cmp_obj;
 };
 
 } } }

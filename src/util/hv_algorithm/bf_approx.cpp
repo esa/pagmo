@@ -71,7 +71,7 @@ bool bf_approx::gc_erase_condition(unsigned int idx, unsigned int GC, std::vecto
  */
 unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
-	return extreme_contributor(points, r_point, LEAST, base::cmp_least, lc_erase_condition, lc_end_condition);
+	return approx_extreme_contributor(points, r_point, LEAST, base::cmp_least, lc_erase_condition, lc_end_condition);
 }
 
 /// Greatest contributor method
@@ -85,10 +85,10 @@ unsigned int bf_approx::least_contributor(std::vector<fitness_vector> &points, c
  */
 unsigned int bf_approx::greatest_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
-	return extreme_contributor(points, r_point, GREATEST, base::cmp_greatest, gc_erase_condition, gc_end_condition);
+	return approx_extreme_contributor(points, r_point, GREATEST, base::cmp_greatest, gc_erase_condition, gc_end_condition);
 }
 
-/// Extreme contributor method
+/// Approximated extreme contributor method
 /**
  * Compute the extreme contributor using the approximated algorithm.
  * In order to make the original algorithm work for both the least and the greatest contributor, some portions
@@ -99,6 +99,9 @@ unsigned int bf_approx::greatest_contributor(std::vector<fitness_vector> &points
  *   enum stating whether given execution aims to find the least or the greatest contributor.
  *   In either scenario, certain preprocessing steps are altered to determine it faster if possible.
  *
+ * - cmp_func (function):
+ *   Comparison function of two contributions, stating which of the contribution values fits our purpose (lesser or greater).
+ *
  * - erase_condition (function):
  *   Determines whether current extreme contributor guarantees to exceed given candidate.
  *   In such case, the other point is removed from the racing.
@@ -107,7 +110,7 @@ unsigned int bf_approx::greatest_contributor(std::vector<fitness_vector> &points
  *   Determines whether given extreme contributor guarantees be accurate withing provided epsilon error.
  *   The return value of the function is the ratio, stating the estimated error.
  */
-unsigned int bf_approx::extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, extreme_contrib_type ec_type, bool (*cmp_func)(double, double),
+unsigned int bf_approx::approx_extreme_contributor(std::vector<fitness_vector> &points, const fitness_vector &r_point, extreme_contrib_type ec_type, bool (*cmp_func)(double, double),
 		bool (*erase_condition)(unsigned int, unsigned int, std::vector<double> &, std::vector<double> &), double (*end_condition)(unsigned int, unsigned int, std::vector<double> &, std::vector<double> &)) const
 {
 	m_no_samples = std::vector<unsigned long long>(points.size(), 0);
