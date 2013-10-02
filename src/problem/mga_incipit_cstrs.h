@@ -41,29 +41,25 @@ namespace pagmo{ namespace problem {
 /// The beginning of the GTOC6 Jupiter Capture Trajectory
 /**
  *
- * A PyGMO global optimization problem (box-bounded, continuous) representing the gtoc6
- * preliminary trajectory capture
+ * A PyGMO global optimization problem (box-bounded, continuous) representing a capture
+ * in the Jupiter system. Two constraints are considered: 1. Closest distance, 2. Time of flight
  *
  * Decision vector:
  * [t0,u,v,T0] + [beta1, rp1/rP1, eta1,T1] + .... 
- *
- * Objective Function:
- * Total DV
- *
- * Constraints:
- * T0+T1+T2 .... < TMAX
- * r > RMIN
  * 
  * @author Dario Izzo (dario.izzo@esa.int)
  */
 class __PAGMO_VISIBLE mga_incipit_cstrs: public base
 {
 	public:
-		mga_incipit(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(), 
-			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(7305.0), const kep_toolbox::epoch t0_u = kep_toolbox::epoch(11323.0),
-			 const std::vector<std::vector<double> > tof = construct_default_tofs()
+		mga_incipit_cstrs(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(),
+			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(7305.0),
+			 const kep_toolbox::epoch t0_u = kep_toolbox::epoch(11323.0),
+			 const std::vector<std::vector<double> > tof = construct_default_tofs(),
+			 double Tmax = 365.25,
+			 double Dmin = 0.2
 			 );
-		mga_incipit(const mga_incipit&);
+		mga_incipit_cstrs(const mga_incipit_cstrs&);
 		base_ptr clone() const;
 		
 		std::string get_name() const;
@@ -73,6 +69,7 @@ class __PAGMO_VISIBLE mga_incipit_cstrs: public base
 		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
 		
 	private:
@@ -102,12 +99,16 @@ class __PAGMO_VISIBLE mga_incipit_cstrs: public base
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_seq;
 			ar & m_tof;
+			ar & const_cast<double &>(m_tmax);
+			ar & const_cast<double &>(m_dmin);
 		}
 		std::vector<kep_toolbox::planet_ptr> m_seq;
 		std::vector<std::vector<double> > m_tof;
+		const double m_tmax;
+		const double m_dmin;
 };
 
 }} // namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_incipit);
-#endif // PAGMO_PROBLEM_MGA_INCIPIT_H
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_incipit_cstrs)
+#endif // PAGMO_PROBLEM_MGA_INCIPIT_CSTRS_H

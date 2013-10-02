@@ -354,4 +354,4 @@ std::string mga_incipit::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_incipit);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_incipit)

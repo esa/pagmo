@@ -568,6 +568,13 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("get_sequence", &problem::mga_incipit::get_sequence)
 		.add_property("tof",make_function(&problem::mga_incipit::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_incipit::set_tof,"bound on the times of flight for the different legs");
 
+	problem_wrapper<problem::mga_incipit_cstrs>("mga_incipit_cstrs", "Jupiter capture problem from the first part of gtoc6 (constrained version)")
+		.def(init< optional< std::vector<kep_toolbox::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> >, const double, const double > >())
+		.def("pretty", &problem::mga_incipit_cstrs::pretty)
+		.def("get_sequence", &problem::mga_incipit_cstrs::get_sequence)
+		.add_property("tof",make_function(&problem::mga_incipit_cstrs::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_incipit_cstrs::set_tof,"bound on the times of flight for the different legs");
+
+
 	problem_wrapper<problem::mga_part>("mga_part", "A part of the Jupiter moon tour from gtoc6")
 		.def(init< optional <std::vector<kep_toolbox::planet_ptr>, std::vector<std::vector<double> >, kep_toolbox::epoch, kep_toolbox::array3D > >())
 		.def("pretty", &problem::mga_part::pretty)

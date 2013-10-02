@@ -101,5 +101,5 @@ class __PAGMO_VISIBLE mga_incipit: public base
 
 }} // namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_incipit);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_incipit)
 #endif // PAGMO_PROBLEM_MGA_INCIPIT_H
