@@ -103,7 +103,7 @@ class standard : public problem::base_stochastic
  * @param[in] seed Seed to be used internally as a stochastic problem
  * @param[in] pop_size Size of the population to be evolved
  *
- * @throws value_error if there are incompatible problems in the supplied set. All the problems need to have the same fitness and constraint dimension.
+ * @throws value_error if there are incompatible algorithms or problems in the supplied sets (multi-objective algorithms not supported yet).
  *
  */
 standard::standard(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos, unsigned int seed, unsigned int pop_size): base_stochastic(1, 1, probs.front()->get_f_dimension(), get_max_c_dimension(probs), get_max_ic_dimension(probs), 0, seed), m_pop_size(pop_size), m_is_first_evaluation(algos.size(), true), m_database_seed(algos.size()), m_database_f(algos.size()), m_database_c(algos.size())
@@ -113,9 +113,8 @@ standard::standard(const std::vector<problem::base_ptr> &probs, const std::vecto
 
 /// Set up the internal structures of target problem and algorithm sets
 /**
- * Check the sanity of the supplied problems. All fitness and constraint
- * dimensions have to be the same across all the problems. This is one of the
- * assumption made in the current implementation of race_algo.
+ * Check the sanity of the supplied problems. Currently, racing of algorithms
+ * over multi-objective problems is not yet supported.
  *
  */
 void standard::setup(const std::vector<problem::base_ptr> &probs, const std::vector<algorithm::base_ptr> &algos)
@@ -124,11 +123,7 @@ void standard::setup(const std::vector<problem::base_ptr> &probs, const std::vec
 	if(algos.size() == 0){
 		pagmo_throw(value_error, "Empty algorithm set in race_algo");
 	}
-	problem::base::f_size_type fdim = probs[0]->get_f_dimension();
-	for(unsigned int i = 1; i < probs.size(); i++){
-		if(probs[i]->get_f_dimension() != fdim){
-			pagmo_throw(value_error, "Incompatible fitness dimension among the problems");
-		}
+	for(unsigned int i = 0; i < probs.size(); i++){
 		if(probs[i]->get_f_dimension() > 1){
 			pagmo_throw(value_error, "Racing of multi-objective algorithms is not supported yet");
 		}
