@@ -62,11 +62,21 @@ spea2::spea2(int gen, double cr, double eta_c, double m, double eta_m, int archi
 	if (gen < 0) {
 		pagmo_throw(value_error,"number of generations must be nonnegative");
 	}
-
+	if (cr >= 1 || cr < 0) {
+		pagmo_throw(value_error,"crossover probability must be in the [0,1[ range");
+	}
+	if (m < 0 || m > 1) {
+		pagmo_throw(value_error,"mutation probability must be in the [0,1] range");
+	}
+	if (eta_c <1 || eta_c >= 100) {
+		pagmo_throw(value_error,"Distribution index for crossover must be in 1..100");
+	}
+	if (eta_m <1 || eta_m >= 100) {
+		pagmo_throw(value_error,"Distribution index for mutation must be in 1..100");
+	}
 	if ((archive_size!=0) && (archive_size<5)) {
 		pagmo_throw(value_error,"archive_size must larger than 4 or 0 (in this last case the archive size is set to the population size)");
 	}
-	
 	if (archive_size%4) {
 		pagmo_throw(value_error,"archive_size must be a multiple of 4");
 	}
