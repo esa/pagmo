@@ -164,6 +164,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_alpha.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_tof.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_incipit.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_incipit_cstrs.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_part.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp

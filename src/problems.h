@@ -115,6 +115,7 @@
         #include "problem/mga_1dsm_alpha.h"
         #include "problem/mga_1dsm_tof.h"
         #include "problem/mga_incipit.h"
+		#include "problem/mga_incipit_cstrs.h"
         #include "problem/mga_part.h"
 #endif
 
