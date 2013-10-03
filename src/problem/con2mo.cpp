@@ -137,8 +137,13 @@ void con2mo::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 	const std::vector<double> &c_tol = m_original_problem->get_c_tol();
 
-	for(c_size_type i=0; i<number_of_eq_constraints; i++) {
-		c[i] = std::abs(c.at(i)) - c_tol.at(i);
+	for(c_size_type i=0; i<number_of_constraints; i++) {
+		if(i<number_of_eq_constraints){
+			c[i] = std::abs(c[i]) - c_tol.at(i);
+		}
+		else{
+			c[i] = c[i] - c_tol.at(i);
+		}
 	}
 
 	// clean the fitness vector

@@ -308,11 +308,16 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 	
 
 	// sets the right definition of the constraints violation
-	for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
-		c_vio[j] = std::abs(c.at(j)) - c_tol.at(j);
+	for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
+		if(j<number_of_eq_constraints){
+			c_vio[j] = std::abs(c.at(j)) - c_tol.at(j);
+		}
+		else{
+			c_vio[j] = c.at(j) - c_tol.at(j);
+		}
 	}
 	for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
-		c_vio[j] = std::max(0.,c.at(j));
+		c_vio[j] = std::max(0., c_vio.at(j));
 	}
 
 	// updates the vectors depending on the method

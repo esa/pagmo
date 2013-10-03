@@ -495,7 +495,7 @@ void cstrs_self_adaptive::update_c_scaling(const population &pop)
 			m_c_scaling[j] = std::max(m_c_scaling[j], std::max(0., (std::abs(c.at(j)) - c_tol.at(j))) );
 		}
 		for(problem::base::c_size_type j=number_of_eq_constraints; j<prob_c_dimension; j++) {
-			m_c_scaling[j] = std::max(m_c_scaling[j], std::max(0.,c.at(j)) );
+			m_c_scaling[j] = std::max(m_c_scaling[j], std::max(0., c.at(j) - c_tol.at(j)) );
 		}
 	}
 }
@@ -529,7 +529,7 @@ double cstrs_self_adaptive::compute_solution_infeasibility(const constraint_vect
 	}
 	for(problem::base::c_size_type j=number_of_eq_constraints; j<prob_c_dimension; j++) {
 		if(m_c_scaling[j] > 0.) {
-			solution_infeasibility += std::max(0.,c.at(j)) / m_c_scaling[j];
+			solution_infeasibility += std::max(0.,c.at(j) - c_tol.at(j)) / m_c_scaling[j];
 		}
 	}
 
