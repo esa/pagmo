@@ -136,13 +136,18 @@ void death_penalty::objfun_impl(fitness_vector &f, const decision_vector &x) con
 			c_size_type number_of_eq_constraints = number_of_constraints - m_original_problem->get_ic_dimension();
 			double penalization = 0;
 
-			for(c_size_type i=0; i<number_of_eq_constraints; i++) {
-					c[i] = std::abs(c.at(i)) - c_tol.at(i);
+			for(c_size_type i=0; i<number_of_constraints; i++) {
+					if(i<number_of_eq_constraints){
+						c[i] = std::abs(c[i]) - c_tol[i];
+					}
+					else{
+						c[i] = c[i] - c_tol[i];
+					}
 			}
 
 			for(c_size_type i=0; i<number_of_constraints; i++) {
-				if(c.at(i) > 0.) {
-					penalization += m_penalty_factors[i]*c.at(i);
+				if(c[i] > 0.) {
+					penalization += m_penalty_factors[i]*c[i];
 				}
 			}
 

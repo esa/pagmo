@@ -19,7 +19,13 @@ different implementation of this method are available in PaGMO/PyGMO.
 
 The first one called OBJ_CSTRS splits all the constraints into 
 different objectives, generating a problem with *nobj+m* objectives (where
-*nobj* is the number of objectives and *m* is the numbe rof constraints). 
+*nobj* is the number of objectives and *m* is the number of constraints). 
+The transformation adopted is the one of Coello Coello in the CHVEGA algorithm where the *nobj+j* objective 
+is the j-th constraints violation (if the j-th constraint is violated), 
+otherwise it is the overall number of violated constraints, otherwise if the solution 
+is feasible it is the aggregation of the objectives. This formulation makes sense if the 
+multiobjective algorithm is based on a population decomposition according to the different 
+objectives as VEGA or PADE.
 The second one called OBJ_CSTRSVIO has *nobj+1* objectives, the first nobj 
 are the objective functions to be optimized and the
 last objective is the sum of the constraints violations. 

@@ -1,4 +1,4 @@
-from _problem import cassini_1, gtoc_1,cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_part
+from _problem import cassini_1, gtoc_1,cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_incipit_cstrs, mga_part
 #from _problem import _gtoc_2_objective 
 		
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
@@ -270,6 +270,26 @@ def _mga_incipit_ctor(self, seq = [planet_js('io'),planet_js('io'),planet_js('eu
 	self._orig_init(*arg_list)
 mga_incipit._orig_init = mga_incipit.__init__
 mga_incipit.__init__ = _mga_incipit_ctor
+
+def _mga_incipit_cstrs_ctor(self, seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(7305.0),epoch(11323.0)],tof = [[100,200],[3,200],[4,100]], Tmax = 365.25, Dmin = 0.2):
+	"""
+	USAGE: mga_incipit_cstrs(seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)], tof = [[100,200],[3,200],[4,100]], Tmax = 365.25, Dmin = 0.2)
+
+	* seq: list of jupiter moons defining the trajectory incipit
+	* t0:  list of two epochs defining the launch window
+	* tof: list of n lists containing the lower and upper bounds for the legs flight times (days)
+	"""
+	# We construct the arg list for the original constructor exposed by boost_python
+	arg_list=[]
+	arg_list.append(seq)
+	arg_list.append(t0[0])
+	arg_list.append(t0[1])
+	arg_list.append(tof)
+	arg_list.append(Tmax)
+	arg_list.append(Dmin)
+	self._orig_init(*arg_list)
+mga_incipit_cstrs._orig_init = mga_incipit_cstrs.__init__
+mga_incipit_cstrs.__init__ = _mga_incipit_cstrs_ctor
 
 def _mga_part_ctor(self, seq = [planet_js('europa'),planet_js('europa'),planet_js('europa')], tof = [[5,50],[5,50]], t0 = epoch(11000), v_inf_in = [1500.0,350.0,145.0]):
 	"""
