@@ -146,6 +146,8 @@ class __PAGMO_VISIBLE archipelago
 		void set_island(const size_type &, const base_island &);
 		std::vector<base_island_ptr> get_islands() const;
 		base_island_ptr get_island(const size_type &) const;
+		void set_drng(rng_double);
+		void set_urng(rng_uint32);
 	private:
 		void pre_evolution(base_island &);
 		void post_evolution(base_island &);

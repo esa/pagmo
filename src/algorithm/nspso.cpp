@@ -324,7 +324,9 @@ void nspso::evolve(population &pop) const
 						++i;
 					}
 				} else {
-					std::random_shuffle(nextPop_pareto_fronts[f].begin(), nextPop_pareto_fronts[f].end());
+					boost::uniform_int<int> pop_idx(0,nextPop_pareto_fronts[f].size());
+					boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
+					std::random_shuffle(nextPop_pareto_fronts[f].begin(), nextPop_pareto_fronts[f].end(), p_idx);
 					for(unsigned int j = 0; i<NP; ++j) {
 						bestNextPopIndices[i] = nextPop_pareto_fronts[f][j];
 						++i;

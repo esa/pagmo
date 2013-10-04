@@ -676,7 +676,7 @@ def _ms_ctor(self, algorithm = None, iter = 1):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	if algorithm = None:
+	if algorithm == None:
 		algorithm = _algorithm.jde()
 	arg_list.append(algorithm)
 	arg_list.append(iter)

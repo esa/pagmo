@@ -395,6 +395,14 @@ void archipelago::reevaluate_immigrants(std::vector<std::pair<population::size_t
 	}
 }
 
+void archipelago::set_drng(rng_double drng) {
+	m_drng = drng;
+}
+
+void archipelago::set_urng(rng_uint32 urng) {
+	m_urng = urng;
+}
+
 // This method will be called by each island of the archipelago before starting evolution. Its task is
 // to select from the other islands, according to the topology and the migration/distribution type and direction,
 // the individuals that will migrate into the island.

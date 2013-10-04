@@ -236,6 +236,11 @@ void pade::evolve(population &pop) const
 	// We use here the broadcast migration model. This will force, at each migration,
 	// to have individuals from all connected island to be inserted.
 	pagmo::archipelago arch(pagmo::archipelago::broadcast);
+
+	// Set random number generators of the archipelago equal to the one of the
+	// algorithm (so that a copy of the algorithm behave exactly as the original)
+	arch.set_drng(m_drng);
+	arch.set_urng(m_urng);
 	
 	// Best individual will be selected for migration
 	const pagmo::migration::best_s_policy  selection_policy;
@@ -245,7 +250,7 @@ void pade::evolve(population &pop) const
 
 	for(pagmo::population::size_type i=0; i<NP;++i) {
 		pagmo::problem::decompose decomposed_prob(prob, m_method,weights[i],m_z);
-		pagmo::population decomposed_pop(decomposed_prob);
+		pagmo::population decomposed_pop(decomposed_prob, 0, m_urng());
 
 		//Set the individuals of the new population as one individual of the original population plus m_T
 		//neighbours individuals
@@ -262,7 +267,7 @@ void pade::evolve(population &pop) const
 	}
 
 	if(m_T >= NP-1) {
-		arch.set_topology(topology::fully_connected());
+		arch.set_topology(topology::unconnected());
 	} else {
 		topology::custom topo;
 		for(unsigned int i = 0; i < NP; ++i) {
@@ -275,6 +280,7 @@ void pade::evolve(population &pop) const
 		}
 		arch.set_topology(topo);
 	}
+
 
 	//Evolve the archipelago for m_gen generations
 	if(m_max_parallelism == NP) { //asynchronous island evolution
