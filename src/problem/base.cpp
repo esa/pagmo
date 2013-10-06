@@ -717,8 +717,10 @@ bool base::is_compatible(const base &p) const
 
 /// Compare decision vectors.
 /**
- * This functions returns true if x1 is a better decision_vector than x2, false otherwise. This function will compute the
- * fitness vectors and constraint vectors associated to x1 and x2 via objfun() and compute_constraints(), and will feed them to compare_fc(), whose result will be returned.
+ * This functions returns true if x1 is a better decision_vector than x2, false otherwise.
+ * This function will compute the fitness vectors and constraint vectors associated to x1
+ * and x2 via objfun() and compute_constraints(), and will feed them to compare_fc(),
+ * whose result will be returned.
  *
  * @param[in] x1 first pagmo::decision_vector.
  * @param[in] x2 second pagmo::decision_vector.
@@ -743,7 +745,8 @@ bool base::compare_x(const decision_vector &x1, const decision_vector &x2) const
 
 /// Simultaneous fitness-constraint comparison.
 /**
- * This function will perform sanity checks on the input arguments and will then call compare_fc_impl() if the constraint dimensions is not null, compare_fitness_impl() otherwise.
+ * This function will perform sanity checks on the input arguments and will then call
+ * compare_fc_impl() if the constraint dimensions is not null, compare_fitness_impl() otherwise.
  *
  * @param[in] f1 first pagmo::fitness_vector.
  * @param[in] c1 first pagmo::constraint_vector.

@@ -157,7 +157,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(self == self)
 		.def(self != self)
 		.def("is_compatible",&problem::base::is_compatible,"Check compatibility with other problem.")
-		.def("reset_caches",&problem::base::reset_caches,"Resets the internal caching system of PyGMO. This needs to be called whenever the state of the problem is changed i.e. the seed in a stochastic optimization problem or the trajectory model in a low-thrust optimization etc..")
+		.def("reset_caches",&problem::base::reset_caches,"Resets the internal caching system of PyGMO that stores previos calls to the objective function/ constraint function. This method should be called whenever a problem object is changed and the change affects the objective function.")
 		// Comparisons.
 		.def("compare_x",&problem::base::compare_x,"Compare decision vectors.")
 		.def("verify_x",&problem::base::verify_x,"Check if decision vector is compatible with problem.")

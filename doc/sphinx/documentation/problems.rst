@@ -143,11 +143,29 @@ Detailed Documentation
 .. autoclass:: PyGMO.problem.base
 
    .. automethod:: PyGMO.problem.base.__init__
+
+   .. autoattribute:: PyGMO.problem.base.best_x
+
+   .. autoattribute:: PyGMO.problem.base.best_f
+
+   .. autoattribute:: PyGMO.problem.base.best_c
+
+   .. autoattribute:: PyGMO.problem.base.dimension
+
+   .. autoattribute:: PyGMO.problem.base.f_dimension
+
+   .. autoattribute:: PyGMO.problem.base.i_dimension
+
+   .. autoattribute:: PyGMO.problem.base.c_dimension
+
+   .. autoattribute:: PyGMO.problem.base.ic_dimension
+
+   .. autoattribute:: PyGMO.problem.base.c_tol
    
    .. method:: _objfun_impl(self, x)
    
-      This is a virtual function tham must be re-implemented in the derived class and must return a tuple packing as many numbers as the 
-      problem objectives (n_obj)
+      This is a virtual function tham must be re-implemented in the derived class and must
+      return a tuple packing as many numbers as the problem objectives (n_obj)
       
    .. method:: _compute_constraints_impl(self, x)
    
@@ -158,9 +176,10 @@ Detailed Documentation
    .. method:: _compare_fitness_impl(self, f1, f2)
    
       This is a virtual function that can be re-implemented in the derived class and must return a boolean value.
-      Return true if f1 Pareto dominate f2, false otherwise. This default implementation will assume minimisation for each one of the f components
-      I.e., each pair of corresponding elements in f1 and f2 is compared: if all elements in f1 are less or equal to the corresponding
-      element in f2, true will be returned. Otherwise, false will be returned.     
+      Return true if f1 Pareto dominate f2, false otherwise. The default implementation will
+      assume minimisation for each one of the f components i.e., each pair of corresponding elements
+      in f1 and f2 is compared: if all elements in f1 are less or equal to the corresponding element in f2 (and
+      at least one is less), true will be returned. Otherwise, false will be returned.     
             
    .. method:: _compare_constraints_impl(self, c1, c2)
    
@@ -173,7 +192,8 @@ Detailed Documentation
    .. method:: _compare_fc_impl(self, f1, c1, f2, c2)
    
       This is a virtual function that can be re-implemented in the derived class (if c_dim>0) and must return a boolean value. 
-      This function will perform sanity checks on the input arguments and will then call _compare_fc_impl() if the constraint dimensions is not null, _compare_fitness_impl() otherwise.   
+      By default, the function will perform sanity checks on the input arguments and will
+      then call _compare_constraints_impl() if the constraint dimensions is not null, _compare_fitness_impl() otherwise.   
       
    .. automethod:: PyGMO.problem.base.reset_caches
 
@@ -182,6 +202,7 @@ Detailed Documentation
    .. automethod:: PyGMO.problem.base.feasibility_x
    
    .. automethod:: PyGMO.problem.base.feasibility_c
+
    
 .. autoclass:: PyGMO.problem.death_penalty
 
