@@ -140,7 +140,7 @@ Noisy De Jong                      :class:`PyGMO.problem.py_example_stochastic`
 Detailed Documentation
 ----------------------
 
-.. autoclass:: PyGMO.problem.base
+.. class:: PyGMO.problem.base
 
    .. automethod:: PyGMO.problem.base.__init__
 
@@ -203,20 +203,28 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.base.feasibility_c
 
+-----------------
+
    
-.. autoclass:: PyGMO.problem.death_penalty
+.. class:: PyGMO.problem.death_penalty
 
    .. automethod:: PyGMO.problem.death_penalty.__init__
+
+-----------------
    
-.. autoclass:: PyGMO.problem.con2mo
+.. class:: PyGMO.problem.con2mo
 
    .. automethod:: PyGMO.problem.con2mo.__init__
 
-.. autoclass:: PyGMO.problem.con2uncon
+-----------------
+
+.. class:: PyGMO.problem.con2uncon
 
    .. automethod:: PyGMO.problem.con2uncon.__init__
 
-.. autoclass:: PyGMO.problem.shifted
+-----------------
+
+.. class:: PyGMO.problem.shifted
 
    .. automethod:: PyGMO.problem.shifted.__init__
    
@@ -227,8 +235,10 @@ Detailed Documentation
    .. method:: PyGMO.problem.shifted.deshift((tuple) x)
 
       Returns the de-shifted decision vector
+
+-----------------
    
-.. autoclass:: PyGMO.problem.rotated
+.. class:: PyGMO.problem.rotated
 
    .. automethod:: PyGMO.problem.rotated.__init__
    
@@ -239,12 +249,17 @@ Detailed Documentation
    .. method:: PyGMO.problem.rotated.derotate((tuple) x)
 
       Returns the de-rotated decision vector
+
+-----------------
+
       
-.. autoclass:: PyGMO.problem.noisy
+.. class:: PyGMO.problem.noisy
 
    .. automethod:: PyGMO.problem.noisy.__init__
 
-.. autoclass:: PyGMO.problem.normalized
+-----------------
+
+.. class:: PyGMO.problem.normalized
 
    .. automethod:: PyGMO.problem.normalized.__init__
 
@@ -252,7 +267,9 @@ Detailed Documentation
 
       Returns the de-normalized decision vector
 
-.. autoclass:: PyGMO.problem.decompose
+-----------------
+
+.. class:: PyGMO.problem.decompose
 
    .. automethod:: PyGMO.problem.decompose.__init__
    
@@ -271,44 +288,64 @@ Detailed Documentation
    .. attribute:: PyGMO.problem.decompose.BI
       
       Boundary Intersection decomposition method
+
+-----------------
    
-.. autoclass:: PyGMO.problem.ackley
+.. class:: PyGMO.problem.ackley
 
    .. automethod:: PyGMO.problem.ackley.__init__
+
+-----------------
    
-.. autoclass:: PyGMO.problem.bukin
+.. class:: PyGMO.problem.bukin
 
    .. automethod:: PyGMO.problem.bukin.__init__
 
-.. autoclass:: PyGMO.problem.cec2006
+-----------------
+
+.. class:: PyGMO.problem.cec2006
 
    .. automethod:: PyGMO.problem.cec2006.__init__
 
-.. autoclass:: PyGMO.problem.pressure_vessel
+-----------------
+
+.. class:: PyGMO.problem.pressure_vessel
 
    .. automethod:: PyGMO.problem.pressure_vessel.__init__
 
-.. autoclass:: PyGMO.problem.welded_beam
+-----------------
+
+.. class:: PyGMO.problem.welded_beam
 
    .. automethod:: PyGMO.problem.welded_beam.__init__
 
-.. autoclass:: PyGMO.problem.tens_comp_string
+-----------------
+
+.. class:: PyGMO.problem.tens_comp_string
 
    .. automethod:: PyGMO.problem.tens_comp_string.__init__
 
-.. autoclass:: PyGMO.problem.cec2009
+-----------------
+
+.. class:: PyGMO.problem.cec2009
 
    .. automethod:: PyGMO.problem.cec2009.__init__
+
+-----------------
    
-.. autoclass:: PyGMO.problem.cec2013
+.. class:: PyGMO.problem.cec2013
 
    .. automethod:: PyGMO.problem.cec2013.__init__
 
-.. autoclass:: PyGMO.problem.rosenbrock
+-----------------
+
+.. class:: PyGMO.problem.rosenbrock
 
    .. automethod:: PyGMO.problem.rosenbrock.__init__
 
-.. autoclass:: PyGMO.problem.string_match
+-----------------
+
+.. class:: PyGMO.problem.string_match
 
    .. automethod:: PyGMO.problem.string_match.__init__
 
@@ -316,95 +353,135 @@ Detailed Documentation
  
       Returns a string decoding the chromosome
 
-.. autoclass:: PyGMO.problem.rastrigin
+-----------------
+
+.. class:: PyGMO.problem.rastrigin
 
    .. automethod:: PyGMO.problem.rastrigin.__init__
 
-.. autoclass:: PyGMO.problem.schwefel
+-----------------
+
+.. class:: PyGMO.problem.schwefel
 
    .. automethod:: PyGMO.problem.schwefel.__init__
 
-.. autoclass:: PyGMO.problem.dejong
+-----------------
+
+.. class:: PyGMO.problem.dejong
 
    .. automethod:: PyGMO.problem.dejong.__init__
 
-.. autoclass:: PyGMO.problem.py_example
+-----------------
+
+.. class:: PyGMO.problem.py_example
 
    .. automethod:: PyGMO.problem.py_example.__init__
 
-.. autoclass:: PyGMO.problem.griewank
+-----------------
+
+.. class:: PyGMO.problem.griewank
 
    .. automethod:: PyGMO.problem.griewank.__init__
 
-.. autoclass:: PyGMO.problem.lennard_jones
+-----------------
+
+.. class:: PyGMO.problem.lennard_jones
 
    .. automethod:: PyGMO.problem.lennard_jones.__init__
 
-.. autoclass:: PyGMO.problem.branin
+-----------------
+
+.. class:: PyGMO.problem.branin
 
    .. automethod:: PyGMO.problem.branin.__init__
 
-.. autoclass:: PyGMO.problem.himmelblau
+-----------------
+
+.. class:: PyGMO.problem.himmelblau
 
    .. automethod:: PyGMO.problem.himmelblau.__init__
 
-.. autoclass:: PyGMO.problem.michalewicz
+-----------------
+
+.. class:: PyGMO.problem.michalewicz
 
    .. automethod:: PyGMO.problem.michalewicz.__init__
 
-.. autoclass:: PyGMO.problem.kur
+-----------------
+
+.. class:: PyGMO.problem.kur
 
    .. automethod:: PyGMO.problem.kur.__init__
 
-.. autoclass:: PyGMO.problem.fon
+-----------------
+
+.. class:: PyGMO.problem.fon
 
    .. automethod:: PyGMO.problem.fon.__init__
 
-.. autoclass:: PyGMO.problem.pol
+-----------------
+
+.. class:: PyGMO.problem.pol
 
    .. automethod:: PyGMO.problem.pol.__init__
 
-.. autoclass:: PyGMO.problem.sch
+-----------------
+
+.. class:: PyGMO.problem.sch
 
    .. automethod:: PyGMO.problem.sch.__init__
 
-.. autoclass:: PyGMO.problem.zdt1
+-----------------
+
+.. class:: PyGMO.problem.zdt1
 
    .. automethod:: PyGMO.problem.zdt1.__init__
 
    .. automethod:: PyGMO.problem.zdt1.p_distance
 
-.. autoclass:: PyGMO.problem.zdt2
+-----------------
+
+.. class:: PyGMO.problem.zdt2
 
    .. automethod:: PyGMO.problem.zdt2.__init__
 
    .. automethod:: PyGMO.problem.zdt2.p_distance
 
-.. autoclass:: PyGMO.problem.zdt3
+-----------------
+
+.. class:: PyGMO.problem.zdt3
 
    .. automethod:: PyGMO.problem.zdt3.__init__
 
    .. automethod:: PyGMO.problem.zdt3.p_distance
 
-.. autoclass:: PyGMO.problem.zdt4
+-----------------
+
+.. class:: PyGMO.problem.zdt4
 
    .. automethod:: PyGMO.problem.zdt4.__init__
 
    .. automethod:: PyGMO.problem.zdt4.p_distance
 
-.. autoclass:: PyGMO.problem.zdt5
+-----------------
+
+.. class:: PyGMO.problem.zdt5
 
    .. automethod:: PyGMO.problem.zdt5.__init__
 
    .. automethod:: PyGMO.problem.zdt5.p_distance
 
-.. autoclass:: PyGMO.problem.zdt6
+-----------------
+
+.. class:: PyGMO.problem.zdt6
 
    .. automethod:: PyGMO.problem.zdt6.__init__
 
    .. automethod:: PyGMO.problem.zdt6.p_distance
+
+-----------------
   
-.. autoclass:: PyGMO.problem.dtlz1
+.. class:: PyGMO.problem.dtlz1
 
    .. automethod:: PyGMO.problem.dtlz1.__init__
    
@@ -412,7 +489,9 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.dtlz1.plot
 
-.. autoclass:: PyGMO.problem.dtlz2
+-----------------
+
+.. class:: PyGMO.problem.dtlz2
 
    .. automethod:: PyGMO.problem.dtlz2.__init__
 
@@ -420,7 +499,9 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.dtlz2.plot
 
-.. autoclass:: PyGMO.problem.dtlz3
+-----------------
+
+.. class:: PyGMO.problem.dtlz3
 
    .. automethod:: PyGMO.problem.dtlz3.__init__
 
@@ -428,7 +509,9 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.dtlz3.plot
 
-.. autoclass:: PyGMO.problem.dtlz4
+-----------------
+
+.. class:: PyGMO.problem.dtlz4
 
    .. automethod:: PyGMO.problem.dtlz4.__init__
 
@@ -436,7 +519,9 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.dtlz4.plot
 
-.. autoclass:: PyGMO.problem.dtlz5
+-----------------
+
+.. class:: PyGMO.problem.dtlz5
 
    .. automethod:: PyGMO.problem.dtlz5.__init__
 
@@ -444,7 +529,9 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.dtlz5.plot
 
-.. autoclass:: PyGMO.problem.dtlz6
+-----------------
+
+.. class:: PyGMO.problem.dtlz6
 
    .. automethod:: PyGMO.problem.dtlz6.__init__
 
@@ -452,7 +539,9 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.dtlz6.plot
 
-.. autoclass:: PyGMO.problem.dtlz7
+-----------------
+
+.. class:: PyGMO.problem.dtlz7
 
    .. automethod:: PyGMO.problem.dtlz7.__init__
 
@@ -460,43 +549,63 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.dtlz7.plot
 
-.. autoclass:: PyGMO.problem.tsp
+-----------------
+
+.. class:: PyGMO.problem.tsp
 
    .. automethod:: PyGMO.problem.tsp.__init__
 
-.. autoclass:: PyGMO.problem.golomb_ruler
+-----------------
+
+.. class:: PyGMO.problem.golomb_ruler
 
    .. automethod:: PyGMO.problem.golomb_ruler.__init__
 
-.. autoclass:: PyGMO.problem.knapsack
+-----------------
+
+.. class:: PyGMO.problem.knapsack
 
    .. automethod:: PyGMO.problem.knapsack.__init__
 
-.. autoclass:: PyGMO.problem.luksan_vlcek_1
+-----------------
+
+.. class:: PyGMO.problem.luksan_vlcek_1
 
    .. automethod:: PyGMO.problem.luksan_vlcek_1.__init__
 
-.. autoclass:: PyGMO.problem.luksan_vlcek_2
+-----------------
+
+.. class:: PyGMO.problem.luksan_vlcek_2
 
    .. automethod:: PyGMO.problem.luksan_vlcek_2.__init__
 
-.. autoclass:: PyGMO.problem.luksan_vlcek_3
+-----------------
+
+.. class:: PyGMO.problem.luksan_vlcek_3
 
    .. automethod:: PyGMO.problem.luksan_vlcek_3.__init__
 
-.. autoclass:: PyGMO.problem.snopt_toyprob
+-----------------
+
+.. class:: PyGMO.problem.snopt_toyprob
 
    .. automethod:: PyGMO.problem.snopt_toyprob.__init__
 
-.. autoclass:: PyGMO.problem.inventory
+-----------------
+
+.. class:: PyGMO.problem.inventory
 
    .. automethod:: PyGMO.problem.inventory.__init__
 
-.. autoclass:: PyGMO.problem.py_example_stochastic
+-----------------
+
+.. class:: PyGMO.problem.py_example_stochastic
 
    .. automethod:: PyGMO.problem.py_example_stochastic.__init__
 
-.. autoclass:: PyGMO.problem.mit_spheres
+-----------------
+
+.. class:: PyGMO.problem.mit_spheres
 
    .. automethod:: PyGMO.problem.mit_spheres.__init__
 
@@ -515,6 +624,8 @@ Detailed Documentation
 
       Requires VPython installed. It opens a graphical display and animate the motion of the three SPHERES
       as desribed by the world_state tuple (output from the simulate method)
+
+-----------------
 
 .. class:: PyGMO.problem.mga_1dsm_tof
 
@@ -550,6 +661,8 @@ Detailed Documentation
 
     Returns a string with informations about tour encoded by x
 
+-----------------
+
 .. class:: PyGMO.problem.mga_1dsm_alpha
 
    .. method:: PyGMO.problem.mga_1dsm_alpha.__init__(seq, t0, tof, vinf, multi_objective=False, add_vinf_dep=False, add_vinf_arr=True)
@@ -584,43 +697,62 @@ Detailed Documentation
 
     Returns a string with informations about tour encoded by x
 
+-----------------
 
-.. autoclass:: PyGMO.problem.cassini_1
+.. class:: PyGMO.problem.cassini_1
 
    .. automethod:: PyGMO.problem.cassini_1.__init__
 
-.. autoclass:: PyGMO.problem.cassini_2
+-----------------
+
+.. class:: PyGMO.problem.cassini_2
 
    .. automethod:: PyGMO.problem.cassini_2.__init__
 
-.. autoclass:: PyGMO.problem.messenger_full
+-----------------
+
+.. class:: PyGMO.problem.messenger_full
 
    .. automethod:: PyGMO.problem.messenger_full.__init__
 
-.. autoclass:: PyGMO.problem.rosetta
+-----------------
+
+.. class:: PyGMO.problem.rosetta
 
    .. automethod:: PyGMO.problem.rosetta.__init__
 
-.. autoclass:: PyGMO.problem.laplace
+-----------------
+
+.. class:: PyGMO.problem.laplace
 
    .. automethod:: PyGMO.problem.laplace.__init__
 
-.. autoclass:: PyGMO.problem.tandem
+-----------------
+
+.. class:: PyGMO.problem.tandem
 
    .. automethod:: PyGMO.problem.tandem.__init__
 
-.. autoclass:: PyGMO.problem.gtoc_1
+-----------------
+
+.. class:: PyGMO.problem.gtoc_1
 
    .. automethod:: PyGMO.problem.gtoc_1.__init__
 
-.. autoclass:: PyGMO.problem.gtoc_2
+-----------------
+
+.. class:: PyGMO.problem.gtoc_2
 
    .. automethod:: PyGMO.problem.gtoc_2.__init__
 
-.. autoclass:: PyGMO.problem.py_pl2pl
+-----------------
+
+.. class:: PyGMO.problem.py_pl2pl
 
    .. automethod:: PyGMO.problem.py_pl2pl.__init__
 
-.. autoclass:: PyGMO.problem.sagas
+-----------------
+
+.. class:: PyGMO.problem.sagas
 
    .. automethod:: PyGMO.problem.sagas.__init__

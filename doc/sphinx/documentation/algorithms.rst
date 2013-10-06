@@ -89,33 +89,49 @@ Detailed Documentation
 
    .. automethod:: PyGMO.algorithm.base.evolve
 
+---------------
+
 .. class:: PyGMO.algorithm.de
 
    .. automethod:: PyGMO.algorithm.de.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.jde
 
    .. automethod:: PyGMO.algorithm.jde.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.mde_pbx
 
    .. automethod:: PyGMO.algorithm.mde_pbx.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.de_1220
 
    .. automethod:: PyGMO.algorithm.de_1220.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.pso
 
    .. automethod:: PyGMO.algorithm.pso.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.pso_gen
 
    .. automethod:: PyGMO.algorithm.pso_gen.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.sea
 
    .. automethod:: PyGMO.algorithm.sea.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.sga
 
@@ -145,6 +161,8 @@ Detailed Documentation
 
      Exponential crossover
 
+---------------
+
 .. class:: PyGMO.algorithm.vega
 
    .. automethod:: PyGMO.algorithm.vega.__init__
@@ -164,6 +182,8 @@ Detailed Documentation
    .. attribute:: PyGMO.algorithm.vega.crossover.EXPONENTIAL
 
      Exponential crossover
+
+---------------
 
 .. class:: PyGMO.algorithm.sga_gray
 
@@ -185,13 +205,19 @@ Detailed Documentation
 
      Single point crossover
 
+---------------
+
 .. class:: PyGMO.algorithm.nsga_II
 
    .. automethod:: PyGMO.algorithm.nsga_II.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.sms_emoa
 
    .. automethod:: PyGMO.algorithm.sms_emoa.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.pade
 
@@ -209,6 +235,8 @@ Detailed Documentation
 
      Weight vector are generated using a low discrepancy sequence
 
+---------------
+
 .. class:: PyGMO.algorithm.nspso
 
    .. automethod:: PyGMO.algorithm.nspso.__init__
@@ -225,17 +253,25 @@ Detailed Documentation
 
      The MaxMin method is used to obtain the non-dominated set and to mantain diversity
 
+---------------
+
 .. class:: PyGMO.algorithm.spea2
 
    .. automethod:: PyGMO.algorithm.spea2.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.sa_corana
 
    .. automethod:: PyGMO.algorithm.sa_corana.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.bee_colony
 
    .. automethod:: PyGMO.algorithm.bee_colony.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.ms
 
@@ -249,6 +285,8 @@ Detailed Documentation
 
       Algorithm to be multistarted
 
+---------------
+
 .. class:: PyGMO.algorithm.mbh
 
    .. automethod:: PyGMO.algorithm.mbh.__init__
@@ -261,9 +299,13 @@ Detailed Documentation
 
       Algorithm to perform mbh 'local' search
 
+---------------
+
 .. class:: PyGMO.algorithm.cstrs_co_evolution
 
    .. automethod:: PyGMO.algorithm.cstrs_co_evolution.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.cstrs_immune_system
 
@@ -273,6 +315,8 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
+---------------
+
 .. class:: PyGMO.algorithm.cstrs_core
 
    .. automethod:: PyGMO.algorithm.cstrs_core.__init__
@@ -281,41 +325,61 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
+---------------
+
 .. class:: PyGMO.algorithm.cs
 
    .. automethod:: PyGMO.algorithm.cs.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.ihs
 
    .. automethod:: PyGMO.algorithm.ihs.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.monte_carlo
 
    .. automethod:: PyGMO.algorithm.monte_carlo.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.py_example
 
    .. automethod:: PyGMO.algorithm.py_example.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.py_cmaes
 
    .. automethod:: PyGMO.algorithm.py_cmaes.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.cmaes
 
    .. automethod:: PyGMO.algorithm.cmaes.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.scipy_fmin
 
    .. automethod:: PyGMO.algorithm.scipy_fmin.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.scipy_l_bfgs_b
 
    .. automethod:: PyGMO.algorithm.scipy_l_bfgs_b.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.scipy_slsqp
 
    .. automethod:: PyGMO.algorithm.scipy_slsqp.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.scipy_tnc
 
@@ -325,6 +389,8 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
+---------------
+
 .. class:: PyGMO.algorithm.scipy_cobyla
 
    .. automethod:: PyGMO.algorithm.scipy_cobyla.__init__
@@ -333,61 +399,91 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
+---------------
+
 .. class:: PyGMO.algorithm.nlopt_cobyla
 
    .. automethod:: PyGMO.algorithm.nlopt_cobyla.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.nlopt_bobyqa
 
    .. automethod:: PyGMO.algorithm.nlopt_bobyqa.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.nlopt_sbplx
 
    .. automethod:: PyGMO.algorithm.nlopt_sbplx.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.nlopt_mma
 
    .. automethod:: PyGMO.algorithm.nlopt_mma.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.nlopt_auglag
 
    .. automethod:: PyGMO.algorithm.nlopt_auglag.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.nlopt_auglag_eq
 
    .. automethod:: PyGMO.algorithm.nlopt_auglag_eq.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.nlopt_slsqp
 
    .. automethod:: PyGMO.algorithm.nlopt_slsqp.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.gsl_nm2rand
 
    .. automethod:: PyGMO.algorithm.gsl_nm2rand.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.gsl_nm2
 
    .. automethod:: PyGMO.algorithm.gsl_nm2.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.gsl_nm
 
    .. automethod:: PyGMO.algorithm.gsl_nm.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.gsl_pr
 
    .. automethod:: PyGMO.algorithm.gsl_pr.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.gsl_fr
 
    .. automethod:: PyGMO.algorithm.gsl_fr.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.gsl_bfgs2
 
    .. automethod:: PyGMO.algorithm.gsl_bfgs2.__init__
 
+---------------
+
 .. class:: PyGMO.algorithm.gsl_bfgs
 
    .. automethod:: PyGMO.algorithm.gsl_bfgs.__init__
+
+---------------
 
 .. class:: PyGMO.algorithm.snopt
 
@@ -397,6 +493,8 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
+---------------
+
 .. class:: PyGMO.algorithm.ipopt
 
    .. automethod:: PyGMO.algorithm.ipopt.__init__
@@ -404,6 +502,8 @@ Detailed Documentation
    .. attribute:: PyGMO.algorithm.ipopt.screen_output
 
       When True, the algorithms produces output on screen 
+
+---------------
 
 .. class:: PyGMO.algorithm.cstrs_self_adaptive
 
