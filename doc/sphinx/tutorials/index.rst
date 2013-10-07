@@ -1,3 +1,5 @@
+:orphan:
+
 This is a collection of tutorials on PyGMO's basics
 
 .. _pygmotutorials:

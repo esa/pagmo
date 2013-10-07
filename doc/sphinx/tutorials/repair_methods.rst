@@ -50,8 +50,7 @@ driven by the meta-algorithm.
 .. code-block:: python
 
    In [5]: algo_1 = algorithm.de(gen = 1, xtol=1e-30, ftol=1e-30)
-   In [6]: algo_2 = algorithm.gsl_nm2(max_iter = n_repair_gen, step_size = 0.02, tol = 1e-8)
-
+   In [6]: algo_repair = algorithm.gsl_nm2(max_iter = n_repair_gen, step_size = 0.02, tol = 1e-8)
 
 Select the problem and associate a population to this problem.
 
@@ -74,7 +73,6 @@ The evolution is then performed.
 .. code-block:: python
 
    In [10]: pop = algo_meta.evolve(pop)
-
 
 And finally, print the solutions.
 

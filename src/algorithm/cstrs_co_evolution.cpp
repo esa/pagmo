@@ -48,8 +48,8 @@ namespace pagmo { namespace algorithm {
  * for population representing the penaltiesweights
  * @param[in] pop_penalties_size population size for the penalty encoding population.
  * @param[in] gen number of generations.
- * @param[in] problem::cstrs_co_evolution::method_type the method used for the population 2.
- * Three posssibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
+ * @param[in] method the method used for the population 2.
+ * Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
  * The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
  * splits the equalities and inequalities constraints in two different sets for the
  * penalty weigths, containing respectively inequalities and equalities weigths. The
@@ -61,7 +61,8 @@ namespace pagmo { namespace algorithm {
  * @param[in] xtol stopping criteria on the x tolerance.
  * @throws value_error if stop is negative
  */
-cstrs_co_evolution::cstrs_co_evolution(const base &original_algo, const base &original_algo_penalties, int pop_penalties_size,
+cstrs_co_evolution::cstrs_co_evolution(const base &original_algo, 
+									   const base &original_algo_penalties, int pop_penalties_size,
 									   int gen,method_type method, double pen_lower_bound,
 									   double pen_upper_bound,
 									   double ftol, double xtol):

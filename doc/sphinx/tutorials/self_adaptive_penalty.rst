@@ -12,7 +12,7 @@ constrained problem using the self-adaptive technique.
 
 Method
 ##########
-The self-adaptive is a part of what is called adaptive penalty
+The self-adaptive method is a part of what is called adaptive penalty
 methods for constrained optimization. 
 The idea is to penalize in term of cost function
 the infeasible individuals. Minimization is assumed in the design of the algorithm.
@@ -106,7 +106,7 @@ with the following:
 
 .. code-block:: python
 
-   In [12: print(prob.best_x)
+   In [12]: print(prob.best_x)
    In [13]: print(prob.best_f)
    In [14]: print(prob.best_c)
    Out [2]:

@@ -4,10 +4,12 @@ Algorithms
 A Quick Look
 ------------
 
-Algorithms in PyGMO are objects, constructed and then used to optimize a problem via their evolve method. The user can
-implement his own algorithm in Python (in which case they need to derive from :class:`PyGMO.algorithm.base`). You may follow the
-:ref:`tutorial3`. We also provide a number of algorithms that are considered useful for general purposes. Each algorithm can be associated only to
-problems of certain types: (Continuous, Integer or Mixed Integer)-(Constrained, Unconstrained)-(Single, Multi-objective).
+Algorithms in PyGMO are objects, constructed and then used to optimize a problem via their evolve method. 
+The user can implement his own algorithm in Python (in which case they need to derive from
+:class:`PyGMO.algorithm.base`). You may follow the :ref:`adding_a_new_algorithm` tutorial. 
+We also provide a number of algorithms that are considered useful for general purposes. 
+Each algorithm can be associated only to problems of certain types: 
+(Continuous, Integer or Mixed Integer)-(Constrained, Unconstrained)-(Single, Multi-objective).
 
 
 Heuristic Optimization
@@ -28,8 +30,8 @@ Vector Evaluated Genetic Algorithm (VEGA) :class:`PyGMO.algorithm.vega`         
 Non-dominated Sorting GA (NSGA2)          :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
 S-Metric Selection EMOA (SMS-EMOA)        :class:`PyGMO.algorithm.sms_emoa`              C-U-M      Relies on the hypervolume computation.
 Corana's Simulated Annealing (SA)         :class:`PyGMO.algorithm.sa_corana`             C-U-S 
-Parallel Decomposition (PADE)		  :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition (based on the MOEA/D framework)
-Non-dominated Sorting PSO (NSPSO)	  :class:`PyGMO.algorithm.nspso`		 C-U-M      Multi-Objective PSO
+Parallel Decomposition (PADE)             :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition (based on the MOEA/D framework)
+Non-dominated Sorting PSO (NSPSO)         :class:`PyGMO.algorithm.nspso`                 C-U-M      Multi-Objective PSO
 Strength Pareto EA 2 (SPEA2)              :class:`PyGMO.algorithm.spea2`                 C-U-M      Strength Pareto Evolutionary Algorithm 2
 Artificial Bee Colony (ABC)               :class:`PyGMO.algorithm.bee_colony`            C-U-S 
 Improved Harmony Search (IHS)             :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet

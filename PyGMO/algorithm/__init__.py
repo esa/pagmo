@@ -753,8 +753,9 @@ def _cstrs_self_adaptive_ctor(self, algorithm = None, max_iter = 100, f_tol = 1e
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
-	if algorithm==None:
-		arg_list.append(_algorithm.jde())
+	if algorithm == None:
+		algorithm = _algorithm.jde()
+	arg_list.append(algorithm)
 	arg_list.append(max_iter)
 	arg_list.append(f_tol)
 	arg_list.append(x_tol)
@@ -789,9 +790,11 @@ def _cstrs_co_evolution_ctor(self,original_algo = None,original_algo_penalties =
 	"""
 	arg_list=[]
 	if original_algo==None:
-		arg_list.append(algorithm.jde())
+		original_algo = algorithm.jde()
 	if original_algo_penalties==None:
-		arg_list.append(algorithm.jde())
+		original_algo_penalties = algorithm.jde()
+	arg_list.append(original_algo)
+	arg_list.append(original_algo_penalties)
 	arg_list.append(pop_penalties_size)
 	arg_list.append(gen)
 	arg_list.append(method)
@@ -828,10 +831,13 @@ def _cstrs_immune_system_ctor(self,algorithm = None, algorithm_immune = None, ge
 	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
 	arg_list=[]
-	if original_algo==None:
-		arg_list.append(algorithm.jde())
+
+	if algorithm==None:
+		algorithm = algorithm.jde()
 	if algorithm_immune==None:
-		arg_list.append(algorithm.jde())
+		algorithm_immune = algorithm.jde()
+	arg_list.append(algorithm)
+	arg_list.append(algorithm_immune)
 	arg_list.append(gen)
 	arg_list.append(select_method)
 	arg_list.append(inject_method)
@@ -860,10 +866,12 @@ def _cstrs_core_ctor(self,algorithm = None, repair_algorithm = None, gen = 1, re
 	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
 	"""
 	arg_list=[]
-	if original_algo==None:
-		arg_list.append(algorithm.jde())
+	if algorithm==None:
+		algorithm = algorithm.jde()
 	if repair_algorithm==None:
-		arg_list.append(repair_algorithm.jde())
+		repair_algorithm = algorithm.jde()
+	arg_list.append(algorithm)
+	arg_list.append(repair_algorithm)    
 	arg_list.append(gen)
 	arg_list.append(repair_frequency)
 	arg_list.append(repair_ratio)

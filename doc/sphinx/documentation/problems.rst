@@ -7,7 +7,7 @@ A Quick Look
 Problems in PyGMO are objects, first constructed and then used in conjunction to an algorithm.
 The user can implement its own problem directly in Python, in which case he needs to inherit from 
 :class:`PyGMO.problem.base` or :class:`PyGMO.problem.base_stochastic` class. You may see 
-:ref:`tutorial1` or :ref:`tutorial2` 
+:ref:`adding_a_new_optimization_problem` or :ref:`adding_a_new_stochastic_optimization_problem` 
 
 Meta-problems
 ^^^^^^^^^^^^^
