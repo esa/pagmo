@@ -106,7 +106,7 @@ with the following:
 
 .. code-block:: python
 
-   In [12: print(prob.best_x)
+   In [12]: print(prob.best_x)
    In [13]: print(prob.best_f)
    In [14]: print(prob.best_c)
    Out [2]:

@@ -64,7 +64,7 @@ Creates the meta-algorithm with these informations.
 
 .. code-block:: python
 
-   In [9]: algo_meta = algorithm.cstrs_core(algorithm = algo_1, repair_algorithm = algo_repair, gen = n_gen, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15)
+   In [9]: algo_meta = algorithm.cstrs_core(algorithm = algo_1, repair_algorithm = algo_2, gen = n_gen, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15)
 
 A repairing frequency of 10 generations is selected, and 
 all the infeasible individuals are repaired, hence the ratio is set to 1.
