@@ -84,8 +84,8 @@ From that point, the obtained solutions can be printed.
 .. code-block:: python
 
    In [9]: print(pop.champion.x)
-   In [10]: print(pop.champion.f)
-   In [11]: print(pop.champion.c)
+   In [10]: print(prob.objfun(pop.champion.x))
+   In [11]: print(prob.compute_constraints(pop.champion.x))
    Out [1]:
    (78.09947909827132, 33.30065259242254, 30.894527032856043, 44.013876005779935, 35.07762608948753)
    (-30476.229905572058,)
