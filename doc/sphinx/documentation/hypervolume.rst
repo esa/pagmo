@@ -55,7 +55,7 @@ Method 'least_contributors' returns the index of the individual (point) contribu
 
 
 Available Hypervolume algorithms
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ================================= ========================================== ================================================================
 Common Name                       Name in PyGMO                              Comments
 ================================= ========================================== ================================================================
@@ -202,7 +202,7 @@ Detailed Documentation
 
       Creates an instance of `PyGMO.util.hv_algorithm.bf_approx` class that serves as a parameter to the hypervolume object.
       Default values for the parameters of the algorithm were obtained from the shark implementation of the algorithm:
-         http://image.diku.dk/shark/doxygen_pages/html/_least_contributor_approximator_8hpp_source.html
+      http://image.diku.dk/shark/doxygen_pages/html/_least_contributor_approximator_8hpp_source.html
 
       Parameters:
       	* use_exact - should bf_approx use exact methods for computation

@@ -444,29 +444,44 @@ void cmaes::evolve(population &pop) const
 	} // end loop on g
 }
 
-
+/// Setter for m_gen 
 void cmaes::set_gen(const int gen) {m_gen = gen;}
+/// Getter for m_gen 
 int cmaes::get_gen() const {return m_gen;}
 
+/// Setter for m_cc 
 void cmaes::set_cc(const double cc) {m_cc = cc;}
+/// Getter for m_cc 
 double cmaes::get_cc() const {return m_cc;}
 
+/// Setter for m_cs
 void cmaes::set_cs(const double cs) {m_cs = cs;}
+/// Getter for m_cs
 double cmaes::get_cs() const {return m_cs;}
 
+/// Setter for m_c1
 void cmaes::set_c1(const double c1) {m_c1 = c1;}
+/// Getter for m_c1
 double cmaes::get_c1() const {return m_c1;}
 
+/// Setter for m_cmu
 void cmaes::set_cmu(const double cmu) {m_cmu = cmu;}
+/// Getter for m_cmu
 double cmaes::get_cmu() const {return m_cmu;}
 
+/// Setter for m_sigma
 void cmaes::set_sigma(const double sigma) {m_sigma = sigma;}
+/// Getter for m_sigma
 double cmaes::get_sigma() const {return m_sigma;}
 
+/// Setter for m_ftol
 void cmaes::set_ftol(const double ftol) {m_ftol = ftol;}
+/// Getter for m_ftol
 double cmaes::get_ftol() const {return m_ftol;}
 
+/// Setter for m_xtol.
 void cmaes::set_xtol(const double xtol) {m_xtol = xtol;}
+/// Getter for m_xtol
 double cmaes::get_xtol() const {return m_xtol;}
 
 /// Algorithm name

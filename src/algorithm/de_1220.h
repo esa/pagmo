@@ -61,6 +61,7 @@ public:
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
+private:
 	static const std::vector<int> construct_default_strategies() {
 			const int tmp[8] = {2,3,7,10,13,14,15,16};
 			std::vector<int> retval(tmp,tmp+8);

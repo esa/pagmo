@@ -1,3 +1,5 @@
+:orphan:
+
 This is a collection of examples on advanced uses of PyGMO
 
 .. _pygmoexamples:

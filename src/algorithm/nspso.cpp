@@ -53,14 +53,15 @@ namespace pagmo { namespace algorithm {
  * @param[in] C1 magnitude of the force, applied to the particle's velocity, in the direction of its previous best position
  * @param[in] C2 magnitude of the force, applied to the particle's velocity, in the direction of its global best (leader)
  * @param[in] CHI velocity scaling factor
- * @param[in] m_v_coeff velocity coefficient (determining the maximum allowed particle velocity)
+ * @param[in] v_coeff velocity coefficient (determining the maximum allowed particle velocity)
  * @param[in] leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
  * @param[in] diversity_mechanism the diversity mechanism to use to mantein diversity on the pareto front
  *
  * @throws value_error if gen is negative
  */
 nspso::nspso(int gen, double minW, double maxW, double C1, double C2,
-	  double CHI, double v_coeff, int leader_selection_range, diversity_mechanism_type diversity_mechanism):base(),
+	  double CHI, double v_coeff, int leader_selection_range,
+	   diversity_mechanism_type diversity_mechanism):base(),
 	m_gen(gen),
 	m_minW(minW),
 	m_maxW(maxW),
@@ -108,11 +109,11 @@ base_ptr nspso::clone() const
 void nspso::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	const problem::base             &prob = pop.problem();
-	const problem::base::size_type   D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
-	const problem::base::size_type   Dc = D - prob_i_dimension;
-	const decision_vector           &lb = prob.get_lb(), &ub = prob.get_ub();
-	const population::size_type      NP = pop.size();
+	const problem::base					&prob = pop.problem();
+	const problem::base::size_type		D = prob.get_dimension(), prob_i_dimension = prob.get_i_dimension(), prob_c_dimension = prob.get_c_dimension(), prob_f_dimension = prob.get_f_dimension();
+	const problem::base::size_type		Dc = D - prob_i_dimension;
+	const decision_vector				&lb = prob.get_lb(), &ub = prob.get_ub();
+	const population::size_type			NP = pop.size();
 
 	//We perform some checks to determine wether the problem/population are suitable for PSO
 	if( Dc == 0 ){

@@ -1075,28 +1075,6 @@ population::const_iterator population::end() const
 	return m_container.end();
 }
 
-/// Number of dominated individuals.
-/**
- * Get the number of individuals in pop dominated by an input individual ind
- * If ind belongs to pop it is more efficient to use get_domination_list().size()
- *
- * @param[in] ind input individual.
- *
- * @return number of individuals dominated by ind.
- */
-population::size_type population::n_dominated(const individual_type &ind) const
-{
-	size_type retval = 0;
-	for (size_type i = 0; i < m_container.size(); ++i) {
-		if (m_prob->compare_fc(ind.best_f,ind.best_c,
-			m_container[i].best_f,m_container[i].best_c))
-		{
-			++retval;
-		}
-	}
-	return retval;
-}
-
 /// Race the individuals in the population
 /**
  * Perform racing on the individuals. Alternative to racing the whole population,
@@ -1121,6 +1099,29 @@ std::pair<std::vector<population::size_type>, unsigned int> population::race(con
 	util::racing::race_pop m_race_pop(*this, seed);
 	return m_race_pop.run(n_final, min_trials, max_count, delta, active_set, util::racing::race_pop::MAX_BUDGET, race_best, screen_output);
 }
+
+/// Number of dominated individuals.
+/**
+ * Get the number of individuals in pop dominated by an input individual ind
+ * If ind belongs to pop it is more efficient to use get_domination_list().size()
+ *
+ * @param[in] ind input individual.
+ *
+ * @return number of individuals dominated by ind.
+ */
+population::size_type population::n_dominated(const individual_type &ind) const
+{
+	size_type retval = 0;
+	for (size_type i = 0; i < m_container.size(); ++i) {
+		if (m_prob->compare_fc(ind.best_f,ind.best_c,
+			m_container[i].best_f,m_container[i].best_c))
+		{
+			++retval;
+		}
+	}
+	return retval;
+}
+
 
 /// Overload stream operator for pagmo::population.
 /**

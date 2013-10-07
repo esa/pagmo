@@ -1,3 +1,5 @@
+:orphan:
+
 .. _howtodownload:
 
 Download PyGMO code
@@ -9,6 +11,3 @@ The `git <http://git-scm.com/>`_ versioning system is needed to access the code.
 * open a terminal (where git is available) and type:
 
     git clone git://git.code.sf.net/p/pagmo/code pagmo-code
-
-
-
