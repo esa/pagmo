@@ -86,7 +86,7 @@ def _hypervolume_ctor(self, data_src = None, verify = True, *args, **kwargs):
 	USAGE:
 		from PyGMO import *
 		from PyGMO.util import *
-		hv = hypervolume(pop)  # pulls the points from the population's pareto front at index 0
+		hv = hypervolume(pop)  # Constructs the hypervolume object from individual's fitness vectors
 		hv = hypervolume([[1,1,2],[2,1,2],[2,2,3]])
 		hv = hypervolume(((1,2), (3,0.5), (1.5, 1.5))
 		hv = hypervolume(data_src = ((1,2),(2,3)), verify=False)
@@ -114,7 +114,6 @@ def _hypervolume_compute(self, r = None, algorithm = None, *args, **kwargs):
 	Type 'hv_algorithm?' for a list of available hypervolume algorithms.
 
 	USAGE:
-		hv.compute()
 		hv.compute(r=[5.0]*2)
 		hv.compute(r=[5.0]*2, algorithm = hv_algorithm.hv2d())
 		* r - reference point used for computation
@@ -140,7 +139,6 @@ def _hypervolume_exclusive(self, p_idx = None, r = None, algorithm = None, *args
 	Type 'hv_algorithm?' for a list of available hypervolume algorithms.
 
 	USAGE:
-		hv.exclusive(p_idx=0)
 		hv.exclusive(p_idx=0, r=[5.0]*2)
 		hv.exclusive(p_idx=0, r=[5.0]*2, algorithm=hv_algorithm.hv2d())
 		* p_idx - index of the point
@@ -174,7 +172,6 @@ def _hypervolume_least_contributor(self, r = None, algorithm = None, *args, **kw
 	Type 'hv_algorithm?' for a list of available hypervolume algorithms.
 
 	USAGE:
-		hv.least_contributor()
 		hv.least_contributor(r=[5.0]*3)
 		hv.least_contributor(r=[5.0]*3, algorithm=hv_algorithm.hv3d())
 		* r - reference point used for computation
@@ -249,7 +246,7 @@ def _hypervolume_get_nadir_point(self, eps = 0.0):
 	Return Nadir point for given set of points.
 
 	USAGE:
-		hv.nadir_point(eps = 0.0)
+		hv.nadir_point(eps = 10.0)
 		* eps (optional) - value added to every objective in order to assert a strong dominance of reference point (1.0 by default).
 	"""
 	try:
