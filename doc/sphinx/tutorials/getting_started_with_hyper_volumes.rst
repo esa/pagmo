@@ -104,17 +104,19 @@ Once the hypervolume object is created, it allows for the computation of the fol
   hv.greatest_contributor(r=ref_point)  # Returns either 0 or 2 as an answer
 
 .. note::
- In case of several least/greatest contributors, PyGMO returns only one contributor out of all candidates arbitrarily.
+  In case of several least/greatest contributors, PyGMO returns only one contributor out of all candidates arbitrarily.
 
 5. ``contributions`` - Returns a list of contributions for all points in the set.
-  This returns the same results as the successive call to the *exclusive* method for each of the points. Due to the implementation, calling *contributions* once can be much faster (up to a linear factor) than computing all contributions separately by using *exclusive*.
+   This returns the same results as the successive call to the *exclusive* method 
+   for each of the points. Due to the implementation, calling *contributions* once can
+   be much faster (up to a linear factor) than computing all contributions separately by using *exclusive*.
 
 .. code-block:: python
 
   # hv and ref_point refer to the data above
   hv.contributions(r=ref_point)  # Returns a tuple (0.5, 0.25, 0.5, 0.0)
 
-Since all of the methods above require a reference point, it is often useful to generate one automatically:
+  Since all of the methods above require a reference point, it is often useful to generate one automatically:
 
 6. ``get_nadir_point`` - Generates a point that is "worse" than any other point in each of the objectives.
    By default, it generates a point whose objectives are maximal among each objective for the whole point set, called the nadir point.

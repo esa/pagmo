@@ -52,16 +52,16 @@ typedef boost::shared_ptr<base> base_ptr;
 /// Population class.
 /**
  * This class contains an instance of an optimisation problem and a group of candidate solutions represented by the class individual_type.
- * On creation, the population is associated to a problem and initialised with random decision vectors. 
+ * On creation, the population is associated to a problem and initialised with random decision vectors.
  * An instance of champion_type automatically keeps track of the best solution ever appeared in the population. This is only meaningful
  * in single objective optimization problems.
- * 
+ *
  * Methods are offered to get and manipulate the single individuals.
  *
  * Additionally, the population class keeps for each individual I a "domination list", constituted by the list of individuals
  * (identified by their positional index in the population) which I dominates, and a 'domination count' containing the number
- * of individuals that dominate I. Individual I1 is dominated by individual I2 if problem::base::compare_fc 
- * on the fitness and constraints vectors of I1 and I2 respectively returns true. 
+ * of individuals that dominate I. Individual I1 is dominated by individual I2 if problem::base::compare_fc
+ * on the fitness and constraints vectors of I1 and I2 respectively returns true.
  * The best/worst individuals in the population are computed according to the crowding distance operator (in case of multi-objective problems)
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
@@ -187,10 +187,10 @@ class __PAGMO_VISIBLE population
 		};
 		/// Underlying container type.
 		typedef std::vector<individual_type> container_type;
-		
+
 		/// Population size type.
 		typedef container_type::size_type size_type;
-		
+
 		/// Const iterator.
 		typedef container_type::const_iterator const_iterator;
 		explicit population(const problem::base &, int = 0, const boost::uint32_t &seed = getSeed());
@@ -200,7 +200,7 @@ class __PAGMO_VISIBLE population
 		population(const population &);
 		population &operator=(const population &);
 		const individual_type &get_individual(const size_type &) const;
-		
+
 		// Multi-Objective stuff
 		const std::vector<size_type> &get_domination_list(const size_type &) const;
 		size_type get_domination_count(const size_type &) const;
@@ -209,9 +209,9 @@ class __PAGMO_VISIBLE population
 		void update_pareto_information() const;
 		size_type n_dominated(const individual_type &) const;
 		std::vector<std::vector<size_type> > compute_pareto_fronts() const;
-        fitness_vector compute_ideal() const;
-        fitness_vector compute_nadir() const;
-		
+		fitness_vector compute_ideal() const;
+		fitness_vector compute_nadir() const;
+
 		const problem::base &problem() const;
 		const champion_type &champion() const;
 		std::string human_readable_terse() const;
@@ -233,7 +233,7 @@ class __PAGMO_VISIBLE population
 		double mean_velocity() const;
 
 		// Constraints repairing methods
-        void repair(const size_type &, const algorithm::base_ptr &);
+		void repair(const size_type &, const algorithm::base_ptr &);
 
 		// Race routine wrappers
 		std::pair<std::vector<population::size_type>, unsigned int> race(const size_type n_final,
@@ -250,7 +250,7 @@ class __PAGMO_VISIBLE population
 			bool operator()(const size_type &idx1, const size_type &idx2) const;
 			const population &m_pop;
 		};
-		
+
 		struct trivial_comparison_operator {
 			trivial_comparison_operator(const population &);
 			bool operator()(const individual_type &i1, const individual_type &i2) const;
@@ -307,8 +307,11 @@ class __PAGMO_VISIBLE population
 		mutable	rng_uint32				m_urng;
 };
 
+// Streaming operator for the population
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population &);
+// Streaming operator for the individual
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::individual_type &);
+// Streaming operator for the champion
 __PAGMO_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const population::champion_type &);
 
 struct __PAGMO_VISIBLE population_access

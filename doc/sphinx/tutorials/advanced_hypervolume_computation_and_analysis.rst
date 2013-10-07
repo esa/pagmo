@@ -7,7 +7,7 @@ Advanced hypervolume computation and analysis
 In this tutorial we will cover some more advanced topics regarding hypervolume computation and explain details on the expected performance of the engine.
 
 Computing hypervolume using a specific algorithm
-==============================================
+================================================
 
 PyGMO uses different algorithms for computing the hypervolume indicator and the hypervolume contributions. By default 
 it picks the algorithm which is *expected* to yield the fastest computation with respect to the dimensionality of the given point-set. This selection can be bypassed by using an explicit hv_algorithm object as a parameter of the corresponding method:

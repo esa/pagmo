@@ -1,3 +1,5 @@
+:orphan:
+
 Preparing your system to compile PyGMO
 ======================================
 
