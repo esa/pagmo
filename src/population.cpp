@@ -559,7 +559,7 @@ population::crowded_comparison_operator::crowded_comparison_operator(const popul
 	}
 }
 
-/// Crowded comparison functor operator()
+/// Crowded comparison functor operator()(ind,ind)
 /**
  *
  * NOTE: The user has to make sure that the Pareto information (which includes the crowding distance) 
@@ -591,7 +591,7 @@ bool population::crowded_comparison_operator::operator()(const individual_type &
 	}
 }
 
-/// Crowded comparison functor operator()
+/// Crowded comparison functor operator()(idx,idx)
 /**
  *
  * NOTE: The user has to make sure that the Pareto information (which includes the crowding distance) 

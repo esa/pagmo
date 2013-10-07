@@ -146,8 +146,7 @@ class __PAGMO_VISIBLE archipelago
 		void set_island(const size_type &, const base_island &);
 		std::vector<base_island_ptr> get_islands() const;
 		base_island_ptr get_island(const size_type &) const;
-		void set_drng(rng_double);
-		void set_urng(rng_uint32);
+		void set_seeds(unsigned int);
 	private:
 		void pre_evolution(base_island &);
 		void post_evolution(base_island &);
@@ -206,8 +205,8 @@ class __PAGMO_VISIBLE archipelago
 		// Migration container.
 		migration_map_type			m_migr_map;
 		// Rngs used during migration.
-		rng_double				m_drng;
-		rng_uint32				m_urng;
+		rng_double					m_drng;
+		rng_uint32					m_urng;
 		// Migration mutex.
 		boost::mutex				m_migr_mutex;
 		// Migration history.
