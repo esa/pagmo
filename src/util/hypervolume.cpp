@@ -460,6 +460,12 @@ const std::vector<fitness_vector> hypervolume::get_points() const
 	return m_points;
 }
 
+/// Clone method.
+/**
+ * Returns a clone of the object instance.
+ *
+ * @return shared pointer to hypervolume class instance.
+ */
 hypervolume_ptr hypervolume::clone() const
 {
 	return hypervolume_ptr(new hypervolume(*this));

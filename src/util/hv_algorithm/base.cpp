@@ -121,11 +121,32 @@ unsigned int base::extreme_contributor(std::vector<fitness_vector> &points, cons
 	return idx_extreme;
 }
 
+/// Comparison method for the least contributor
+/**
+ * This method is used as a comparison function for the extreme contributor method which may be overloaded by hv algorithms.
+ * In such case, this method can determine, given two contributions of points, which one is the "smaller" contributor.
+ *
+ * @param[in] a first contribution of a point
+ * @param[in] b second contribution of a point
+ *
+ * @return true if contribution 'a' is lesser than contribution 'b'
+ */
 bool base::cmp_least(const double a, const double b)
 {
 	return a < b;
 }
 
+
+/// Comparison method for the least contributor
+/**
+ * This method is used as a comparison function for the extreme contributor method which may be overloaded by hv algorithms.
+ * In such case, this method can determine, given two contributions of points, which one is the "greater" contributor.
+ *
+ * @param[in] a first contribution of a point
+ * @param[in] b second contribution of a point
+ *
+ * @return true if contribution 'a' is greater than contribution 'b'
+ */
 bool base::cmp_greatest(const double a, const double b)
 {
 	return a > b;
@@ -239,7 +260,7 @@ double base::volume_between(const fitness_vector &a, const fitness_vector &b, un
  *
  * @param[in] a first point defining the hypercube
  * @param[in] b second point defining the hypercube
- * @param[in] dimensions of the points.
+ * @param[in] size dimension of the vectors.
  *
  * @return volume of hypercube defined by points a and b
  */

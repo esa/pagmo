@@ -45,6 +45,8 @@ namespace pagmo { namespace algorithm {
  * Constructs the SMS-EMOA algorithm.
  *
  * @param[in] gen Number of generations to evolve.
+ * @param[in] sel_m Selection method of the algorithm. If sel_m=1, least_contributor is used for the computation regardless of the number of fronts.
+ * If sel_m=2, domination count is used in case there are more than one front.
  * @param[in] cr Crossover probability
  * @param[in] eta_c Distribution index for crossover
  * @param[in] m Mutation probability
@@ -76,6 +78,8 @@ sms_emoa::sms_emoa(const sms_emoa &orig) : base(),m_gen(orig.m_gen),m_sel_m(orig
  * Constructs the SMS-EMOA algorithm with the preferred hypervolume algorithm for computation.
  *
  * @param[in] gen Number of generations to evolve.
+ * @param[in] sel_m Selection method of the algorithm. If sel_m=1, least_contributor is used for the computation regardless of the number of fronts.
+ * If sel_m=2, domination count is used in case there are more than one front.
  * @param[in] cr Crossover probability
  * @param[in] eta_c Distribution index for crossover
  * @param[in] m Mutation probability
@@ -90,6 +94,12 @@ sms_emoa::sms_emoa(pagmo::util::hv_algorithm::base_ptr hv_algorithm, int gen, in
 	validate_parameters();
 }
 
+/// Get the hypervolume algorithm used for the computation
+/**
+ * Returns an instance of the algorithm currently set for the computation of the least_contributor.
+ *
+ * @return shared pointer to the hv_algorithm instance
+ */
 pagmo::util::hv_algorithm::base_ptr sms_emoa::get_hv_algorithm() const
 {
 	return m_hv_algorithm;

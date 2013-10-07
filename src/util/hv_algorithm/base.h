@@ -99,7 +99,7 @@ public:
 	 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
 	 * @param[in] r_point - distinguished "reference point".
 	 */
-	virtual double compute(std::vector<fitness_vector> &, const fitness_vector &) const = 0;
+	virtual double compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const = 0;
 	virtual double exclusive(const unsigned int, std::vector<fitness_vector> &, const fitness_vector &) const;
 	virtual unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 	virtual unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
@@ -113,7 +113,7 @@ public:
 	 * @param[in] points - vector of fitness_vectors for which the hypervolume is computed
 	 * @param[in] r_point - distinguished "reference point".
 	 */
-	virtual void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const = 0;
+	virtual void verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const = 0;
 
 	/// Clone method.
 	/**
