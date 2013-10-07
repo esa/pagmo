@@ -51,9 +51,10 @@ namespace pagmo { namespace algorithm {
  * @param[in] gen number of generations.
  * @param[in] select_method the method used for selecting the antibodies.
  * @param[in] inject_method the method used for reinjecting the antibodies.
- * @paran[in] phi the feasible fraction selection to compute the mean value
- * @paran[in] gamma number of antigens selected / number of total antigens
- * @paran[in] sigma number of antibodies / number of antigens
+ * @param[in] distance_method the method used to compute the antibodies distance 
+ * @param[in] phi the feasible fraction selection to compute the mean value
+ * @param[in] gamma number of antigens selected / number of total antigens
+ * @param[in] sigma number of antibodies / number of antigens
  * @param[in] ftol stopping criteria on the f tolerance
  * @param[in] xtol stopping criteria on the x tolerance
  * @throws value_error if gen is negative

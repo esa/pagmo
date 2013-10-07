@@ -115,10 +115,8 @@ namespace racing{
 
 	stat_test_result core_wilcoxon_ranksum_test(const std::vector<std::vector<double> > &X,
 	                                            double delta);
-
 //! @endcond
-}
 
-}}
+}}} //Namespaces
 
 #endif

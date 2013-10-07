@@ -1,3 +1,5 @@
+:orphan:
+
 .. _howtoinstall:
 
 Install PyGMO
@@ -64,11 +66,12 @@ CMake 2.8.6, Python 2.7, Boost 1.47.0 and MinGW with Msys 1.0.11 (all installed 
 * When running a make install, Windows will probably put your PyGMO directory under Program Files/PyGMO,
   move it to the correct place (e.g. C:/Python27/Lib/site-packages/)
 * Remember to place the necessary libraries in Windows/System32. In particular you will need
- a) the pagmo library (libpagmo.dll)
- b) the boost date-time library
- c) the boost serialization library
- d) the boost python library
- e) the boost thread library
+  a) the pagmo library (libpagmo.dll)
+  b) the boost date-time library
+  c) the boost serialization library
+  d) the boost python library
+  e) the boost thread library
+
 * You need to place the minGW ibraries libgfortran-3.dll, libquadmath-0.dll and pthreadGC2 in the core directory.
 
 * If the option GSL is activated you need to provide the GSL libraries, in particular 

@@ -239,8 +239,7 @@ void pade::evolve(population &pop) const
 
 	// Set random number generators of the archipelago equal to the one of the
 	// algorithm (so that a copy of the algorithm behave exactly as the original)
-	arch.set_drng(m_drng);
-	arch.set_urng(m_urng);
+	arch.set_seeds(m_urng());
 	
 	// Best individual will be selected for migration
 	const pagmo::migration::best_s_policy  selection_policy;

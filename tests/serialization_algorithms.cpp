@@ -35,8 +35,7 @@ using namespace pagmo;
 int main()
 {
 	unsigned int pop_size = 40;
-	unsigned int gen = 123;
-	unsigned int gen_reduced = 3;
+	unsigned int gen = 7;
 
 	//increment this if you add a multiobjective algo
 	unsigned int n_mo = 6;
@@ -54,7 +53,7 @@ int main()
 	// Fill it up with algorithms
 	// 1) first the multiobjective ones
 
-	algos.push_back(algorithm::pade(gen_reduced, 1, pagmo::problem::decompose::TCHEBYCHEFF, pagmo::algorithm::jde(1), 9, algorithm::pade::GRID, std::vector<double>()).clone());
+	algos.push_back(algorithm::pade(gen, 1, pagmo::problem::decompose::TCHEBYCHEFF, pagmo::algorithm::jde(1), 9, algorithm::pade::GRID, std::vector<double>()).clone());
 	algos_new.push_back(algorithm::pade().clone());
 	algos.push_back(algorithm::spea2(gen,0.95, 11, 0.012, 50, 0).clone());
 	algos_new.push_back(algorithm::spea2().clone());
@@ -71,7 +70,7 @@ int main()
 
 
 	// 2) then some meta-algorithms (4 constrained)
-	algos.push_back(algorithm::cstrs_co_evolution(algorithm::de(gen_reduced),algorithm::de(1),20,30,algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS).clone());
+	algos.push_back(algorithm::cstrs_co_evolution(algorithm::de(1),algorithm::de(1),20,30,algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS).clone());
 	algos_new.push_back(algorithm::cstrs_co_evolution().clone());
 
 	algos.push_back(algorithm::cstrs_self_adaptive(algorithm::sga(1),gen).clone());
@@ -124,7 +123,7 @@ int main()
 	algos_new.push_back(algorithm::pso_generational().clone());
 	//algos.push_back(algorithm::pso_generational_racing(gen,0.5,0.5,0.5,0.5,3,3,3).clone());
 	//algos_new.push_back(algorithm::pso_generational_racing().clone());
-	algos.push_back(algorithm::sa_corana(gen*100,5.0,1e-5,25,10,0.5).clone());
+	algos.push_back(algorithm::sa_corana(gen*1000,5.0,1e-5,25,10,0.5).clone());
 	algos_new.push_back(algorithm::sa_corana().clone());
 	algos.push_back(algorithm::sga(gen,.9, .021, 5, algorithm::sga::mutation::RANDOM, 0.3, algorithm::sga::selection::BEST20, algorithm::sga::crossover::BINOMIAL).clone());
 	algos_new.push_back(algorithm::sga().clone());

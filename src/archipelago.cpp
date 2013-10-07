@@ -395,13 +395,19 @@ void archipelago::reevaluate_immigrants(std::vector<std::pair<population::size_t
 	}
 }
 
-void archipelago::set_drng(rng_double drng) {
-	m_drng = drng;
+/// Sets the seed of the random number generators of the archipelago
+/**
+ * Sets the seed of the random number generators of the archipelago. These
+ * are used during migration
+ *
+ * @param[in] seed Seed for generating pseudo-random sequences
+ */
+void archipelago::set_seeds(unsigned int seed) {
+	m_drng.seed(seed);
+	m_urng.seed(seed+1); // we do not care if it overflows
 }
 
-void archipelago::set_urng(rng_uint32 urng) {
-	m_urng = urng;
-}
+
 
 // This method will be called by each island of the archipelago before starting evolution. Its task is
 // to select from the other islands, according to the topology and the migration/distribution type and direction,
@@ -709,7 +715,11 @@ void archipelago::sync_island_start() const
 	m_islands_sync_point->wait();
 }
 
-// Dump migration history.
+/// Dumps the archipelago migration history
+/**
+ * @return A string formatted as follows: (x1,y1,z1)\n(x2,y2,z2)..... where x is the number of individuals
+ * accepted in island z and coming from island y
+ */
 std::string archipelago::dump_migr_history() const
 {
 	join();
@@ -723,7 +733,11 @@ std::string archipelago::dump_migr_history() const
 	return oss.str();
 }
 
-// Clear migration history.
+/// Clears the archipelago migration history
+/**
+ * @return Empties the migration history. If dump_migr_history is called immediately after, 
+ * it will return an empty string
+ */
 void archipelago::clear_migr_history()
 {
 	join();
