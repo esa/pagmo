@@ -59,6 +59,10 @@ IF(COMMAND CMAKE_POLICY)
 ENDIF(COMMAND CMAKE_POLICY)
 
 # Provides build options to CMake.
+
+# Build Option: when active the file main.cpp is built and linked to the PaGMO static library.
+OPTION(INSTALL_HEADERS "Installs the header files" OFF)
+
 # Build Option: when active the file main.cpp is built and linked to the PaGMO static library.
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 
