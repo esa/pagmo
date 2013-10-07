@@ -12,7 +12,7 @@ constrained problem using the self-adaptive technique.
 
 Method
 ##########
-The self-adaptive is a part of what is called adaptive penalty
+The self-adaptive method is a part of what is called adaptive penalty
 methods for constrained optimization. 
 The idea is to penalize in term of cost function
 the infeasible individuals. Minimization is assumed in the design of the algorithm.
