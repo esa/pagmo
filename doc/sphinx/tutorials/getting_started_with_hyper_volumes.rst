@@ -135,9 +135,9 @@ This following short script presents all features mentioned above:
   pop = population(prob, 100)
 
   # Construct the hypervolume object
-  # and get the reference point off-setted by 1.0 in each objective
+  # and get the reference point off-setted by 10 in each objective
   hv = hypervolume(pop)
-  ref_point = hv.get_nadir_point(1.0)
+  ref_point = hv.get_nadir_point(10)
 
   print hv.compute(ref_point)
   print hv.exclusive(0, ref_point)
