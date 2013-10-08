@@ -57,6 +57,11 @@ class __PAGMO_VISIBLE base_dtlz : public base_unc_mo
 		/// Clone method.
 		virtual base_ptr clone() const = 0;
 	protected:
+		/// Distance function
+		/**
+		 * This pure virtual function is re-implemented in the derived classes
+		 * and is used to compute the distance of a point from the Pareto front
+		 **/
 		virtual double g_func(const decision_vector &) const = 0;
 	private:
 		double convergence_metric(const decision_vector &) const;

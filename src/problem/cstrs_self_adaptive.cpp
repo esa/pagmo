@@ -31,6 +31,9 @@
 #include "base.h"
 #include "cstrs_self_adaptive.h"
 
+///Doxygen will ignore whatever is in //! @cond As this problem is only to be used by the equally named algorithm
+//! @cond
+
 namespace pagmo { namespace problem {
 
 /**
@@ -537,8 +540,9 @@ double cstrs_self_adaptive::compute_solution_infeasibility(const constraint_vect
 
 	return solution_infeasibility;
 }
-
 }}
+
+//! @endcond
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_self_adaptive);
 

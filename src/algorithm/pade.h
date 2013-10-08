@@ -52,7 +52,12 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE pade: public base
 {
 public:
-	enum weight_generation_type {RANDOM=0, GRID=1, LOW_DISCREPANCY=2};
+	/// Mechanism used to generate the weight vectors
+	enum weight_generation_type {
+	    RANDOM=0, ///< Weights are generated uniformly at random on the simplex 
+	    GRID=1,///< Weights are generated on a uniform grid layed down on the simplex
+	    LOW_DISCREPANCY=2 ///< Weights are generated on the simplex with low-discrepancy
+	};
 	pade(
 		  int gen=10, 
 		  unsigned int max_parallelism = 1, 

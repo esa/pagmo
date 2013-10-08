@@ -67,10 +67,10 @@ OPTION(INSTALL_HEADERS "Installs the header files" OFF)
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 
 # Build Option: when active the bindings to Python are compiled and linked (installation).
-OPTION(BUILD_PYGMO "Build Python bindings." ON)
+OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 # Build Option: when active the GTOP database problems are built.
-OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." ON)
+OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)
 IF(ENABLE_GTOP_DATABASE)
         ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
 ENDIF(ENABLE_GTOP_DATABASE)
@@ -90,7 +90,7 @@ OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
 
 # Build option: enable test set.
-OPTION(ENABLE_TESTS "Build test set." ON)
+OPTION(ENABLE_TESTS "Build test set." OFF)
 
 # Build Option: build executable for the examples
 OPTION(BUILD_EXAMPLES "Build examples." OFF)

@@ -49,8 +49,8 @@ static const double PI = boost::math::constants::pi<double>();
  * with unconstrained problems (UF) and the set with constrained problems (CF).
  *
  * @param[in] fun_id The problem id. One of [1,2,...10]
+ * @param[in] prob_dim problem dimension. Default is 30, which is the setting used by the competition. But all the problems are scalable in terms of decision variable's dimension.
  * @param[in] is_constrained Specify whether the problem is constrained. False will yield the UF problems, and vice versa.
- * @param[in] d problem dimension. Default is 30, which is the setting used by the competition. But all the problems are scalable in terms of decision variable's dimension.
  *
  * @see http://www3.ntu.edu.sg/home/EPNSugan/index_files/CEC09-MOEA/CEC09-MOEA.htm
  *

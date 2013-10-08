@@ -48,7 +48,11 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE con2uncon : public base
 {
 public:
-	enum method_type {OPTIMALITY = 0, FEASIBILITY = 1};
+	/// Mechanism used to transform the input problem
+	enum method_type {
+		OPTIMALITY = 0, ///< The objective function of the original problem is used as objective function of the transformed problem
+		FEASIBILITY = 1 ///< The sum of the constraint violation is used as objective function of the transformed problem
+	};
 
 public:
 	//constructors

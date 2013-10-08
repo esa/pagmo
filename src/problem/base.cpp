@@ -1294,7 +1294,7 @@ void base::estimate_sparsity(int& lenG, std::vector<int>& iGfun, std::vector<int
 /**
  * This method is used to set the best know decision vectors members.
  *
- * @param[in] best known x pagmo::decision_vector.
+ * @param[in] best_x best known pagmo::decision_vector for the problem
  */
 void base::set_best_x(const std::vector<decision_vector>& best_x)
 {

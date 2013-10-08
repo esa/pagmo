@@ -33,13 +33,13 @@
 #include "../serialization.h"
 #include "../population.h"
 
+///Doxygen will ignore whatever is in //! @cond
+//! @cond
+
 namespace pagmo{ namespace util {
 
 namespace racing{
-	
-///Doxygen will ignore whatever is in //! @cond
-//! @cond
-	
+		
 	class __PAGMO_VISIBLE racing_population : public population
 	{
 	public:
@@ -115,8 +115,8 @@ namespace racing{
 
 	stat_test_result core_wilcoxon_ranksum_test(const std::vector<std::vector<double> > &X,
 	                                            double delta);
-//! @endcond
-
 }}} //Namespaces
+
+//! @endcond
 
 #endif

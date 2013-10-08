@@ -61,7 +61,7 @@
 
 namespace pagmo {
 
-// These two are custom functions for the serialization of vector of doubles that handle also inf and NaN.
+/// Custom save function for the serialization of vector of doubles that handle also inf and NaN.
 template <class Archive>
 void custom_vector_double_save(Archive &ar, const std::vector<double> &v, const unsigned int)
 {
@@ -86,6 +86,7 @@ void custom_vector_double_save(Archive &ar, const std::vector<double> &v, const 
 	}
 }
 
+/// Custom load function for the serialization of vector of doubles that handle also inf and NaN.
 template <class Archive>
 void custom_vector_double_load(Archive &ar, std::vector<double> &v, const unsigned int)
 {

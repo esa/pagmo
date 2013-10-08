@@ -51,10 +51,14 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE nspso: public base
 {
 public:
-	enum diversity_mechanism_type {CROWDING_DISTANCE=0, NICHE_COUNT=1, MAXMIN=2};
+	/// Mechanism used to asses diversity
+	enum diversity_mechanism_type {
+	   CROWDING_DISTANCE=0, ///< The crowding distance is used
+	   NICHE_COUNT=1, ///< The ....
+	   MAXMIN=2 ///< The ....
+	};
 	nspso(int gen=100, double minW = 0.4, double maxW = 1.0, double C1 = 2.0, double C2 = 2.0,
 		  double CHI = 1.0, double v_coeff = 0.5, int leader_selection_range = 10, diversity_mechanism_type = CROWDING_DISTANCE);
-	//nspso(const nspso &);
 
 	base_ptr clone() const;
 	void evolve(population &) const;
