@@ -61,9 +61,7 @@ class __PAGMO_VISIBLE death_penalty : public base
 		   WEIGHTED = ///< Penalizes the fitness function with the weighted sum of the violations
 		}
 
-		/// Constructor
 		death_penalty(const base & = cec2006(4), const method_type = SIMPLE, const std::vector<double>& = std::vector<double>());
-		/// Copy Constructor
 		death_penalty(const death_penalty &);
 		
 		base_ptr clone() const;

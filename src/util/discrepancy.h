@@ -79,6 +79,7 @@ class __PAGMO_VISIBLE project_2_simplex
 //! @endcond
 
 class base;
+/// Smart pointer to the base discrepancy class
 typedef boost::shared_ptr<base> base_ptr;
 
 //---------------------------------------------------------
@@ -121,7 +122,9 @@ public:
 	/// Virtual destructor. Required as the class contains pure virtual methods
 	virtual~base();
 protected:
+	/// Hypercube dimension where sampling with low-discrepancy
 	unsigned int m_dim;
+	/// Starting point of the sequence (can be used to skip initial values)
 	unsigned int m_count;
 };
 

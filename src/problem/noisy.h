@@ -56,7 +56,10 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 {
 	public:
 		/// Distribution type of the noise
-		enum noise_type {NORMAL = 0, UNIFORM = 1};
+		enum noise_type {
+			 NORMAL = 0, ///< Normal distribution
+			 UNIFORM = 1 ///< Uniform distribution
+			 };
 		
 		//constructors
 		noisy(const base & = ackley(1),

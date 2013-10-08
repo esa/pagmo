@@ -64,7 +64,11 @@ public:
 	race_pop(const population &, unsigned int seed = 0);
 	race_pop(unsigned int seed = 0);
 
-	enum termination_condition { MAX_BUDGET, MAX_DATA_COUNT };
+	/// Method to stop the race
+	enum termination_condition { 
+		 MAX_BUDGET, ///< Fixed number of function evaluations
+		 MAX_DATA_COUNT ///< Fixed number of iterations
+		};
 
 	// Main method containing all the juice
 	std::pair<std::vector<population::size_type>, unsigned int> run(
