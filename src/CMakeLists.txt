@@ -86,6 +86,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/fon.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/pol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/kur.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt3.cpp

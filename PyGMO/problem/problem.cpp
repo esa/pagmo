@@ -376,8 +376,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	// DTLZ7
 	unc_mo_problem_wrapper<problem::dtlz7>("dtlz7","DTLZ7 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	
-	// ZDT1
+	// ZDT
+	unc_mo_problem_wrapper<problem::zdt>("zdt","ZDT")
+		.def(init<optional<size_t, size_t> >());
+       // ZDT1
 	unc_mo_problem_wrapper<problem::zdt1>("zdt1","ZDT1")
 		.def(init<problem::base::size_type>());
 	// ZDT2

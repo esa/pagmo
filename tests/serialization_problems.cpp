@@ -143,10 +143,17 @@ int main()
 	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
 	probs_new.push_back(problem::tsp().clone());
 
+    //----- Test ZDT -----//
+    for(int i = 1; i <= 6; i++) {
+	probs.push_back(problem::zdt(i, dimension).clone());
+	probs_new.push_back(problem::zdt(i%6 + 1).clone());
+    }
+	
+	
     //----- Test CEC2006 -----//
     for(int i=1; i<=24; i++){
         probs.push_back(problem::cec2006(i).clone());
-		probs_new.push_back(problem::cec2006(i%24 + 1).clone());
+	probs_new.push_back(problem::cec2006(i%24 + 1).clone());
     }
 
     //----- Test CEC2009 - UF set-----//
@@ -157,7 +164,7 @@ int main()
     //----- Test CEC2009 - CF set-----//
     for(int i=1; i<=10; i++){
 		probs.push_back(problem::cec2009(i, dimension, true).clone());
-		probs_new.push_back(problem::cec2009(i%10 + 1, 17, true).clone());
+		probs_new.push_back(problem::cec2009(1%10 + 1, 17, true).clone());
 	}
 
 	//----- Test meta-problems -----//

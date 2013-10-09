@@ -64,6 +64,7 @@
 #include "problem/fon.h"
 #include "problem/pol.h"
 #include "problem/kur.h"
+#include "problem/zdt.h"
 #include "problem/zdt1.h"
 #include "problem/zdt2.h"
 #include "problem/zdt3.h"

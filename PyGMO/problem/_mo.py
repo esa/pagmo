@@ -1,4 +1,4 @@
-from _problem import zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, dtlz1, dtlz2, dtlz3, dtlz4, dtlz5, dtlz6, dtlz7
+from _problem import zdt, zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, dtlz1, dtlz2, dtlz3, dtlz4, dtlz5, dtlz6, dtlz7
 
 def _mo3d_plot(self, pop, a=40, comp=[0,1,2]):
 	"""
@@ -76,6 +76,36 @@ def _dtlz234_plot(self, pop, a=40, comp=[0,1,2]):
 		print 'Error. Please choose correct fitness dimensions for printing!'
 	plt.show()
 	return ax
+
+def _zdt_ctor(self, prob_id = 1, param_1 = None):
+        """
+        Constructs a multi-objective box-constrained problem from the ZDT testsuite
+        
+        NOTE: K Deb, A Pratap, S Agarwal: A fast and elitist multiobjective genetic algorithm: NSGA-II, IEEE Transactions on, 2002
+        
+        USAGE: problem.zdt(prob_id = 1, param_1 = 30)
+        
+        * prob_id: Problem number, one of [1,2,...24]
+        * param_1: problem dimension for all ZDT problems except ZDT5 (here it is the number of binary strings used)
+        """
+
+	arg_list=[]
+	arg_list.append(prob_id)
+	if param_1 == None:
+		if prob_id in [1,2,3,4]:
+			arg_list.append(30)
+		elif prob_id == 5:
+			arg_list.append(11)
+		else:
+			arg_list.append(10)
+	else:
+		arg_list.append(param_1)
+        self._orig_init(*arg_list)
+        
+zdt._orig_init = zdt.__init__
+zdt.__init__ = _zdt_ctor
+
+
 
 def _zdt1_ctor(self, dim = 30):
 	"""
