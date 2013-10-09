@@ -51,27 +51,21 @@ namespace pagmo{ namespace problem {
  *
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
-
 class __PAGMO_VISIBLE death_penalty : public base
 {
 	public:
-		/// Type of death penalty.
-		/**
-		* Definition of two types of death penalty simple and kuri.
-		* Simple death penalty penalizes the fitness function with a high value, Kuri method penalizes the
-		* fitness function according to the rate of satisfied constraints.
-		*/
-		//death penalty type simple or kuri
-		enum method_type {SIMPLE = 0, KURI = 1, WEIGHTED = 2};
+		/// Mechanism used to assign the penalty
+		enum method_type {
+		   SIMPLE = 0, ///< Penalizes the fitness function with a high value id the decision vector is unfeasible
+		   KURI = 1, ///< Penalizes the fitness function according to the number of satisfied constraints.
+		   WEIGHTED = 2///< Penalizes the fitness function with the weighted sum of the violations
+		};
 
-		//constructors
 		death_penalty(const base & = cec2006(4), const method_type = SIMPLE, const std::vector<double>& = std::vector<double>());
-
-		//copy constructor
 		death_penalty(const death_penalty &);
+		
 		base_ptr clone() const;
 		std::string get_name() const;
-
 	protected:
 		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
@@ -87,14 +81,14 @@ class __PAGMO_VISIBLE death_penalty : public base
 			ar & const_cast<method_type &>(m_method);
 			ar & m_penalty_factors;
 		}
+		
 		base_ptr m_original_problem;
-
 		const method_type m_method;
 		std::vector<double> m_penalty_factors;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::death_penalty);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::death_penalty)
 
 #endif // PAGMO_PROBLEM_DEATH_PENALTY_H

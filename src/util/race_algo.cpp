@@ -98,8 +98,8 @@ class standard : public problem::base_stochastic
  * std::vector<unsigned int> idx = {0};
  * fitness_values f = this->objfun(idx);
  *
- * @param[in] problem Problem against which the algorithms will be evaluated
- * @param[in] algos The set of algorithms
+ * @param[in] probs std::vector of pagmo::problem::base_ptr against which the algorithms will be evaluated
+ * @param[in] algos std::vector of pagmo::algorithm::base_ptr
  * @param[in] seed Seed to be used internally as a stochastic problem
  * @param[in] pop_size Size of the population to be evolved
  *
@@ -263,7 +263,7 @@ void standard::evaluate_algorithm(unsigned int algo_idx) const
  *
  * @param[in] algos The set of algorithms to be raced
  * @param[in] prob The problem to be considered
- * @param[in] The size of the population that the algorithms will be evolving
+ * @param[in] pop_size The size of the population that the algorithms will be evolving
  * @param[in] seed Seed to be used in racing mechanisms
  */
 race_algo::race_algo(const std::vector<algorithm::base_ptr> &algos, const problem::base &prob, unsigned int pop_size, unsigned int seed): m_pop_size(pop_size), m_seed(seed)
@@ -280,7 +280,7 @@ race_algo::race_algo(const std::vector<algorithm::base_ptr> &algos, const proble
  *
  * @param[in] algos The set of algorithms to be raced
  * @param[in] probs The set of problems to be considered
- * @param[in] The size of the population that the algorithms will be evolving
+ * @param[in] pop_size The size of the population that the algorithms will be evolving
  * @param[in] seed Seed to be used in racing mechanisms
  */
 race_algo::race_algo(const std::vector<algorithm::base_ptr> &algos, const std::vector<problem::base_ptr> &probs, unsigned int pop_size, unsigned int seed): m_pop_size(pop_size), m_seed(seed)
@@ -299,10 +299,10 @@ race_algo::race_algo(const std::vector<algorithm::base_ptr> &algos, const std::v
  *
  * @param[in] n_final Desired number of winners.
  * @param[in] min_trials Minimum number of trials to be executed before dropping algorithms.
- * @param[in] max_f_evals Maximum number of objective function evaluation before the race ends.
+ * @param[in] max_count Maximum number of objective function evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole algorithm set.
- * @param[in] race_goal Whether to extract the best or the worst algorithm.
+ * @param[in] race_best Whetn true extracts the best, otherwise the worst algorithm.
  * @param[in] screen_output Whether to log racing status on the console output.
  *
  * @see Refer to util::racing::race_pop for the details of the racing mechanisms.

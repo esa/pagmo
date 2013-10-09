@@ -50,11 +50,12 @@ namespace pagmo{ namespace problem {
  * The decision vector is \f$ [t_0,T] + [u,v,V_{\infty},\eta_1,\alpha_1] + [\beta, r_p/r_P, \eta_2,\alpha_2]\f$ ..... in the units: [mjd2000, days] + [nd,nd,km/s,nd,nd] + [rad,nd,nd,nd] + ....
  * where \f$ \mathbf V_{\infty} = V_{\infty}*(\cos(\theta)\cos(\phi)\mathbf i+\cos(\theta)\sin(\phi)\mathbf j+\sin(\phi)\mathbf k) \f$ and \f$ \theta = 2\pi u, \phi = acos(2v-1)-\pi/2 \f$
  * 
- * Each leg time-of-flight can be obtained as \f$ T_n = T\alpha_n / \sum_i(\alpha_i)\f$. This is what we call \f$\alpha\f$-encoding as opposed to the tof encoding implemented in mga_1dsm_tof
+ * Each leg time-of-flight can be obtained as \f$ T_n = T log(\alpha_n) / \sum_i(log(\alpha_i))\f$. This is
+ * what we call \f$\alpha\f$-encoding as opposed to the tof encoding implemented in mga_1dsm_tof
  * 
- * This encoding allows the optimizer more flexibility in choosing the flybys and creates a better multiobjective problem (the total tof can be set), but might greater a more difficult problem. 
- * The probability of a leg having a duration smaller or larger than some T is the same for each planet in the sequence. If the trajectory is more likely to have legs of different
- * durations, the tof encoding might be recommended.
+ * This encoding allows the optimizer more flexibility in choosing the flybys and creates a
+ * better multiobjective problem (the total tof can be set), but might greater a more difficult problem. 
+ * The probability of a leg having a duration smaller or larger than some T, is the same for each planet in the sequence.
  * 
  * NOTE: The resulting problem is box-bounded (unconstrained). The resulting trajectory is time-bounded.
  *

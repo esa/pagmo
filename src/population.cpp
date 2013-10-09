@@ -1083,7 +1083,7 @@ population::const_iterator population::end() const
  *
  * @param[in] n_final Desired number of winners.
  * @param[in] min_trials Minimum number of trials to be executed before dropping individuals.
- * @param[in] max_count Maximum number of iterations / objective evaluation before the race ends.
+ * @param[in] max_count Maximum number of objective function evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
  * @param[in] race_best If true winners are the best, otherwise winners are the worst

@@ -35,6 +35,9 @@
 #include "base.h"
 #include "../algorithm/cstrs_co_evolution.h"
 
+///Doxygen will ignore whatever is in //! @cond As this problem is only to be used by the equally named algorithm
+//! @cond
+
 namespace pagmo{ namespace problem {
 
 /// Constrainted co evolution meta-problem
@@ -148,8 +151,9 @@ private:
 	std::vector<double> m_total_sum_viol;
 	std::vector<int> m_total_num_viol;
 };
-
 }} //namespaces
+
+//! @endcond
 
 BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_co_evolution);
 BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_co_evolution_penalty);

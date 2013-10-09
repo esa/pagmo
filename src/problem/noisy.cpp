@@ -38,19 +38,20 @@ namespace pagmo { namespace problem {
 
 /**
  * Construct by specifying a problem to be transformed and the noise distribution,
- * controlled by a flag and two params. Currently two types of noise distribution is
+ * controlled by a flag and two params. Currently two types of noise distribution are
  * supported, namely the normally distributed noise (NORMAL) and uniformly distributed 
  * noise (UNIFORM).
  *
  * @param[in] p pagmo::problem::base to be noisy
+ * @param[in] trials number of samples to average upon
  * @param[in] param_first Mean of the Gaussian noise / Lower bound of the uniform noise
  * @param[in] param_second Standard deviation of the Gaussian noise / Upper bound of the uniform noise
- * @param[in] noise_type Two types of noise is currently supported: NORMAL or UNIFORM
+ * @param[in] distribution Two types of distributions for the noise are currently supported: NORMAL or UNIFORM
  * @param[in] seed seed for the underlying rng
  * @see problem::base_stochastic constructors.
  */
 
-noisy::noisy(const base & p, unsigned int trials, const double param_first, const double param_second, noise_type noise_type_, unsigned int seed):
+noisy::noisy(const base & p, unsigned int trials, const double param_first, const double param_second, noise_type distribution, unsigned int seed):
 	base_stochastic((int)p.get_dimension(),
 		 p.get_i_dimension(),
 		 p.get_f_dimension(),
@@ -64,9 +65,9 @@ noisy::noisy(const base & p, unsigned int trials, const double param_first, cons
 	m_decision_vector_hash(),
 	m_param_first(param_first),
 	m_param_second(param_second),
-	m_noise_type(noise_type_)
+	m_noise_type(distribution)
 {
-	if(noise_type_ == UNIFORM && param_first > param_second){
+	if(distribution == UNIFORM && param_first > param_second){
 		pagmo_throw(value_error, "Bounds specified for the uniform noise are not valid.");
 	}
 	set_bounds(p.get_lb(),p.get_ub());

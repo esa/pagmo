@@ -44,6 +44,7 @@ namespace pagmo { namespace migration {
 /**
  * @param[in] rate migration rate.
  * @param[in] type migration rate type.
+ * @param[in] nadir_eps epsilon value for the nadir point computation
  *
  * @see base_r_policy::base_r_policy.
  */

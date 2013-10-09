@@ -286,7 +286,8 @@ unsigned int race_pop::compute_required_fevals(const std::vector<population::siz
  * @param[in] max_f_evals Maximum number of objective function evaluation before the race ends.
  * @param[in] delta Confidence level for statistical testing.
  * @param[in] active_set Indices of individuals that should participate in the race. If empty, race on the whole population.
- * @param[in] race_goal Whether to extract the best or the worst individuals.
+ * @param[in] term_cond Termination condition (MAX_BUDGET, MAX_DATA_COUNT)
+ * @param[in] race_best When true races for the best individuals
  * @param[in] screen_output Whether to log racing status on the console output.
  *
  * @return std::pair first: the indices of the individuals that remain in the
@@ -299,7 +300,16 @@ unsigned int race_pop::compute_required_fevals(const std::vector<population::siz
  * @see Birattari, M., Stützle, T., Paquete, L., & Varrentrapp, K. (2002). A Racing Algorithm for Configuring Metaheuristics. GECCO ’02 Proceedings of the Genetic and Evolutionary Computation Conference (pp. 11–18). Morgan Kaufmann Publishers Inc.
  * @see Heidrich-Meisner, Verena, & Christian Igel (2009). Hoeffding and Bernstein Races for Selecting Policies in Evolutionary Direct Policy Search. Proceedings of the 26th Annual International Conference on Machine Learning, pp. 401-408. ACM Press.
  */
-std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(const population::size_type n_final, const unsigned int min_trials, const unsigned int max_f_evals, const double delta, const std::vector<population::size_type>& active_set, termination_condition term_cond, const bool race_best, const bool screen_output)
+std::pair<std::vector<population::size_type>, unsigned int> race_pop::run(
+			 const population::size_type n_final, 
+			 const unsigned int min_trials, 
+			 const unsigned int max_f_evals, 
+			 const double delta, 
+			 const std::vector<population::size_type>& active_set, 
+			 termination_condition term_cond, 
+			 const bool race_best, 
+			 const bool screen_output
+			 )
 {
 	// First check whether the a population has been properly registered
 	if(!m_pop_registered){
@@ -635,9 +645,11 @@ void race_pop::cache_register_signatures(const population& pop)
 	}
 }
 
-// If compatible, inherits past evaluation data from another race_pop object.
-// Generally to be used in scenarios when racing individuals in a cross
-// generation setting.
+/// Inherits the memory of another race_pop object
+/** If compatible, inherits past evaluation data from another race_pop object.
+ * Useful in scenarios when racing individuals in a cross
+ * generation setting.
+*/
 void race_pop::inherit_memory(const race_pop& src)
 {
 	// If seeds are different, no memory transfer is possible

@@ -46,6 +46,10 @@ public:
 	pso_generational_racing(int gen=1, double omega = 0.7298, double eta1 = 2.05, double eta2 = 2.05, double vcoeff = 0.5, int variant = 5, int neighb_type = 2, int neighb_param = 4, unsigned int nr_eval_per_x = 5, unsigned int max_fevals = std::numeric_limits<unsigned int>::max());
 	base_ptr clone() const;
 	void evolve(population &) const;
+	std::string get_name() const;
+protected:	
+	std::string human_readable_extra() const;
+private:
 	decision_vector particle__get_best_neighbor( population::size_type pidx, std::vector< std::vector<int> > &neighb, const std::vector<decision_vector> &lbX, const std::vector<fitness_vector> &lbfit, const problem::base &prob) const;
 	void initialize_topology__gbest( const population &pop, decision_vector &gbX, fitness_vector &gbfit, std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const;
@@ -62,9 +66,6 @@ public:
 	void racing__construct_race_environment( util::racing::race_pop & race_structure, const problem::base& prob, const std::vector<decision_vector> &x_list1, const std::vector<decision_vector> &x_list2 ) const;
 	std::pair<population::size_type, unsigned int> racing__race_for_winner( util::racing::race_pop &race_structure, int idx1, int idx2, unsigned int max_fevals) const;
 
-	std::string get_name() const;
-protected:
-	std::string human_readable_extra() const;
 private:
 	friend class boost::serialization::access;
 	template <class Archive>

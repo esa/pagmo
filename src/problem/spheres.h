@@ -124,6 +124,7 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 		std::string get_name() const;
 		base_ptr clone() const;
 		
+		/// Gets the weights of the neural network
 		std::vector<double> get_nn_weights(decision_vector x) const;
 
 	protected:

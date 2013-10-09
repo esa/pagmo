@@ -47,8 +47,8 @@ namespace pagmo{ namespace problem {
  * \f$ w = (w_1, \ldots, w_n) \f$
  * \f$ z = (z_1, \ldots, z_n) \f$
  * respectively a weight vector and a reference point,
- * the decomposed problem has as single-objective fitness function one of the following according to which
- * decomposition methods is choosed:
+ * the decomposed problem has as single-objective fitness function one of the following
+ * according to which decomposition methods is choosed:
  *
  * WEIGHTED: \f$ F_d(X) = \sum_{i=1}^n w_i F_i(X) \f$
  *
@@ -61,19 +61,18 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE decompose : public base
 {
 	public:
-		enum method_type {WEIGHTED=0, TCHEBYCHEFF=1, BI=2};
+		/// Mechanism used to perform the problem decomposition
+		enum method_type {
+		   WEIGHTED=0, ///< The fitness function is the weighted sum of the multiple original fitnesses
+		   TCHEBYCHEFF=1, ///< The Tchebycheff method is used to perform the decomposition
+		   BI=2 ///< The Boundary Intersection method is used to perform the decomposition
+		};
 
-		//constructor
 		decompose(const base & = zdt1(2), method_type = WEIGHTED, const std::vector<double> & = std::vector<double>(), const std::vector<double> & = std::vector<double>());
-
-		//copy constructor
 		decompose(const decompose &);
 		base_ptr clone() const;
 		std::string get_name() const;
 		const std::vector<double>& get_weights() const;
-		//const std::vector<double>& get_z() const;
-		//void set_weights(const std::vector<double>& );
-		//void set_z(const std::vector<double>& );
 
 	protected:
 		std::string human_readable_extra() const;

@@ -31,12 +31,16 @@
 #include "base.h"
 #include "cstrs_co_evolution.h"
 
+///Doxygen will ignore whatever is in //! @cond
+//! @cond
+
 namespace pagmo { namespace problem {
+
 /**
- * Constructor of co-evolution problem using initial constrained problem
+ * Constructor of co-evolution problem from a constrained problem
  *
- * Note: This problem is not intended to be used by itself. Instead use the
- * co-evolution algorithm if you want to solve constrained problems.
+ * Note: This problem is not intended to be used by itself, only by the
+ * pagmo::algorithm::cstrs_co_evolution algorithm 
  *
  * @param[in] problem base::problem to be modified to use a co-evolution
  * as constraints handling technique.
@@ -597,8 +601,9 @@ void cstrs_co_evolution_penalty::compute_penalty(double &sum_viol, int &num_viol
 		}
 	}
 }
-
 }}
+
+//! @endcond
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_co_evolution);
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_co_evolution_penalty);

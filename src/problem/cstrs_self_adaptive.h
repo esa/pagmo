@@ -35,6 +35,9 @@
 #include <boost/functional/hash.hpp>
 #include <boost/serialization/map.hpp>
 
+///Doxygen will ignore whatever is in //! @cond As this problem is only to be used by the equally named algorithm
+//! @cond
+
 namespace pagmo{ namespace problem {
 
 /// Constrainted self adaptive meta-problem
@@ -121,8 +124,9 @@ private:
 	// no need to serialize the hasher (and impossible)
 	boost::hash< std::vector<double> > m_decision_vector_hash;
 };
-
 }} //namespaces
+
+//! @endcond
 
 BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_self_adaptive);
 

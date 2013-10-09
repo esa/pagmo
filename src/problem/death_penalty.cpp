@@ -33,14 +33,14 @@
 
 namespace pagmo { namespace problem {
 
+/// Constructor from a constrained problem
 /**
- * Constructor using initial constrained problem
+ * Will construct, using the selected method, the passed problem
  *
  * @param[in] problem base::problem to be modified to use a death penalty
  * as constraints handling technique.
- * @param[in] death_penalty_methos int to be modified to use a simple death penalty
- * if defined with SIMPLE, a Kuri death penalty with KURI and a WEIGHTED method that applies
- * static penalties parameters to each constraint violation.
+ * @param[in] method death_penalty::method_type
+ * @param[in] penalty_factors std::vector containing 
  *
  */
 death_penalty::death_penalty(const base &problem, const method_type method, const std::vector<double> & penalty_factors):
@@ -55,15 +55,19 @@ death_penalty::death_penalty(const base &problem, const method_type method, cons
 	m_penalty_factors(penalty_factors)
 {
 	if(m_original_problem->get_c_dimension() <= 0){
-		pagmo_throw(value_error,"The original problem has no constraints.");
+		pagmo_throw(value_error,"The original problem is unconstrained.");
 	}
 
 	if( method > 2 || method < 0) {
 		pagmo_throw(value_error, "the death penalty method must be set to 0 for simple death, 1 for Kuri death and 2 for static penalty with predefined penalty coefficients.");
 	}
 
-	if(method == 2 && m_penalty_factors.size() != m_original_problem->get_c_dimension()){
+	if(method == WEIGHTED && m_penalty_factors.size() != m_original_problem->get_c_dimension()){
 		pagmo_throw(value_error, "the vector of penalties factors is missing or needs to match constraints size");
+	}
+	
+	if(method != WEIGHTED && m_penalty_factors.size() > 0){
+		pagmo_throw(value_error, "Methods which are not WEIGHTED do not make use of weight vectors");
 	}
 
 	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());

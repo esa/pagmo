@@ -411,6 +411,15 @@ void bf_approx::verify_before_compute(const std::vector<fitness_vector> &points,
 	base::assert_minimisation(points, r_point);
 }
 
+/// Compute hypervolume
+/**
+ * This method is overloaded to throw an exception in case a hypervolume indicator computation is requested.
+ *
+ * @param[in] points vector of points containing the 3-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
+ *
+ * @return hypervolume.
+ */
 double bf_approx::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
 	(void)points;

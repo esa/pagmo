@@ -1,5 +1,5 @@
 ========================================
-Welcome to PyGMO (V1.1.4)!
+Welcome to PyGMO (V1.1.5)!
 ========================================
 
 .. figure:: images/movie.gif   
@@ -12,14 +12,18 @@ are all **automatically parallelized** (asynchronously, coarse-grained approach)
 architecture. The user can also program his own solvers ... they also will be parallelized by PyGMO!! PyGMO's
 implementation of the *generalized migration operator* allows the user to easily define "migration paths" (topologies) between a large number of "islands" (CPU cores).
 
-Efficient implementantions of state-of-the-art bio-inspired algorithms are sided to state-of the art optimization algorithms (Simplex Methods, SQP methods ....)
-and can be easily mixed (also with your newly invented algorithms) to build a super-algorithm exploiting cooperation via the asynchronous, generalized island model.
+Efficient implementantions of state-of-the-art bio-inspired algorithms are sided to state-of the art
+optimization algorithms (Simplex Methods, SQP methods ....) and can be easily mixed 
+(also with your newly invented algorithms) to build a super-algorithm exploiting cooperation via
+the asynchronous, generalized island model.
 
-Many complex-networks topologies (Hypercube, Ring, Barabasi-Albert, Watts-Strogatz, Erdos-Renyi, etc.) are built-in and may be used to define the migration pathways of good solutions among islands. Custom topologies are also possible.
+Many complex-networks topologies (Hypercube, Ring, Barabasi-Albert, Watts-Strogatz, Erdos-Renyi, etc.)
+are built-in and may be used to define the migration pathways of good solutions among islands.
+Custom topologies are also possible.
 
-**PyGMO can be used to solve constrained, unconstrained, single objective, multiple objective, continuous, mixed int 
-optimization problem, or to perform research on novel algorithms and paradigms and easily compare them to state of the art
-implementations of established ones.**
+**PyGMO can be used to solve constrained, unconstrained, single objective, multiple objective, 
+continuous, mixed int optimization problem, or to perform research on novel algorithms
+and paradigms and easily compare them to state of the art implementations of established ones.**
 
 PyGMO is interfaced with SciPy optimization algorithms, NLOPT algorithms, GSL algorithms, SNOPT, IPOPT and, hopefully .... more to come. Packages such as networkx and vpython enhance functionalities allowing advanced visualization options.
 
