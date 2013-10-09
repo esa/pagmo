@@ -119,13 +119,14 @@ void mga_1dsm_alpha::objfun_impl(fitness_vector &f, const decision_vector &x) co
 {
 try {
 	double common_mu = m_seq[0]->get_mu_central_body();
-	// 1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
+	// 1 - we 'decode' the chromosome recording the various times of flight (days) in the list T
 	std::vector<double> T(m_n_legs,0.0);
 	double alpha_sum = 0;
 	
 	for (size_t i = 0; i < m_n_legs; ++i) {
-	    alpha_sum+=x[6+4*i];
-		T[i] = x[1]*x[6+4*i];
+		double tmp = -log(x[6+4*i]);
+		alpha_sum+= tmp;
+		T[i] = x[1] * tmp;
 	}
 	for (size_t i = 0; i < m_n_legs; ++i) {
 		T[i] /= alpha_sum;
@@ -231,8 +232,9 @@ std::string mga_1dsm_alpha::pretty(const std::vector<double> &x) const {
 	double alpha_sum = 0;
 	
 	for (size_t i = 0; i < m_n_legs; ++i) {
-	    alpha_sum+=x[6+4*i];
-		T[i] = x[1]*x[6+4*i];
+		double tmp = -log(x[6+4*i]);
+		alpha_sum+= tmp;
+		T[i] = x[1] * tmp;
 	}
 	for (size_t i = 0; i < m_n_legs; ++i) {
 		T[i] /= alpha_sum;
