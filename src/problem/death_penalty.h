@@ -58,8 +58,8 @@ class __PAGMO_VISIBLE death_penalty : public base
 		enum method_type {
 		   SIMPLE = 0, ///< Penalizes the fitness function with a high value id the decision vector is unfeasible
 		   KURI = 1, ///< Penalizes the fitness function according to the number of satisfied constraints.
-		   WEIGHTED = ///< Penalizes the fitness function with the weighted sum of the violations
-		}
+		   WEIGHTED = 2///< Penalizes the fitness function with the weighted sum of the violations
+		};
 
 		death_penalty(const base & = cec2006(4), const method_type = SIMPLE, const std::vector<double>& = std::vector<double>());
 		death_penalty(const death_penalty &);

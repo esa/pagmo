@@ -65,9 +65,9 @@ noisy::noisy(const base & p, unsigned int trials, const double param_first, cons
 	m_decision_vector_hash(),
 	m_param_first(param_first),
 	m_param_second(param_second),
-	m_noise_type(noise_type_)
+	m_noise_type(distribution)
 {
-	if(noise_type_ == UNIFORM && param_first > param_second){
+	if(distribution == UNIFORM && param_first > param_second){
 		pagmo_throw(value_error, "Bounds specified for the uniform noise are not valid.");
 	}
 	set_bounds(p.get_lb(),p.get_ub());
