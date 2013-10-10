@@ -354,7 +354,9 @@ BOOST_PYTHON_MODULE(_problem) {
 	// KUR
 	problem_wrapper<problem::kur>("kur","Kursawe's study problem.")
 		.def(init<int>());
-	
+	// DTLZ
+	unc_mo_problem_wrapper<problem::dtlz>("dtlz","DTLZ benchmark problem suite.")
+		.def(init<optional<size_t, const size_t, fitness_vector::size_type, const size_t> >());
 	// DTLZ1
 	unc_mo_problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
 		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());

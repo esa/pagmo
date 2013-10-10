@@ -148,7 +148,12 @@ int main()
 	probs.push_back(problem::zdt(i, dimension).clone());
 	probs_new.push_back(problem::zdt(i%6 + 1).clone());
     }
-	
+
+    //----- Test DTLZ -----//
+    for(int i = 1; i <= 7; i++) {
+	probs.push_back(problem::dtlz(i, dimension, 10).clone());
+	probs_new.push_back(problem::dtlz(i%7 + 1).clone());
+    }
 	
     //----- Test CEC2006 -----//
     for(int i=1; i<=24; i++){
@@ -165,27 +170,27 @@ int main()
     for(int i=1; i<=10; i++){
 		probs.push_back(problem::cec2009(i, dimension, true).clone());
 		probs_new.push_back(problem::cec2009(1%10 + 1, 17, true).clone());
-	}
+    }
 
-	//----- Test meta-problems -----//
-	problem::zdt1 zdt1_before_transform1(dimension);
-	//----- shifted -----//
-	probs.push_back(problem::shifted(zdt1_before_transform1).clone());
-	probs_new.push_back(problem::shifted(zdt1_before_transform1).clone());
-	//----- rotated -----//
-	probs.push_back(problem::rotated(zdt1_before_transform1).clone());
-	probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
-	//----- noisy -----//
-	probs.push_back(problem::noisy(zdt1_before_transform1,0,0,1.0,
-				    problem::noisy::NORMAL).clone());
-	probs_new.push_back(problem::noisy(zdt1_before_transform1,111,1.0,4.5,
-					    problem::noisy::UNIFORM).clone());
-	//----- robust ----- //
-	probs.push_back(problem::robust(zdt1_before_transform1, 10, 0.1, 123).clone());
-	probs_new.push_back(problem::robust(zdt1_before_transform1, 1, 1.23, 456).clone());
+    //----- Test meta-problems -----//
+    problem::zdt1 zdt1_before_transform1(dimension);
+    //----- shifted -----//
+    probs.push_back(problem::shifted(zdt1_before_transform1).clone());
+    probs_new.push_back(problem::shifted(zdt1_before_transform1).clone());
+    //----- rotated -----//
+    probs.push_back(problem::rotated(zdt1_before_transform1).clone());
+    probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
+    //----- noisy -----//
+    probs.push_back(problem::noisy(zdt1_before_transform1,0,0,1.0,
+				problem::noisy::NORMAL).clone());
+    probs_new.push_back(problem::noisy(zdt1_before_transform1,111,1.0,4.5,
+					problem::noisy::UNIFORM).clone());
+    //----- robust ----- //
+    probs.push_back(problem::robust(zdt1_before_transform1, 10, 0.1, 123).clone());
+    probs_new.push_back(problem::robust(zdt1_before_transform1, 1, 1.23, 456).clone());
 
-	//----- Test constraints handling meta-problems -----//
-	problem::cec2006 cec2006_before_cstrs_handling(7);
+    //----- Test constraints handling meta-problems -----//
+    problem::cec2006 cec2006_before_cstrs_handling(7);
     probs.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
     probs_new.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
 

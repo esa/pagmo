@@ -33,6 +33,7 @@
 #include "problem/base_dtlz.h"
 #include "problem/base_unc_mo.h"
 #include "problem/branin.h"
+#include "problem/dtlz.h"
 #include "problem/dtlz1.h"
 #include "problem/dtlz2.h"
 #include "problem/dtlz3.h"

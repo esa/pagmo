@@ -1,6 +1,6 @@
-from _problem import zdt, zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, dtlz1, dtlz2, dtlz3, dtlz4, dtlz5, dtlz6, dtlz7
+from _problem import zdt, zdt1, zdt2, zdt3, zdt4, zdt5, zdt6, dtlz, dtlz1, dtlz2, dtlz3, dtlz4, dtlz5, dtlz6, dtlz7
 
-def _mo3d_plot(self, pop, a=40, comp=[0,1,2]):
+def _mo3d_plot(pop, a=40, comp=[0,1,2]):
 	"""
 	Generic plot-method for multi-objective optimization problems with more then 2 objectives
 
@@ -27,7 +27,9 @@ def _mo3d_plot(self, pop, a=40, comp=[0,1,2]):
 	return ax
 
 
-def _dtlz234_plot(self, pop, a=40, comp=[0,1,2]):
+
+
+def _dtlz234_plot(pop, a=40, comp=[0,1,2]):
 	"""
 	Specific plot-method for the DTLZ2, DTLZ3 and DTLZ4 - plotting also the optimal pareto-front
 
@@ -210,6 +212,43 @@ def _zdt6_ctor(self, dim = 10):
 zdt6._orig_init = zdt6.__init__
 zdt6.__init__ = _zdt6_ctor
 
+def _dtlz_ctor(self, prob_id = 1, k = None, fdim = 3, alpha = 100):
+        """
+        Constructs a multi-objective box-constrained problem from the DTLZ testsuite
+        
+	NOTE: K Deb, L Thiele, M Laumanns, E Zitzler, Scalable test problems for evolutionary multiobjective optimization
+        
+        USAGE: problem.dtlz(prob_id = 1, k = 20, fdim = 4)
+        
+        * prob_id: Problem number, one of [1,2,...7]
+        * k: paramter defining integer dimension of the problem: k + fdim - 1
+        * fdim: number of objectives
+        * alpha: controls density of solutions (just used for prob_id = 4)
+        """
+
+	arg_list=[]
+	arg_list.append(prob_id)
+	if k == None:
+		if prob_id == 1:
+			arg_list.append(5)
+		elif prob_id in [2,3,4,5,6]:
+			arg_list.append(10)
+		else:
+			arg_list.append(20)
+	else:
+		arg_list.append(k)
+	arg_list.append(fdim)
+	arg_list.append(alpha)
+        self._orig_init(*arg_list)
+        if prob_id in [2,3,4]:
+	    self.plot = _dtlz234_plot
+	else:
+	    self.plot = _mo3d_plot
+        
+dtlz._orig_init = dtlz.__init__
+dtlz.__init__ = _dtlz_ctor
+
+
 def _dtlz1_ctor(self, k = 5, fdim = 3):
 	"""
 	Constructs a DTLZ1 problem (Box-Constrained, continuous, multimodal, scalable multi-objective)
@@ -227,11 +266,11 @@ def _dtlz1_ctor(self, k = 5, fdim = 3):
 
 	arg_list=[k, fdim]
 	self._orig_init(*arg_list)
-
+	self.plot = _mo3d_plot
 
 dtlz1._orig_init = dtlz1.__init__
 dtlz1.__init__ = _dtlz1_ctor
-dtlz1.plot = _mo3d_plot
+
 
 def _dtlz2_ctor(self, k = 10, fdim = 3):
 	"""
@@ -250,10 +289,10 @@ def _dtlz2_ctor(self, k = 10, fdim = 3):
 
 	arg_list=[k, fdim]
 	self._orig_init(*arg_list)
+	self.plot = _dtlz234_plot
 
 dtlz2._orig_init = dtlz2.__init__
 dtlz2.__init__ = _dtlz2_ctor
-dtlz2.plot = _dtlz234_plot
 
 
 def _dtlz3_ctor(self, k = 10, fdim = 3):
@@ -273,10 +312,11 @@ def _dtlz3_ctor(self, k = 10, fdim = 3):
 
 	arg_list=[k, fdim]
 	self._orig_init(*arg_list)
+	self.plot = _dtlz234_plot
 
 dtlz3._orig_init = dtlz3.__init__
 dtlz3.__init__ = _dtlz3_ctor
-dtlz3.plot = _dtlz234_plot
+
 
 def _dtlz4_ctor(self, k = 10, fdim = 3, alpha=100):
 	"""
@@ -297,10 +337,10 @@ def _dtlz4_ctor(self, k = 10, fdim = 3, alpha=100):
 
 	arg_list=[k, fdim, alpha]
 	self._orig_init(*arg_list)
+	self.plot = _dtlz234_plot
 
 dtlz4._orig_init = dtlz4.__init__
 dtlz4.__init__ = _dtlz4_ctor
-dtlz4.plot = _dtlz234_plot
 
 
 def _dtlz5_ctor(self, k = 10, fdim = 3):
@@ -323,10 +363,10 @@ def _dtlz5_ctor(self, k = 10, fdim = 3):
 
 	arg_list=[k, fdim]
 	self._orig_init(*arg_list)
+	self.plot = _mo3d_plot
 
 dtlz5._orig_init = dtlz5.__init__
 dtlz5.__init__ = _dtlz5_ctor
-dtlz5.plot = _mo3d_plot
 
 def _dtlz6_ctor(self, k = 10, fdim = 3):
 	"""
@@ -346,10 +386,10 @@ def _dtlz6_ctor(self, k = 10, fdim = 3):
 
 	arg_list=[k, fdim]
 	self._orig_init(*arg_list)
+	self.plot = _mo3d_plot
 
 dtlz6._orig_init = dtlz6.__init__
 dtlz6.__init__ = _dtlz6_ctor
-dtlz6.plot = _mo3d_plot
 
 def _dtlz7_ctor(self, k = 20, fdim = 3):
 	"""
@@ -368,8 +408,7 @@ def _dtlz7_ctor(self, k = 20, fdim = 3):
 
 	arg_list=[k, fdim]
 	self._orig_init(*arg_list)
+	self.plot = _mo3d_plot
 
 dtlz7._orig_init = dtlz7.__init__
 dtlz7.__init__ = _dtlz7_ctor
-dtlz7.plot = _mo3d_plot
-

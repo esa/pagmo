@@ -59,6 +59,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/lennard_jones.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/ackley.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/branin.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz3.cpp
