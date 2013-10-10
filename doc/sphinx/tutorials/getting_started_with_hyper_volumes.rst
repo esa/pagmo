@@ -26,7 +26,7 @@ The first one uses the fitness values of the individuals of a population for the
   from PyGMO import *
   from PyGMO.util import *
 
-  prob = problem.dtlz2(fdim=3)  # Construct DTLZ-2 problem with 3-dimensional fitness space
+  prob = problem.dtlz(prob_id = 2, k = 10, fdim = 3)  # Construct DTLZ-2 problem with 3-dimensional fitness space
   pop = population(prob, 50)  # Construct the population object
   hv = hypervolume(pop)  # Construct the hypervolume object from the population object
   
@@ -131,7 +131,7 @@ This following short script presents all features mentioned above:
 
   # Initiate a 4-objective problem
   # and a population of 100 individuals
-  prob = problem.dtlz4(fdim=4)
+  prob = problem.dtlz(prob_id=4, k = 12, fdim=4)
   pop = population(prob, 100)
 
   # Construct the hypervolume object

@@ -26,7 +26,7 @@ Algorithm `PyGMO.util.hv_algorithm.bf_fpras` found in PyGMO is a Fully Polynomia
 
   from PyGMO import *
   from PyGMO.util import *
-  prob = problem.dtlz3(fdim=10)
+  prob = problem.dtlz(prob_id = 3, fdim=10)
   pop = population(prob, 100)
   fpras = hv_algorithm.bf_fpras(eps=0.1, delta=0.1)
   hv = hypervolume(pop)
@@ -76,7 +76,7 @@ This is useful when we want to utilize evolutionary algorithms which rely on tha
   from PyGMO import *
   from PyGMO.util import *
   # Problem with 30 objectives and 300 individuals
-  prob = problem.dtlz3(fdim=30)
+  prob = problem.dtlz(prob_id = 3, fdim=30)
   pop = population(prob, 300)
 
   alg = hv_algorithm.bf_approx(eps=0.1, delta=0.1)

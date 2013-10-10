@@ -49,7 +49,7 @@ As a comparison, the random migration policies `PyGMO.migration.random_s_policy`
   
     def main():
         # Set up problem as DTLZ-3 with 3 objectives and the algorithm as SMS-EMOA
-        prob = problem.dtlz3(fdim=3)
+        prob = problem.dtlz(prob_id=3, fdim=3)
         alg = algorithm.sms_emoa(gen = 100)
 
         # Construct the hv_best/fair migration policies

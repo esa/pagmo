@@ -14,12 +14,10 @@ Let us start to define our population:
 .. code-block:: python
    
    In [1]: from PyGMO import *
-   In [2]: prob = problem.zdt1()
+   In [2]: prob = problem.zdt(1)
    In [3]: pop = population(prob,10)
 
-We here make use of the `ZDT1 problem <http://pagmo.sourceforge.net/pagmo/classpagmo_1_1problem_1_1zdt1.html#_details>`_
-and we created a *population* containing 10 individuals randomly created within the box bounds. Which
-individuals belong to which preto front? We can immediately see this by typing:
+We here make use of first problem of the ZDT benchmark suite and we created a *population* containing 10 individuals randomly created within the box bounds. Which individuals belong to which preto front? We can immediately see this by typing:
 
 .. code-block:: python
    

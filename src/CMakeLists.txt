@@ -60,13 +60,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/ackley.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/branin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz1.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz2.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz3.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz4.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz5.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz6.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz7.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/golomb_ruler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/inventory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_1.cpp
@@ -87,13 +80,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/fon.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/pol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/kur.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt1.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt2.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt3.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt4.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt5.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt6.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2006.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2009.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2013.cpp

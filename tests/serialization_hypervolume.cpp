@@ -92,10 +92,10 @@ int main()
 		ia & bf_new;
 	}
 
-	util::hypervolume hv_7d(boost::shared_ptr<population>(new population(problem::dtlz1(10,7), 100)));
-	util::hypervolume hv_4d(boost::shared_ptr<population>(new population(problem::dtlz1(10,4), 100)));
-	util::hypervolume hv_3d(boost::shared_ptr<population>(new population(problem::dtlz1(10,3), 100)));
-	util::hypervolume hv_2d(boost::shared_ptr<population>(new population(problem::dtlz1(10,2), 100)));
+	util::hypervolume hv_7d(boost::shared_ptr<population>(new population(problem::dtlz(1, 10,7), 100)));
+	util::hypervolume hv_4d(boost::shared_ptr<population>(new population(problem::dtlz(1, 10,4), 100)));
+	util::hypervolume hv_3d(boost::shared_ptr<population>(new population(problem::dtlz(1, 10,3), 100)));
+	util::hypervolume hv_2d(boost::shared_ptr<population>(new population(problem::dtlz(1, 10,2), 100)));
 	fitness_vector nadir_7d = hv_7d.get_nadir_point(1.0);
 	fitness_vector nadir_4d = hv_4d.get_nadir_point(1.0);
 	fitness_vector nadir_3d = hv_3d.get_nadir_point(1.0);

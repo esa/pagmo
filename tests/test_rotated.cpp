@@ -152,17 +152,17 @@ int main()
 {		
 	int dimension = 10;
 	std::vector<problem::base_ptr> probs;
-	probs.push_back(problem::zdt1(dimension).clone());
-	probs.push_back(problem::zdt2(dimension).clone());
-	probs.push_back(problem::zdt3(dimension).clone());
-	probs.push_back(problem::zdt4(dimension).clone());
-	probs.push_back(problem::zdt6(dimension).clone());
-	probs.push_back(problem::dtlz1(dimension).clone());
-	probs.push_back(problem::dtlz2(dimension).clone());
-	probs.push_back(problem::dtlz3(dimension).clone());
-	probs.push_back(problem::dtlz4(dimension).clone());
-	probs.push_back(problem::dtlz5(dimension).clone());
-	probs.push_back(problem::dtlz6(dimension).clone());
+
+	probs.push_back(problem::zdt(1,dimension).clone());
+	probs.push_back(problem::zdt(2,dimension).clone());
+	probs.push_back(problem::zdt(3,dimension).clone());
+	probs.push_back(problem::zdt(4,dimension).clone());
+	probs.push_back(problem::zdt(6,dimension).clone());
+
+	for (int i = 1;i <= 7; i++) {
+	    probs.push_back(problem::dtlz(i,dimension).clone());
+	}
+	
 	probs.push_back(problem::ackley(dimension).clone());
 	probs.push_back(problem::rastrigin(dimension).clone());
 

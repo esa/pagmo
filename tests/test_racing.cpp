@@ -421,7 +421,7 @@ int main()
 	int dimension = 10;
 	problem::base_ptr prob_ackley(new problem::ackley(dimension));
 	problem::base_ptr prob_cec2006(new problem::cec2006(5));
-	problem::base_ptr prob_zdt1(new problem::zdt1(dimension));
+	problem::base_ptr prob_zdt1(new problem::zdt(1, dimension));
 	
 	return test_racing(prob_ackley, 10, 2) ||
 		   test_racing(prob_ackley, 20, 2) ||

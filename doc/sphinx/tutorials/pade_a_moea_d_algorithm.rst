@@ -11,7 +11,7 @@ Let start using PADE to solve the popular multi-objective benchmark problem ZDT1
 .. code-block:: python
 
 	In [1]: from PyGMO import *
-	In [2]: prob = problem.zdt1()
+	In [2]: prob = problem.zdt(1)
 	In [3]: alg = algorithm.pade()
 	In [4]: pop = population(prob, 100)
 	In [5]: pop = alg.evolve(pop)
@@ -41,7 +41,7 @@ In the following plots we see how different weight generation methods perform on
 
 	In [1]: from PyGMO import *
 	In [2]: alg = algorithm.pade(decomposition = problem.decompose.BI, weights=algorithm.pade.RANDOM)
-	In [3]: prob = problem.dtlz1()
+	In [3]: prob = problem.dtlz(1)
 	In [4]: pop = population(prob,100)
 	In [5]: pop = alg.evolve(pop)
 	In [6]: prob.plot(pop)

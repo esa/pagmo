@@ -63,19 +63,8 @@ Kursawe's study                    :class:`PyGMO.problem.kur`
 Fonseca and Fleming's study        :class:`PyGMO.problem.fon`
 Poloni's study                     :class:`PyGMO.problem.pol`
 Shaffer's study                    :class:`PyGMO.problem.sch`
-ZDT1                               :class:`PyGMO.problem.zdt1`
-ZDT2                               :class:`PyGMO.problem.zdt2`         
-ZDT3                               :class:`PyGMO.problem.zdt3`
-ZDT4                               :class:`PyGMO.problem.zdt4`
-ZDT5                               :class:`PyGMO.problem.zdt5`
-ZDT6                               :class:`PyGMO.problem.zdt6`
-DTLZ1                              :class:`PyGMO.problem.dtlz1`
-DTLZ2                              :class:`PyGMO.problem.dtlz2`
-DTLZ3                              :class:`PyGMO.problem.dtlz3`
-DTLZ4                              :class:`PyGMO.problem.dtlz4`
-DTLZ5                              :class:`PyGMO.problem.dtlz5`
-DTLZ6                              :class:`PyGMO.problem.dtlz6`
-DTLZ7                              :class:`PyGMO.problem.dtlz7`
+ZDT                                :class:`PyGMO.problem.zdt`
+DTLZ                               :class:`PyGMO.problem.dtlz`
 CEC2009 (UF1-UF10)                 :class:`PyGMO.problem.cec2009`            UF problems from CEC2009 Competition.
 MGA-1DSM (tof encoding)            :class:`PyGMO.problem.mga_1dsm_tof`       Requires the GTOP database option active      
 MGA-1DSM (alpha encoding)          :class:`PyGMO.problem.mga_1dsm_alpha`     Requires the GTOP database option active      
@@ -433,121 +422,21 @@ Detailed Documentation
 
 -----------------
 
-.. class:: PyGMO.problem.zdt1
+.. class:: PyGMO.problem.zdt
 
-   .. automethod:: PyGMO.problem.zdt1.__init__
+   .. automethod:: PyGMO.problem.zdt.__init__
 
-   .. automethod:: PyGMO.problem.zdt1.p_distance
-
------------------
-
-.. class:: PyGMO.problem.zdt2
-
-   .. automethod:: PyGMO.problem.zdt2.__init__
-
-   .. automethod:: PyGMO.problem.zdt2.p_distance
-
------------------
-
-.. class:: PyGMO.problem.zdt3
-
-   .. automethod:: PyGMO.problem.zdt3.__init__
-
-   .. automethod:: PyGMO.problem.zdt3.p_distance
-
------------------
-
-.. class:: PyGMO.problem.zdt4
-
-   .. automethod:: PyGMO.problem.zdt4.__init__
-
-   .. automethod:: PyGMO.problem.zdt4.p_distance
-
------------------
-
-.. class:: PyGMO.problem.zdt5
-
-   .. automethod:: PyGMO.problem.zdt5.__init__
-
-   .. automethod:: PyGMO.problem.zdt5.p_distance
-
------------------
-
-.. class:: PyGMO.problem.zdt6
-
-   .. automethod:: PyGMO.problem.zdt6.__init__
-
-   .. automethod:: PyGMO.problem.zdt6.p_distance
+   .. automethod:: PyGMO.problem.zdt.p_distance
 
 -----------------
   
-.. class:: PyGMO.problem.dtlz1
+.. class:: PyGMO.problem.dtlz
 
-   .. automethod:: PyGMO.problem.dtlz1.__init__
+   .. automethod:: PyGMO.problem.dtlz.__init__
    
-   .. automethod:: PyGMO.problem.dtlz1.p_distance
+   .. automethod:: PyGMO.problem.dtlz.p_distance
    
-   .. automethod:: PyGMO.problem.dtlz1.plot
-
------------------
-
-.. class:: PyGMO.problem.dtlz2
-
-   .. automethod:: PyGMO.problem.dtlz2.__init__
-
-   .. automethod:: PyGMO.problem.dtlz2.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz2.plot
-
------------------
-
-.. class:: PyGMO.problem.dtlz3
-
-   .. automethod:: PyGMO.problem.dtlz3.__init__
-
-   .. automethod:: PyGMO.problem.dtlz3.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz3.plot
-
------------------
-
-.. class:: PyGMO.problem.dtlz4
-
-   .. automethod:: PyGMO.problem.dtlz4.__init__
-
-   .. automethod:: PyGMO.problem.dtlz4.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz4.plot
-
------------------
-
-.. class:: PyGMO.problem.dtlz5
-
-   .. automethod:: PyGMO.problem.dtlz5.__init__
-
-   .. automethod:: PyGMO.problem.dtlz5.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz5.plot
-
------------------
-
-.. class:: PyGMO.problem.dtlz6
-
-   .. automethod:: PyGMO.problem.dtlz6.__init__
-
-   .. automethod:: PyGMO.problem.dtlz6.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz6.plot
-
------------------
-
-.. class:: PyGMO.problem.dtlz7
-
-   .. automethod:: PyGMO.problem.dtlz7.__init__
-
-   .. automethod:: PyGMO.problem.dtlz7.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz7.plot
+   .. automethod:: PyGMO.problem.dtlz.plot
 
 -----------------
 

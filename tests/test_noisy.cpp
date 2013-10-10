@@ -209,7 +209,7 @@ int main()
 {	
 	int dimension = 10;
 	std::vector<problem::base_ptr> probs;
-	probs.push_back(problem::zdt1(dimension).clone());
+	probs.push_back(problem::zdt(1, dimension).clone());
 	probs.push_back(problem::ackley(dimension).clone());
 
 	return test_noisy(probs, 0.0, 0.1, 5000, 0.01) ||

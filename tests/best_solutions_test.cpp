@@ -118,21 +118,18 @@ int main()
 	best_tests.push_back(make_struct(problem::sch().clone()));
 	best_tests.push_back(make_struct(problem::schwefel(dimension).clone()));
 	best_tests.push_back(make_struct(problem::snopt_toyprob().clone()));
-	best_tests.push_back(make_struct(problem::zdt1(dimension).clone()));
-	best_tests.push_back(make_struct(problem::zdt2(dimension).clone()));
-	best_tests.push_back(make_struct(problem::zdt3(dimension).clone()));
-	best_tests.push_back(make_struct(problem::zdt4(dimension).clone()));
-	best_tests.push_back(make_struct(problem::zdt5(dimension).clone()));
-	best_tests.push_back(make_struct(problem::zdt6(dimension).clone()));
-	best_tests.push_back(make_struct(problem::dtlz1(dimension).clone()));
-	best_tests.push_back(make_struct(problem::dtlz2(dimension).clone()));
-	best_tests.push_back(make_struct(problem::dtlz3(dimension).clone()));
-	best_tests.push_back(make_struct(problem::dtlz4(dimension).clone()));
-	best_tests.push_back(make_struct(problem::dtlz5(dimension).clone()));
-	best_tests.push_back(make_struct(problem::dtlz6(dimension).clone()));
-	best_tests.push_back(make_struct(problem::dtlz7(dimension).clone()));
 	best_tests.push_back(make_struct(problem::tsp().clone())); //TODO: define the tsp using a non-default weight-matrix
 
+	//----- Test ZDT -----//
+	for(int i=1; i<=6;i++) {
+	    best_tests.push_back(make_struct(problem::zdt(i, dimension).clone()));
+	}
+
+	//----- Test DTLZ -----//
+	for(int i=1; i<=7;i++) {
+	    best_tests.push_back(make_struct(problem::dtlz(i, dimension).clone()));
+	}
+	
 	//----- Test CEC2006 -----//
 	for(int i=1; i<=24; i++){
 		best_tests.push_back(make_struct(problem::cec2006(i).clone(), get_cec2006_best_f(i), get_cec2006_best_c(i, problem::cec2006(i).get_c_dimension())));
@@ -148,7 +145,7 @@ int main()
 	}
 
 	//----- Test meta-problems -----//
-	problem::zdt1 zdt1_before_transform1(dimension);
+	problem::zdt zdt1_before_transform1(1, dimension);
 	//----- shifted -----//
 	best_tests.push_back(make_struct(problem::shifted(zdt1_before_transform1).clone()));
 	//----- rotated -----//

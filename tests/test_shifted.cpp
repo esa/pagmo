@@ -46,7 +46,7 @@ bool is_eq(fitness_vector f1, fitness_vector f2, double eps){
 }
 
 int shifted_test1(){
-	pagmo::problem::dtlz2 prob(40);	
+	pagmo::problem::dtlz prob(2, 40);	
 	decision_vector shift_vec(prob.get_dimension(), 6.0);
 	pagmo::problem::shifted prob_shifted(prob, shift_vec);
 	decision_vector p1_shifted_space(prob.get_dimension(), 6.2);
@@ -77,7 +77,7 @@ int shifted_test1(){
 }
 
 int shifted_test2(){
-	pagmo::problem::dtlz1 prob(40);	
+	pagmo::problem::dtlz prob(1, 40);	
 	decision_vector shift_vec(prob.get_dimension(), -6.0);
 	pagmo::problem::shifted prob_shifted(prob, shift_vec);
 	decision_vector p1_shifted_space(prob.get_dimension(), -5.8);
@@ -108,7 +108,7 @@ int shifted_test2(){
 }
 
 int shifted_test3(){
-	pagmo::problem::zdt1 prob(40);	
+	pagmo::problem::zdt prob(1, 40);	
 	pagmo::problem::shifted prob_shifted(prob, -6); // Another interface
 	decision_vector p1_shifted_space(prob.get_dimension(), -5.8);
 	decision_vector p1_original_space(prob.get_dimension(), 0.2);
@@ -235,17 +235,17 @@ int main()
 {		
 	int dimension = 40;
 	std::vector<problem::base_ptr> probs;
-	probs.push_back(problem::zdt1(dimension).clone());
-	probs.push_back(problem::zdt2(dimension).clone());
-	probs.push_back(problem::zdt3(dimension).clone());
-	probs.push_back(problem::zdt4(dimension).clone());
-	probs.push_back(problem::zdt6(dimension).clone());
-	probs.push_back(problem::dtlz1(dimension).clone());
-	probs.push_back(problem::dtlz2(dimension).clone());
-	probs.push_back(problem::dtlz3(dimension).clone());
-	probs.push_back(problem::dtlz4(dimension).clone());
-	probs.push_back(problem::dtlz5(dimension).clone());
-	probs.push_back(problem::dtlz6(dimension).clone());
+	
+	probs.push_back(problem::zdt(1,dimension).clone());
+	probs.push_back(problem::zdt(2,dimension).clone());
+	probs.push_back(problem::zdt(3,dimension).clone());
+	probs.push_back(problem::zdt(4,dimension).clone());
+	probs.push_back(problem::zdt(6,dimension).clone());
+	
+	for (int i = 1;i <= 7; i++) {
+	    probs.push_back(problem::dtlz(i,dimension).clone());
+	}
+
 	probs.push_back(problem::ackley(dimension).clone());
 	probs.push_back(problem::rastrigin(dimension).clone());
 	return shifted_test1() ||

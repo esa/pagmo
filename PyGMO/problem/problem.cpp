@@ -357,48 +357,9 @@ BOOST_PYTHON_MODULE(_problem) {
 	// DTLZ
 	unc_mo_problem_wrapper<problem::dtlz>("dtlz","DTLZ benchmark problem suite.")
 		.def(init<optional<size_t, const size_t, fitness_vector::size_type, const size_t> >());
-	// DTLZ1
-	unc_mo_problem_wrapper<problem::dtlz1>("dtlz1","DTLZ1 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ2
-	unc_mo_problem_wrapper<problem::dtlz2>("dtlz2","DTLZ2 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ3
-	unc_mo_problem_wrapper<problem::dtlz3>("dtlz3","DTLZ3 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ4
-	unc_mo_problem_wrapper<problem::dtlz4>("dtlz4","DTLZ4 benchmark problem.")
-		.def(init<optional<const size_t, fitness_vector::size_type, const size_t> >());
-	// DTLZ5
-	unc_mo_problem_wrapper<problem::dtlz5>("dtlz5","DTLZ5 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ6
-	unc_mo_problem_wrapper<problem::dtlz6>("dtlz6","DTLZ6 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
-	// DTLZ7
-	unc_mo_problem_wrapper<problem::dtlz7>("dtlz7","DTLZ7 benchmark problem.")
-		.def(init<optional<decision_vector::size_type, fitness_vector::size_type> >());
 	// ZDT
 	unc_mo_problem_wrapper<problem::zdt>("zdt","ZDT")
 		.def(init<optional<size_t, size_t> >());
-       // ZDT1
-	unc_mo_problem_wrapper<problem::zdt1>("zdt1","ZDT1")
-		.def(init<problem::base::size_type>());
-	// ZDT2
-	unc_mo_problem_wrapper<problem::zdt2>("zdt2","ZDT2")
-		.def(init<problem::base::size_type>());
-	// ZDT3
-	unc_mo_problem_wrapper<problem::zdt3>("zdt3","ZDT3")
-		.def(init<problem::base::size_type>());
-	// ZDT4
-	unc_mo_problem_wrapper<problem::zdt4>("zdt4","ZDT4")
-		.def(init<problem::base::size_type>());
-	// ZDT5
-	unc_mo_problem_wrapper<problem::zdt5>("zdt5","ZDT5")
-		.def(init<problem::base::size_type>());
-	// ZDT6
-	unc_mo_problem_wrapper<problem::zdt6>("zdt6","ZDT6")
-		.def(init<problem::base::size_type>());
 	
 	// Meta-problems
 

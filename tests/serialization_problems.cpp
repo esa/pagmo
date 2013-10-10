@@ -114,32 +114,6 @@ int main()
 	probs_new.push_back(problem::schwefel().clone());
 	probs.push_back(problem::snopt_toyprob().clone());
 	probs_new.push_back(problem::snopt_toyprob().clone());
-	probs.push_back(problem::zdt1(dimension).clone());
-	probs_new.push_back(problem::zdt1().clone());
-	probs.push_back(problem::zdt2(dimension).clone());
-	probs_new.push_back(problem::zdt2().clone());
-	probs.push_back(problem::zdt3(dimension).clone());
-	probs_new.push_back(problem::zdt3().clone());
-	probs.push_back(problem::zdt4(dimension).clone());
-	probs_new.push_back(problem::zdt4().clone());
-	probs.push_back(problem::zdt5(dimension).clone());
-	probs_new.push_back(problem::zdt5().clone());
-	probs.push_back(problem::zdt6(dimension).clone());
-	probs_new.push_back(problem::zdt6().clone());
-	probs.push_back(problem::dtlz1(dimension).clone());
-	probs_new.push_back(problem::dtlz1().clone());
-	probs.push_back(problem::dtlz2(dimension).clone());
-	probs_new.push_back(problem::dtlz2().clone());
-	probs.push_back(problem::dtlz3(dimension).clone());
-	probs_new.push_back(problem::dtlz3().clone());
-	probs.push_back(problem::dtlz4(dimension).clone());
-	probs_new.push_back(problem::dtlz4().clone());
-	probs.push_back(problem::dtlz5(dimension).clone());
-	probs_new.push_back(problem::dtlz5().clone());
-	probs.push_back(problem::dtlz6(dimension).clone());
-	probs_new.push_back(problem::dtlz6().clone());
-	probs.push_back(problem::dtlz7(dimension).clone());
-	probs_new.push_back(problem::dtlz7().clone());
 	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
 	probs_new.push_back(problem::tsp().clone());
 
@@ -173,7 +147,7 @@ int main()
     }
 
     //----- Test meta-problems -----//
-    problem::zdt1 zdt1_before_transform1(dimension);
+    problem::zdt zdt1_before_transform1(1, dimension);
     //----- shifted -----//
     probs.push_back(problem::shifted(zdt1_before_transform1).clone());
     probs_new.push_back(problem::shifted(zdt1_before_transform1).clone());

@@ -208,7 +208,7 @@ An additional small trick you can employ for your own experiments is pulling onl
 
   from PyGMO import *
   from PyGMO.util import *
-  prob = problem.dtlz7(fdim=6)
+  prob = problem.dtlz(prob_id=7, fdim=6)
   pop = population(prob, 100)
 
   hv = hypervolume(pop)

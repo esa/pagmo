@@ -179,7 +179,7 @@ int main()
 	problem::ackley prob(10);
 	
 	// and pick a multiobjective one
-	problem::zdt1 prob_mo(10);
+	problem::zdt prob_mo(1, 10);
 
 	// and pick a constrained one
 	problem::cec2006 prob_con(4);

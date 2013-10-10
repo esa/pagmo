@@ -12,7 +12,7 @@ As for PADE it is possible to solve a multi-objective optimization problem with 
 .. code-block:: python
 
 	In [1]: from PyGMO import *
-	In [2]: prob = problem.zdt1()
+	In [2]: prob = problem.zdt(1)
 	In [3]: alg = algorithm.nsga_II()
 	In [4]: pop = population(prob, 100)
 	In [5]: pop = alg.evolve(pop)

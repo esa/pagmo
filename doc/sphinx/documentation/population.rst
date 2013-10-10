@@ -96,7 +96,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt1()
+         prob = problem.zdt(1)
          pop = population(prob,10)
          ls = pop.get_domination_list(1)
 
@@ -107,7 +107,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt1()
+         prob = problem.zdt(1)
          pop = population(prob,10)
          c = pop.get_domination_count(1)
 
@@ -119,7 +119,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt1()
+         prob = problem.zdt(1)
          pop = population(prob,10)
          pf = pop.compute_pareto_fronts()
 
@@ -131,7 +131,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt1()
+         prob = problem.zdt(1)
          pop = population(prob,100)
          pf = pop.plot_pareto_fronts()
 
@@ -150,7 +150,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt3()
+         prob = problem.zdt(3)
          pop = population(prob,3) #population with 3 individuals
          best_guy = pop.get_best_idx()
          worst_guy = pop.get_worst_idx()

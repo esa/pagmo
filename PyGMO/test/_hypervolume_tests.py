@@ -17,7 +17,7 @@ class HVCtorTest(unittest.TestCase):
 
 	def test_pop_ctor(self):
 		# constructs the hypervolume object from a population object, expects to not raise any error
-		prob = problem.zdt2()
+		prob = problem.zdt(2)
 		pop = population(prob, 100)
 
 		# construction from a population object

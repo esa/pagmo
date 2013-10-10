@@ -255,7 +255,7 @@ def run_varying_eval_budget(prob_orig):
 if __name__ == '__main__':
 	prob_orig = problem.ackley(10)
 	#prob_orig = problem.cec2006(5)
-	#prob_orig = problem.zdt1(10)
+	#prob_orig = problem.zdt(1,10)
 
 	run_varying_noise(prob_orig)
 	run_varying_initial_size(prob_orig)

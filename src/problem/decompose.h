@@ -30,7 +30,7 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "base.h"
-#include "zdt1.h"
+#include "zdt.h"
 
 namespace pagmo{ namespace problem {
 
@@ -68,7 +68,7 @@ class __PAGMO_VISIBLE decompose : public base
 		   BI=2 ///< The Boundary Intersection method is used to perform the decomposition
 		};
 
-		decompose(const base & = zdt1(2), method_type = WEIGHTED, const std::vector<double> & = std::vector<double>(), const std::vector<double> & = std::vector<double>());
+		decompose(const base & = zdt(1,2), method_type = WEIGHTED, const std::vector<double> & = std::vector<double>(), const std::vector<double> & = std::vector<double>());
 		decompose(const decompose &);
 		base_ptr clone() const;
 		std::string get_name() const;

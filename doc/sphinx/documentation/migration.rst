@@ -251,7 +251,7 @@ The Classes
    .. code-block:: python
 
       from PyGMO import *
-      prob = problem.dtlz3(fdim=5)
+      prob = problem.dtlz(prob_id = 3, fdim=5)
       algo = algorithm.nsga_II(gen = 10) #instantiates the NSGA-II algorithm
       hv_greedy_10 = migration.hv_greedy_s_policy(10)
       isl = island(algo, prob, 50, s_policy = hv_greedy_10) #10 random individuals will be selected for migration
@@ -269,7 +269,7 @@ The Classes
    .. code-block:: python
 
       from PyGMO import *
-      prob = problem.dtlz3(fdim=5)
+      prob = problem.dtlz(prob_id = 3, fdim=5)
       algo = algorithm.nsga_II(gen = 10) #instantiates the NSGA-II algorithm
       hv_greedy_10 = migration.hv_greedy_s_policy(10)
       isl = island(algo, prob, 50, s_policy = hv_greedy_10) #10 random individuals will be selected for migration

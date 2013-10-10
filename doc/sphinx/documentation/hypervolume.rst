@@ -20,7 +20,7 @@ In order to compute a hypervolume from a population object, you can do the follo
 
    from PyGMO import *
    from PyGMO.util import *
-   prob = problem.dtlz1(fdim=3)
+   prob = problem.dtlz(1)
    pop = population(prob,20)
    hv = hypervolume(pop)
    print hv.compute(r = [1000.0]*3)
@@ -85,7 +85,7 @@ Detailed Documentation
          from PyGMO import *
          from PyGMO.util import *
 
-         prob = problem.dtlz1(fdim=3)
+         prob = problem.dtlz(1)
 
          pop = population(prob,20)
 
