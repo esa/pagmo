@@ -33,6 +33,7 @@
 #include "../types.h"
 #include "cec2006.h"
 #include "base.h"
+#include "base_meta.h"
 #include "../algorithm/cstrs_co_evolution.h"
 
 ///Doxygen will ignore whatever is in //! @cond As this problem is only to be used by the equally named algorithm
@@ -53,15 +54,13 @@ namespace pagmo{ namespace problem {
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
 
-class __PAGMO_VISIBLE cstrs_co_evolution : public base
+class __PAGMO_VISIBLE cstrs_co_evolution : public base_meta
 {
 public:
 	//constructors
 	cstrs_co_evolution(const base & = cec2006(4), const algorithm::cstrs_co_evolution::method_type = algorithm::cstrs_co_evolution::SIMPLE);
 	cstrs_co_evolution(const base &, const population&, const algorithm::cstrs_co_evolution::method_type = algorithm::cstrs_co_evolution::SIMPLE);
 
-	//copy constructor
-	cstrs_co_evolution(const cstrs_co_evolution &);
 	base_ptr clone() const;
 	std::string get_name() const;
 
@@ -71,7 +70,6 @@ public:
 protected:
 	std::string human_readable_extra() const;
 	void objfun_impl(fitness_vector &, const decision_vector &) const;
-	bool compare_fitness_impl(const fitness_vector &, const fitness_vector &) const;
 
 private:
 	void compute_penalty(std::vector<double> &, std::vector<int> &, const constraint_vector &) const;
@@ -82,14 +80,12 @@ private:
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<base>(*this);
-		ar & m_original_problem;
 		ar & m_penalty_coeff;
 		ar & const_cast<algorithm::cstrs_co_evolution::method_type &>(m_method);
 		ar & m_map_fitness;
 		ar & m_map_constraint;
 	}
 
-	base_ptr m_original_problem;
 	std::vector<double> m_penalty_coeff;
 
 	const algorithm::cstrs_co_evolution::method_type m_method;
@@ -102,6 +98,9 @@ private:
 	boost::hash< std::vector<double> > m_decision_vector_hash;
 };
 
+
+//The cstrs_co_evolution_penalty cannot inherit from base_meta as the problem dimesnion changes 
+// and the constructor of base_meta uses set_bounds using the original problem dimension ....
 class __PAGMO_VISIBLE cstrs_co_evolution_penalty : public base
 {
 public:
@@ -155,7 +154,7 @@ private:
 
 //! @endcond
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_co_evolution);
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_co_evolution_penalty);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_co_evolution)
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_co_evolution_penalty)
 
 #endif // PAGMO_PROBLEM_cstrs_co_evolution_H

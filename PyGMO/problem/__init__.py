@@ -742,11 +742,12 @@ def _death_penalty_ctor(self, problem = None, method = None, penalty_factors = N
 death_penalty._orig_init = death_penalty.__init__
 death_penalty.__init__ = _death_penalty_ctor
 
+
 # Renaming and placing the enums
 _problem.con2mo.method = _problem._con2mo_method_type
 
 def _con2mo_ctor(self, problem = None, method = None):
-	"""
+	""" 
 	Implements a meta-problem class that wraps some other constrained problems, 
 	resulting in multi-objective problem.
  
@@ -765,7 +766,7 @@ def _con2mo_ctor(self, problem = None, method = None):
 	* method: Coello constraints to multi-objective set with OBJ_CSTRS, COMOGA method 
 		set with OBJ_CSTRSVIO and COMOGA with splitting of inequality and equality 
 		constraints set with OBJ_EQVIO_INEQVIO
-	"""
+	""" 
 
 	# We construct the arg list for the original constructor exposed by boost_python
 	arg_list=[]
@@ -779,6 +780,7 @@ def _con2mo_ctor(self, problem = None, method = None):
 
 con2mo._orig_init = con2mo.__init__
 con2mo.__init__ = _con2mo_ctor
+
 
 # Renaming and placing the enums
 _problem.con2uncon.method = _problem._con2uncon_method_type

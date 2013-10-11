@@ -29,6 +29,7 @@
 
 #include "../serialization.h"
 #include "../types.h"
+#include "base_meta.h"
 #include "base.h"
 #include "zdt.h"
 
@@ -58,18 +59,17 @@ namespace pagmo{ namespace problem {
  * @see "Q. Zhang -- MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition"
  */
 
-class __PAGMO_VISIBLE decompose : public base
+class __PAGMO_VISIBLE decompose : public base_meta
 {
 	public:
 		/// Mechanism used to perform the problem decomposition
 		enum method_type {
-		   WEIGHTED=0, ///< The fitness function is the weighted sum of the multiple original fitnesses
-		   TCHEBYCHEFF=1, ///< The Tchebycheff method is used to perform the decomposition
-		   BI=2 ///< The Boundary Intersection method is used to perform the decomposition
+		 WEIGHTED=0, ///< The fitness function is the weighted sum of the multiple original fitnesses
+		 TCHEBYCHEFF=1, ///< The Tchebycheff method is used to perform the decomposition
+		 BI=2 ///< The Boundary Intersection method is used to perform the decomposition
 		};
 
 		decompose(const base & = zdt(1,2), method_type = WEIGHTED, const std::vector<double> & = std::vector<double>(), const std::vector<double> & = std::vector<double>());
-		decompose(const decompose &);
 		base_ptr clone() const;
 		std::string get_name() const;
 		const std::vector<double>& get_weights() const;
@@ -82,13 +82,11 @@ class __PAGMO_VISIBLE decompose : public base
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & m_original_problem;
+			ar & boost::serialization::base_object<base_meta>(*this);
 			ar & m_method;
 			ar & m_weights;
 			ar & m_z;
 		}
-		base_ptr m_original_problem;
 		method_type m_method;
 		fitness_vector m_weights;
 		fitness_vector m_z;
@@ -96,6 +94,6 @@ class __PAGMO_VISIBLE decompose : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::decompose);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::decompose)
 
 #endif // PAGMO_PROBLEM_DECOMPOSE_H

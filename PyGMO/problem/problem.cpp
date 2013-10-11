@@ -81,6 +81,36 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	return retval;
 }
 
+// Wrapper to expose stochastic problems.
+template <class Problem>
+static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > stochastic_problem_wrapper(const char *name, const char *descr)
+{
+	class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > retval(name,descr,init<const Problem &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
+	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	retval.add_property("seed",&problem::base_stochastic::get_seed,&problem::base_stochastic::set_seed,
+		"Random seed used in the objective function evaluation.");
+	return retval;
+}
+
+// Wrapper to expose meta problems.
+template <class Problem>
+static inline class_<Problem,bases<problem::base>,bases<problem::base_meta> > meta_problem_wrapper(const char *name, const char *descr)
+{
+	class_<Problem,bases<problem::base>,bases<problem::base_meta> > retval(name,descr,init<const Problem &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
+	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	return retval;
+}
+
 
 // Wrapper to expose unconstrained multi-objective problems.
 template <class Problem>
@@ -109,21 +139,6 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_unc_mo> > 
 	return retval;
 }
 
-// Wrapper to expose stochastic problems.
-template <class Problem>
-static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > stochastic_problem_wrapper(const char *name, const char *descr)
-{
-	class_<Problem,bases<problem::base>,bases<problem::base_stochastic> > retval(name,descr,init<const Problem &>());
-	retval.def(init<>());
-	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
-	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
-	retval.def_pickle(generic_pickle_suite<Problem>());
-	retval.def("cpp_loads", &py_cpp_loads<Problem>);
-	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
-	retval.add_property("seed",&problem::base_stochastic::get_seed,&problem::base_stochastic::set_seed,
-		"Random seed used in the objective function evaluation.");
-	return retval;
-}
 
 BOOST_PYTHON_MODULE(_problem) {
 	common_module_init();
@@ -369,7 +384,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("KURI", problem::death_penalty::KURI)
 		.value("WEIGHTED", problem::death_penalty::WEIGHTED);
 	// Death penalty meta-problem
-	problem_wrapper<problem::death_penalty>("death_penalty","Constrained death penalty problem")
+	meta_problem_wrapper<problem::death_penalty>("death_penalty","Constrained death penalty problem")
 		.def(init<optional<const problem::base &, problem::death_penalty::method_type, const std::vector<double> &> >());
 
 	// con2mo penalty enums
@@ -379,7 +394,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("OBJ_EQVIO_INEQVIO", problem::con2mo::OBJ_EQVIO_INEQVIO);
 
 	// Constrained to multi-objective meta-problem.
-	problem_wrapper<problem::con2mo>("con2mo","Constrained to multi-objective problem")
+	meta_problem_wrapper<problem::con2mo>("con2mo","Constrained to multi-objective problem")
 		.def(init<optional<const problem::base &, problem::con2mo::method_type> >());
 
 	// con2uncon penalty enums
@@ -388,11 +403,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("FEASIBILITY", problem::con2uncon::FEASIBILITY);
 
 	// Constrained to unconstrained meta-problem.
-	problem_wrapper<problem::con2uncon>("con2uncon","Constrained to unconstrained problem")
+	meta_problem_wrapper<problem::con2uncon>("con2uncon","Constrained to unconstrained problem")
 		.def(init<optional<const problem::base &, problem::con2uncon::method_type> >());
 
 	// Shifted meta-problem
-	problem_wrapper<problem::shifted>("shifted","Shifted problem")
+	meta_problem_wrapper<problem::shifted>("shifted","Shifted problem")
 		.def(init<const problem::base &>())
 		.def(init<const problem::base &, std::vector<double> >())
 		.def(init<const problem::base &, double>())
@@ -400,14 +415,14 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("deshift",&problem::shifted::deshift);
 		
 	// Rotated meta-problem
-	problem_wrapper<problem::rotated>("rotated","Rotated problem")
+	meta_problem_wrapper<problem::rotated>("rotated","Rotated problem")
 		.def(init<const problem::base &>())
 		.def(init<const problem::base &, Eigen::MatrixXd >())
 		.add_property("rotation_matrix",&get_rotation_matrix_from_eigen)
 		.add_property("derotate",&problem::rotated::derotate);
 		
 	// Normalized meta-problem
-	problem_wrapper<problem::normalized>("normalized","Normalized problem")
+	meta_problem_wrapper<problem::normalized>("normalized","Normalized problem")
 		.def(init<const problem::base &>())
 		.def("denormalize", &problem::normalized::denormalize);
 
@@ -417,7 +432,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("WEIGHTED", problem::decompose::WEIGHTED)
 		.value("TCHEBYCHEFF", problem::decompose::TCHEBYCHEFF)
 		.value("BI", problem::decompose::BI);
-	problem_wrapper<problem::decompose>("decompose","Decomposed problem")
+	meta_problem_wrapper<problem::decompose>("decompose","Decomposed problem")
 		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &> >())
 		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()));
 

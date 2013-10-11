@@ -30,7 +30,7 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "cec2006.h"
-#include "base.h"
+#include "base_meta.h"
 
 namespace pagmo{ namespace problem {
 
@@ -57,10 +57,10 @@ namespace pagmo{ namespace problem {
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
 
-class __PAGMO_VISIBLE con2mo : public base
+class __PAGMO_VISIBLE con2mo : public base_meta
 {
 	public:
-		/// Type of constraints to multi-objective.
+		/// Mechanism used to deal with constraints in the objectives
 		/**
 		* Definition of three types of constrained to multi-objective.
 		* OBJ_CSTRS is the approach suggest by Coello: the single objective constrained problem is transformed into
@@ -72,14 +72,15 @@ class __PAGMO_VISIBLE con2mo : public base
 		* problem with the original fitness functions as first objectives, the aggregation of the inequality constraints violations 
 		* as second last objective and the sum of violation of the equality constraints violations as last objective.
 		*/
-		// con2mo methods
-		enum method_type {OBJ_CSTRS = 0, OBJ_CSTRSVIO = 1, OBJ_EQVIO_INEQVIO = 2};
+		enum method_type {
+			 OBJ_CSTRS = 0, ///< Each constraint violation is transformed into one objective
+			 OBJ_CSTRSVIO = 1, ///< The total constraint violation is addd as one objective
+			 OBJ_EQVIO_INEQVIO = 2 ///< The total constraint violation is addd as two objectives (equalities + inequalities)
+			};
 
 		//constructors
 		con2mo(const base & = cec2006(4), const method_type = OBJ_CSTRS);
 
-		//copy constructor
-		con2mo(const con2mo &);
 		base_ptr clone() const;
 		std::string get_name() const;
 
@@ -92,17 +93,14 @@ class __PAGMO_VISIBLE con2mo : public base
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & m_original_problem;
+			ar & boost::serialization::base_object<base_meta>(*this);
 			ar & const_cast<method_type &>(m_method);
 		}
-		base_ptr m_original_problem;
-
 		const method_type m_method;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::con2mo);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::con2mo)
 
 #endif // PAGMO_PROBLEM_CON2MO_H

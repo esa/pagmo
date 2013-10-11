@@ -40,6 +40,7 @@
 #include "../exceptions.h"
 #include "../serialization.h"
 #include "../types.h"
+//#include "base_meta.h"
 
 namespace pagmo
 {
@@ -142,6 +143,8 @@ ar.template register_type<problem::derived_problem>();
  */
 class __PAGMO_VISIBLE base
 {
+		// Meta problems need to be able to access protected virtual functions
+		friend class base_meta;
 		// Underlying containers used for caching decision and fitness vectors.
 		typedef boost::circular_buffer<decision_vector> decision_vector_cache_type;
 		typedef boost::circular_buffer<fitness_vector> fitness_vector_cache_type;

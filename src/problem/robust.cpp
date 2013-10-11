@@ -67,20 +67,11 @@ robust::robust(const base & p, unsigned int trials, const double param_rho, unsi
 
 /// Copy Constructor. Performs a deep copy
 robust::robust(const robust &prob):
-	base_stochastic((int)prob.get_dimension(),
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 prob.get_c_dimension(),
-		 prob.get_ic_dimension(),
-		 prob.get_c_tol(),
-		 prob.m_seed),
-	m_original_problem(prob.m_original_problem->clone()),
-	m_uniform_dist(0, prob.m_rho),
-	m_trials(prob.m_trials),
-	m_rho(prob.m_rho)
-{
-	set_bounds(prob.get_lb(),prob.get_ub());
-}
+	 base_stochastic(prob),
+	 m_original_problem(prob.m_original_problem->clone()),
+	 m_uniform_dist(0, prob.m_rho),
+	 m_trials(prob.m_trials),
+	 m_rho(prob.m_rho) {}
 
 /// Clone method.
 base_ptr robust::clone() const

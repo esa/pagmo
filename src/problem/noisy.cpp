@@ -75,13 +75,7 @@ noisy::noisy(const base & p, unsigned int trials, const double param_first, cons
 
 /// Copy Constructor. Performs a deep copy
 noisy::noisy(const noisy &prob):
-	base_stochastic((int)prob.get_dimension(),
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 prob.get_c_dimension(),
-		 prob.get_ic_dimension(),
-		 prob.get_c_tol(),
-		 prob.m_seed),
+	base_stochastic(prob),
 	m_original_problem(prob.m_original_problem->clone()),
 	m_trials(prob.m_trials),
 	m_normal_dist(0.0,1.0),
@@ -89,10 +83,7 @@ noisy::noisy(const noisy &prob):
 	m_decision_vector_hash(),
 	m_param_first(prob.m_param_first),
 	m_param_second(prob.m_param_second),
-	m_noise_type(prob.m_noise_type)
-{
-	set_bounds(prob.get_lb(),prob.get_ub());
-}
+	m_noise_type(prob.m_noise_type) {}
 
 /// Clone method.
 base_ptr noisy::clone() const

@@ -34,7 +34,6 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-#include "base.h"
 #include "cec2013.h"
 
 #define INF 1.0e99

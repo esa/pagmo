@@ -30,7 +30,7 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "cec2006.h"
-#include "base.h"
+#include "base_meta.h"
 
 #include <boost/functional/hash.hpp>
 #include <boost/serialization/map.hpp>
@@ -60,15 +60,13 @@ namespace pagmo{ namespace problem {
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
 
-class __PAGMO_VISIBLE cstrs_self_adaptive : public base
+class __PAGMO_VISIBLE cstrs_self_adaptive : public base_meta
 {
 public:
 	//constructors
     cstrs_self_adaptive(const base & = cec2006(4));
     cstrs_self_adaptive(const base &, const population &);
 
-	//copy constructor
-    cstrs_self_adaptive(const cstrs_self_adaptive &);
 	base_ptr clone() const;
 	std::string get_name() const;
 
@@ -78,7 +76,6 @@ public:
 protected:
 	std::string human_readable_extra() const;
 	void objfun_impl(fitness_vector &, const decision_vector &) const;
-	bool compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const;
 
 private:
 	void update_c_scaling(const population &pop);
@@ -89,8 +86,7 @@ private:
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
-		ar & boost::serialization::base_object<base>(*this);
-		ar & m_original_problem;
+		ar & boost::serialization::base_object<base_meta>(*this);
 		ar & const_cast<bool &>(m_apply_penalty_1);
 		ar & m_scaling_factor;
 		ar & m_c_scaling;
@@ -103,7 +99,6 @@ private:
 		ar & m_map_fitness;
 		ar & m_map_constraint;
 	}
-	base_ptr m_original_problem;
 
 	bool m_apply_penalty_1;
 	double m_scaling_factor;
@@ -128,6 +123,6 @@ private:
 
 //! @endcond
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_self_adaptive);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::cstrs_self_adaptive)
 
 #endif // PAGMO_PROBLEM_cstrs_self_adaptive_H

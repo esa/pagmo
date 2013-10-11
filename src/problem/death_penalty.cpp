@@ -28,7 +28,6 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "../population.h"
-#include "base.h"
 #include "death_penalty.h"
 
 namespace pagmo { namespace problem {
@@ -44,13 +43,14 @@ namespace pagmo { namespace problem {
  *
  */
 death_penalty::death_penalty(const base &problem, const method_type method, const std::vector<double> & penalty_factors):
-	base((int)problem.get_dimension(),
+	base_meta(
+		 problem,
+		 problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
 		 0,
 		 0,
-		 0.),
-	m_original_problem(problem.clone()),
+		 std::vector<double>()),
 	m_method(method),
 	m_penalty_factors(penalty_factors)
 {
@@ -70,22 +70,6 @@ death_penalty::death_penalty(const base &problem, const method_type method, cons
 		pagmo_throw(value_error, "Methods which are not WEIGHTED do not make use of weight vectors");
 	}
 
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
-
-}
-
-/// Copy Constructor. Performs a deep copy
-death_penalty::death_penalty(const death_penalty &prob):
-	base((int)prob.get_dimension(),
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 prob.get_c_dimension(),
-		 prob.get_ic_dimension(),
-		 prob.get_c_tol()),
-	m_original_problem(prob.m_original_problem->clone()),
-	m_method(prob.m_method)
-{
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
 
 /// Clone method.
@@ -169,16 +153,6 @@ void death_penalty::objfun_impl(fitness_vector &f, const decision_vector &x) con
 	}
 }
 
-/// Implementation of fitness vectors comparison.
-/**
- * @brief compare_fitness_impl calls the compare_fitness method of the original problem.
- * @return true if v_f1 is dominating v_f2, false otherwise.
- */
-bool death_penalty::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
-{
-	return m_original_problem->compare_fitness(v_f1,v_f2);
-}
-
 /// Extra human readable info for the problem.
 /**
  * Will return a formatted string containing the type of constraint handling
@@ -229,5 +203,5 @@ std::string death_penalty::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::death_penalty);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::death_penalty)
 

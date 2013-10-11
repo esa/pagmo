@@ -27,7 +27,6 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-#include "base.h"
 #include "con2uncon.h"
 
 namespace pagmo { namespace problem {
@@ -40,34 +39,18 @@ namespace pagmo { namespace problem {
  *
  */
 con2uncon::con2uncon(const base &problem, const method_type method):
-	base((int)problem.get_dimension(),
+	base_meta(problem,
+		 problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
 		 0,
 		 0,
-		 0.),
-	m_original_problem(problem.clone()),
+		 std::vector<double>()),
 	m_method(method)
 {
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
-
 	if((m_method < 0) || (m_method > 1)) {
 		pagmo_throw(value_error,"the problem method must be either OPTIMALITY or FEASIBILITY.");
 	}
-}
-
-/// Copy Constructor. Performs a deep copy
-con2uncon::con2uncon(const con2uncon &prob):
-	base((int)prob.get_dimension(),
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 0,
-		 0,
-		 0.),
-	m_original_problem(prob.m_original_problem->clone()),
-	m_method(prob.m_method)
-{
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
 
 /// Clone method.
@@ -120,16 +103,6 @@ void con2uncon::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	}
 }
 
-/// Implementation of fitness vectors comparison.
-/**
- * @brief compare_fitness_impl calls the compare_fitness method of the original problem.
- * @return true if v_f1 is dominating v_f2, false otherwise.
- */
-bool con2uncon::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
-{
-	return m_original_problem->compare_fitness(v_f1,v_f2);
-}
-
 /// Extra human readable info for the problem.
 /**
  * Will return a formatted string containing the type of constraint handling
@@ -172,5 +145,5 @@ std::string con2uncon::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::con2uncon);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::con2uncon)
 

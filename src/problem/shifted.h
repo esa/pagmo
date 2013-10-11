@@ -30,7 +30,7 @@
 #include "../serialization.h"
 #include "ackley.h"
 #include "../types.h"
-#include "base.h"
+#include "base_meta.h"
 
 namespace pagmo{ namespace problem {
 
@@ -42,7 +42,7 @@ namespace pagmo{ namespace problem {
  * @author Yung-Siang Liau (liauys@gmail.com)
  */
 
-class __PAGMO_VISIBLE shifted : public base
+class __PAGMO_VISIBLE shifted : public base_meta
 {
 	public:
 		//constructors
@@ -50,8 +50,6 @@ class __PAGMO_VISIBLE shifted : public base
 		shifted(const base &, const double);
 		shifted(const base & = ackley(1));
 		
-		//copy constructor
-		shifted(const shifted &);
 		base_ptr clone() const;
 		std::string get_name() const;
 		
@@ -69,11 +67,9 @@ class __PAGMO_VISIBLE shifted : public base
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & m_original_problem;
+			ar & boost::serialization::base_object<base_meta>(*this);
 			ar & const_cast<decision_vector &>(m_translation);
 		}
-		base_ptr m_original_problem;
 		decision_vector m_translation;
 };
 

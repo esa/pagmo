@@ -57,8 +57,7 @@ cstrs_self_adaptive::cstrs_self_adaptive(const base &original_algo, int gen, dou
 
 /// Copy constructor.
 cstrs_self_adaptive::cstrs_self_adaptive(const cstrs_self_adaptive &algo):base(algo),m_original_algo(algo.m_original_algo->clone()),m_gen(algo.m_gen),
-	m_ftol(algo.m_ftol),m_xtol(algo.m_xtol)
-{}
+	m_ftol(algo.m_ftol),m_xtol(algo.m_xtol) {}
 
 /// Clone method.
 base_ptr cstrs_self_adaptive::clone() const

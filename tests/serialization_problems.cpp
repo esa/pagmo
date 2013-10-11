@@ -36,7 +36,7 @@
 #include <boost/shared_ptr.hpp>
 //-------------------------------------------------------------------------------
 // static data needed to test the non-default constructor in some of the problems.
-#ifdef PAGMO_ENABLE_KEP_TOOLBOX 
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
 //mga_1dsm
 const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
 	std::vector<kep_toolbox::planet_ptr> retval;
@@ -66,7 +66,7 @@ int main()
 	// create two containers of pagmo::problems
 	std::vector<problem::base_ptr> probs;
 	std::vector<problem::base_ptr> probs_new;
-	
+
 	// fill it up with problems
 	probs.push_back(problem::ackley(dimension).clone());
 	probs_new.push_back(problem::ackley().clone());
@@ -117,59 +117,59 @@ int main()
 	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
 	probs_new.push_back(problem::tsp().clone());
 
-    //----- Test ZDT -----//
-    for(int i = 1; i <= 6; i++) {
+	//----- Test ZDT -----//
+	for(int i = 1; i <= 6; i++) {
 	probs.push_back(problem::zdt(i, dimension).clone());
 	probs_new.push_back(problem::zdt(i%6 + 1).clone());
-    }
+	}
 
-    //----- Test DTLZ -----//
-    for(int i = 1; i <= 7; i++) {
-	probs.push_back(problem::dtlz(i, dimension, 10).clone());
-	probs_new.push_back(problem::dtlz(i%7 + 1).clone());
-    }
-	
-    //----- Test CEC2006 -----//
-    for(int i=1; i<=24; i++){
-        probs.push_back(problem::cec2006(i).clone());
-	probs_new.push_back(problem::cec2006(i%24 + 1).clone());
-    }
+	//----- Test DTLZ -----//
+	for(int i = 1; i <= 7; i++) {
+		probs.push_back(problem::dtlz(i, dimension, 10).clone());
+		probs_new.push_back(problem::dtlz(i%7 + 1).clone());
+	}
 
-    //----- Test CEC2009 - UF set-----//
-    for(int i=1; i<=10; i++){
+	//----- Test CEC2006 -----//
+	for(int i=1; i<=24; i++){
+		probs.push_back(problem::cec2006(i).clone());
+		probs_new.push_back(problem::cec2006(i%24 + 1).clone());
+	}
+
+	//----- Test CEC2009 - UF set-----//
+	for(int i=1; i<=10; i++){
 		probs.push_back(problem::cec2009(i, dimension, false).clone());
 		probs_new.push_back(problem::cec2009(i%10 + 1, 11, false).clone());
-    }
-    //----- Test CEC2009 - CF set-----//
-    for(int i=1; i<=10; i++){
+	}
+	//----- Test CEC2009 - CF set-----//
+	for(int i=1; i<=10; i++){
 		probs.push_back(problem::cec2009(i, dimension, true).clone());
 		probs_new.push_back(problem::cec2009(1%10 + 1, 17, true).clone());
-    }
+	}
 
-    //----- Test meta-problems -----//
-    problem::zdt zdt1_before_transform1(1, dimension);
-    //----- shifted -----//
-    probs.push_back(problem::shifted(zdt1_before_transform1).clone());
-    probs_new.push_back(problem::shifted(zdt1_before_transform1).clone());
-    //----- rotated -----//
-    probs.push_back(problem::rotated(zdt1_before_transform1).clone());
-    probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
-    //----- noisy -----//
-    probs.push_back(problem::noisy(zdt1_before_transform1,0,0,1.0,
+	//----- Test meta-problems -----//
+	problem::zdt zdt1_before_transform1(1, dimension);
+	//----- shifted -----//
+	probs.push_back(problem::shifted(zdt1_before_transform1).clone());
+	probs_new.push_back(problem::shifted(zdt1_before_transform1).clone());
+	//----- rotated -----//
+	probs.push_back(problem::rotated(zdt1_before_transform1).clone());
+	probs_new.push_back(problem::rotated(zdt1_before_transform1).clone()); //Will have a different random rotation matrix
+	//----- noisy -----//
+	probs.push_back(problem::noisy(zdt1_before_transform1,0,0,1.0,
 				problem::noisy::NORMAL).clone());
-    probs_new.push_back(problem::noisy(zdt1_before_transform1,111,1.0,4.5,
+	probs_new.push_back(problem::noisy(zdt1_before_transform1,111,1.0,4.5,
 					problem::noisy::UNIFORM).clone());
-    //----- robust ----- //
-    probs.push_back(problem::robust(zdt1_before_transform1, 10, 0.1, 123).clone());
-    probs_new.push_back(problem::robust(zdt1_before_transform1, 1, 1.23, 456).clone());
+	//----- robust ----- //
+	probs.push_back(problem::robust(zdt1_before_transform1, 10, 0.1, 123).clone());
+	probs_new.push_back(problem::robust(zdt1_before_transform1, 1, 1.23, 456).clone());
 
-    //----- Test constraints handling meta-problems -----//
-    problem::cec2006 cec2006_before_cstrs_handling(7);
-    probs.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
-    probs_new.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
+	//----- Test constraints handling meta-problems -----//
+	problem::cec2006 cec2006_before_cstrs_handling(7);
+	probs.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
+	probs_new.push_back(problem::cstrs_self_adaptive(cec2006_before_cstrs_handling).clone());
 
-    probs.push_back(problem::death_penalty(cec2006_before_cstrs_handling,problem::death_penalty::KURI).clone());
-    probs_new.push_back(problem::death_penalty(cec2006_before_cstrs_handling,problem::death_penalty::SIMPLE).clone());
+	probs.push_back(problem::death_penalty(cec2006_before_cstrs_handling,problem::death_penalty::KURI).clone());
+	probs_new.push_back(problem::death_penalty(cec2006_before_cstrs_handling,problem::death_penalty::SIMPLE).clone());
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	probs.push_back(problem::cassini_1(2).clone());
@@ -192,7 +192,7 @@ int main()
 	probs_new.push_back(problem::mga_1dsm_alpha().clone());
 	probs.push_back(problem::mga_1dsm_tof(construct_sequence()).clone());
 	probs_new.push_back(problem::mga_1dsm_tof().clone());
-#endif	
+#endif
 
 	//serialize probs and deserialize into probs_new checking they are then identical
 	for (size_t i=0; i< probs.size(); ++i) {
@@ -205,7 +205,7 @@ int main()
 		oa & probs[i];
 		// archive and stream closed when destructors are called
 		}
-	
+
 		{
 		// create and open an archive for input
 		std::ifstream ifs("test.ar");
@@ -214,8 +214,9 @@ int main()
 		ia & probs_new[i];
 		// archive and stream closed when destructors are called
 		}
-		
+
 		{
+		std::cout << std::endl << std::setw(40) << probs[i]->get_name()<<std::flush;
 		decision_vector x(probs[i]->get_dimension(),0);
 		fitness_vector f1(probs[i]->get_f_dimension(),0), f2(probs[i]->get_f_dimension(),1);
 		constraint_vector c1(probs[i]->get_c_dimension(),0), c2(probs[i]->get_c_dimension(),1);
@@ -225,10 +226,10 @@ int main()
 		probs_new[i]->objfun(f2,x);
 		probs[i]->compute_constraints(c1,x);
 		probs_new[i]->compute_constraints(c2,x);
-		std::cout << std::endl << std::setw(40) << probs[i]->get_name();
+
 		if (std::equal(f1.begin(),f1.end(),f2.begin())) {
 			std::cout << ": Fitness pass,";
-		} else { 
+		} else {
 			std::cout << ": Fitness FAILED, " << std::endl;
 			std::cout << x<< std::endl;
 			std::cout << f1 << " " << f2 << std::endl;
@@ -245,7 +246,7 @@ int main()
 			return 1;
 		}
 		}
-	
+
 	}
 	std::cout << std::endl;
 	return 0;

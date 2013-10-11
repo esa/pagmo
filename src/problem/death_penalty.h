@@ -30,7 +30,7 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "cec2006.h"
-#include "base.h"
+#include "base_meta.h"
 
 namespace pagmo{ namespace problem {
 
@@ -51,38 +51,33 @@ namespace pagmo{ namespace problem {
  *
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
-class __PAGMO_VISIBLE death_penalty : public base
+class __PAGMO_VISIBLE death_penalty : public base_meta
 {
 	public:
 		/// Mechanism used to assign the penalty
 		enum method_type {
-		   SIMPLE = 0, ///< Penalizes the fitness function with a high value id the decision vector is unfeasible
-		   KURI = 1, ///< Penalizes the fitness function according to the number of satisfied constraints.
-		   WEIGHTED = 2///< Penalizes the fitness function with the weighted sum of the violations
+			 SIMPLE = 0, ///< Penalizes the fitness function with a high value id the decision vector is unfeasible
+			 KURI = 1, ///< Penalizes the fitness function according to the number of satisfied constraints.
+			 WEIGHTED = 2///< Penalizes the fitness function with the weighted sum of the violations
 		};
 
 		death_penalty(const base & = cec2006(4), const method_type = SIMPLE, const std::vector<double>& = std::vector<double>());
-		death_penalty(const death_penalty &);
 		
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:
 		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
-		bool compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const;
 
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & m_original_problem;
+			ar & boost::serialization::base_object<base_meta>(*this);
 			ar & const_cast<method_type &>(m_method);
 			ar & m_penalty_factors;
 		}
-		
-		base_ptr m_original_problem;
 		const method_type m_method;
 		std::vector<double> m_penalty_factors;
 };

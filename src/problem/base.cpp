@@ -609,9 +609,9 @@ bool base::compare_fitness(const fitness_vector &v_f1, const fitness_vector &v_f
  */
 bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
 {
-	pagmo_assert(v_f1.size() == v_f2.size() && v_f1.size() == m_f_dimension);
+	pagmo_assert(v_f1.size() == v_f2.size()); // NOTE: v_f1.size CAN be different from m_f_dimension (i.e. when its a base_meta calling it)
 	f_size_type count1 = 0; f_size_type count2 = 0;
-	for (f_size_type i = 0; i < m_f_dimension; ++i) {
+	for (f_size_type i = 0; i < v_f1.size(); ++i) {
 		if (v_f1[i] < v_f2[i]) {
 			++count1;
 		}
@@ -619,7 +619,7 @@ bool base::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector
 			++count2;
 		}
 	}
-	return ( ( (count1+count2) == m_f_dimension) && (count1>0) );
+	return ( ( (count1+count2) == v_f1.size()) && (count1>0) );
 }
 
 /// Return human readable representation of the problem.

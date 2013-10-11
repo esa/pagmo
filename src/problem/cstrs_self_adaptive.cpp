@@ -28,7 +28,6 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "../population.h"
-#include "base.h"
 #include "cstrs_self_adaptive.h"
 
 ///Doxygen will ignore whatever is in //! @cond As this problem is only to be used by the equally named algorithm
@@ -48,13 +47,14 @@ namespace pagmo { namespace problem {
  *
  */
 cstrs_self_adaptive::cstrs_self_adaptive(const base &problem, const population &pop):
-	base((int)problem.get_dimension(),
+	base_meta(
+		 problem,
+		 problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
 		 0,
 		 0,
-		 0.),
-	m_original_problem(problem.clone()),
+		 std::vector<double>()),
 	m_apply_penalty_1(false),
 	m_scaling_factor(0.0),
 	m_c_scaling(problem.get_c_dimension(),0.0),
@@ -81,18 +81,18 @@ cstrs_self_adaptive::cstrs_self_adaptive(const base &problem, const population &
 		pagmo_throw(value_error,"The problem linked to the population is not the same as the problem given in argument.");
 	}
 
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 	update_penalty_coeff(pop);
 }
 
 cstrs_self_adaptive::cstrs_self_adaptive(const base &problem):
-	base((int)problem.get_dimension(),
+	base_meta(
+		 problem,
+		 problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
 		 0,
 		 0,
-		 0.),
-	m_original_problem(problem.clone()),
+		 std::vector<double>()),
 	m_apply_penalty_1(false),
 	m_scaling_factor(0.0),
 	m_c_scaling(problem.get_c_dimension(),0.0),
@@ -107,7 +107,7 @@ cstrs_self_adaptive::cstrs_self_adaptive(const base &problem):
 	m_decision_vector_hash()
 {
 	population pop(*m_original_problem,0);
-	
+
 	if(m_original_problem->get_c_dimension() <= 0){
 		pagmo_throw(value_error,"The original problem has no constraints.");
 	}
@@ -116,40 +116,13 @@ cstrs_self_adaptive::cstrs_self_adaptive(const base &problem):
 	if (m_original_problem->get_f_dimension() != 1) {
 		pagmo_throw(value_error,"The original fitness dimension of the problem must be one, multi objective problems can't be handled with self adaptive meta problem.");
 	}
-
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 	update_penalty_coeff(pop);
-}
-
-/// Copy Constructor. Performs a deep copy
-cstrs_self_adaptive::cstrs_self_adaptive(const cstrs_self_adaptive &prob):
-	base((int)prob.get_dimension(),
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 prob.get_c_dimension(),
-		 prob.get_ic_dimension(),
-		 prob.get_c_tol()),
-	m_original_problem(prob.m_original_problem->clone()),
-	m_apply_penalty_1(prob.m_apply_penalty_1),
-	m_scaling_factor(prob.m_scaling_factor),
-	m_c_scaling(prob.m_c_scaling),
-	m_f_hat_down(prob.m_f_hat_down),
-	m_f_hat_up(prob.m_f_hat_up),
-	m_f_hat_round(prob.m_f_hat_round),
-	m_i_hat_down(prob.m_i_hat_down),
-	m_i_hat_up(prob.m_i_hat_up),
-	m_i_hat_round(prob.m_i_hat_round),
-	m_map_fitness(prob.m_map_fitness),
-	m_map_constraint(prob.m_map_constraint),
-	m_decision_vector_hash(prob.m_decision_vector_hash)
-{
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
 
 /// Clone method.
 base_ptr cstrs_self_adaptive::clone() const
 {
-    return base_ptr(new cstrs_self_adaptive(*this));
+	return base_ptr(new cstrs_self_adaptive(*this));
 }
 
 /// Implementation of the objective function.
@@ -198,16 +171,6 @@ void cstrs_self_adaptive::objfun_impl(fitness_vector &f, const decision_vector &
 	}
 }
 
-/// Implementation of fitness vectors comparison.
-/**
- * @brief compare_fitness_impl calls the compare_fitness method of the original problem.
- * @return true if v_f1 is dominating v_f2, false otherwise.
- */
-bool cstrs_self_adaptive::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
-{
-	return m_original_problem->compare_fitness(v_f1,v_f2);
-}
-
 /// Extra human readable info for the problem.
 /**
  * Will return a formatted string containing the type of constraint handling
@@ -223,7 +186,7 @@ std::string cstrs_self_adaptive::human_readable_extra() const
 
 std::string cstrs_self_adaptive::get_name() const
 {
-    return m_original_problem->get_name() + " [cstrs_self_adaptive]";
+	return m_original_problem->get_name() + " [cstrs_self_adaptive]";
 }
 
 /// Updates the penalty coefficients needed to compute the penalized

@@ -28,7 +28,6 @@
 #include "../exceptions.h"
 #include "../types.h"
 #include "../population.h"
-#include "base.h"
 #include "cstrs_co_evolution.h"
 
 ///Doxygen will ignore whatever is in //! @cond
@@ -55,13 +54,14 @@ namespace pagmo { namespace problem {
  *
  */
 cstrs_co_evolution::cstrs_co_evolution(const base &problem, const algorithm::cstrs_co_evolution::method_type method):
-	base((int)problem.get_dimension(),
+	base_meta(
+		 problem, 
+		 problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
 		 0,
 		 0,
-		 0.),
-	m_original_problem(problem.clone()),
+		 std::vector<double>()),
 	m_penalty_coeff(),
 	m_method(method),
 	m_map_fitness(),
@@ -77,19 +77,18 @@ cstrs_co_evolution::cstrs_co_evolution(const base &problem, const algorithm::cst
 		pagmo_throw(value_error,"The original fitness dimension of the problem must be one, multi objective problems can't be handled with co-evolution meta problem.");
 	}
 
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
-
 	std::fill(m_penalty_coeff.begin(),m_penalty_coeff.end(),0.);
 }
 
 cstrs_co_evolution::cstrs_co_evolution(const base &problem, const population& pop, const algorithm::cstrs_co_evolution::method_type method):
-	base((int)problem.get_dimension(),
+	base_meta(
+		 problem, 
+		 problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 problem.get_f_dimension(),
 		 0,
 		 0,
-		 0.),
-	m_original_problem(problem.clone()),
+		 std::vector<double>()),
 	m_penalty_coeff(),
 	m_method(method),
 	m_map_fitness(),
@@ -108,8 +107,6 @@ cstrs_co_evolution::cstrs_co_evolution(const base &problem, const population& po
 		pagmo_throw(value_error,"The problem linked to the population is not the same as the problem given in argument.");
 	}
 
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
-
 	std::fill(m_penalty_coeff.begin(),m_penalty_coeff.end(),0.);
 
 	m_map_fitness.clear();
@@ -122,25 +119,6 @@ cstrs_co_evolution::cstrs_co_evolution(const base &problem, const population& po
 		m_map_constraint[m_decision_vector_hash(current_individual.cur_x)]=current_individual.cur_c;
 	}
 
-}
-
-
-/// Copy Constructor. Performs a deep copy
-cstrs_co_evolution::cstrs_co_evolution(const cstrs_co_evolution &prob):
-	base((int)prob.get_dimension(),
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 prob.get_c_dimension(),
-		 prob.get_ic_dimension(),
-		 prob.get_c_tol()),
-	m_original_problem(prob.m_original_problem->clone()),
-	m_penalty_coeff(prob.m_penalty_coeff),
-	m_method(prob.m_method),
-	m_map_fitness(prob.m_map_fitness),
-	m_map_constraint(prob.m_map_constraint),
-	m_decision_vector_hash(prob.m_decision_vector_hash)
-{
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
 
 /// Clone method.
@@ -196,15 +174,6 @@ void cstrs_co_evolution::objfun_impl(fitness_vector &f, const decision_vector &x
 	}
 }
 
-/// Implementation of fitness vectors comparison.
-/**
- * @brief compare_fitness_impl calls the compare_fitness method of the original problem.
- * @return true if v_f1 is dominating v_f2, false otherwise.
- */
-bool cstrs_co_evolution::compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const
-{
-	return m_original_problem->compare_fitness(v_f1,v_f2);
-}
 
 /// Extra human readable info for the problem.
 /**

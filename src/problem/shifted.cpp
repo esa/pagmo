@@ -41,18 +41,19 @@ namespace pagmo { namespace problem {
  * @see problem::base constructors.
  */
 
-shifted::shifted(const base & problem,
+shifted::shifted(const base & p,
 				 const decision_vector & translation):
-	base((int)problem.get_dimension(), // Ambiguous without the cast ...
-		 problem.get_i_dimension(),
-		 problem.get_f_dimension(),
-		 problem.get_c_dimension(),
-		 problem.get_ic_dimension(),
-		 problem.get_c_tol()),
-		m_original_problem(problem.clone()), 
+		base_meta(
+		 p,
+		 p.get_dimension(),
+		 p.get_i_dimension(),
+		 p.get_f_dimension(),
+		 p.get_c_dimension(),
+		 p.get_ic_dimension(),
+		 p.get_c_tol()),
 		m_translation(translation)
 {
-	if (translation.size() != problem.get_dimension()) {
+	if (translation.size() != p.get_dimension()) {
 		pagmo_throw(value_error,"The size of the shifting vector must be equal to the problem dimension");
 	}
 	configure_shifted_bounds(m_translation);
@@ -68,16 +69,17 @@ shifted::shifted(const base & problem,
  * @see problem::base constructors.
  */
 
-shifted::shifted(const base & problem,
+shifted::shifted(const base & p,
 				 const double t):
-	base((int)problem.get_dimension(), // Ambiguous without the cast
-		 problem.get_i_dimension(),
-		 problem.get_f_dimension(),
-		 problem.get_c_dimension(),
-		 problem.get_ic_dimension(),
-		 problem.get_c_tol()),
-		m_original_problem(problem.clone()),
-		m_translation(decision_vector(problem.get_dimension(), t))
+		base_meta(
+		 p,
+		 p.get_dimension(),
+		 p.get_i_dimension(),
+		 p.get_f_dimension(),
+		 p.get_c_dimension(),
+		 p.get_ic_dimension(),
+		 p.get_c_tol()),
+		m_translation(decision_vector(p.get_dimension(), t))
 {
 	configure_shifted_bounds(m_translation);
 }
@@ -91,13 +93,14 @@ shifted::shifted(const base & problem,
  */
 
 shifted::shifted(const base & p):
-	base((int)p.get_dimension(), // Ambiguous without the cast
+	base_meta(
+		 p,
+		 p.get_dimension(),
 		 p.get_i_dimension(),
 		 p.get_f_dimension(),
 		 p.get_c_dimension(),
 		 p.get_ic_dimension(),
 		 p.get_c_tol()),
-		m_original_problem(p.clone()),
 		m_translation(decision_vector(p.get_dimension(),0))
 {
 	for (size_t i=0; i< m_translation.size();++i) {
@@ -105,20 +108,6 @@ shifted::shifted(const base & p):
 	}
 	configure_shifted_bounds(m_translation);
 }
-
-
-/// Copy Constructor. Performs a deep copy
-shifted::shifted(const shifted &prob):
-	base((int)prob.get_dimension(), // Ambiguous without the cast
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 prob.get_c_dimension(),
-		 prob.get_ic_dimension(),
-		 prob.get_c_tol()),
-		 m_original_problem(prob.m_original_problem->clone()),
-		 m_translation(prob.m_translation) {
-			set_bounds(prob.get_lb(),prob.get_ub());
-		}
 
 /// Clone method.
 base_ptr shifted::clone() const

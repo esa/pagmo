@@ -30,7 +30,7 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "cec2006.h"
-#include "base.h"
+#include "base_meta.h"
 
 namespace pagmo{ namespace problem {
 
@@ -45,7 +45,7 @@ namespace pagmo{ namespace problem {
  * @author Jeremie Labroquere (jeremie.labroquere@gmail.com)
  */
 
-class __PAGMO_VISIBLE con2uncon : public base
+class __PAGMO_VISIBLE con2uncon : public base_meta
 {
 public:
 	/// Mechanism used to transform the input problem
@@ -58,32 +58,27 @@ public:
 	//constructors
 	con2uncon(const base & = cec2006(4), const method_type = OPTIMALITY);
 
-	//copy constructor
-	con2uncon(const con2uncon &);
 	base_ptr clone() const;
 	std::string get_name() const;
 
 protected:
 	std::string human_readable_extra() const;
 	void objfun_impl(fitness_vector &, const decision_vector &) const;
-	bool compare_fitness_impl(const fitness_vector &v_f1, const fitness_vector &v_f2) const;
 
 private:
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
-		ar & boost::serialization::base_object<base>(*this);
-		ar & m_original_problem;
+		ar & boost::serialization::base_object<base_meta>(*this);
 		ar & m_method;
 	}
-	base_ptr m_original_problem;
 
 	method_type m_method;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::con2uncon);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::con2uncon)
 
 #endif // PAGMO_PROBLEM_con2uncon_H

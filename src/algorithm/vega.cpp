@@ -34,7 +34,6 @@
 #include "../population.h"
 #include "../problem/base.h"
 #include "../types.h"
-#include "base.h"
 #include "vega.h"
 #include "../problem/base_stochastic.h"
 #include "../problem/decompose.h"

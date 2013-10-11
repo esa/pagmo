@@ -41,32 +41,19 @@ namespace pagmo { namespace problem {
  */
 
 normalized::normalized(const base & p):
-	base((int)p.get_dimension(), // Ambiguous without the cast ...
+	base_meta(
+		 p,
+		 p.get_dimension(),
 		 p.get_i_dimension(),
 		 p.get_f_dimension(),
 		 p.get_c_dimension(),
 		 p.get_ic_dimension(),
 		 p.get_c_tol()),
-		 m_original_problem(p.clone()),
 		 m_normalization_center(p.get_dimension(),0),
 		 m_normalization_scale(p.get_dimension(),0)
 {
 	configure_new_bounds();
 }
-
-/// Copy Constructor. Performs a deep copy
-normalized::normalized(const normalized &p):
-	base((int)p.get_dimension(), // Ambiguous without the cast
-		 p.get_i_dimension(),
-		 p.get_f_dimension(),
-		 p.get_c_dimension(),
-		 p.get_ic_dimension(),
-		 p.get_c_tol()),
-		 m_original_problem(p.m_original_problem->clone()),
-		 m_normalization_center(p.m_normalization_center),
-		 m_normalization_scale(p.m_normalization_scale) {
-			set_bounds(p.get_lb(),p.get_ub());
-		}
 
 /// Clone method.
 base_ptr normalized::clone() const

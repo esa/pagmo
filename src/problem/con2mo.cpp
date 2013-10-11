@@ -27,7 +27,6 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-#include "base.h"
 #include "con2mo.h"
 
 static int __mo_dimension__(const pagmo::problem::base &original_problem,
@@ -78,31 +77,16 @@ namespace pagmo { namespace problem {
  *
  */
 con2mo::con2mo(const base &problem, const method_type method):
-	base((int)problem.get_dimension(),
+		base_meta(
+		 problem,
+		 problem.get_dimension(),
 		 problem.get_i_dimension(),
 		 __mo_dimension__(problem, method),
 		 0,
 		 0,
-		 0.),
-	m_original_problem(problem.clone()),
+		 std::vector<double>()),
 	m_method(method)
-{
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
-}
-
-/// Copy Constructor. Performs a deep copy
-con2mo::con2mo(const con2mo &prob):
-	base((int)prob.get_dimension(),
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 prob.get_c_dimension(),
-		 prob.get_ic_dimension(),
-		 prob.get_c_tol()),
-	m_original_problem(prob.m_original_problem->clone()),
-	m_method(prob.m_method)
-{
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
-}
+{}
 
 /// Clone method.
 base_ptr con2mo::clone() const

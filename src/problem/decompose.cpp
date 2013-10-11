@@ -29,7 +29,6 @@
 #include "../types.h"
 #include "../population.h"
 #include "../rng.h"
-#include "base.h"
 #include "decompose.h"
 
 namespace pagmo { namespace problem {
@@ -49,13 +48,14 @@ on the 0/1 Knapsack Problem—A Comparative Experiment"
 
  */
 decompose::decompose(const base & p, method_type method, const std::vector<double> & weights, const std::vector<double> & z):
-	base((int)p.get_dimension(), // Ambiguous without the cast ...
+	base_meta(
+		 p,
+		 p.get_dimension(), // Ambiguous without the cast ...
 		 p.get_i_dimension(),
 		 1, //it transforms the problem into a single-objective problem
 		 p.get_c_dimension(),
 		 p.get_ic_dimension(),
 		 p.get_c_tol()),
-		 m_original_problem(p.clone()),
 		 m_method(method),
 		 m_weights(weights),
 		 m_z(z)
@@ -113,24 +113,7 @@ decompose::decompose(const base & p, method_type method, const std::vector<doubl
 			pagmo_throw(value_error,"the the reference point vector must have equal length to the fitness size");
 		}
 	}
-
-	//Setting the bounds according to the original problem
-	set_bounds(m_original_problem->get_lb(),m_original_problem->get_ub());
 }
-
-/// Copy Constructor. Performs a deep copy
-decompose::decompose(const decompose &p):
-	base((int)p.get_dimension(), // Ambiguous without the cast
-		 p.get_i_dimension(),
-		 p.get_f_dimension(),
-		 p.get_c_dimension(),
-		 p.get_ic_dimension(),
-		 p.get_c_tol()),
-		 m_original_problem(p.m_original_problem->clone()),
-		 m_method(p.m_method),
-		 m_weights(p.m_weights),
-		 m_z(p.m_z)
-		{set_bounds(p.get_lb(),p.get_ub());}
 
 /// Clone method.
 base_ptr decompose::clone() const

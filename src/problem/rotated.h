@@ -30,7 +30,7 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "ackley.h"
-#include "base.h"
+#include "base_meta.h"
 #include "../Eigen/Dense"
 
 namespace pagmo{ namespace problem {
@@ -43,7 +43,7 @@ namespace pagmo{ namespace problem {
  * @author Yung-Siang Liau (liauys@gmail.com)
  */
 
-class __PAGMO_VISIBLE rotated : public base
+class __PAGMO_VISIBLE rotated : public base_meta
 {
 	public:
 		//constructors
@@ -51,8 +51,6 @@ class __PAGMO_VISIBLE rotated : public base
 		rotated(const base &, const std::vector<std::vector<double> > &);
 		rotated(const base & = ackley(1));
 		
-		//copy constructor
-		rotated(const rotated &);
 		base_ptr clone() const;
 		std::string get_name() const;
 		
@@ -75,14 +73,12 @@ class __PAGMO_VISIBLE rotated : public base
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
-			ar & boost::serialization::base_object<base>(*this);
-			ar & m_original_problem;
+			ar & boost::serialization::base_object<base_meta>(*this);
 			ar & m_Rotate;
 			ar & m_InvRotate;
 			ar & m_normalize_translation;
 			ar & m_normalize_scale;
 		}
-		base_ptr m_original_problem;
 		Eigen::MatrixXd m_Rotate;
 		Eigen::MatrixXd m_InvRotate;
 		decision_vector m_normalize_translation;

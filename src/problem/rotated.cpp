@@ -42,15 +42,16 @@ namespace pagmo { namespace problem {
  * @see problem::base constructors.
  */
 
-rotated::rotated(const base &problem,
+rotated::rotated(const base &p,
 				 const Eigen::MatrixXd &rotation ):
-	base((int)problem.get_dimension(), // Ambiguous without the cast ...
-		 problem.get_i_dimension(),
-		 problem.get_f_dimension(),
-		 problem.get_c_dimension(),
-		 problem.get_ic_dimension(),
-		 problem.get_c_tol()),
-	m_original_problem(problem.clone()), 
+		base_meta(
+		 p,
+		 p.get_dimension(),
+		 p.get_i_dimension(),
+		 p.get_f_dimension(),
+		 p.get_c_dimension(),
+		 p.get_ic_dimension(),
+		 p.get_c_tol()),
 	m_Rotate(rotation), m_normalize_translation(), m_normalize_scale()
 {
 	m_InvRotate = m_Rotate.transpose();
@@ -59,7 +60,7 @@ rotated::rotated(const base &problem,
 	if(!check.isIdentity(1e-5)){
 		pagmo_throw(value_error,"The input matrix seems not to be orthonormal (to a tolerance of 1e-5)");
 	}
-	if(problem.get_i_dimension()>0){
+	if(p.get_i_dimension()>0){
 		pagmo_throw(value_error,"Input problem has an integer dimension. Cannot rotate it.");
 	}
 	configure_new_bounds();
@@ -73,21 +74,22 @@ rotated::rotated(const base &problem,
  *
  * @see problem::base constructors.
  */
-rotated::rotated(const base &problem,
+rotated::rotated(const base &p,
 				 const std::vector<std::vector<double> > &rotation):
-	 base((int)problem.get_dimension(), // Ambiguous without the cast ...
-		 problem.get_i_dimension(),
-		 problem.get_f_dimension(),
-		 problem.get_c_dimension(),
-		 problem.get_ic_dimension(),
-		 problem.get_c_tol()),
-	m_original_problem(problem.clone()), 
+		base_meta(
+		 p,
+		 p.get_dimension(),
+		 p.get_i_dimension(),
+		 p.get_f_dimension(),
+		 p.get_c_dimension(),
+		 p.get_ic_dimension(),
+		 p.get_c_tol()),
 	m_Rotate(),m_normalize_translation(), m_normalize_scale()
 {
 	if(!(rotation.size()==get_dimension())){
 			pagmo_throw(value_error,"The input matrix dimensions seem incorrect");
 	}
-	if(problem.get_i_dimension()>0){
+	if(p.get_i_dimension()>0){
 		pagmo_throw(value_error,"Input problem has an integer dimension. Cannot rotate it.");
 	}
 	m_Rotate.resize(rotation.size(),rotation.size());
@@ -114,17 +116,18 @@ rotated::rotated(const base &problem,
  * @param[in] problem base::problem to be rotated
  */
 
-rotated::rotated(const base &problem):
-	base((int)problem.get_dimension(), // Ambiguous without the cast ...
-		 problem.get_i_dimension(),
-		 problem.get_f_dimension(),
-		 problem.get_c_dimension(),
-		 problem.get_ic_dimension(),
-		 problem.get_c_tol()),
-	m_original_problem(problem.clone()),
+rotated::rotated(const base &p):
+		base_meta(
+		 p,
+		 p.get_dimension(),
+		 p.get_i_dimension(),
+		 p.get_f_dimension(),
+		 p.get_c_dimension(),
+		 p.get_ic_dimension(),
+		 p.get_c_tol()),
 	m_normalize_translation(), m_normalize_scale()
 {
-	size_type dim = problem.get_dimension();
+	size_type dim = p.get_dimension();
 	m_Rotate = Eigen::MatrixXd::Random(dim, dim).householderQr().householderQ();
 	m_InvRotate = m_Rotate.transpose();
 
@@ -132,27 +135,11 @@ rotated::rotated(const base &problem):
 	if(!check.isIdentity(1e-5)){
 		pagmo_throw(value_error,"The input matrix seems not to be orthonormal (to a tolerance of 1e-5)");
 	}
-	if(problem.get_i_dimension()>0){
+	if(p.get_i_dimension()>0){
 		pagmo_throw(value_error,"Input problem has an integer dimension. Cannot rotate it.");
 	}
 	configure_new_bounds();
 }
-
-/// Copy Constructor. Performs a deep copy
-rotated::rotated(const rotated &prob):
-	base((int)prob.get_dimension(), // Ambiguous without the cast
-		 prob.get_i_dimension(),
-		 prob.get_f_dimension(),
-		 prob.get_c_dimension(),
-		 prob.get_ic_dimension(),
-		 prob.get_c_tol()),
-		 m_original_problem(prob.m_original_problem->clone()),
-		 m_Rotate(prob.m_Rotate),
-		 m_InvRotate(prob.m_InvRotate),
-		 m_normalize_translation(prob.m_normalize_translation),
-		 m_normalize_scale(prob.m_normalize_scale) {
-			set_bounds(prob.get_lb(),prob.get_ub());
-		 }
 
 /// Clone method.
 base_ptr rotated::clone() const

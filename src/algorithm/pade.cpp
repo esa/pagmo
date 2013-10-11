@@ -266,7 +266,7 @@ void pade::evolve(population &pop) const
 	}
 
 	if(m_T >= NP-1) {
-		arch.set_topology(topology::unconnected());
+		arch.set_topology(topology::fully_connected());
 	} else {
 		topology::custom topo;
 		for(unsigned int i = 0; i < NP; ++i) {
