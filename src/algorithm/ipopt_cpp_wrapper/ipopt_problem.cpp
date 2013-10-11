@@ -222,9 +222,11 @@ bool ipopt_problem::eval_grad_f(Ipopt::Index n, const Ipopt::Number* x, bool new
 		grad_f[i] = 0;
 	}
 
+	double mem;
 	for (size_t i =0;i<affects_obj.size();++i)
 	{
 		h = h0 * std::max(1.,fabs(dv[affects_obj[i]]));
+		mem = dv[affects_obj[i]];
 		dv[affects_obj[i]] += h;
 		m_pop->problem().objfun(fit,dv);
 		central_diff = fit[0];
@@ -232,6 +234,7 @@ bool ipopt_problem::eval_grad_f(Ipopt::Index n, const Ipopt::Number* x, bool new
 		m_pop->problem().objfun(fit,dv);
 		central_diff = (central_diff-fit[0]) / 2 / h;
 		grad_f[affects_obj[i]] = central_diff;
+		dv[affects_obj[i]] = mem;
 	}
 
 	return true;

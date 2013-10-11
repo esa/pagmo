@@ -52,10 +52,10 @@ base_ptr fon::clone() const
 void fon::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	pagmo_assert(f.size() == 2 && x.size() == 3);
-	f[0] = 1 - std::exp(-(x[0] - 1 / std::sqrt(3)) * (x[0] - 1 / std::sqrt(3)) - (x[1] - 1 / std::sqrt(3)) * (x[1] -
-		1 / std::sqrt(3)) - (x[2] - 1 / std::sqrt(3)) * (x[2] - 1 / std::sqrt(3)));
-	f[1] = 1 - std::exp(-(x[0] + 1 / std::sqrt(3)) * (x[0] + 1 / std::sqrt(3)) - (x[1] + 1 / std::sqrt(3)) * (x[1] +
-		1 / std::sqrt(3)) - (x[2] + 1 / std::sqrt(3)) * (x[2] + 1 / std::sqrt(3)));
+	f[0] = 1 - std::exp(-(x[0] - 1 / std::sqrt(3.0)) * (x[0] - 1 / std::sqrt(3.0)) - (x[1] - 1 / std::sqrt(3.0)) * (x[1] -
+		1 / std::sqrt(3.0)) - (x[2] - 1 / std::sqrt(3.0)) * (x[2] - 1 / std::sqrt(3.0)));
+	f[1] = 1 - std::exp(-(x[0] + 1 / std::sqrt(3.0)) * (x[0] + 1 / std::sqrt(3.0)) - (x[1] + 1 / std::sqrt(3.0)) * (x[1] +
+		1 / std::sqrt(3.0)) - (x[2] + 1 / std::sqrt(3.0)) * (x[2] + 1 / std::sqrt(3.0)));
 }
 
 std::string fon::get_name() const

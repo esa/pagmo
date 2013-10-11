@@ -7,25 +7,41 @@ A Quick Look
 Problems in PyGMO are objects, first constructed and then used in conjunction to an algorithm.
 The user can implement its own problem directly in Python, in which case he needs to inherit from 
 :class:`PyGMO.problem.base` or :class:`PyGMO.problem.base_stochastic` class. You may see 
-:ref:`tutorial1` or :ref:`tutorial2` 
+:ref:`adding_a_new_optimization_problem` or :ref:`adding_a_new_stochastic_optimization_problem` 
 
+Meta-problems
+^^^^^^^^^^^^^
+================================== ========================================= ===========================================
+Common Name                        Name in PyGMO                             Comments
+================================== ========================================= ===========================================
+Rotated                            :class:`PyGMO.problem.rotated`            
+Shifted                            :class:`PyGMO.problem.shifted`            
+Normalized                         :class:`PyGMO.problem.normalized`        
+Noisy                              :class:`PyGMO.problem.noisy`
+Decompose                          :class:`PyGMO.problem.decompose`    
+Death-penalty                      :class:`PyGMO.problem.death_penalty`      Minimization assumed.
+Constrained to MO                  :class:`PyGMO.problem.con2mo`             
+Constrained to Unconstrained       :class:`PyGMO.problem.con2uncon`         
+================================== ========================================= ===========================================
 
 Box-Constrained Continuous Single-Objective
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
-Ackley                             :class:`PyGMO.problem.ackley`                 
-Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
-Rastrigin                          :class:`PyGMO.problem.rastrigin`
-Schwefel                           :class:`PyGMO.problem.schwefel`
+Ackley                             :class:`PyGMO.problem.ackley`            
+Bukin F6                           :class:`PyGMO.problem.bukin`              A difficult bi-dimensional problem
+Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
+CEC2013                            :class:`PyGMO.problem.cec2013`            28 problems part of CEC2013 Competition
 De Jong                            :class:`PyGMO.problem.dejong`
 De Jong                            :class:`PyGMO.problem.py_example`         Implemented directly in Python
 Griewank                           :class:`PyGMO.problem.griewank`
-Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
-Branin                             :class:`PyGMO.problem.branin`             Bi-dimensional problem
 Himmelblau                         :class:`PyGMO.problem.himmelblau`         Bi-dimensional problem
+Lennard-Jones                      :class:`PyGMO.problem.lennard_jones`
 Michalewicz                        :class:`PyGMO.problem.michalewicz`
+Rosenbrock                         :class:`PyGMO.problem.rosenbrock`
+Rastrigin                          :class:`PyGMO.problem.rastrigin`
+Schwefel                           :class:`PyGMO.problem.schwefel`
 MGA-1DSM (tof encoding)            :class:`PyGMO.problem.mga_1dsm_tof`       Requires the GTOP database option active      
 MGA-1DSM (alpha encoding)          :class:`PyGMO.problem.mga_1dsm_alpha`     Requires the GTOP database option active      
 Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
@@ -47,18 +63,9 @@ Kursawe's study                    :class:`PyGMO.problem.kur`
 Fonseca and Fleming's study        :class:`PyGMO.problem.fon`
 Poloni's study                     :class:`PyGMO.problem.pol`
 Shaffer's study                    :class:`PyGMO.problem.sch`
-ZDT1                               :class:`PyGMO.problem.zdt1`
-ZDT2                               :class:`PyGMO.problem.zdt2`         
-ZDT3                               :class:`PyGMO.problem.zdt3`
-ZDT4                               :class:`PyGMO.problem.zdt4`
-ZDT6                               :class:`PyGMO.problem.zdt6`
-DTLZ1                              :class:`PyGMO.problem.dtlz1`
-DTLZ2                              :class:`PyGMO.problem.dtlz2`
-DTLZ3                              :class:`PyGMO.problem.dtlz3`
-DTLZ4                              :class:`PyGMO.problem.dtlz4`
-DTLZ5                              :class:`PyGMO.problem.dtlz5`
-DTLZ6                              :class:`PyGMO.problem.dtlz6`
-DTLZ7                              :class:`PyGMO.problem.dtlz7`
+ZDT                                :class:`PyGMO.problem.zdt`
+DTLZ                               :class:`PyGMO.problem.dtlz`
+CEC2009 (UF1-UF10)                 :class:`PyGMO.problem.cec2009`            UF problems from CEC2009 Competition.
 MGA-1DSM (tof encoding)            :class:`PyGMO.problem.mga_1dsm_tof`       Requires the GTOP database option active      
 MGA-1DSM (alpha encoding)          :class:`PyGMO.problem.mga_1dsm_alpha`     Requires the GTOP database option active      
 Cassini 1                          :class:`PyGMO.problem.cassini_1`          Requires the GTOP database option active
@@ -69,12 +76,24 @@ Constrained Continuous Single-Objective
 ================================== ========================================= ===========================================
 Common Name                        Name in PyGMO                             Comments
 ================================== ========================================= ===========================================
+CEC2006                            :class:`PyGMO.problem.cec2006`            24 problems part of CEC2006 Competition
+Pressure vessel design             :class:`PyGMO.problem.pressure_vessel`    
+Welded beam design                 :class:`PyGMO.problem.welded_beam`        
+Tension compression string design  :class:`PyGMO.problem.tens_comp_string`    
 Luksan Vlcek 1                     :class:`PyGMO.problem.luksan_vlcek_1`
 Luksan Vlcek 2                     :class:`PyGMO.problem.luksan_vlcek_2`
 Luksan Vlcek 3                     :class:`PyGMO.problem.luksan_vlcek_3`
 Planet to Planet LT Transfer       :class:`PyGMO.problem.py_pl2pl`           Requires PyKEP. Implemented in Python
 SNOPT Toy-Problem                  :class:`PyGMO.problem.snopt_toyprob`      
 GTOC2 (Full Problem)               :class:`PyGMO.problem.gtoc_2`             Requires the GTOP database option active
+================================== ========================================= ===========================================
+
+Constrained Continuous Multi-Objective
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+================================== ========================================= ===========================================
+Common Name                        Name in PyGMO                             Comments
+================================== ========================================= ===========================================
+CEC2009 (CF1-CF10)                 :class:`PyGMO.problem.cec2009`            CF problems from CEC2009 Competition.
 ================================== ========================================= ===========================================
 
 Box-Constrained Integer Single-Objective
@@ -110,20 +129,60 @@ Noisy De Jong                      :class:`PyGMO.problem.py_example_stochastic`
 Detailed Documentation
 ----------------------
 
-.. autoclass:: PyGMO.problem.base
+.. class:: PyGMO.problem.base
 
    .. automethod:: PyGMO.problem.base.__init__
+
+   .. autoattribute:: PyGMO.problem.base.best_x
+
+   .. autoattribute:: PyGMO.problem.base.best_f
+
+   .. autoattribute:: PyGMO.problem.base.best_c
+
+   .. autoattribute:: PyGMO.problem.base.dimension
+
+   .. autoattribute:: PyGMO.problem.base.f_dimension
+
+   .. autoattribute:: PyGMO.problem.base.i_dimension
+
+   .. autoattribute:: PyGMO.problem.base.c_dimension
+
+   .. autoattribute:: PyGMO.problem.base.ic_dimension
+
+   .. autoattribute:: PyGMO.problem.base.c_tol
    
    .. method:: _objfun_impl(self, x)
    
-      This is a virtual function tham must be re-implemented in the derived class and must return a tuple packing as many numbers as the 
-      problem objectives (n_obj)
+      This is a virtual function tham must be re-implemented in the derived class and must
+      return a tuple packing as many numbers as the problem objectives (n_obj)
       
    .. method:: _compute_constraints_impl(self, x)
    
-      This is a virtual function tham can must be re-implemented in the derived class (if c_dim>0) and must return a tuple 
+      This is a virtual function that can be re-implemented in the derived class (if c_dim>0) and must return a tuple 
       packing as many numbers as the declared dimension of the problem constraints (c_dim). 
       Inequality constarints need to be packed at last.
+
+   .. method:: _compare_fitness_impl(self, f1, f2)
+   
+      This is a virtual function that can be re-implemented in the derived class and must return a boolean value.
+      Return true if f1 Pareto dominate f2, false otherwise. The default implementation will
+      assume minimisation for each one of the f components i.e., each pair of corresponding elements
+      in f1 and f2 is compared: if all elements in f1 are less or equal to the corresponding element in f2 (and
+      at least one is less), true will be returned. Otherwise, false will be returned.     
+            
+   .. method:: _compare_constraints_impl(self, c1, c2)
+   
+      This is a virtual function tham can be re-implemented in the derived class (if c_dim>0) and must return a boolean value.
+      Return true if c1 is a strictly better constraint vector than c2, false otherwise. 
+      Default implementation will return true under the following conditions, tested in order: c1 satisfies more constraints than c2,
+      c1 and c2 satisfy the same number of constraints and the L2 norm of the constraint mismatches for c1 is smaller than for c2.
+      Otherwise, false will be returned.
+
+   .. method:: _compare_fc_impl(self, f1, c1, f2, c2)
+   
+      This is a virtual function that can be re-implemented in the derived class (if c_dim>0) and must return a boolean value. 
+      By default, the function will perform sanity checks on the input arguments and will
+      then call _compare_constraints_impl() if the constraint dimensions is not null, _compare_fitness_impl() otherwise.   
       
    .. automethod:: PyGMO.problem.base.reset_caches
 
@@ -131,17 +190,151 @@ Detailed Documentation
    
    .. automethod:: PyGMO.problem.base.feasibility_x
    
-   .. automethod:: PyGMO.problem.base.feasibility_c  
+   .. automethod:: PyGMO.problem.base.feasibility_c
+
+-----------------
+
    
-.. autoclass:: PyGMO.problem.ackley
+.. class:: PyGMO.problem.death_penalty
+
+   .. automethod:: PyGMO.problem.death_penalty.__init__
+
+-----------------
+   
+.. class:: PyGMO.problem.con2mo
+
+   .. automethod:: PyGMO.problem.con2mo.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.con2uncon
+
+   .. automethod:: PyGMO.problem.con2uncon.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.shifted
+
+   .. automethod:: PyGMO.problem.shifted.__init__
+   
+   .. attribute:: shift_vector
+   
+      The shift vector defining the new problem
+      
+   .. method:: PyGMO.problem.shifted.deshift((tuple) x)
+
+      Returns the de-shifted decision vector
+
+-----------------
+   
+.. class:: PyGMO.problem.rotated
+
+   .. automethod:: PyGMO.problem.rotated.__init__
+   
+   .. attribute:: rotation
+   
+      The rotation matrix defining the new problem
+      
+   .. method:: PyGMO.problem.rotated.derotate((tuple) x)
+
+      Returns the de-rotated decision vector
+
+-----------------
+
+      
+.. class:: PyGMO.problem.noisy
+
+   .. automethod:: PyGMO.problem.noisy.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.normalized
+
+   .. automethod:: PyGMO.problem.normalized.__init__
+
+   .. method:: PyGMO.problem.normalized.denormalize((tuple) x)
+
+      Returns the de-normalized decision vector
+
+-----------------
+
+.. class:: PyGMO.problem.decompose
+
+   .. automethod:: PyGMO.problem.decompose.__init__
+   
+   .. attribute:: weights
+      
+      The weights vector
+
+   .. attribute:: PyGMO.problem.decompose.WEIGHTED
+      
+      Weighted decomposition method
+
+   .. attribute:: PyGMO.problem.decompose.TCHEBYCHEFF
+      
+      Tchebycheff decomposition method
+
+   .. attribute:: PyGMO.problem.decompose.BI
+      
+      Boundary Intersection decomposition method
+
+-----------------
+   
+.. class:: PyGMO.problem.ackley
 
    .. automethod:: PyGMO.problem.ackley.__init__
 
-.. autoclass:: PyGMO.problem.rosenbrock
+-----------------
+   
+.. class:: PyGMO.problem.bukin
+
+   .. automethod:: PyGMO.problem.bukin.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.cec2006
+
+   .. automethod:: PyGMO.problem.cec2006.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.pressure_vessel
+
+   .. automethod:: PyGMO.problem.pressure_vessel.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.welded_beam
+
+   .. automethod:: PyGMO.problem.welded_beam.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.tens_comp_string
+
+   .. automethod:: PyGMO.problem.tens_comp_string.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.cec2009
+
+   .. automethod:: PyGMO.problem.cec2009.__init__
+
+-----------------
+   
+.. class:: PyGMO.problem.cec2013
+
+   .. automethod:: PyGMO.problem.cec2013.__init__
+
+-----------------
+
+.. class:: PyGMO.problem.rosenbrock
 
    .. automethod:: PyGMO.problem.rosenbrock.__init__
 
-.. autoclass:: PyGMO.problem.string_match
+-----------------
+
+.. class:: PyGMO.problem.string_match
 
    .. automethod:: PyGMO.problem.string_match.__init__
 
@@ -149,181 +342,159 @@ Detailed Documentation
  
       Returns a string decoding the chromosome
 
-.. autoclass:: PyGMO.problem.rastrigin
+-----------------
+
+.. class:: PyGMO.problem.rastrigin
 
    .. automethod:: PyGMO.problem.rastrigin.__init__
 
-.. autoclass:: PyGMO.problem.schwefel
+-----------------
+
+.. class:: PyGMO.problem.schwefel
 
    .. automethod:: PyGMO.problem.schwefel.__init__
 
-.. autoclass:: PyGMO.problem.dejong
+-----------------
+
+.. class:: PyGMO.problem.dejong
 
    .. automethod:: PyGMO.problem.dejong.__init__
 
-.. autoclass:: PyGMO.problem.py_example
+-----------------
+
+.. class:: PyGMO.problem.py_example
 
    .. automethod:: PyGMO.problem.py_example.__init__
 
-.. autoclass:: PyGMO.problem.griewank
+-----------------
+
+.. class:: PyGMO.problem.griewank
 
    .. automethod:: PyGMO.problem.griewank.__init__
 
-.. autoclass:: PyGMO.problem.lennard_jones
+-----------------
+
+.. class:: PyGMO.problem.lennard_jones
 
    .. automethod:: PyGMO.problem.lennard_jones.__init__
 
-.. autoclass:: PyGMO.problem.branin
+-----------------
+
+.. class:: PyGMO.problem.branin
 
    .. automethod:: PyGMO.problem.branin.__init__
 
-.. autoclass:: PyGMO.problem.himmelblau
+-----------------
+
+.. class:: PyGMO.problem.himmelblau
 
    .. automethod:: PyGMO.problem.himmelblau.__init__
 
-.. autoclass:: PyGMO.problem.michalewicz
+-----------------
+
+.. class:: PyGMO.problem.michalewicz
 
    .. automethod:: PyGMO.problem.michalewicz.__init__
 
-.. autoclass:: PyGMO.problem.kur
+-----------------
+
+.. class:: PyGMO.problem.kur
 
    .. automethod:: PyGMO.problem.kur.__init__
 
-.. autoclass:: PyGMO.problem.fon
+-----------------
+
+.. class:: PyGMO.problem.fon
 
    .. automethod:: PyGMO.problem.fon.__init__
 
-.. autoclass:: PyGMO.problem.pol
+-----------------
+
+.. class:: PyGMO.problem.pol
 
    .. automethod:: PyGMO.problem.pol.__init__
 
-.. autoclass:: PyGMO.problem.sch
+-----------------
+
+.. class:: PyGMO.problem.sch
 
    .. automethod:: PyGMO.problem.sch.__init__
 
-.. autoclass:: PyGMO.problem.zdt1
+-----------------
 
-   .. automethod:: PyGMO.problem.zdt1.__init__
+.. class:: PyGMO.problem.zdt
 
-   .. automethod:: PyGMO.problem.zdt1.p_distance
+   .. automethod:: PyGMO.problem.zdt.__init__
 
-.. autoclass:: PyGMO.problem.zdt2
+   .. automethod:: PyGMO.problem.zdt.p_distance
 
-   .. automethod:: PyGMO.problem.zdt2.__init__
-
-   .. automethod:: PyGMO.problem.zdt2.p_distance
-
-.. autoclass:: PyGMO.problem.zdt3
-
-   .. automethod:: PyGMO.problem.zdt3.__init__
-
-   .. automethod:: PyGMO.problem.zdt3.p_distance
-
-.. autoclass:: PyGMO.problem.zdt4
-
-   .. automethod:: PyGMO.problem.zdt4.__init__
-
-   .. automethod:: PyGMO.problem.zdt4.p_distance
-
-.. autoclass:: PyGMO.problem.zdt6
-
-   .. automethod:: PyGMO.problem.zdt6.__init__
-
-   .. automethod:: PyGMO.problem.zdt6.p_distance
+-----------------
   
-.. autoclass:: PyGMO.problem.dtlz1
+.. class:: PyGMO.problem.dtlz
 
-   .. automethod:: PyGMO.problem.dtlz1.__init__
+   .. automethod:: PyGMO.problem.dtlz.__init__
    
-   .. automethod:: PyGMO.problem.dtlz1.p_distance
+   .. automethod:: PyGMO.problem.dtlz.p_distance
    
-   .. automethod:: PyGMO.problem.dtlz1.plot
+   .. automethod:: PyGMO.problem.dtlz.plot
 
-.. autoclass:: PyGMO.problem.dtlz2
+-----------------
 
-   .. automethod:: PyGMO.problem.dtlz2.__init__
-
-   .. automethod:: PyGMO.problem.dtlz2.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz2.plot
-
-.. autoclass:: PyGMO.problem.dtlz3
-
-   .. automethod:: PyGMO.problem.dtlz3.__init__
-
-   .. automethod:: PyGMO.problem.dtlz3.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz3.plot
-
-.. autoclass:: PyGMO.problem.dtlz4
-
-   .. automethod:: PyGMO.problem.dtlz4.__init__
-
-   .. automethod:: PyGMO.problem.dtlz4.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz4.plot
-
-.. autoclass:: PyGMO.problem.dtlz5
-
-   .. automethod:: PyGMO.problem.dtlz5.__init__
-
-   .. automethod:: PyGMO.problem.dtlz5.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz5.plot
-
-.. autoclass:: PyGMO.problem.dtlz6
-
-   .. automethod:: PyGMO.problem.dtlz6.__init__
-
-   .. automethod:: PyGMO.problem.dtlz6.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz6.plot
-
-.. autoclass:: PyGMO.problem.dtlz7
-
-   .. automethod:: PyGMO.problem.dtlz7.__init__
-
-   .. automethod:: PyGMO.problem.dtlz7.p_distance
-   
-   .. automethod:: PyGMO.problem.dtlz7.plot
-
-.. autoclass:: PyGMO.problem.tsp
+.. class:: PyGMO.problem.tsp
 
    .. automethod:: PyGMO.problem.tsp.__init__
 
-.. autoclass:: PyGMO.problem.golomb_ruler
+-----------------
+
+.. class:: PyGMO.problem.golomb_ruler
 
    .. automethod:: PyGMO.problem.golomb_ruler.__init__
 
-.. autoclass:: PyGMO.problem.knapsack
+-----------------
+
+.. class:: PyGMO.problem.knapsack
 
    .. automethod:: PyGMO.problem.knapsack.__init__
 
-.. autoclass:: PyGMO.problem.luksan_vlcek_1
+-----------------
+
+.. class:: PyGMO.problem.luksan_vlcek_1
 
    .. automethod:: PyGMO.problem.luksan_vlcek_1.__init__
 
-.. autoclass:: PyGMO.problem.luksan_vlcek_2
+-----------------
+
+.. class:: PyGMO.problem.luksan_vlcek_2
 
    .. automethod:: PyGMO.problem.luksan_vlcek_2.__init__
 
-.. autoclass:: PyGMO.problem.luksan_vlcek_3
+-----------------
+
+.. class:: PyGMO.problem.luksan_vlcek_3
 
    .. automethod:: PyGMO.problem.luksan_vlcek_3.__init__
 
-.. autoclass:: PyGMO.problem.snopt_toyprob
+-----------------
+
+.. class:: PyGMO.problem.snopt_toyprob
 
    .. automethod:: PyGMO.problem.snopt_toyprob.__init__
 
-.. autoclass:: PyGMO.problem.inventory
+-----------------
+
+.. class:: PyGMO.problem.inventory
 
    .. automethod:: PyGMO.problem.inventory.__init__
 
-.. autoclass:: PyGMO.problem.py_example_stochastic
+-----------------
+
+.. class:: PyGMO.problem.py_example_stochastic
 
    .. automethod:: PyGMO.problem.py_example_stochastic.__init__
 
-.. autoclass:: PyGMO.problem.mit_spheres
+-----------------
+
+.. class:: PyGMO.problem.mit_spheres
 
    .. automethod:: PyGMO.problem.mit_spheres.__init__
 
@@ -342,6 +513,8 @@ Detailed Documentation
 
       Requires VPython installed. It opens a graphical display and animate the motion of the three SPHERES
       as desribed by the world_state tuple (output from the simulate method)
+
+-----------------
 
 .. class:: PyGMO.problem.mga_1dsm_tof
 
@@ -377,6 +550,8 @@ Detailed Documentation
 
     Returns a string with informations about tour encoded by x
 
+-----------------
+
 .. class:: PyGMO.problem.mga_1dsm_alpha
 
    .. method:: PyGMO.problem.mga_1dsm_alpha.__init__(seq, t0, tof, vinf, multi_objective=False, add_vinf_dep=False, add_vinf_arr=True)
@@ -411,44 +586,62 @@ Detailed Documentation
 
     Returns a string with informations about tour encoded by x
 
+-----------------
 
-.. autoclass:: PyGMO.problem.cassini_1
+.. class:: PyGMO.problem.cassini_1
 
    .. automethod:: PyGMO.problem.cassini_1.__init__
 
-.. autoclass:: PyGMO.problem.cassini_2
+-----------------
+
+.. class:: PyGMO.problem.cassini_2
 
    .. automethod:: PyGMO.problem.cassini_2.__init__
 
-.. autoclass:: PyGMO.problem.messenger_full
+-----------------
+
+.. class:: PyGMO.problem.messenger_full
 
    .. automethod:: PyGMO.problem.messenger_full.__init__
 
-.. autoclass:: PyGMO.problem.rosetta
+-----------------
+
+.. class:: PyGMO.problem.rosetta
 
    .. automethod:: PyGMO.problem.rosetta.__init__
 
-.. autoclass:: PyGMO.problem.laplace
+-----------------
+
+.. class:: PyGMO.problem.laplace
 
    .. automethod:: PyGMO.problem.laplace.__init__
 
-.. autoclass:: PyGMO.problem.tandem
+-----------------
+
+.. class:: PyGMO.problem.tandem
 
    .. automethod:: PyGMO.problem.tandem.__init__
 
-.. autoclass:: PyGMO.problem.gtoc_1
+-----------------
+
+.. class:: PyGMO.problem.gtoc_1
 
    .. automethod:: PyGMO.problem.gtoc_1.__init__
 
-.. autoclass:: PyGMO.problem.gtoc_2
+-----------------
+
+.. class:: PyGMO.problem.gtoc_2
 
    .. automethod:: PyGMO.problem.gtoc_2.__init__
 
-.. autoclass:: PyGMO.problem.py_pl2pl
+-----------------
+
+.. class:: PyGMO.problem.py_pl2pl
 
    .. automethod:: PyGMO.problem.py_pl2pl.__init__
 
-.. autoclass:: PyGMO.problem.sagas
+-----------------
+
+.. class:: PyGMO.problem.sagas
 
    .. automethod:: PyGMO.problem.sagas.__init__
-      

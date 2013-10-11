@@ -132,6 +132,9 @@ class __PAGMO_VISIBLE rng_double: public boost::lagged_fibonacci607 {
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
+
+
+
 class __PAGMO_VISIBLE rng_generator {
 	public:
 		/// Return pseudo-random number generator.
@@ -142,16 +145,14 @@ class __PAGMO_VISIBLE rng_generator {
 		 *
 		 * @return pseudo-random number generator seeded with pseudo-random value.
 		 */
-		template <class Rng>
-		static Rng get()
-		{
-			boost::lock_guard<boost::mutex> lock(m_mutex);
-			return Rng(m_seeder());
-		}
+
+		template <class Rng> 
+		static Rng get();
 		static void set_seed(int);
+
 	private:
-		static  boost::mutex	m_mutex;
-		static  rng_uint32	m_seeder;
+		static  boost::mutex  m_mutex;
+		static  rng_uint32  m_seeder;
 };
 
 }

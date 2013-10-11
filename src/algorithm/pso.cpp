@@ -29,8 +29,6 @@
 #include <iostream>
 
 #include "pso.h"
-#include "../problem/base_stochastic.h"
-
 
 namespace pagmo { namespace algorithm {
 
@@ -39,7 +37,7 @@ namespace pagmo { namespace algorithm {
  * Allows to specify in detail all the parameters of the algorithm.
  *
  * @param[in] gen number of generations
- * @param[in] m_omega particles' inertia weight, or alternatively, the constriction coefficient (usage depends on the variant used)
+ * @param[in] omega particles' inertia weight, or alternatively, the constriction coefficient (usage depends on the variant used)
  * @param[in] eta1 magnitude of the force, applied to the particle's velocity, in the direction of its previous best position
  * @param[in] eta2 magnitude of the force, applied to the particle's velocity, in the direction of the best position in its neighborhood
  * @param[in] vcoeff velocity coefficient (determining the maximum allowed particle velocity)

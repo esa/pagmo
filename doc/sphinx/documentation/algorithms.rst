@@ -4,45 +4,57 @@ Algorithms
 A Quick Look
 ------------
 
-Algorithms in PyGMO are objects, constructed and then used to optimize a problem via their evolve method. The user can
-implement his own algorithm in Python (in which case they need to derive from :class:`PyGMO.algorithm.base`). You may follow the
-:ref:`tutorial3`. We also provide a number of algorithms that are considered useful for general purposes. Each algorithm can be associated only to
-problems of certain types: (Continuous, Integer or Mixed Integer)-(Constrained, Unconstrained)-(Single, Multi-objective).
+Algorithms in PyGMO are objects, constructed and then used to optimize a problem via their evolve method. 
+The user can implement his own algorithm in Python (in which case they need to derive from
+:class:`PyGMO.algorithm.base`). You may follow the :ref:`adding_a_new_algorithm` tutorial. 
+We also provide a number of algorithms that are considered useful for general purposes. 
+Each algorithm can be associated only to problems of certain types: 
+(Continuous, Integer or Mixed Integer)-(Constrained, Unconstrained)-(Single, Multi-objective).
 
 
 Heuristic Optimization
 ^^^^^^^^^^^^^^^^^^^^^^
-================================== ========================================= =============== ===================================================================
-Common Name                        Name in PyGMO                             Type            Comments
-================================== ========================================= =============== ===================================================================
-Differential Evolution (DE)        :class:`PyGMO.algorithm.de`                    C-U-S      The original algorithm
-Self-adaptive DE (jDE)             :class:`PyGMO.algorithm.jde`                   C-U-S      Self-adaptive F, CR
-DE with p-best crossover (mde_pbx) :class:`PyGMO.algorithm.mde_pbx`               C-U-S      Self-adaptive F, CR
-Differential Evolution (DE)        :class:`PyGMO.algorithm.de_1220`               C-U-S      Our own brew. self adaptive F, CR and variants 
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
-Particle Swarm Optimization (PSO)  :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
-Simple Genetic Algorithm (SGA)     :class:`PyGMO.algorithm.sga`                  MI-U-S 
-Non-dominated Sorting GA (NSGA2)   :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
-Corana's Simulated Annealing (SA)  :class:`PyGMO.algorithm.sa_corana`             C-U-S 
-Artificial Bee Colony (ABC)        :class:`PyGMO.algorithm.bee_colony`            C-U-S 
-Improved Harmony Search (IHS)      :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
-Monte Carlo Search (MC)            :class:`PyGMO.algorithm.monte_carlo`          MI-C-S
-Monte Carlo Search (MC)            :class:`PyGMO.algorithm.py_example`           MI-C-S      Written directly in Python
-Covariance Matrix Adaptation-ES    :class:`PyGMO.algorithm.py_cmaes`              C-U-S      Written directly in Python
-Covariance Matrix Adaptation-ES    :class:`PyGMO.algorithm.cmaes`                 C-U-S
-================================== ========================================= =============== ===================================================================
+========================================= ========================================= =============== ===================================================================
+Common Name                               Name in PyGMO                             Type            Comments
+========================================= ========================================= =============== ===================================================================
+Differential Evolution (DE)               :class:`PyGMO.algorithm.de`                    C-U-S      The original algorithm
+Self-adaptive DE (jDE)                    :class:`PyGMO.algorithm.jde`                   C-U-S      Self-adaptive F, CR
+DE with p-best crossover (mde_pbx)        :class:`PyGMO.algorithm.mde_pbx`               C-U-S      Self-adaptive F, CR
+Differential Evolution (DE)               :class:`PyGMO.algorithm.de_1220`               C-U-S      Our own brew. self adaptive F, CR and variants 
+Particle Swarm Optimization (PSO)         :class:`PyGMO.algorithm.pso`                   C-U-S      The PSO algorithm (canonical, with constriction factor, FIPS, etc.)
+Particle Swarm Optimization (PSO)         :class:`PyGMO.algorithm.pso_gen`               C-U-S      Generational (also problems deriving from base_stochastic)
+Simple Genetic Algorithm GRAY (SGA_GRAY)  :class:`PyGMO.algorithm.sga_gray`              C-U-S      Simple genetic algorithm with gray binary encoding
+Simple Genetic Algorithm (SGA)            :class:`PyGMO.algorithm.sga`                  MI-U-S 
+Vector Evaluated Genetic Algorithm (VEGA) :class:`PyGMO.algorithm.vega`                 MI-U-M      VEGA algorithm, multi-objective extension of SGA
+(N+1)-EA Evol. Algorithm (SEA)            :class:`PyGMO.algorithm.sea`                   I-U-M      The multiobjective extension uses crowding distance operator
+Non-dominated Sorting GA (NSGA2)          :class:`PyGMO.algorithm.nsga_II`               C-U-M      NSGA-II
+S-Metric Selection EMOA (SMS-EMOA)        :class:`PyGMO.algorithm.sms_emoa`              C-U-M      Relies on the hypervolume computation.
+Corana's Simulated Annealing (SA)         :class:`PyGMO.algorithm.sa_corana`             C-U-S 
+Parallel Decomposition (PADE)             :class:`PyGMO.algorithm.pade`                  C-U-M      Parallel Decomposition (based on the MOEA/D framework)
+Non-dominated Sorting PSO (NSPSO)         :class:`PyGMO.algorithm.nspso`                 C-U-M      Multi-Objective PSO
+Strength Pareto EA 2 (SPEA2)              :class:`PyGMO.algorithm.spea2`                 C-U-M      Strength Pareto Evolutionary Algorithm 2
+Artificial Bee Colony (ABC)               :class:`PyGMO.algorithm.bee_colony`            C-U-S 
+Improved Harmony Search (IHS)             :class:`PyGMO.algorithm.ihs`                  MI-U-M      Integer and Multiobjetive not tested yet
+Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.monte_carlo`          MI-C-S
+Monte Carlo Search (MC)                   :class:`PyGMO.algorithm.py_example`           MI-C-S      Written directly in Python
+Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.py_cmaes`              C-U-S      Written directly in Python
+Covariance Matrix Adaptation-ES           :class:`PyGMO.algorithm.cmaes`                 C-U-S
+========================================= ========================================= =============== ===================================================================
 
 Meta-algorithms 
 ^^^^^^^^^^^^^^^
-================================== ========================================= =============== ===========================================
-Common Name                        Name in PyGMO                             Type            Comments
-================================== ========================================= =============== ===========================================
+================================== ============================================ =============== ===========================================
+Common Name                        Name in PyGMO                                Type            Comments
+================================== ============================================ =============== ===========================================
 Monotonic Basin Hopping (MBH)      :class:`PyGMO.algorithm.mbh`                    N/A          
 Multistart (MS)                    :class:`PyGMO.algorithm.ms`                     N/A      
-Penalty Function (PF)                                                                        Planned 
-Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag`          C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
-Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`       C-C-S      Requires PyGMO to be compiled with nlopt option. Minimization assumed
-================================== ========================================= =============== ===========================================
+Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag`          C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
+Augmented Lagrangian (AL)          :class:`PyGMO.algorithm.nlopt_auglag_eq`       C-C-S         Requires PyGMO to be compiled with nlopt option. Minimization assumed
+Cstrs co-evolution                 :class:`PyGMO.algorithm.cstrs_co_evolution`    C-C-S         Minimization assumed
+Cstrs Self-Adaptive                :class:`PyGMO.algorithm.cstrs_self_adaptive`   C-C-S         Minimization assumed
+Cstrs Immune System                :class:`PyGMO.algorithm.cstrs_immune_system`   C-C-S         Immune system constraints handling technique
+Cstrs CORE                         :class:`PyGMO.algorithm.cstrs_core`            C-C-S         CORE constraints handling technique (repairing technique)
+================================== ============================================ =============== ===========================================
 
 Local optimization 
 ^^^^^^^^^^^^^^^^^^
@@ -73,37 +85,57 @@ IPOPT                              :class:`PyGMO.algorithm.ipopt`               
 
 Detailed Documentation
 ----------------------
-.. autoclass:: PyGMO.algorithm._base()
+.. class:: PyGMO.algorithm.base()
 
-   .. automethod:: PyGMO.algorithm._base.evolve
+   All PyGMO algorithms derive from this class
 
-.. autoclass:: PyGMO.algorithm.base()
+   .. automethod:: PyGMO.algorithm.base.evolve
 
-.. autoclass:: PyGMO.algorithm.de
+---------------
+
+.. class:: PyGMO.algorithm.de
 
    .. automethod:: PyGMO.algorithm.de.__init__
 
-.. autoclass:: PyGMO.algorithm.jde
+---------------
+
+.. class:: PyGMO.algorithm.jde
 
    .. automethod:: PyGMO.algorithm.jde.__init__
 
-.. autoclass:: PyGMO.algorithm.mde_pbx
+---------------
+
+.. class:: PyGMO.algorithm.mde_pbx
 
    .. automethod:: PyGMO.algorithm.mde_pbx.__init__
 
-.. autoclass:: PyGMO.algorithm.de_1220
+---------------
+
+.. class:: PyGMO.algorithm.de_1220
 
    .. automethod:: PyGMO.algorithm.de_1220.__init__
 
-.. autoclass:: PyGMO.algorithm.pso
+---------------
+
+.. class:: PyGMO.algorithm.pso
 
    .. automethod:: PyGMO.algorithm.pso.__init__
 
-.. autoclass:: PyGMO.algorithm.pso_gen
+---------------
+
+.. class:: PyGMO.algorithm.pso_gen
 
    .. automethod:: PyGMO.algorithm.pso_gen.__init__
 
-.. autoclass:: PyGMO.algorithm.sga
+---------------
+
+.. class:: PyGMO.algorithm.sea
+
+   .. automethod:: PyGMO.algorithm.sea.__init__
+
+---------------
+
+.. class:: PyGMO.algorithm.sga
 
    .. automethod:: PyGMO.algorithm.sga.__init__
 
@@ -131,19 +163,119 @@ Detailed Documentation
 
      Exponential crossover
 
-.. autoclass:: PyGMO.algorithm.nsga_II
+---------------
+
+.. class:: PyGMO.algorithm.vega
+
+   .. automethod:: PyGMO.algorithm.vega.__init__
+
+   .. attribute:: PyGMO.algorithm.vega.mutation.RANDOM
+
+     Random mutation (width is set by the width argument in :class:`PyGMO.algorithm.vega`)
+
+   .. attribute:: PyGMO.algorithm.vega.mutation.GAUSSIAN
+
+     Gaussian mutation (bell shape standard deviation is set by the width argument in :class:`PyGMO.algorithm.vega` multiplied by the box-bounds width)
+
+   .. attribute:: PyGMO.algorithm.vega.crossover.BINOMIAL
+
+     Binomial crossover
+
+   .. attribute:: PyGMO.algorithm.vega.crossover.EXPONENTIAL
+
+     Exponential crossover
+
+---------------
+
+.. class:: PyGMO.algorithm.sga_gray
+
+   .. automethod:: PyGMO.algorithm.sga_gray.__init__
+
+   .. attribute:: PyGMO.algorithm.sga_gray.mutation.UNIFORM
+
+     Uniform mutation 
+
+   .. attribute:: PyGMO.algorithm.sga_gray.selection.ROULETTE
+
+     Roulette selection mechanism
+
+   .. attribute:: PyGMO.algorithm.sga_gray.selection.BEST20
+
+     Best 20% individuals are inserted over and over again
+
+   .. attribute:: PyGMO.algorithm.sga_gray.crossover.SINGLE_POINT
+
+     Single point crossover
+
+---------------
+
+.. class:: PyGMO.algorithm.nsga_II
 
    .. automethod:: PyGMO.algorithm.nsga_II.__init__
 
-.. autoclass:: PyGMO.algorithm.sa_corana
+---------------
+
+.. class:: PyGMO.algorithm.sms_emoa
+
+   .. automethod:: PyGMO.algorithm.sms_emoa.__init__
+
+---------------
+
+.. class:: PyGMO.algorithm.pade
+
+   .. automethod:: PyGMO.algorithm.pade.__init__
+   
+   .. attribute:: PyGMO.algorithm.pade.RANDOM
+
+     Random generation of the weight vector
+   
+   .. attribute:: PyGMO.algorithm.pade.GRID
+
+     Weight vectors are generated to equally divide the search space (requires a particular population size)
+
+   .. attribute:: PyGMO.algorithm.pade.LOW_DISCREPANCY
+
+     Weight vector are generated using a low discrepancy sequence
+
+---------------
+
+.. class:: PyGMO.algorithm.nspso
+
+   .. automethod:: PyGMO.algorithm.nspso.__init__
+   
+   .. attribute:: PyGMO.algorithm.nspso.CROWDING_DISTANCE
+
+     Individual with better crowding distance are prefered
+
+   .. attribute:: PyGMO.algorithm.nspso.NICHE_COUNT
+
+     Individuals with better niche count are prefered
+
+   .. attribute:: PyGMO.algorithm.nspso.MAXMIN
+
+     The MaxMin method is used to obtain the non-dominated set and to mantain diversity
+
+---------------
+
+.. class:: PyGMO.algorithm.spea2
+
+   .. automethod:: PyGMO.algorithm.spea2.__init__
+
+---------------
+
+.. class:: PyGMO.algorithm.sa_corana
 
    .. automethod:: PyGMO.algorithm.sa_corana.__init__
 
-.. autoclass:: PyGMO.algorithm.bee_colony
+---------------
+
+.. class:: PyGMO.algorithm.bee_colony
 
    .. automethod:: PyGMO.algorithm.bee_colony.__init__
 
-.. autoclass:: PyGMO.algorithm.ms
+---------------
+
+.. class:: PyGMO.algorithm.ms
 
    .. automethod:: PyGMO.algorithm.ms.__init__
 
@@ -155,7 +287,9 @@ Detailed Documentation
 
       Algorithm to be multistarted
 
-.. autoclass:: PyGMO.algorithm.mbh
+---------------
+
+.. class:: PyGMO.algorithm.mbh
 
    .. automethod:: PyGMO.algorithm.mbh.__init__
 
@@ -167,43 +301,89 @@ Detailed Documentation
 
       Algorithm to perform mbh 'local' search
 
-.. autoclass:: PyGMO.algorithm.cs
+---------------
+
+.. class:: PyGMO.algorithm.cstrs_co_evolution
+
+   .. automethod:: PyGMO.algorithm.cstrs_co_evolution.__init__
+
+---------------
+
+.. class:: PyGMO.algorithm.cstrs_immune_system
+
+   .. automethod:: PyGMO.algorithm.cstrs_immune_system.__init__
+
+   .. attribute:: PyGMO.algorithm.cstrs_immune_system.screen_output
+
+      When True, the algorithms produces output on screen 
+
+---------------
+
+.. class:: PyGMO.algorithm.cstrs_core
+
+   .. automethod:: PyGMO.algorithm.cstrs_core.__init__
+
+   .. attribute:: PyGMO.algorithm.cstrs_core.screen_output
+
+      When True, the algorithms produces output on screen 
+
+---------------
+
+.. class:: PyGMO.algorithm.cs
 
    .. automethod:: PyGMO.algorithm.cs.__init__
 
-.. autoclass:: PyGMO.algorithm.ihs
+---------------
+
+.. class:: PyGMO.algorithm.ihs
 
    .. automethod:: PyGMO.algorithm.ihs.__init__
 
-.. autoclass:: PyGMO.algorithm.monte_carlo
+---------------
+
+.. class:: PyGMO.algorithm.monte_carlo
 
    .. automethod:: PyGMO.algorithm.monte_carlo.__init__
 
-.. autoclass:: PyGMO.algorithm.py_example
+---------------
+
+.. class:: PyGMO.algorithm.py_example
 
    .. automethod:: PyGMO.algorithm.py_example.__init__
 
-.. autoclass:: PyGMO.algorithm.py_cmaes
+---------------
+
+.. class:: PyGMO.algorithm.py_cmaes
 
    .. automethod:: PyGMO.algorithm.py_cmaes.__init__
 
-.. autoclass:: PyGMO.algorithm.cmaes
+---------------
+
+.. class:: PyGMO.algorithm.cmaes
 
    .. automethod:: PyGMO.algorithm.cmaes.__init__
 
-.. autoclass:: PyGMO.algorithm.scipy_fmin
+---------------
+
+.. class:: PyGMO.algorithm.scipy_fmin
 
    .. automethod:: PyGMO.algorithm.scipy_fmin.__init__
 
-.. autoclass:: PyGMO.algorithm.scipy_l_bfgs_b
+---------------
+
+.. class:: PyGMO.algorithm.scipy_l_bfgs_b
 
    .. automethod:: PyGMO.algorithm.scipy_l_bfgs_b.__init__
 
-.. autoclass:: PyGMO.algorithm.scipy_slsqp
+---------------
+
+.. class:: PyGMO.algorithm.scipy_slsqp
 
    .. automethod:: PyGMO.algorithm.scipy_slsqp.__init__
 
-.. autoclass:: PyGMO.algorithm.scipy_tnc
+---------------
+
+.. class:: PyGMO.algorithm.scipy_tnc
 
    .. automethod:: PyGMO.algorithm.scipy_tnc.__init__
 
@@ -211,7 +391,9 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
-.. autoclass:: PyGMO.algorithm.scipy_cobyla
+---------------
+
+.. class:: PyGMO.algorithm.scipy_cobyla
 
    .. automethod:: PyGMO.algorithm.scipy_cobyla.__init__
 
@@ -219,63 +401,93 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
-.. autoclass:: PyGMO.algorithm.nlopt_cobyla
+---------------
+
+.. class:: PyGMO.algorithm.nlopt_cobyla
 
    .. automethod:: PyGMO.algorithm.nlopt_cobyla.__init__
 
-.. autoclass:: PyGMO.algorithm.nlopt_bobyqa
+---------------
+
+.. class:: PyGMO.algorithm.nlopt_bobyqa
 
    .. automethod:: PyGMO.algorithm.nlopt_bobyqa.__init__
 
-.. autoclass:: PyGMO.algorithm.nlopt_sbplx
+---------------
+
+.. class:: PyGMO.algorithm.nlopt_sbplx
 
    .. automethod:: PyGMO.algorithm.nlopt_sbplx.__init__
 
-.. autoclass:: PyGMO.algorithm.nlopt_mma
+---------------
+
+.. class:: PyGMO.algorithm.nlopt_mma
 
    .. automethod:: PyGMO.algorithm.nlopt_mma.__init__
 
-.. autoclass:: PyGMO.algorithm.nlopt_auglag
+---------------
+
+.. class:: PyGMO.algorithm.nlopt_auglag
 
    .. automethod:: PyGMO.algorithm.nlopt_auglag.__init__
 
-.. autoclass:: PyGMO.algorithm.nlopt_auglag_eq
+---------------
+
+.. class:: PyGMO.algorithm.nlopt_auglag_eq
 
    .. automethod:: PyGMO.algorithm.nlopt_auglag_eq.__init__
 
-.. autoclass:: PyGMO.algorithm.nlopt_slsqp
+---------------
+
+.. class:: PyGMO.algorithm.nlopt_slsqp
 
    .. automethod:: PyGMO.algorithm.nlopt_slsqp.__init__
 
-.. autoclass:: PyGMO.algorithm.gsl_nm2rand
+---------------
+
+.. class:: PyGMO.algorithm.gsl_nm2rand
 
    .. automethod:: PyGMO.algorithm.gsl_nm2rand.__init__
 
-.. autoclass:: PyGMO.algorithm.gsl_nm2
+---------------
+
+.. class:: PyGMO.algorithm.gsl_nm2
 
    .. automethod:: PyGMO.algorithm.gsl_nm2.__init__
 
-.. autoclass:: PyGMO.algorithm.gsl_nm
+---------------
+
+.. class:: PyGMO.algorithm.gsl_nm
 
    .. automethod:: PyGMO.algorithm.gsl_nm.__init__
 
-.. autoclass:: PyGMO.algorithm.gsl_pr
+---------------
+
+.. class:: PyGMO.algorithm.gsl_pr
 
    .. automethod:: PyGMO.algorithm.gsl_pr.__init__
 
-.. autoclass:: PyGMO.algorithm.gsl_fr
+---------------
+
+.. class:: PyGMO.algorithm.gsl_fr
 
    .. automethod:: PyGMO.algorithm.gsl_fr.__init__
 
-.. autoclass:: PyGMO.algorithm.gsl_bfgs2
+---------------
+
+.. class:: PyGMO.algorithm.gsl_bfgs2
 
    .. automethod:: PyGMO.algorithm.gsl_bfgs2.__init__
 
-.. autoclass:: PyGMO.algorithm.gsl_bfgs
+---------------
+
+.. class:: PyGMO.algorithm.gsl_bfgs
 
    .. automethod:: PyGMO.algorithm.gsl_bfgs.__init__
 
-.. autoclass:: PyGMO.algorithm.snopt
+---------------
+
+.. class:: PyGMO.algorithm.snopt
 
    .. automethod:: PyGMO.algorithm.snopt.__init__
 
@@ -283,7 +495,9 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
-.. autoclass:: PyGMO.algorithm.ipopt
+---------------
+
+.. class:: PyGMO.algorithm.ipopt
 
    .. automethod:: PyGMO.algorithm.ipopt.__init__
 
@@ -291,3 +505,8 @@ Detailed Documentation
 
       When True, the algorithms produces output on screen 
 
+---------------
+
+.. class:: PyGMO.algorithm.cstrs_self_adaptive
+
+   .. automethod:: PyGMO.algorithm.cstrs_self_adaptive.__init__

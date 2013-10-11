@@ -49,7 +49,9 @@ int main()
 		const int n_isl = 8;
 		const int pop_size = 512;
 		const int n_eval = 5;
-		const int n_gen = 10000;
+		const int n_gen = 1000;
+		std::vector<double> sides(3,0.0); 
+		sides[0] = 0.6; sides[1] = 0.7; sides[2] = 0.8;
 // END OF EXPERIMENT SET-UP //
 
 // Buffer
@@ -57,18 +59,13 @@ std::vector<double> buff;
 // We instantiate a PSO algorithm capable of coping with stochastic prolems
 algorithm::pso_generational algo(1,0.7298,2.05,2.05,0.05);
 
-
-
 // This instantiates the spheres problem
-
-
-std::cout << "Initializing ...." << std::endl;
+std::cout << "Initializing ....";
 
 archipelago archi = archipelago(topology::fully_connected());
 
 for (int j=0;j<n_isl; ++j) {
-
-	problem::spheres prob(n_eval,10,1e-6,rand(), false);
+	problem::spheres prob(n_eval,10,1e-9,rand(), true, 50.0, sides);
 	// This instantiates a population within the original bounds (-1,1)
 	population pop_temp(prob,pop_size);
 

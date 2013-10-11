@@ -121,6 +121,48 @@ inline class_<algorithm::mbh,bases<algorithm::base> > algorithm_wrapper(const ch
 	return retval;
 }
 
+template <>
+inline class_<algorithm::cstrs_co_evolution,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
+{
+	class_<algorithm::cstrs_co_evolution,bases<algorithm::base> > retval(name,descr,init<const algorithm::cstrs_co_evolution &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<algorithm::cstrs_co_evolution>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<algorithm::cstrs_co_evolution>);
+	retval.def("evolve", &evolve_copy);
+	retval.def_pickle(meta_algorithm_pickle_suite<algorithm::cstrs_co_evolution>());
+	retval.def("cpp_loads", &py_cpp_loads<algorithm::cstrs_co_evolution>);
+	retval.def("cpp_dumps", &py_cpp_dumps<algorithm::cstrs_co_evolution>);
+	return retval;
+}
+
+template <>
+inline class_<algorithm::cstrs_self_adaptive,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
+{
+	class_<algorithm::cstrs_self_adaptive,bases<algorithm::base> > retval(name,descr,init<const algorithm::cstrs_self_adaptive &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<algorithm::cstrs_self_adaptive>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<algorithm::cstrs_self_adaptive>);
+	retval.def("evolve", &evolve_copy);
+	retval.def_pickle(meta_algorithm_pickle_suite<algorithm::cstrs_self_adaptive>());
+	retval.def("cpp_loads", &py_cpp_loads<algorithm::cstrs_self_adaptive>);
+	retval.def("cpp_dumps", &py_cpp_dumps<algorithm::cstrs_self_adaptive>);
+	return retval;
+}
+
+template <>
+inline class_<algorithm::cstrs_immune_system,bases<algorithm::base> > algorithm_wrapper(const char *name, const char *descr)
+{
+	class_<algorithm::cstrs_immune_system,bases<algorithm::base> > retval(name,descr,init<const algorithm::cstrs_immune_system &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<algorithm::cstrs_immune_system>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<algorithm::cstrs_immune_system>);
+	retval.def("evolve", &evolve_copy);
+	retval.def_pickle(meta_algorithm_pickle_suite<algorithm::cstrs_immune_system>());
+	retval.def("cpp_loads", &py_cpp_loads<algorithm::cstrs_immune_system>);
+	retval.def("cpp_dumps", &py_cpp_dumps<algorithm::cstrs_immune_system>);
+	return retval;
+}
+
 BOOST_PYTHON_MODULE(_algorithm) {
 	common_module_init();
 
@@ -137,18 +179,55 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def_pickle(python_class_pickle_suite<algorithm::python_base>());
 
 	// Exposing enums
-	enum_<algorithm::sga::mutation::type>("_mutation_type")
+	enum_<algorithm::sga::mutation::type>("_sga_mutation_type")
 		.value("RANDOM", algorithm::sga::mutation::RANDOM)
 		.value("GAUSSIAN", algorithm::sga::mutation::GAUSSIAN);
 	
-	enum_<algorithm::sga::crossover::type>("_crossover_type")
+	enum_<algorithm::sga::crossover::type>("_sga_crossover_type")
 		.value("BINOMIAL", algorithm::sga::crossover::BINOMIAL)
 		.value("EXPONENTIAL", algorithm::sga::crossover::EXPONENTIAL);
-		
-	enum_<algorithm::sga::selection::type>("_selection_type")
+
+	enum_<algorithm::sga::selection::type>("_sga_selection_type")
 		.value("BEST20", algorithm::sga::selection::BEST20)
 		.value("ROULETTE", algorithm::sga::selection::ROULETTE);
+
+	enum_<algorithm::vega::mutation::type>("_vega_mutation_type")
+		.value("RANDOM", algorithm::vega::mutation::RANDOM)
+		.value("GAUSSIAN", algorithm::vega::mutation::GAUSSIAN);
+	
+	enum_<algorithm::vega::crossover::type>("_vega_crossover_type")
+		.value("BINOMIAL", algorithm::vega::crossover::BINOMIAL)
+		.value("EXPONENTIAL", algorithm::vega::crossover::EXPONENTIAL);
+
+	// Constraints Co-Evolution enums
+	enum_<algorithm::cstrs_co_evolution::method_type>("_co_evo_method_type")
+		.value("SIMPLE", algorithm::cstrs_co_evolution::SIMPLE)
+		.value("SPLIT_NEQ_EQ", algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ)
+		.value("SPLIT_CONSTRAINTS", algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS);		
+
+	enum_<algorithm::sga_gray::mutation::type>("_gray_mutation_type")
+		.value("UNIFORM", algorithm::sga_gray::mutation::UNIFORM);
+	
+	enum_<algorithm::sga_gray::crossover::type>("_gray_crossover_type")
+		.value("SINGLE_POINT", algorithm::sga_gray::crossover::SINGLE_POINT);
 		
+	enum_<algorithm::sga_gray::selection::type>("_gray_selection_type")
+		.value("BEST20", algorithm::sga_gray::selection::BEST20)
+		.value("ROULETTE", algorithm::sga_gray::selection::ROULETTE);
+	
+	// Constraints immune system enums
+	enum_<algorithm::cstrs_immune_system::select_method_type>("_immune_select_method_type")
+		.value("BEST_ANTIBODY", algorithm::cstrs_immune_system::BEST_ANTIBODY)
+		.value("INFEASIBILITY", algorithm::cstrs_immune_system::INFEASIBILITY);
+
+	enum_<algorithm::cstrs_immune_system::inject_method_type>("_immune_inject_method_type")
+		.value("CHAMPION", algorithm::cstrs_immune_system::CHAMPION)
+		.value("BEST25", algorithm::cstrs_immune_system::BEST25);
+
+	enum_<algorithm::cstrs_immune_system::distance_method_type>("_immune_distance_method_type")
+		.value("HAMMING", algorithm::cstrs_immune_system::HAMMING)
+		.value("EUCLIDEAN", algorithm::cstrs_immune_system::EUCLIDEAN);
+
 	// Expose algorithms.
 
 	// Null.
@@ -174,7 +253,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.add_property("ftol",&algorithm::cmaes::get_ftol,&algorithm::cmaes::set_ftol)
 		.add_property("xtol",&algorithm::cmaes::get_xtol,&algorithm::cmaes::set_xtol);
 
-
 	// Monte-carlo.
 	algorithm_wrapper<algorithm::monte_carlo>("monte_carlo","Monte-Carlo search.")
 		.def(init<int>());
@@ -197,11 +275,33 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<optional<const algorithm::base &,int, const std::vector<double> &> >())
 		.add_property("algorithm",&algorithm::mbh::get_algorithm,&algorithm::mbh::set_algorithm);
 	
+	// Constraints immune system.
+	algorithm_wrapper<algorithm::cstrs_immune_system>("cstrs_immune_system","Constraints immune system.")
+		.def(init<optional<const algorithm::base &,const algorithm::base &,int,algorithm::cstrs_immune_system::select_method_type,algorithm::cstrs_immune_system::inject_method_type,algorithm::cstrs_immune_system::distance_method_type,double,double,double,double,double> >())
+		.add_property("algorithm",&algorithm::cstrs_immune_system::get_algorithm,&algorithm::cstrs_immune_system::set_algorithm)
+		.add_property("algorithm_immune",&algorithm::cstrs_immune_system::get_algorithm_immune,&algorithm::cstrs_immune_system::set_algorithm_immune);
+
+	// Constraints CORE.
+	algorithm_wrapper<algorithm::cstrs_core>("cstrs_core","Constraints core.")
+		.def(init<optional<const algorithm::base &,const algorithm::base &,int,int,double,double,double> >())
+		.add_property("algorithm",&algorithm::cstrs_core::get_algorithm,&algorithm::cstrs_core::set_algorithm)
+		.add_property("algorithm_repair",&algorithm::cstrs_core::get_repair_algorithm,&algorithm::cstrs_core::set_repair_algorithm);
+	
 	// Multistart.
 	algorithm_wrapper<algorithm::ms>("ms","Multistart.")
 		.def(init<const algorithm::base &, int>())
 		.add_property("algorithm",&algorithm::ms::get_algorithm,&algorithm::ms::set_algorithm);
-	
+
+	// Constraints Co-Evolution.
+	algorithm_wrapper<algorithm::cstrs_co_evolution>("cstrs_co_evolution","Constraints Co-Evolution.")
+		.def(init<optional<const algorithm::base &,const algorithm::base &,int,int,algorithm::cstrs_co_evolution::method_type,double,double,double,double> >())
+		.add_property("algorithm",&algorithm::cstrs_co_evolution::get_algorithm,&algorithm::cstrs_co_evolution::set_algorithm);
+
+	// Self-Adaptive meta-algorithm.
+	algorithm_wrapper<algorithm::cstrs_self_adaptive>("cstrs_self_adaptive","Self adaptive constraints handling meta-algorithm.")
+		.def(init<optional<const algorithm::base &, const int, double, double> >())
+		.add_property("algorithm",&algorithm::cstrs_self_adaptive::get_algorithm,&algorithm::cstrs_self_adaptive::set_algorithm);
+
 	// Particle Swarm Optimization (Steady state)
 	algorithm_wrapper<algorithm::pso>("pso", "Particle Swarm Optimization (steady-state)")
 		.def(init<optional<int,double, double, double, double, int, int, int> >());
@@ -209,14 +309,56 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	// Particle Swarm Optimization (generational)
 	algorithm_wrapper<algorithm::pso_generational>("pso_gen", "Particle Swarm Optimization (generational)")
 		.def(init<optional<int,double, double, double, double, int, int, int> >());
+
+	// Particle Swarm Optimization (generational with racing mechanism)
+	algorithm_wrapper<algorithm::pso_generational_racing>("pso_gen_racing", "Particle Swarm Optimization (generational with racing)")
+		.def(init<optional<int,double, double, double, double, int, int, int, unsigned int, unsigned int> >());
 	
 	// Simple Genetic Algorithm.
 	algorithm_wrapper<algorithm::sga>("sga", "A simple genetic algorithm (generational)")
 		.def(init<int, optional<const double &, const double &, int, algorithm::sga::mutation::type, double, algorithm::sga::selection::type, algorithm::sga::crossover::type> >());
 	
+	// VEGA Algorithm.
+	algorithm_wrapper<algorithm::vega>("vega", "Vector evaluated genetic algorithm")
+		.def(init<int, optional<const double &, const double &, int, algorithm::vega::mutation::type, double, algorithm::vega::crossover::type> >());
+
+	// Simple Genetic Algorithm with binary gray encoding.
+	algorithm_wrapper<algorithm::sga_gray>("sga_gray", "A simple genetic algorithm with gray binary encoding (generational)")
+		.def(init<int, optional<const double &, const double &, int, algorithm::sga_gray::mutation::type, algorithm::sga_gray::selection::type, algorithm::sga_gray::crossover::type> >());
+	
+	// (N+1)-EA - Simple Evolutionary Algorithm
+	algorithm_wrapper<algorithm::sea>("sea", "(N+1)-EA - A Simple Evolutionary Algorithm")
+		.def(init<optional<int> >());
+
 	// NSGA II
 	algorithm_wrapper<algorithm::nsga2>("nsga_II", "The NSGA-II algorithm")
 		.def(init<optional<int, double, double, double, double> >());
+	
+	// PaDe
+	enum_<algorithm::pade::weight_generation_type>("_weight_generation")
+		.value("RANDOM", algorithm::pade::RANDOM)
+		.value("GRID", algorithm::pade::GRID)
+		.value("LOW_DISCREPANCY", algorithm::pade::LOW_DISCREPANCY);
+	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
+		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type, pagmo::fitness_vector> >());
+
+	// SMS-EMOA
+	algorithm_wrapper<algorithm::sms_emoa>("sms_emoa", "The SMS-EMOA algorithm")
+		.def(init<optional<int, int, double, double, double, double> >())
+		.def(init<optional<util::hv_algorithm::base_ptr, int, int, double, double, double, double> >());
+
+	// NSPSO
+	enum_<algorithm::nspso::diversity_mechanism_type>("_diversity_mechanism")
+		.value("CROWDING_DISTANCE", algorithm::nspso::CROWDING_DISTANCE)
+		.value("NICHE_COUNT", algorithm::nspso::NICHE_COUNT)
+		.value("MAXMIN", algorithm::nspso::MAXMIN);
+	algorithm_wrapper<algorithm::nspso>("nspso", "Non-dominated Sorting Particle Swarm Optimizer")
+		.def(init<optional<int, double, double, double, double, double, double, int, algorithm::nspso::diversity_mechanism_type> >());
+	
+	//SPEA2
+	algorithm_wrapper<algorithm::spea2>("spea2", "Strength Pareto Evolutionary Algorithm 2")
+		.def(init<optional<int, double, double, double, double, population::size_type> >());
+
 
 	// Differential evolution.
 	algorithm_wrapper<algorithm::de>("de", "Differential evolution algorithm.\n")
@@ -226,7 +368,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// Differential evolution (jDE)
 	algorithm_wrapper<algorithm::jde>("jde", "Self-Adaptive Differential Evolution Algorithm: jDE.\n")
-		.def(init<optional<int, int, int, double, double, bool> >());
+		.def( init<optional<int, int, int, double, double, bool> >());
 
 	// Differential evolution (mde_pbx)
 	algorithm_wrapper<algorithm::mde_pbx>("mde_pbx", "Self-Adaptive Differential Evolution Algorithm: mde_pbx.\n")

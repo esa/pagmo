@@ -53,12 +53,15 @@ public:
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
+	
 protected:
 	std::string human_readable_extra() const;
+	
+private:
 	pagmo::population::size_type tournament_selection(pagmo::population::size_type, pagmo::population::size_type, const pagmo::population&) const;
 	void crossover(decision_vector&, decision_vector&, pagmo::population::size_type, pagmo::population::size_type,const pagmo::population&) const;
 	void mutate(decision_vector&, const pagmo::population&) const;
-private:
+	
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)

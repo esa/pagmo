@@ -5,53 +5,68 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/base_island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/island.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/population.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sea.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/jde.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mde_pbx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/de_1220.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pso_generational_racing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
-	#${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cmaes.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sms_emoa.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sga_gray.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/monte_carlo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_co_evolution.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/null.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sa_corana.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/mbh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ms.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/vega.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_self_adaptive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/pade.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_immune_system.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cstrs_core.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nspso.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/spea2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/base_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/best_kill_s_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_greedy_s_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_best_s_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/worst_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/random_r_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_greedy_r_policy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_dtlz.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_unc_mo.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/griewank.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/levy5.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/lennard_jones.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/ackley.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/branin.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz1.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz2.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz3.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz4.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz5.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz6.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz7.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/golomb_ruler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/inventory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/luksan_vlcek_3.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/himmelblau.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/bukin_f6.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rastrigin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rosenbrock.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/schwefel.cpp
@@ -59,23 +74,34 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_dtlz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/fon.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/pol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/kur.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt1.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt2.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt3.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt4.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt6.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/zdt.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2006.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2009.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cec2013.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/con2mo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/pressure_vessel.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/welded_beam.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/tens_comp_string.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cstrs_co_evolution.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/death_penalty.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/cstrs_self_adaptive.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/antibodies_problem.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/decompose.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/noisy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/robust.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/con2uncon.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/topology/ageing_clustered_ba.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/topology/ageing_clustered_ba.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/custom.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/erdos_renyi.cpp
@@ -88,6 +114,21 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/unconnected.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/watts_strogatz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/rng.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hypervolume.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/base.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv2d.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv3d.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/wfg.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/bf_approx.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/bf_fpras.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hoy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv4d_cpp_original/hv.c
+	${CMAKE_CURRENT_SOURCE_DIR}/util/hv_algorithm/hv4d.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/racing.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/discrepancy.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/neighbourhood.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/race_pop.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util/race_algo.cpp
 )
 
 # Additional files for the GTOP problems and keplerian toolbox.
@@ -112,6 +153,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_alpha.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_tof.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_incipit.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_incipit_cstrs.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_part.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp
@@ -199,7 +241,8 @@ ENDIF(ENABLE_MPI)
 # Create a pagmo_static library if main or tests or examples are requested.
 IF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})
-	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "${STATIC_LIB_PAGMO_BUILD_FLAGS}")
+	SET_TARGET_PROPERTIES(pagmo_static PROPERTIES COMPILE_FLAGS "${STATIC_LIB_PAGMO_BUILD_FLAGS}" OUTPUT_NAME pagmo)
+	INSTALL(TARGETS pagmo_static ARCHIVE DESTINATION ${LIB_INSTALL_PATH})
 ENDIF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 
 # Create a pagmo shared library if PyGMO is requested.
@@ -220,3 +263,16 @@ IF(BUILD_PYGMO)
 		LIBRARY DESTINATION ${LIB_INSTALL_PATH}
 	)
 ENDIF(BUILD_PYGMO)
+
+IF(INSTALL_HEADERS)
+	FILE(GLOB HEADERS_IN_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+	INSTALL(FILES ${HEADERS_IN_SRC} DESTINATION "include/pagmo")
+	INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/algorithm" DESTINATION "include/pagmo" FILES_MATCHING PATTERN "*.h")
+	INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox" DESTINATION "include/pagmo" FILES_MATCHING PATTERN "*.h")
+	INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Eigen" DESTINATION "include/pagmo" FILES_MATCHING PATTERN "*.h")
+	INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox" DESTINATION "include/pagmo" FILES_MATCHING PATTERN "*.h")
+	INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/migration" DESTINATION "include/pagmo" FILES_MATCHING PATTERN "*.h")
+	INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/problem" DESTINATION "include/pagmo" FILES_MATCHING PATTERN "*.h")
+	INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/topology" DESTINATION "include/pagmo" FILES_MATCHING PATTERN "*.h")
+	INSTALL(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/util" DESTINATION "include/pagmo" FILES_MATCHING PATTERN "*.h")
+ENDIF(INSTALL_HEADERS)

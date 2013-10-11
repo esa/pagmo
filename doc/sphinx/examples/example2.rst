@@ -2,9 +2,11 @@
 Example 2: Monitoring the Information Flow in a large archipelago
 =================================================================
 
+NOTE: For this example you need at least networkx 1.8! If you are still using networkx 1.7, the
+maximum amount of islands you can draw in the spring layout is limited by 499 due to some bug in that library.
+
 The effect of the generalized migration operator on the optimization process
-is complex. We here show how to use PyGMO to visualize and study it
-on a large archipelago.
+is complex. Here we show how to use PyGMO to visualize and study it on a fairly large archipelago.
 
 .. code-block:: python
 

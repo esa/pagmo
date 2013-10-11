@@ -17,7 +17,7 @@ it with an multi-objective optimization algorithm.
 .. code-block:: python
 
     from PyGMO import *
-    prob = problem.zdt3()
+    prob = problem.zdt(3)
     alg = algorithm.nsga_II(gen = 1)
     pop = population(prob, 200)
     for i in xrange(200):
@@ -46,7 +46,7 @@ the help of an archipelago, consisting of 16 islands, each containing just 32 in
 
 .. code-block:: python
 
-    prob = problem.dtlz3()
+    prob = problem.dtlz(3)
     alg = algorithm.nsga_II(gen = 1)
     s_pol = migration.best_s_policy(0.1, migration.rate_type.fractional)
     r_pol = migration.fair_r_policy(0.1, migration.rate_type.fractional)

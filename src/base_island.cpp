@@ -25,6 +25,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/variate_generator.hpp>
 #include <cstddef>
 #include <exception>
 #include <iostream>
@@ -584,7 +586,9 @@ std::vector<std::pair<population::size_type, archipelago::size_type> > base_isla
 	// Make sure we are in an archipelago.
 	pagmo_assert(m_archi);
 	// We shuffle the immigrants as to make sure not to give preference to a particular island
-	std::random_shuffle(immigrant_pairs.begin(),immigrant_pairs.end());
+	boost::uniform_int<int> pop_idx(0,immigrant_pairs.size());
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_pop.m_urng,pop_idx);
+	std::random_shuffle(immigrant_pairs.begin(),immigrant_pairs.end(), p_idx);
 	// We extract the immigrants from the pair
 	std::vector<population::individual_type> immigrants;
 	immigrants.reserve(immigrant_pairs.size());

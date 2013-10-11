@@ -386,7 +386,7 @@ void archipelago::reevaluate_immigrants(std::vector<std::pair<population::size_t
 		isl.m_pop.problem().objfun(tmp.cur_f,tmp.cur_x);
 		isl.m_pop.problem().compute_constraints(tmp.cur_c,tmp.cur_x);
 		// Set the best properties to the current ones. (TODO: maybe here one could
-		// reevaluate the old best in the new environment and keep it if still better than the 
+		// reevaluate the old best in the new environment and keep it if still better than the
 		// reevaluated current ...... discuss!! (Anche no, grazie!!)
 		tmp.best_x = tmp.cur_x;
 		tmp.best_f = tmp.cur_f;
@@ -394,6 +394,20 @@ void archipelago::reevaluate_immigrants(std::vector<std::pair<population::size_t
 		(*ind_it).second = tmp;
 	}
 }
+
+/// Sets the seed of the random number generators of the archipelago
+/**
+ * Sets the seed of the random number generators of the archipelago. These
+ * are used during migration
+ *
+ * @param[in] seed Seed for generating pseudo-random sequences
+ */
+void archipelago::set_seeds(unsigned int seed) {
+	m_drng.seed(seed);
+	m_urng.seed(seed+1); // we do not care if it overflows
+}
+
+
 
 // This method will be called by each island of the archipelago before starting evolution. Its task is
 // to select from the other islands, according to the topology and the migration/distribution type and direction,
@@ -477,7 +491,7 @@ void archipelago::pre_evolution(base_island &isl)
 			rec_history = isl.accept_immigrants(immigrants);
 			lock_type lock(m_migr_mutex);
 			// Record the migration history.
-			for (size_t i =0; i< rec_history.size(); ++i) { 
+			for (size_t i =0; i< rec_history.size(); ++i) {
 				m_migr_hist.push_back( boost::make_tuple(
 					rec_history[i].first,
 					rec_history[i].second,
@@ -565,6 +579,34 @@ void archipelago::evolve(int n)
 	}
 }
 
+/// Run the evolution for the given number of iterations in batches
+/**
+ * Will iteratively call island::evolve(n) on batches of b islands of the archipelago and then return.
+ * Each batch will wait to complete the n evolves before ending. It is typically called with n=1 as 
+ * for n>1 this set-up creates a strange effect on the migration flux (the first batch that evolves does not
+ * make use of the islands in the remaining batches)
+ *
+ * \param[in] n number of time each island will be evolved.
+ * \param[in] b the size of the batch of islands to evolve at the same time.
+ */
+void archipelago::evolve_batch(int n, unsigned int b)
+{
+	join();
+	for(size_type p = 0; p < m_container.size()/b + 1; ++p) {
+		if(p == m_container.size()/b) { //for the last batch of islands decrease the barrier
+			reset_barrier(m_container.size() - p*b);
+		} else {
+			reset_barrier(b);
+		}
+		for(size_type i=0; i<b && p*b+i < m_container.size(); ++i) {
+			m_container[p*b+i]->evolve(n);
+		}
+		for(size_type i=0; i<b && p*b+i < m_container.size(); ++i) {
+			m_container[p*b+i]->join();
+		}
+	}
+}
+
 /// Run the evolution for a minimum amount of time.
 /**
  * Will iteratively call island::evolve_t(n) on each island of the archipelago and then return.
@@ -611,7 +653,7 @@ void archipelago::interrupt()
 /// Island getter.
 /**
  * @param[in] idx index of the desired island.
- * 
+ *
  * @return a copy of the island at position idx.
  *
  * @throw index_error if idx is not less than the size of the archipelago.
@@ -673,13 +715,17 @@ void archipelago::sync_island_start() const
 	m_islands_sync_point->wait();
 }
 
-// Dump migration history.
+/// Dumps the archipelago migration history
+/**
+ * @return A string formatted as follows: (x1,y1,z1)\n(x2,y2,z2)..... where x is the number of individuals
+ * accepted in island z and coming from island y
+ */
 std::string archipelago::dump_migr_history() const
 {
 	join();
 	std::ostringstream oss;
 	for (migr_hist_type::const_iterator it = m_migr_hist.begin(); it != m_migr_hist.end(); ++it) {
-		oss << "(" << (*it).get<0>()  
+		oss << "(" << (*it).get<0>()
 			<< "," << (*it).get<1>()
 			<< "," << (*it).get<2>() << ")"
 			<< '\n';
@@ -687,7 +733,11 @@ std::string archipelago::dump_migr_history() const
 	return oss.str();
 }
 
-// Clear migration history.
+/// Clears the archipelago migration history
+/**
+ * @return Empties the migration history. If dump_migr_history is called immediately after, 
+ * it will return an empty string
+ */
 void archipelago::clear_migr_history()
 {
 	join();

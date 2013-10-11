@@ -41,9 +41,9 @@ namespace pagmo { namespace problem {
  * Constructs a global optimization problem (box-bounded, continuous) representing a part og the gtoc6 jupiter moon tour
  *  
  * @param[in] seq std::vector of kep_toolbox::planet_ptr containing the encounter sequence for the trajectoty (including the initial planet)
- * @param[in] t0_l kep_toolbox::epoch representing the lower bound for the launch epoch
- * @param[in] t0_r kep_toolbox::epoch representing the upper bound for the launch epoch
  * @param[in] tof time-of-flight vector containing lower and upper bounds (in days) for the various legs time of flights
+ * @param[in] t0 starting kep_toolbox::epoch
+ * @param[in] vinf_in incoming velocity at the departing moon (before fly-by, absolute)
  * 
  * @throws value_error if the planets in seq do not all have the same central body gravitational constant
  * @throws value_error if tof has a size different from seq.size()
@@ -299,7 +299,7 @@ void mga_part::set_tof(const std::vector<std::vector<double> >& tof) {
 
 /// Gets the times of flight
 /**
- * @param[out] tof vector of times of flight 
+ * @return const reference to m_tof
  */
 const std::vector<std::vector<double> >& mga_part::get_tof() const {
 	return m_tof;
@@ -326,7 +326,7 @@ void mga_part::set_betas(const std::vector<std::vector<double> >& betas) {
 
 /// Gets the betas
 /**
- * @param[out] betas vector of betas bounds
+ * @return vector of betas bounds
  */
 std::vector<std::vector<double> > mga_part::get_betas() const {
     std::vector<std::vector<double> > retval;
@@ -359,7 +359,7 @@ void mga_part::set_rps(const std::vector<std::vector<double> >& rps) {
 
 /// Gets the peri-planet bounds
 /**
- * @param[out] rps vector of periplanets (altitudes in km)
+ * @return vector of periplanets (altitudes in km)
  */
 std::vector<std::vector<double> > mga_part::get_rps() const {
 	std::vector<std::vector<double> > retval;
@@ -384,7 +384,7 @@ void mga_part::set_t0(const kep_toolbox::epoch& t0) {
 
 /// Gets the start epoch
 /**
- * @param[out] t0 start epoch
+ * @return start epoch
  */
 const kep_toolbox::epoch& mga_part::get_t0() const {
 	return m_t0;
@@ -402,7 +402,7 @@ void mga_part::set_vinf_in(const kep_toolbox::array3D& vinf_in) {
 
 /// Gets the start velocity 
 /**
- * @param[out] vinf_in relative velocity (m/s)
+ * @return relative velocity (m/s)
  */
 const kep_toolbox::array3D& mga_part::get_vinf_in() const {
 	return m_vinf_in;
