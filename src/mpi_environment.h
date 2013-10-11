@@ -212,8 +212,8 @@ class __PAGMO_VISIBLE mpi_environment: private boost::noncopyable
 		 * Send an instance of class T to the processor with ID destination.
 		 * This method is thread-safe only if mpi_environment::is_multithread returns true.
 		 * 
-		 * @param[in] retval instance of class T that will be sent to destination.
-		 * @param[in] source rank of the processor to which the message will be sent.
+		 * @param[in] payload instance of class T that will be sent to destination.
+		 * @param[in] destination rank of the processor to which the message will be sent.
 		 */
 		template <class T>
 		static void send(const T &payload, int destination)

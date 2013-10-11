@@ -37,9 +37,9 @@ static int __check__(int N){
 	if (N - 5 >= boost::integer_traits<int>::const_max / 2) {
 		pagmo_throw(std::overflow_error,"overflow error");
 	}
-	if (N<16 || N % 2)
+	if (N<=15 || N % 2)
 	{
-		pagmo_throw(value_error,"problem dimension needs to be at least 16 and even");
+		pagmo_throw(value_error,"problem dimension needs to be at least 14 and even");
 	}
 	return N;
 }
@@ -59,7 +59,7 @@ namespace pagmo { namespace problem {
  *
  * @see L.Luksan and J.Vlcek, "Sparse and Parially Separable Test Problems for Unconstrained and Equality Constrained Optimization"
  */
-luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base(__check__(N),0,1,2*(__check__(N)-5),2*(__check__(N)-5))
+luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base(__check__(N),0,1,2*(__check__(N)-9),2*(__check__(N)-9))
 {
 
 	if (clb > cub)
@@ -68,8 +68,8 @@ luksan_vlcek_2::luksan_vlcek_2(int N, const double &clb, const double &cub):base
 	}
 	set_lb(-5);
 	set_ub(5);
-	m_clb = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-5),clb);
-	m_cub = decision_vector(boost::numeric_cast<decision_vector::size_type>(N-5),cub);
+	m_clb = decision_vector(boost::numeric_cast<decision_vector::size_type>(2*(N-9)),clb);
+	m_cub = decision_vector(boost::numeric_cast<decision_vector::size_type>(2*(N-9)),cub);
 }
 
 /// Clone method.
@@ -82,7 +82,7 @@ base_ptr luksan_vlcek_2::clone() const
 void luksan_vlcek_2::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	f[0] = 0.;
-	for (decision_vector::size_type i=0; i<(x.size()-2)/2; i++)
+	for (decision_vector::size_type i=0; i < (x.size()-2)/2; i++)
 	{
 		double a1 = x[2*i]*x[2*i] - x[2*i+1];
 		double a2 = x[2*i] - 1.;
@@ -97,7 +97,7 @@ void luksan_vlcek_2::objfun_impl(fitness_vector &f, const decision_vector &x) co
 /// Implementation of the constraint function.
 void luksan_vlcek_2::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
 {
-	for (decision_vector::size_type i=0; i<(x.size()-2)-7; i++)
+	for (decision_vector::size_type i=0; i < x.size()-9; i++)
 	{
 		c[2*i] = (2.+5.*x[i+5]*x[i+5])*x[i+5] + 1.;
 		for (decision_vector::size_type k = (i <= 5) ? 0 : i - 5; k<=i+1; k++) {

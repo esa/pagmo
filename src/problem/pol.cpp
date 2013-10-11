@@ -59,9 +59,9 @@ void pol::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	f[0] = 0;
 	f[1] = 0;
 
-	double a1 = 0.5 * sin(1) - 2 * cos(1) + sin(2) - 1.5 * cos(2);
+	double a1 = 0.5 * sin(1.0) - 2 * cos(1.0) + sin(2.0) - 1.5 * cos(2.0);
  
-	double a2 = 1.5 * sin(1) - cos(1) + 2 * sin(2) - 0.5 * cos(2);
+	double a2 = 1.5 * sin(1.0) - cos(1.0) + 2 * sin(2.0) - 0.5 * cos(2.0);
  
         double b1 = 0.5 * sin(x[0]) - 2 * cos(x[0]) + sin(x[1]) - 1.5 * cos(x[1]);
  

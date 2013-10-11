@@ -96,7 +96,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt1()
+         prob = problem.zdt(1)
          pop = population(prob,10)
          ls = pop.get_domination_list(1)
 
@@ -107,7 +107,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt1()
+         prob = problem.zdt(1)
          pop = population(prob,10)
          c = pop.get_domination_count(1)
 
@@ -119,7 +119,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt1()
+         prob = problem.zdt(1)
          pop = population(prob,10)
          pf = pop.compute_pareto_fronts()
 
@@ -131,14 +131,14 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt1()
+         prob = problem.zdt(1)
          pop = population(prob,100)
          pf = pop.plot_pareto_fronts()
 
    .. method:: get_best_idx((int) n)
 
       Returns the n best indexes of the :class:`PyGMO.individual` in a *population*. The best 
-      :class:`PyGMO.individual`s are computed according to non-dominated sorting in populations that
+      :class:`PyGMO.individual` are computed according to non-dominated sorting in populations that
       have a multi-objective problem.
 
    .. method:: get_worst_idx()
@@ -150,7 +150,7 @@ Population
       .. code-block:: python
 
          from PyGMO import *
-         prob = problem.zdt3()
+         prob = problem.zdt(3)
          pop = population(prob,3) #population with 3 individuals
          best_guy = pop.get_best_idx()
          worst_guy = pop.get_worst_idx()
@@ -165,6 +165,22 @@ Population
          prob = problem.schwefel(3)
          pop = population(prob,30) 
          v = pop.mean_velocity()
+
+   .. method:: race((int) n_winners, (int) min_trials=0, (int) max_feval=500, (float) delta=0.05, (list) racers_idx=[])
+
+	  Races individuals in a population
+
+	  * n_winners: number of winners in the race
+	  * min_trials: minimum amount of evaluations before an individual can stop racing
+	  * delta: Statistical test confidence
+	  * racers_idx: indices of the individuals in pop to be raced
+
+   .. method:: repair((int) idx, (:class:`problem`) repair_algo)
+
+	  Repairs the individual at the position idx
+
+	  * idx: index of the individual to repair
+	  * repair_algo: 'repairing' optimization algorithm to use. It should be able to deal with population of size 1.
 
    .. attribute:: champion
       :noindex:
@@ -189,3 +205,5 @@ Population
          ub = list(prob.ub)
          lb[0]=-10
          pop.problem.set_bounds(lb,ub) #This line is completely uneffective ...
+
+

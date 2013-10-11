@@ -39,7 +39,7 @@ namespace pagmo { namespace algorithm {
  * The firefly algorithm (FA) is a metaheuristic algorithm, inspired by the flashing behaviour of fireflies.
  *
  * At each call of the evolve method a number of function evaluations equal
- * to gen * pop.size() is performed.
+ * to gen * pop.size() * pop.size() is performed.
  *
  * NOTE: when called on mixed-integer problems Firefly treats the integer part as fixed and optimizes
  * the continuous part.

@@ -1,5 +1,7 @@
+:orphan:
+
 The following documentation is targeted to users (not developers). The focus is on the interface offered to the user via Python and not on the
-implementation or on technical details on how we designed for efficiency thanks to a complex interplay between C++ and Python.
+implementation or on technical details on how we designed for efficiency thanks to the interplay between C++ and Python.
 
 ==========================
 Main Classes and Functions
@@ -15,4 +17,5 @@ Main Classes and Functions
    island
    algorithms
    problems
-   
+   hypervolume
+   racing

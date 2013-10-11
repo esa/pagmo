@@ -49,6 +49,7 @@ class __PAGMO_VISIBLE gtoc5_self_flyby: public base
 		gtoc5_self_flyby(int = 5, int = 1,const double & = 57023, const double & mass = 4000, const double & = 1E-5);
 		base_ptr clone() const;
 		std::string get_name() const;
+		/// A nice string representation of a chromosome
 		std::string pretty(const decision_vector &) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

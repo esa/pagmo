@@ -137,6 +137,7 @@ class __PAGMO_VISIBLE archipelago
 		topology::base_ptr get_topology() const;
 		void set_topology(const topology::base &);
 		void evolve(int = 1);
+		void evolve_batch(int, unsigned int);
 		void evolve_t(int);
 		bool busy() const;
 		void interrupt();
@@ -145,6 +146,7 @@ class __PAGMO_VISIBLE archipelago
 		void set_island(const size_type &, const base_island &);
 		std::vector<base_island_ptr> get_islands() const;
 		base_island_ptr get_island(const size_type &) const;
+		void set_seeds(unsigned int);
 	private:
 		void pre_evolution(base_island &);
 		void post_evolution(base_island &);
@@ -192,7 +194,7 @@ class __PAGMO_VISIBLE archipelago
 		}
 		// Container of islands.
 		container_type				m_container;
-		// A barrier used to synchronise the start time of all islands.
+		// A barrier used to synchronise the start time of islands.
 		boost::scoped_ptr<boost::barrier>	m_islands_sync_point;
 		// Topology.
 		topology::base_ptr			m_topology;
@@ -203,8 +205,8 @@ class __PAGMO_VISIBLE archipelago
 		// Migration container.
 		migration_map_type			m_migr_map;
 		// Rngs used during migration.
-		rng_double				m_drng;
-		rng_uint32				m_urng;
+		rng_double					m_drng;
+		rng_uint32					m_urng;
 		// Migration mutex.
 		boost::mutex				m_migr_mutex;
 		// Migration history.

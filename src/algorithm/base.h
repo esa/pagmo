@@ -28,6 +28,7 @@
 #include <iostream>
 #include <string>
 #include <typeinfo>
+#include <boost/shared_ptr.hpp>
 
 #include "../config.h"
 #include "../population.h"

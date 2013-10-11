@@ -59,6 +59,10 @@ IF(COMMAND CMAKE_POLICY)
 ENDIF(COMMAND CMAKE_POLICY)
 
 # Provides build options to CMake.
+
+# Build Option: when active the file main.cpp is built and linked to the PaGMO static library.
+OPTION(INSTALL_HEADERS "Installs the header files" OFF)
+
 # Build Option: when active the file main.cpp is built and linked to the PaGMO static library.
 OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 
@@ -86,7 +90,7 @@ OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
 
 # Build option: enable test set.
-OPTION(ENABLE_TESTS "Build test set." ON)
+OPTION(ENABLE_TESTS "Build test set." OFF)
 
 # Build Option: build executable for the examples
 OPTION(BUILD_EXAMPLES "Build examples." OFF)
@@ -146,6 +150,14 @@ ELSE(UNIX)
 		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} -mthreads")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
 	ENDIF(MINGW)
+	IF(MSVC)
+	    #This flags are necessary for MSVC requires boost libs to be named in a stupid way. (i.e. without lib in front)
+        ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+		#This flag is necesary for MSVC to access mathematical constants such as M_PI,...
+		ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
+        #This is necessary to add Additional Library Directories in the linker path of MSVC
+        link_directories(${Boost_LIBRARY_DIRS})
+	ENDIF(MSVC)
 ENDIF(UNIX)
 
 
@@ -360,6 +372,7 @@ ENDIF(BUILD_MAIN)
 
 IF(ENABLE_TESTS)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/tests")
+	FILE(COPY "${CMAKE_SOURCE_DIR}/tests/hypervolume_test_data/" DESTINATION "${CMAKE_BINARY_DIR}/tests/hypervolume_test_data/")
 ENDIF(ENABLE_TESTS)
 
 IF(BUILD_EXAMPLES)

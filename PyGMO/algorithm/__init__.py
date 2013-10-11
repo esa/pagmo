@@ -6,13 +6,7 @@ from _example import py_example
 from _cmaes import py_cmaes
 from _scipy_algos import *
 
-
 _base = _algorithm._base
-
-# Renaming and placing the enums
-_algorithm.sga.crossover = _algorithm._crossover_type
-_algorithm.sga.selection = _algorithm._selection_type
-_algorithm.sga.mutation = _algorithm._mutation_type
 
 #Creating the list of algorithms
 def _get_algorithm_list():
@@ -79,7 +73,7 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, m
 	* gen: number of generations
 	* variant: algoritmic variant to use (one of [1 .. 18])
 		1. best/1/exp				2. rand/1/exp
-		3. rand-to-best/1/exp			4. best/2/exp
+		3. rand-to-best/1/exp		4. best/2/exp
 		5. rand/2/exp				6. best/1/bin
 		7. rand/1/bin				8. rand-to-best/1/bin
 		9. best/2/bin				10. rand/2/bin
@@ -93,7 +87,7 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, m
 	* xtol: stop criteria on x
 	* memory: if True the algorithm internal state is saved and used for the next call
 	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
-	* 		 different island outputs)
+	*				 different island outputs)
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
@@ -107,36 +101,6 @@ def _jde_ctor(self, gen=100, variant=2, variant_adptv=1, ftol=1e-6, xtol=1e-6, m
 	self.screen_output = screen_output
 jde._orig_init = jde.__init__
 jde.__init__ = _jde_ctor
-
-def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
-	"""
-	Constructs a mde_pbx algorithm (self-adaptive DE)
-	
-	REF: "An Adaptive Differential Evolution Algorithm With Novel Mutation and Crossover
-	Strategies for Global Numerical Optimization" - IEEE TRANSACTIONS ON SYSTEMS, MAN, AND CYBERNETICS?PART B: CYBERNETICS, VOL. 42, NO. 2, APRIL 20 
-
-	
-	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
-	
-	* gen: number of generations
-	* qperc: percentage of population to choose the best vector
-	* nexp: exponent for the powermean
-	* ftol: stop criteria on f
-	* xtol: stop criteria on x
-	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
-	* 		 different island outputs)
-	"""
-	# We set the defaults or the kwargs
-	arg_list=[]
-	arg_list.append(gen)
-	arg_list.append(qperc)
-	arg_list.append(nexp)
-	arg_list.append(ftol)
-	arg_list.append(xtol)	
-	self._orig_init(*arg_list)
-	self.screen_output = screen_output
-mde_pbx._orig_init = mde_pbx.__init__
-mde_pbx.__init__ = _mde_pbx_ctor
 
 def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,6,7,8,9,10], memory = False, ftol=1e-6, xtol=1e-6, screen_output = False):
 	"""
@@ -173,6 +137,37 @@ def _de_1220_ctor(self, gen=100, variant_adptv=1, allowed_variants = [1,2,3,4,5,
 	self.screen_output = screen_output
 de_1220._orig_init = de_1220.__init__
 de_1220.__init__ = _de_1220_ctor
+
+def _mde_pbx_ctor(self, gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False):
+	"""
+	Constructs a mde_pbx algorithm (self-adaptive DE)
+	
+	REF: "An Adaptive Differential Evolution Algorithm With Novel Mutation and Crossover
+	Strategies for Global Numerical Optimization" - IEEE TRANSACTIONS ON SYSTEMS, MAN, AND CYBERNETICS?PART B: CYBERNETICS, VOL. 42, NO. 2, APRIL 20 
+
+	
+	USAGE: algorithm.mde_pbx(gen=100, qperc=0.15, nexp=1.5, ftol=1e-6, xtol=1e-6, screen_output = False)
+	
+	* gen: number of generations
+	* qperc: percentage of population to choose the best vector
+	* nexp: exponent for the powermean
+	* ftol: stop criteria on f
+	* xtol: stop criteria on x
+	* screen_output: activates screen output of the algorithm (do not use in archipealgo, otherwise the screen will be flooded with 
+	* 		 different island outputs)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(qperc)
+	arg_list.append(nexp)
+	arg_list.append(ftol)
+	arg_list.append(xtol)	
+	self._orig_init(*arg_list)
+	self.screen_output = screen_output
+mde_pbx._orig_init = mde_pbx.__init__
+mde_pbx.__init__ = _mde_pbx_ctor
+
 
 def _pso_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4):
 	"""
@@ -231,7 +226,7 @@ def _pso_gen_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff 
 	Constructs a Particle Swarm Optimization (generational). The position update is applied
 	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
 	
-	USAGE: algorithm.pso_gen(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4])
+	USAGE: algorithm.pso_gen(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4)
 
 	* gen: number of generations
 	* omega: constriction factor (or particle inertia weight) in [0,1]
@@ -275,6 +270,62 @@ pso_gen._orig_init = pso_gen.__init__
 pso_gen.__init__ = _pso_gen_ctor
 
 
+def _pso_gen_racing_ctor(self, gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, nr_eval_per_x = 5, max_fevals = 10000000):
+	"""
+	Constructs a Particle Swarm Optimization (generational). The position update is applied
+	only at the end of an entire loop over the population (swarm). Use this version for stochastic problems.
+	
+	USAGE: algorithm.pso_gen(gen=1, omega = 0.7298, eta1 = 2.05, eta2 = 2.05, vcoeff = 0.5, variant = 5, neighb_type = 2, neighb_param = 4, nr_eval_per_x = 5, max_fevals = 10000000)
+
+	* gen: number of generations
+	* omega: constriction factor (or particle inertia weight) in [0,1]
+	* eta1: Cognitive component in [0,4]
+	* eta2: Social component in [0,4]
+	* vcoeff: Maximum velocity coefficient (w.r.t. the box-bounds width) in [0,1]
+	* variant: algoritmic variant to use (one of  [1 .. 6])
+		1. PSO canonical (with inertia weight)
+		2. PSO canonical (with inertia weight
+			and equal random weights of social and cognitive components)
+		3. PSO variant (with inertia weight
+			same random number for all components.)
+		4. PSO variant (with inertia weight
+			same random number for all components
+			and equal weights of social and cognitive components)
+		5. PSO canonical (with constriction factor)
+		6. Fully Informed Particle Swarm (FIPS)
+	* neighb_type: defines the particle neighbourhood (used for the social component)
+		1. gbest neighbourhood topology (fully connected)
+		2. lbest neighbourhood topology (ring)
+		3. Von-Neumann neighbourhood topology (square lattice)
+		4. Randomly-varying neighbourhood topology
+	* neighb_param: if the lbest topology is selected, it represents each particle's indegree
+		(also outdegree) in the swarm topology. Particles have neighbours up
+		to a radius of k = neighb_param / 2 in the ring. If the Randomly-varying neighbourhood topology
+		is selected, neighb_param represents each particle's maximum outdegree in the swarm topology.
+		The minimum outdegree is 1 (the particle always connects back to itself).
+    * nr_eval_per_x: Specify the expected budget to be allocated during racing
+	* max_fevals: When specified other than -1, this serve as another termination condition -- maximium number of objective function evaluations
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(omega)
+	arg_list.append(eta1)
+	arg_list.append(eta2)
+	arg_list.append(vcoeff)
+	arg_list.append(variant)
+	arg_list.append(neighb_type)
+	arg_list.append(neighb_param)	
+	arg_list.append(nr_eval_per_x)
+	if max_fevals > 0:
+		arg_list.append(max_fevals)
+	self._orig_init(*arg_list)
+pso_gen_racing._orig_init = pso_gen_racing.__init__
+pso_gen_racing.__init__ = _pso_gen_racing_ctor
+
+_algorithm.sga.crossover = _algorithm._sga_crossover_type
+_algorithm.sga.selection = _algorithm._sga_selection_type
+_algorithm.sga.mutation = _algorithm._sga_mutation_type
 
 def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSSIAN, width = 0.1, selection=sga.selection.ROULETTE, crossover=sga.crossover.EXPONENTIAL):
 	"""
@@ -306,11 +357,73 @@ def _sga_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.GAUSS
 sga._orig_init = sga.__init__
 sga.__init__ = _sga_ctor
 
+_algorithm.vega.crossover = _algorithm._vega_crossover_type
+_algorithm.vega.mutation = _algorithm._vega_mutation_type
+
+def _vega_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=vega.mutation.GAUSSIAN, width = 0.1, crossover=vega.crossover.EXPONENTIAL):
+	"""
+	Constructs a Vector evaluated genetic algorithm
+	
+	USAGE: algorithm.vega(self, gen=1, cr=.95, m=.02, elitism=1, mutation=vega.mutation.GAUSSIAN, width = 0.1, crossover=vega.crossover.EXPONENTIAL)
+  
+	* gen: number of generations
+	* cr: crossover factor in [0,1]
+	* m: mutation probability (for each component) [0,1]
+	* elitism: number of generation after which the best is reinserted
+	* mutation: mutation type (one of [RANDOM, GAUSSIAN])
+	* width: the mutation width (in case of a GAUSSIAN bell
+		this is the std normalized with the width)
+	* crossover: crossover strategy (one of [BINOMIAL, EXPONENTIAL])
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(m)
+	arg_list.append(elitism)
+	arg_list.append(mutation)
+	arg_list.append(width)
+	arg_list.append(crossover)
+	self._orig_init(*arg_list)
+vega._orig_init = vega.__init__
+vega.__init__ = _vega_ctor
+
+_algorithm.sga_gray.crossover = _algorithm._gray_crossover_type
+_algorithm.sga_gray.selection = _algorithm._gray_selection_type
+_algorithm.sga_gray.mutation = _algorithm._gray_mutation_type
+
+def _sga_gray_ctor(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga_gray.mutation.UNIFORM, selection=sga_gray.selection.ROULETTE, crossover=sga_gray.crossover.SINGLE_POINT):
+	"""
+	Constructs a Simple Genetic Algorithm with gray binary encoding (generational)
+	
+	USAGE: algorithm.sga_gray(self, gen=1, cr=.95, m=.02, elitism=1, mutation=sga.mutation.UNIFORM, selection=sga.selection.ROULETTE, crossover=sga.crossover.SINGLE_POINT)
+  
+	* gen: Number of generations to evolve.
+	* cr: crossover factor in [0,1]
+	* m: mutation probability (of each encoded bit) [0,1]
+	* elitism: number of generation after which the best is reinserted
+	* mut: mutation type (one of [UNIFORM])
+	* sel: selection strategy (one of [ROULETTE, BEST20])
+	* cro: crossover strategy (one of [SINGLE_POINT])
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(m)
+	arg_list.append(elitism)
+	arg_list.append(mutation)
+	arg_list.append(selection)
+	arg_list.append(crossover)	
+	self._orig_init(*arg_list)
+sga_gray._orig_init = sga_gray.__init__
+sga_gray.__init__ = _sga_gray_ctor
+
 def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	"""
 	Constructs a Non-dominated Sorting Genetic Algorithm (NSGA_II)
 	
-	USAGE: algorithm.nsga__II(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
+	USAGE: algorithm.nsga_II(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
   
 	* gen: number of generations
 	* cr: crossover factor [0,1[
@@ -328,6 +441,139 @@ def _nsga_II_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
 	self._orig_init(*arg_list)
 nsga_II._orig_init = nsga_II.__init__
 nsga_II.__init__ = _nsga_II_ctor
+
+def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10):
+	"""
+	Constructs a S-Metric Selection Evolutionary Multiobjective Optimiser Algorithm (SMS-EMOA)
+
+	USAGE: algorithm.sms_emoa(self, gen=100, sel_m = 2, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 10)
+
+	* hv_algorithm: hypervolume algorithm object used for the computation of the hypervolume. By default its chosen dynamically
+	* gen: number of generations
+	* sel_m: selection method for points in dominated fronts. 1 - always use least contributor, 2 - use domination count for fronts > 1
+	* cr: crossover factor [0,1]
+	* eta_c: Distribution index for crossover
+	* m: mutation probability [0,1]
+	* eta_m: Distribution index for mutation
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+
+	from ..util import HypervolumeValidation
+	if hv_algorithm:
+		hv_algorithm = HypervolumeValidation.validate_hv_algorithm(hv_algorithm)
+		arg_list.append(hv_algorithm)
+	arg_list.append(gen)
+	arg_list.append(sel_m)
+	arg_list.append(cr)
+	arg_list.append(eta_c)
+	arg_list.append(m)
+	arg_list.append(eta_m)
+	self._orig_init(*arg_list)
+sms_emoa._orig_init = sms_emoa.__init__
+sms_emoa.__init__ = _sms_emoa_ctor
+
+_algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
+_algorithm.pade.GRID = _algorithm._weight_generation.GRID
+_algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
+from PyGMO.problem import decompose
+def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.BI, solver = None, T = 8, weights = pade.LOW_DISCREPANCY, z = []):
+	"""
+	Constructs a Parallel Decomposition Algorithm (PaDe).
+	
+	For each element of the population a different single objective problem is generated using a decomposition method.
+	Those single-objective problems are thus solved in an island model.
+	At the end of the evolution the population is set as the best individual in each single-objective island.
+	This algorithm, original with PaGMO, builds upon the MOEA/D framework
+	
+	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(100), T = 8, weights = pade.RANDOM, z = None)
+
+	* gen: number of generations
+	* max_parallelism: the maximum number of single-objective problems to solve at the same time
+	* solver: the algorithm to use to solve the single-objective problems
+	* T: the size of the population on each subproblem (must be an even number)
+	* decomposition = the decomposition method to use (Weighted, Tchebycheff or BI)
+	* weights: the weight generation method
+	* z: the reference point (used with Tchebycheff and BI decomposition methods)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(max_parallelism)
+	arg_list.append(decomposition)
+	if solver==None:
+		solver=jde(100)
+	arg_list.append(solver)
+	arg_list.append(T)
+	arg_list.append(weights)
+	arg_list.append(z)
+	self._orig_init(*arg_list)
+pade._orig_init = pade.__init__
+pade.__init__ = _pade_ctor
+del decompose
+
+_algorithm.nspso.CROWDING_DISTANCE = _algorithm._diversity_mechanism.CROWDING_DISTANCE
+_algorithm.nspso.NICHE_COUNT = _algorithm._diversity_mechanism.NICHE_COUNT
+_algorithm.nspso.MAXMIN = _algorithm._diversity_mechanism.MAXMIN
+def _nspso_ctor(self, gen=100, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+		CHI = 1.0, v_coeff = 0.5, leader_selection_range = 5, diversity_mechanism = nspso.CROWDING_DISTANCE):
+	"""
+	Constructs a Multi Objective PSO
+	
+	USAGE: algorithm.nspso(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
+		CHI = 1.0, v_coeff = 0.5, leader_selection = 5, diversity_mechanism = nspso.CROWDING_DISTANCE):
+
+	* gen: number of generations
+	* minW: minimum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
+	* maxW: maximum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
+	* C1: magnitude of the force, applied to the particle's velocity, in the direction of its previous best position
+	* C2: magnitude of the force, applied to the particle's velocity, in the direction of its global best (leader)
+   	* CHI: velocity scaling factor
+	* v_coeff: velocity coefficient (determining the maximum allowed particle velocity)
+	* leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
+	* diversity_mechanism the diversity mechanism to use to mantein diversity on the pareto front
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(minW)
+	arg_list.append(maxW)
+	arg_list.append(C1)
+	arg_list.append(C2)
+	arg_list.append(CHI)
+	arg_list.append(v_coeff)
+	arg_list.append(leader_selection_range)
+	arg_list.append(diversity_mechanism)
+	self._orig_init(*arg_list)
+
+nspso._orig_init = nspso.__init__
+nspso.__init__ = _nspso_ctor
+
+def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, archive_size = 0):
+	"""
+	Constructs a Strenght Pareto Evolutionary Algorithm 2
+	
+	USAGE: algorithm.spea2(gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, archive_size = -1)
+	
+	* gen: Number of generations to evolve.
+	* cr: Crossover probability
+	* eta_c: Distribution index for crossover
+	* m: Mutation probability
+	* eta_m: Distribution index for mutation
+	* archive_size: the size of the non_dominated archive. If archive_size=0 then the archive size is set equal to the population size. The population returned after evolve has a size equal to archive_size
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(cr)
+	arg_list.append(eta_c)
+	arg_list.append(m)
+	arg_list.append(eta_m)
+	arg_list.append(archive_size)
+	self._orig_init(*arg_list)
+
+spea2._orig_init = spea2.__init__
+spea2.__init__ = _spea2_ctor
 
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
@@ -376,6 +622,24 @@ def _bee_colony_ctor(self, gen = 100, limit = 20):
 bee_colony._orig_init = bee_colony.__init__
 bee_colony.__init__ = _bee_colony_ctor
 
+def _sea_ctor(self, gen = 100, limit = 20):
+	"""
+	Constructs a simple (N+1)-EA: A Simple Evolutionary Algorithm
+
+	USAGE: algorithm.ea(gen = 1)
+	SEE : Oliveto, Pietro S., Jun He, and Xin Yao.
+	"Time complexity of evolutionary algorithms for combinatorial optimization: A decade of results."
+	International Journal of Automation and Computing 4.3 (2007): 281-293.
+
+	* gen: number of 'generations' (each generation is one function evaluation)
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	self._orig_init(*arg_list)
+sea._orig_init = sea.__init__
+sea.__init__ = _sea_ctor
+
 #def _firefly_ctor(self,**kwargs):
 #	"""
 #	Constructs a Firefly Algorithm
@@ -397,7 +661,7 @@ bee_colony.__init__ = _bee_colony_ctor
 #firefly._orig_init = firefly.__init__
 #firefly.__init__ = _firefly_ctor
 
-def _ms_ctor(self, algorithm = _algorithm.de(), iter = 1):
+def _ms_ctor(self, algorithm = None, iter = 1):
 	"""
 	Constructs a Multistart Algorithm
 	
@@ -412,6 +676,8 @@ def _ms_ctor(self, algorithm = _algorithm.de(), iter = 1):
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
+	if algorithm == None:
+		algorithm = _algorithm.jde()
 	arg_list.append(algorithm)
 	arg_list.append(iter)
 	self._orig_init(*arg_list)
@@ -441,7 +707,7 @@ def _cs_ctor(self, max_eval = 1, stop_range = 0.01, start_range = 0.1, reduction
 cs._orig_init = cs.__init__
 cs.__init__ = _cs_ctor
 
-def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, screen_output = False):
+def _mbh_ctor(self, algorithm = None, stop = 5, perturb = 5e-2, screen_output = False):
 	"""
 	Constructs a Monotonic Basin Hopping Algorithm (generalized to accept any algorithm)
 	
@@ -460,6 +726,8 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, scree
 	"""
 	# We set the defaults or the kwargs
 	arg_list=[]
+	if algorithm==None:
+		algorithm=_algorithm.cs()
 	arg_list.append(algorithm)
 	arg_list.append(stop)
 	arg_list.append(perturb)
@@ -467,6 +735,151 @@ def _mbh_ctor(self, algorithm = _algorithm.cs(), stop = 5, perturb = 5e-2, scree
 	self.screen_output = screen_output
 mbh._orig_init = mbh.__init__
 mbh.__init__ = _mbh_ctor
+
+def _cstrs_self_adaptive_ctor(self, algorithm = None, max_iter = 100, f_tol = 1e-15, x_tol = 1e-15):
+	"""
+	Constructs a Self-Adaptive Fitness constraints handling Meta Algorithm.
+
+	The key idea of this constraint handling technique is to represent the
+	constraint violation by a single infeasibility measure, and to adapt
+	dynamically the penalization of infeasible solutions.
+	
+	USAGE: algorithm.self_adaptive(algorithm = algorithm.jde(), max_iter  = 100, f_tol = 1e-15, x_tol = 1e-15);
+
+	* algorithm: original optimizer
+	* max_iter: stop-criteria (number of iterations)
+	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
+	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
+	"""
+	# We set the defaults or the kwargs
+	arg_list=[]
+	if algorithm == None:
+		algorithm = _algorithm.jde()
+	arg_list.append(algorithm)
+	arg_list.append(max_iter)
+	arg_list.append(f_tol)
+	arg_list.append(x_tol)
+	self._orig_init(*arg_list)
+cstrs_self_adaptive._orig_init = cstrs_self_adaptive.__init__
+cstrs_self_adaptive.__init__ = _cstrs_self_adaptive_ctor
+
+# Renaming and placing the enums
+_algorithm.cstrs_co_evolution.method = _algorithm._co_evo_method_type
+
+def _cstrs_co_evolution_ctor(self,original_algo = None,original_algo_penalties = None,pop_penalties_size = 30,gen = 20,method = cstrs_co_evolution.method.SIMPLE,pen_lower_bound = 0.,pen_upper_bound = 100000.,f_tol = 1e-15,x_tol = 1e-15):
+	"""
+	Constructs a co-evolution adaptive penalty algorithm for constrained optimization.
+	
+	USAGE: algorithm.cstrs_co_evolution(original_algo = _algorithm.jde(), original_algo_penalties = _algorithm.jde(), pop_penalties_size = 30, gen = 20, method = cstrs_co_evolution.method.SIMPLE, pen_lower_bound = 0, pen_upper_bound = 100000,f_tol = 1e-15,x_tol = 1e-15):
+
+	* original_algo: optimizer to use as 'original' optimization method
+	* original_algo_penalties: optimizer to use as 'original' optimization method for population encoding penalties coefficients
+	* pop_penalties_size: size of the population encoding the penalty parameters.
+	* gen: number of generations.
+	* method: cstrs_co_evolution.method.SIMPLE by default, the method used for the population encoding penalties coefficients.
+		Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
+		The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
+		splits the equalities and inequalities constraints in two different sets for the
+		penalty weigths, containing respectively inequalities and equalities weigths. The
+		SPLIT_CONSTRAINTS splits the constraints in M set of weigths wehere M is the number of
+		constraints.
+	* pen_lower_bound: the lower boundary used for penalty.
+	* pen_upper_bound: the upper boundary used for penalty.
+	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
+	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
+	"""
+	arg_list=[]
+	if original_algo==None:
+		original_algo = algorithm.jde()
+	if original_algo_penalties==None:
+		original_algo_penalties = algorithm.jde()
+	arg_list.append(original_algo)
+	arg_list.append(original_algo_penalties)
+	arg_list.append(pop_penalties_size)
+	arg_list.append(gen)
+	arg_list.append(method)
+	arg_list.append(pen_lower_bound)
+	arg_list.append(pen_upper_bound)
+	arg_list.append(f_tol)
+	arg_list.append(x_tol)
+	self._orig_init(*arg_list)
+cstrs_co_evolution._orig_init = cstrs_co_evolution.__init__
+cstrs_co_evolution.__init__ = _cstrs_co_evolution_ctor
+
+# Renaming and placing the enums
+_algorithm.cstrs_immune_system.select_method = _algorithm._immune_select_method_type
+_algorithm.cstrs_immune_system.inject_method = _algorithm._immune_inject_method_type
+_algorithm.cstrs_immune_system.distance_method = _algorithm._immune_distance_method_type
+
+def _cstrs_immune_system_ctor(self,algorithm = None, algorithm_immune = None, gen = 1, select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., f_tol = 1e-15, x_tol = 1e-15):
+	"""
+	Constructs an immune system algorithm for constrained optimization.
+	
+	USAGE: algorithm._cstrs_immune_system(algorithm = _algorithm.jde(), algorithm_immune = _algorithm.jde(), gen = 1, select_method = cstrs_immune_system.select_method.BEST_ANTIBODY, inject_method = cstrs_immune_system.inject_method.CHAMPION, distance_method = cstrs_immune_system.distance_method.EUCLIDEAN, phi = 0.5, gamma = 0.5, sigma = 1./3., ftol = 1e-15, xtol = 1e-15):
+
+	* algorithm: optimizer to use as 'original' optimization method. Its number of generations should be set to 1.
+	* algorithm_2: optimizer to use as 'original' optimization method for the evolution of the immune system.
+	* gen: number of generations.
+	* select_method: cstrs_immune_system.select_method.BEST_ANTIBODY by default, the method used for selecting the antibodies.
+	* inject_method: cstrs_immune_system.inject_method.CHAMPION by default, the method used for reinjecting the antibodies.
+	* distance_method: cstrs_immune_system.distance_method.EUCLIDEAN by default, the method used for computing the distance to the antigenes population.
+	* Two possibilities are available: CHAMPION, and BEST25.
+	* phi: 0.5 by default. The feasible fraction selection to compute the mean value.
+	* gamma: 0.5 by default. The number of antigens selected / number of total antigens.
+	* sigma: 1/3 by default. The number of antibodies / number of antigens.
+	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
+	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
+	"""
+	arg_list=[]
+
+	if algorithm==None:
+		algorithm = algorithm.jde()
+	if algorithm_immune==None:
+		algorithm_immune = algorithm.jde()
+	arg_list.append(algorithm)
+	arg_list.append(algorithm_immune)
+	arg_list.append(gen)
+	arg_list.append(select_method)
+	arg_list.append(inject_method)
+	arg_list.append(distance_method)
+	arg_list.append(phi)
+	arg_list.append(gamma)
+	arg_list.append(sigma)
+	arg_list.append(f_tol)
+	arg_list.append(x_tol)
+	self._orig_init(*arg_list)
+cstrs_immune_system._orig_init = cstrs_immune_system.__init__
+cstrs_immune_system.__init__ = _cstrs_immune_system_ctor
+
+def _cstrs_core_ctor(self,algorithm = None, repair_algorithm = None, gen = 1, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15):
+	"""
+	Constructs CORE (Constrained Optimization by Random Evolution) algorithm for constrained optimization (belong to the family of repairing techniques).
+	
+	USAGE: algorithm._cstrs_core(algorithm = _algorithm.jde(), repair_algorithm = _algorithm.jde(), gen = 1, repair_frequency = 10, repair_ratio = 1., f_tol = 1e-15, x_tol = 1e-15):
+
+	* algorithm: optimizer to use as 'original' optimization method. Its number of generations should be set to 1.
+	* repair_algorithm: optimizer to use as 'repairing' algorithm. It should be able to deal with population of size 1.
+	* gen: number of generations.
+	* repair_frequency: The infeasible are repaired at each repair frequency generations.
+	* repair_ratio: ratio of repaired individuals over infeasible (a ratio of 1 will repair all the individuals).
+	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.
+	* xtol: 1e-15 by default. The stopping criteria on the f tolerance.
+	"""
+	arg_list=[]
+	if algorithm==None:
+		algorithm = algorithm.jde()
+	if repair_algorithm==None:
+		repair_algorithm = algorithm.jde()
+	arg_list.append(algorithm)
+	arg_list.append(repair_algorithm)    
+	arg_list.append(gen)
+	arg_list.append(repair_frequency)
+	arg_list.append(repair_ratio)
+	arg_list.append(f_tol)
+	arg_list.append(x_tol)
+	self._orig_init(*arg_list)
+cstrs_core._orig_init = cstrs_core.__init__
+cstrs_core.__init__ = _cstrs_core_ctor
 
 def _ihs_ctor(self, iter = 100, hmcr = 0.85, par_min = 0.35, par_max = 0.99, bw_min = 1E-5, bw_max = 1):
 	"""

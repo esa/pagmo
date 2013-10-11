@@ -50,4 +50,15 @@ void rng_generator::set_seed(int n)
 	m_seeder.seed(n);
 }
 
+
+template <class Rng> 
+Rng rng_generator::get()
+{
+	boost::lock_guard<boost::mutex> lock(m_mutex);
+	return Rng(m_seeder());
+}
+
+template __PAGMO_VISIBLE rng_double rng_generator::get<rng_double>();
+template __PAGMO_VISIBLE rng_uint32 rng_generator::get<rng_uint32>();
+
 }

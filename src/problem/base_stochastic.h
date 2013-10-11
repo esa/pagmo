@@ -33,20 +33,22 @@ namespace pagmo{ namespace problem {
 
 /// Base Stochastic Optimization Problem.
 /**
- * A stochastic optimization problem is a problem that has an objective function
- * \f$ J(\mathbf x) = E_s(\mathbf x,s) \f$
- * being the average over some stochastic variable(s) \f$ s \f$. These types of problems need to
- * iherit from this base class that provides a-pseudo random number generator and a seed
- * that must be used in the objective function definition to generate pseudo random instances of
- * \f$ s\f$. These are then used to approximate the expected value with the average over n instances of s.
- * Look at pagmo::problem::inventory and pagmo::problem::spheres for typical examples.
+ * A stochastic optimization problem is a problem that seeks to optimize
+ * \f$ J(\mathbf x) = E_s(\mathbf x,s) \f$, i.e. the expected value of some stochastic quantity
+ * dependant from the doecision vector. 
  *
- * Optimization techniques that want to deal with these types of problems need to take care
- * of changing appropriately the seed along the optimization process as to avoid overfitting (that is
- * to avoid solving the problem only for one pseudo random sequence of s, and not for any). This must be done by
- * by a call to the change_seed() method.
- * See pagmo::algorithm::pso_stochastic
- * for a good example of such techniques.
+ * These types of problems, in PaGMO, need to
+ * iherit from this base class and reimplement the pagmo::problem::base class virtual method objfun_impl
+ * starting with the following line that sets the seed: m_drng.seed(m_seed);
+ *
+ * Look at pagmo::problem::inventory and pagmo::problem::spheres for a typical example.
+ *
+ * Optimization techniques (pagmo::algorithm) that want to deal with these types of problems
+ * need to take care to change appropriately the seed during the optimization 
+ * process as to avoid overfitting (that is to avoid solving the problem only for one
+ * pseudo random sequence, and not for any). This is done by a call to the change_seed() method.
+ *
+ * See pagmo::algorithm::pso_stochastic for a good example of such techniques.
  *
  * @author Dario Izzo (dario.izzo@gmail.com)
  */
@@ -55,6 +57,9 @@ class __PAGMO_VISIBLE base_stochastic : public base
 {
 	public:
 		base_stochastic(int, unsigned int = 0u);
+		base_stochastic(int, int, int, int, int, const double&, unsigned int);
+		base_stochastic(int, int, int, int, int, const std::vector<double>&, unsigned int);
+
 		unsigned int get_seed() const;
 		void set_seed(unsigned int) const; //This is marked const as m_seed is mutable (needs to be)
 	private:
@@ -66,10 +71,13 @@ class __PAGMO_VISIBLE base_stochastic : public base
 			ar & m_drng;
 			ar & m_seed;
 		}
-
+		
 	protected:
+		/// Random number generator to be used in the objective function
 		mutable rng_double				m_drng;
+		/// Seed of the random number generator
 		mutable unsigned int			m_seed;
+
 };
 
 }} //namespaces

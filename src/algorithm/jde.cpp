@@ -140,7 +140,7 @@ void jde::evolve(population &pop) const
 
 	
 	// Initialize the F and CR vectors
-	if ( (m_cr.size() != NP) || (m_f.size() != NP) || (m_memory) ) {
+	if ( (m_cr.size() != NP) || (m_f.size() != NP) || (!m_memory) ) {
 		m_cr.resize(NP); m_f.resize(NP);
 		if (m_variant_adptv==1) {
 			for (size_t i = 0; i < NP; ++i) {
@@ -513,7 +513,7 @@ void jde::evolve(population &pop) const
 				if ( pop.problem().compare_fitness(newfitness,gbfit) ) {
 					/* if so...*/
 					gbfit=newfitness;          /* reset gbfit to new low...*/
-					gbX=tmp;
+					gbX=popnew[i];
 				}
 			} else {
 				popnew[i] = popold[i];

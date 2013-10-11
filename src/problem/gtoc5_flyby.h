@@ -46,14 +46,16 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE gtoc5_flyby: public base
 {
 	public:
+		/// Objective function to be minimized
 		enum objective {
-			MASS,
-			TIME,
-			FINAL_EPOCH
+			MASS, ///< Propellant mass used
+			TIME, ///< Total time of flight
+			FINAL_EPOCH ///< Arrival date
 		};
 		gtoc5_flyby(int = 10, int = 1, int = 2, int = 3, const double & = 57023, const double & = 4000, objective = MASS, const double &tof_ub = 3, const double & = 1E-5);
 		base_ptr clone() const;
 		std::string get_name() const;
+		/// A nice string representation of a chromosome
 		std::string pretty(const decision_vector &) const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

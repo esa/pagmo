@@ -77,17 +77,18 @@ class __PAGMO_VISIBLE mga_part: public base
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
+	private:
 		static const std::vector<kep_toolbox::planet_ptr> construct_default_sequence() {
 			std::vector<kep_toolbox::planet_ptr> retval;
 			retval.push_back(kep_toolbox::planet_js("europa").clone());
 			retval.push_back(kep_toolbox::planet_js("europa").clone());
 			retval.push_back(kep_toolbox::planet_js("europa").clone());
 			return retval;
-		};
+		}
 		static const kep_toolbox::array3D construct_default_v() {
 			const kep_toolbox::array3D retval = { {1500.0,2350.0,145.0} };
 			return retval;
-		};
+		}
 		static const std::vector<std::vector<double> > construct_default_tofs() {
 			std::vector<std::vector<double> > retval;
 			std::vector<double> dumb(2);
@@ -96,7 +97,7 @@ class __PAGMO_VISIBLE mga_part: public base
 			dumb[0] = 10;dumb[1] = 40;
 			retval.push_back(dumb);
 			return retval;
-		};
+		}
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

@@ -58,7 +58,7 @@ typedef boost::shared_ptr<planet> planet_ptr;
 
 class __KEP_TOOL_VISIBLE planet
 {
-    friend std::ostream &operator<<(std::ostream &, const planet &);
+    friend __KEP_TOOL_VISIBLE_FUNC std::ostream &operator<<(std::ostream &, const planet &);
 public:
     /// Constructor
     /**
@@ -230,7 +230,7 @@ private:
 
 };
 
-__KEP_TOOL_VISIBLE std::ostream &operator<<(std::ostream &s, const planet &body);
+__KEP_TOOL_VISIBLE_FUNC std::ostream &operator<<(std::ostream &s, const planet &body);
 } /// End of namespace kep_toolbox
 
 // Serialization code

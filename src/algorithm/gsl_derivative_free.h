@@ -47,10 +47,11 @@ namespace pagmo { namespace algorithm {
  */
 class __PAGMO_VISIBLE gsl_derivative_free: public base_gsl
 {
-	protected:
-		gsl_derivative_free(int, const double &, const double &);
+	public:
 		std::string human_readable_extra() const;
 		void evolve(population &) const;
+	protected:
+		gsl_derivative_free(int, const double &, const double &);
 		/// Selected minimiser.
 		/**
 		 * This function will return a pointer to the GSL minimiser selected by the derived class.

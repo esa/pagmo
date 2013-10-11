@@ -148,6 +148,7 @@ std::string sample_return::pretty(const std::vector<double> &x) const
 	return s.str();
 }
 
+/// Computes the Delta-Vs
 std::vector<double> sample_return::get_delta_v(const std::vector<double> &x) const {
 	//We split the decision vector in the two legs
 	std::copy(x.begin(),x.begin()+6,x_leg1.begin());
