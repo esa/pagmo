@@ -72,7 +72,7 @@ can be fed to it (i.e. box-constrained, mixed integer etc.):
 - Multistart (pagmo::algorithm::ms)
 - Monte-Carlo (pagmo::algorithm::monte_carlo)
 
-Other algorithm are available via third parties libraries, and can be included activating the respective
+Other algorithm are available via third party libraries, and can be included activating the respective
 options in CMake, in particular:
 
 - GSL library (open-source) -- includes Nelder-Mead, BFGS and more, see pagmo::algorithm::base_gsl
@@ -110,11 +110,21 @@ To install PaGMO from source code you will need git and CMake installed in your 
 
 On Unix systems:
 
-- Clone the PaGMO git repository on your local machine: \code git clone git://git.code.sf.net/p/pagmo/code pagmo-code \endcode
+- Clone the PaGMO git repository on your local machine: \code git
+  clone git://git.code.sf.net/p/pagmo/code pagmo-code \endcode
+- Please check that all needed libraries are available. Pagmo/Pygmo is
+  based on boost so you might need to run (example valid for apt-get package manager) \code sudo apt-get install
+  libboost1.48-all-dev  \endcode  or simply  \code sudo apt-get install
+  libboost-all-dev  \endcode. This includes the syste, serialization, date-time, thread and python library that are actually used here. 
 - Create a build directory in your pagmo directory and move there: \code 
 cd pagmo-code \endcode \code mkdir build \endcode \code cd build 
 \endcode
-- Run ccmake to configure your makefile (or project): \code ccmake ../ \endcode
+- You will need cmake and, optionally, ccmake to go ahead with the
+ instructions. Install them using sudo apt-get install
+ cmake-curses-gui which will automatically install cmake as a
+ dependence. 
+- You can go straight ahead and run \code cmake ../ \endcode or, if
+ you want a finer control on what is compiled, run ccmake to configure your makefile (or project): \code ccmake ../ \endcode
 - In ccmake, press c to configure, then (see figure below) select the options that are desired 
 (e.g. compile the main file?, compile  PyGMO?) press c to configure again and then g to generate the makefile. 
 Selecting the option PyGMO you will also build the python version of the code. 
@@ -122,12 +132,12 @@ In this case make sure you have python installed. CMake will try to locate the c
 directory of your python and install there the code upon make install.
 
 \image html ccmake.png
-- Build PaGMO: \code make \endcode
-- Test PaGMO (if tests are enabled in ccmake): \code make test\endcode
-- Install PaGMO: \code make install \endcode
+- Build PaGMO: \code make \endcode.
+- Test PaGMO (if tests are enabled in ccmake): \code make test\endcode.
+- Install PaGMO: \code make install \endcode , or possibly \code sudo make install \endcode.
 
 On Windows systems, the procedure is analogous (you will likely use the Windows CMake GUI instead of ccmake). We have so 
-far tested compilation only using MinGW
+far tested compilation only using MinGW and MSCV 11 (see here for more info on windows compilation (https://sourceforge.net/apps/mediawiki/pagmo/index.php?title=Main_Page)
 
 \section PyGMO Interactive python session
 
