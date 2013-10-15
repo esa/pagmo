@@ -102,7 +102,7 @@ def _zdt_ctor(self, prob_id = 1, param_1 = None):
 				arg_list.append(10)
 		else:
 			arg_list.append(param_1)
-			self._orig_init(*arg_list)
+		self._orig_init(*arg_list)
 
 zdt._orig_init = zdt.__init__
 zdt.__init__ = _zdt_ctor
