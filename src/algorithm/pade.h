@@ -72,6 +72,7 @@ public:
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
+	std::vector<fitness_vector> generate_weights(const unsigned int, const unsigned int) const;
 
 protected:
 	std::string human_readable_extra() const;

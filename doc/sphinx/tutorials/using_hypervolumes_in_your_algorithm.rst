@@ -31,7 +31,7 @@ As it is often the case in the tutorials, we will present a fairly simple MOO al
         * gen: number of generations
         * p_m: probability of mutation
         """
-        #We start calling the base constructor
+        # We start by calling the base constructor
         super(my_hv_moo_alg,self).__init__()
         # Store the number of generations
         self.__gen = gen
@@ -73,7 +73,6 @@ As it is often the case in the tutorials, we will present a fairly simple MOO al
            ind2 = pop[idx2]
   
            new_x = self.mutate(self.cross(ind1, ind2), lb, ub)
-           #new_x = self.cross(ind1, ind2)
            pop.push_back(new_x)
   
            # Remove the least contributor
@@ -139,7 +138,6 @@ For this, we will employ the information from the previous tutorial :ref:`migrat
   def main():
      prob = problem.dtlz(2)
      alg = my_hv_moo_alg(gen = 100, p_m=0.02)
-     #alg = sms_emoa(gen = 100)
   
      # Initiate the migration policies
      s_pol = migration.hv_best_s_policy(0.1, migration.rate_type.fractional)
