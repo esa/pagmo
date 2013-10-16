@@ -340,8 +340,14 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.value("GRID", algorithm::pade::GRID)
 		.value("LOW_DISCREPANCY", algorithm::pade::LOW_DISCREPANCY);
 	algorithm_wrapper<algorithm::pade>("pade", "Parallel Decomposition")
-		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type, pagmo::fitness_vector> >());
-
+		.def(init<optional<int, int, pagmo::problem::decompose::method_type, const algorithm::base &, population::size_type, algorithm::pade::weight_generation_type, pagmo::fitness_vector> >())
+		.def("generate_weights", &algorithm::pade::generate_weights,
+		"Generates the weights of the decomposed problem\n\n"
+		"  USAGE:: w = pade.generate_weights(nf,nw)\n"
+		"   - nf: fitness dimension\n"
+		"   - nw: number of weights"
+		);
+		
 	// SMS-EMOA
 	algorithm_wrapper<algorithm::sms_emoa>("sms_emoa", "The SMS-EMOA algorithm")
 		.def(init<optional<int, int, double, double, double, double> >())

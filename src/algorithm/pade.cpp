@@ -127,6 +127,78 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 	}
 }
 
+/// Generates the weights used in the problem decomposition
+/**
+ * Run the PaDe algorithm for the number of generations specified in the constructors.
+ *
+ * @param[in] n_f diemenion of the fitness space
+ * @param[in] n_w number of weights to be produced
+ */
+ 
+ std::vector<fitness_vector> pade::generate_weights(const unsigned int n_f, const unsigned int n_w) const {
+
+	// Definition of useful probability distributions
+	boost::uniform_real<double> uniform(0.0,1.0);
+	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > r_dist(m_drng,uniform);
+
+	std::vector<fitness_vector> retval;
+	if(m_weight_generation == GRID) {
+			//find the largest H resulting in a population smaller or equal to NP
+			unsigned int H;
+			if (n_f == 2) {
+				H = n_w-1;
+			} else if (n_f == 3) {
+				H = floor(0.5 * (sqrt(8*n_w + 1) - 3));
+			} else {
+				std::cout << "Fitness dimension is " << n_f << std::endl;
+				H = 1;
+				while(boost::math::binomial_coefficient<double>(H+n_f-1, n_f-1) <= n_w) {
+					++H;
+				}
+				H--;
+			}
+	
+			// We check that NP equals the population size rsulting from H
+			if (fabs(n_w-(boost::math::binomial_coefficient<double>(H+n_f-1, n_f-1))) > 1E-8) {
+				std::ostringstream error_message;
+				error_message << "Invalid population size. Select " << boost::math::binomial_coefficient<double>(H+n_f-1, n_f-1)
+						<< " or " << boost::math::binomial_coefficient<double>(H+1+n_f-1, n_f-1)
+						<< ".";
+				pagmo_throw(value_error,error_message.str());
+			}
+	
+			// We generate the weights
+			std::vector<unsigned int> range;
+			for (unsigned int i=0; i<H+1;++i) {
+				range.push_back(i);
+			}
+			double epsilon = 1E-6;
+			reksum(retval, range, n_f, H);
+			for(unsigned int i=0; i< retval.size(); ++i) {
+				for(unsigned int j=0; j< retval[i].size(); ++j) {
+					retval[i][j] += epsilon;  //to avoid to have any weight equal to zero
+					retval[i][j] /= H+epsilon*retval[i].size();
+				}
+			}
+	
+		} else if(m_weight_generation == LOW_DISCREPANCY) {
+			pagmo::util::discrepancy::simplex generator(n_f,1);
+			for(unsigned int i = 0; i <n_w; ++i) {
+				retval.push_back(generator());
+			}
+	
+		} else if(m_weight_generation == RANDOM) {
+			pagmo::util::discrepancy::project_2_simplex projection(n_f);
+			for (unsigned int i = 0; i<n_w; ++i) {
+				fitness_vector dummy(n_f-1,0.0);
+				for(unsigned int j = 0; j <n_f-1; ++j) {
+					dummy[j] = r_dist();
+				}
+				retval.push_back(projection(dummy));
+			}
+		}
+		return retval;
+ }
 
 /// Evolve implementation.
 /**
@@ -153,10 +225,6 @@ void pade::evolve(population &pop) const
 		return;
 	}
 
-	// Definition of useful probability distributions
-	boost::uniform_real<double> uniform(0.0,1.0);
-	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > r_dist(m_drng,uniform);
-
 	decision_vector dummy(pop.get_individual(0).cur_x.size(),0); //used for initialisation purposes
 	std::vector<decision_vector> X(NP,dummy); //set of population chromosomes
 
@@ -168,65 +236,8 @@ void pade::evolve(population &pop) const
 	pop.clear();
 
 	// Generate the weights for the decomposed problems
-	std::vector<fitness_vector> weights;
-
-	if(m_weight_generation == GRID) {
-		//find the largest H resulting in a population smaller or equal to NP
-		unsigned int H;
-		if (prob.get_f_dimension() == 2) {
-			H = NP-1;
-		} else if (prob.get_f_dimension() == 3) {
-			H = floor(0.5 * (sqrt(8*NP + 1) - 3));
-		} else {
-			std::cout << "Fitness dimension is " << prob.get_f_dimension() << std::endl;
-			H = 1;
-			while(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1) <= NP) {
-				++H;
-			}
-			H--;
-		}
-
-		// We check that NP equals the population size rsulting from H
-		if (fabs(NP-(boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1))) > 1E-8) {
-			std::ostringstream error_message;
-			error_message << "Invalid population size. Select " << boost::math::binomial_coefficient<double>(H+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
-					<< " or " << boost::math::binomial_coefficient<double>(H+1+prob.get_f_dimension()-1, prob.get_f_dimension()-1)
-					<< ".";
-			pagmo_throw(value_error,error_message.str());
-		}
-
-		// We generate the weights
-		std::vector<unsigned int> range;
-		for (unsigned int i=0; i<H+1;++i) {
-			range.push_back(i);
-		}
-		double epsilon = 1E-6;
-		reksum(weights, range, prob.get_f_dimension(), H);
-		for(unsigned int i=0; i< weights.size(); ++i) {
-			for(unsigned int j=0; j< weights[i].size(); ++j) {
-				weights[i][j] += epsilon;  //to avoid to have any weight equal to zero
-				weights[i][j] /= H+epsilon*weights[i].size();
-			}
-		}
-
-	} else if(m_weight_generation == LOW_DISCREPANCY) {
-		pagmo::util::discrepancy::simplex generator(prob.get_f_dimension(),1);
-		for(unsigned int i = 0; i <NP; ++i) {
-			weights.push_back(generator());
-		}
-
-	} else if(m_weight_generation == RANDOM) {
-		pagmo::util::discrepancy::project_2_simplex projection(prob.get_f_dimension());
-		for (unsigned int i = 0; i<NP; ++i) {
-			fitness_vector dummy(prob.get_f_dimension()-1,0.0);
-			for(unsigned int j = 0; j <prob.get_f_dimension()-1; ++j) {
-				dummy[j] = r_dist();
-			}
-			weights.push_back(projection(dummy));
-		}
-	}
-
-
+	std::vector<fitness_vector> weights = generate_weights(prob.get_f_dimension(), NP);
+	
 	// We then compute, for each weight vector, which ones are the closest ones (this will form the topology later on)
 	std::vector<std::vector<population::size_type> > indices;
 	pagmo::util::neighbourhood::euclidian::compute_neighbours(indices, weights);
