@@ -71,6 +71,7 @@
 #include "problem/cstrs_self_adaptive.h"
 #include "problem/antibodies_problem.h"
 #include "problem/shifted.h"
+#include "problem/scaled.h"
 #include "problem/rotated.h"
 #include "problem/normalized.h"
 #include "problem/decompose.h"

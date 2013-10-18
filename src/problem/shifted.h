@@ -68,7 +68,7 @@ class __PAGMO_VISIBLE shifted : public base_meta
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base_meta>(*this);
-			ar & const_cast<decision_vector &>(m_translation);
+			ar & m_translation;
 		}
 		decision_vector m_translation;
 };

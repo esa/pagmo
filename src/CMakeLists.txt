@@ -93,6 +93,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cstrs_self_adaptive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/antibodies_problem.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/scaled.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/decompose.cpp

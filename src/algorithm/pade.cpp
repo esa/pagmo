@@ -157,8 +157,8 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 				}
 				H--;
 			}
-	
-			// We check that NP equals the population size rsulting from H
+
+			// We check that NP equals the population size resulting from H
 			if (fabs(n_w-(boost::math::binomial_coefficient<double>(H+n_f-1, n_f-1))) > 1E-8) {
 				std::ostringstream error_message;
 				error_message << "Invalid population size. Select " << boost::math::binomial_coefficient<double>(H+n_f-1, n_f-1)
@@ -176,7 +176,7 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 			reksum(retval, range, n_f, H);
 			for(unsigned int i=0; i< retval.size(); ++i) {
 				for(unsigned int j=0; j< retval[i].size(); ++j) {
-					retval[i][j] += epsilon;  //to avoid to have any weight equal to zero
+					retval[i][j] += epsilon;  //NOTE: to avoid to have any weight exactly equal to zero
 					retval[i][j] /= H+epsilon*retval[i].size();
 				}
 			}
@@ -232,8 +232,6 @@ void pade::evolve(population &pop) const
 	for ( population::size_type i = 0; i<NP; i++ ) {
 		X[i]	=	pop.get_individual(i).cur_x;
 	}
-	// Clear the current population (TODO: is this necessary?)
-	pop.clear();
 
 	// Generate the weights for the decomposed problems
 	std::vector<fitness_vector> weights = generate_weights(prob.get_f_dimension(), NP);
@@ -303,6 +301,7 @@ void pade::evolve(population &pop) const
 	}
 
 	//The original population is set to contain the best individual of each island
+	pop.clear();
 	for(pagmo::population::size_type i=0; i<NP ;++i) {
 		pop.push_back(arch.get_island(i)->get_population().champion().x);
 	}
