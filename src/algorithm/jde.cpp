@@ -540,6 +540,7 @@ void jde::evolve(population &pop) const
 				if (m_screen_output) { 
 					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
 				}
+				m_fevals+=gen*NP;
 				return;
 			}
 
@@ -549,6 +550,7 @@ void jde::evolve(population &pop) const
 				if (m_screen_output) {
 					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
 				}
+				m_fevals+=gen*NP;
 				return;
 			}
 		}
@@ -558,7 +560,7 @@ void jde::evolve(population &pop) const
 	if (m_screen_output) {
 		std::cout << "Exit condition -- generations > " <<  m_gen << std::endl;
 	}
-
+	m_fevals+=m_gen*NP;
 }
 
 /// Algorithm name

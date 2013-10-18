@@ -412,6 +412,7 @@ void cmaes::evolve(population &pop) const
 				if (m_screen_output) { 
 					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
 				}
+				m_fevals+=g*lam;
 				return;
 			}
 
@@ -421,6 +422,7 @@ void cmaes::evolve(population &pop) const
 				if (m_screen_output) {
 					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
 				}
+				m_fevals+=g*lam;
 				return;
 			}
 		}
@@ -442,6 +444,7 @@ void cmaes::evolve(population &pop) const
 	}
 		
 	} // end loop on g
+	m_fevals+=m_gen*lam;
 }
 
 /// Setter for m_gen 
