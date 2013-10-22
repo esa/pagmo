@@ -73,7 +73,7 @@ class __PAGMO_VISIBLE decompose : public base_meta
 		base_ptr clone() const;
 		std::string get_name() const;
 		const std::vector<double>& get_weights() const;
-
+		void compute_decomposed_fitness(fitness_vector &, const fitness_vector &) const;
 	protected:
 		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;

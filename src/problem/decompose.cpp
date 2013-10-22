@@ -121,22 +121,32 @@ base_ptr decompose::clone() const
 	return base_ptr(new decompose(*this));
 }
 
-/// Implementation of the objective function.
+///Implementation of the objective function
 void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	fitness_vector fit(m_original_problem->get_f_dimension());
 	m_original_problem->objfun(fit, x);
 
+	compute_decomposed_fitness(f, fit);
+}
+
+/**
+ * Compute the decomposed fitness given the original multi-objective one
+ * @param f decomposed fitness vector
+ * @param original_fit original multi-objective fitness vector
+ */
+void decompose::compute_decomposed_fitness(fitness_vector &f, const fitness_vector &original_fit) const
+{
 	if(m_method == WEIGHTED) {
 		f[0] = 0.0;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-			f[0]+= m_weights[i]*fit[i];
+			f[0]+= m_weights[i]*original_fit[i];
 		}
 	} else if (m_method == TCHEBYCHEFF) {
-		f[0] = m_weights[0] * fabs(fit[0] - m_z[0]);
+		f[0] = m_weights[0] * fabs(original_fit[0] - m_z[0]);
 		double tmp;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-			tmp = m_weights[i] * fabs(fit[i] - m_z[i]);
+			tmp = m_weights[i] * fabs(original_fit[i] - m_z[i]);
 			if(tmp > f[0]) {
 				f[0] = tmp;
 			}
@@ -146,7 +156,7 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		double d1 = 0.0;
 		double weight_norm = 0.0;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-			d1 += (fit[i] - m_z[i]) * m_weights[i];
+			d1 += (original_fit[i] - m_z[i]) * m_weights[i];
 			weight_norm += pow(m_weights[i],2);
 		}
 		weight_norm = sqrt(weight_norm);
@@ -154,7 +164,7 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 		double d2 = 0.0;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-			d2 += pow(fit[i] - (m_z[i] + d1*m_weights[i]/weight_norm), 2);
+			d2 += pow(original_fit[i] - (m_z[i] + d1*m_weights[i]/weight_norm), 2);
 		}
 		d2 = sqrt(d2);
 
