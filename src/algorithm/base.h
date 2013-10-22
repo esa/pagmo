@@ -129,6 +129,7 @@ return base_ptr(new derived_algorithm(*this));
 			ar & m_fevals;
 		}
 	protected:
+		// A counter for the number of function evaluations
 		mutable unsigned int m_fevals;
 };
 

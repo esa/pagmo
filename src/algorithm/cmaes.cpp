@@ -277,6 +277,28 @@ void cmaes::evolve(population &pop) const
 		//This is evaluated here on the last generated tmp and will be used only as 
 		//a stopping criteria
 		var_norm = (sigma * B * D * tmp).norm();
+		
+		//1b - Check the exit conditions (every 5 generations) // we need to do it here as 
+		//termination is defined on tmp
+		if (g%5 == 0) {
+			if  ( (sigma*B*D*tmp).norm() < m_xtol ) {
+				if (m_screen_output) { 
+					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
+				}
+				m_fevals+=g*lam;
+				return;
+			}
+
+			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+
+			if (mah < m_ftol) {
+				if (m_screen_output) {
+					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
+				}
+				m_fevals+=g*lam;
+				return;
+			}
+		}
 
 		// 1c - we fix the bounds 
 		for (population::size_type i = 0; i<lam; ++i ) {
@@ -404,27 +426,6 @@ void cmaes::evolve(population &pop) const
 				pop.get_individual(pop.get_worst_idx()).best_f[0] << std::setw(20) << 
 				var_norm << std::setw(20) <<
 				sigma << std::endl;
-		}
-
-		//9 - Check the exit conditions (every 40 generations)
-		if (g%40) {
-			if  ( (sigma*B*D*tmp).norm() < m_xtol ) {
-				if (m_screen_output) { 
-					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
-				}
-				m_fevals+=g*lam;
-				return;
-			}
-
-			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
-
-			if (mah < m_ftol) {
-				if (m_screen_output) {
-					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
-				}
-				m_fevals+=g*lam;
-				return;
-			}
 		}
 
 	// Update algorithm memory
