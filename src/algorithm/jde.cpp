@@ -162,6 +162,33 @@ void jde::evolve(population &pop) const
 	// Main DE iterations
 	size_t r1,r2,r3,r4,r5,r6,r7;	//indexes to the selected population members
 	for (int gen = 0; gen < m_gen; ++gen) {
+		//0 - Check the exit conditions (every 10 generations)
+		if (gen % 5 == 0) {
+			double dx = 0;
+			for (decision_vector::size_type i = 0; i < D; ++i) {
+				tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];
+				dx += std::fabs(tmp[i]);
+			}
+			
+			if  ( dx < m_xtol ) {
+				if (m_screen_output) { 
+					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
+				}
+				m_fevals+=gen*NP;
+				return;
+			}
+
+			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
+
+			if (mah < m_ftol) {
+				if (m_screen_output) {
+					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
+				}
+				m_fevals+=gen*NP;
+				return;
+			}
+		}
+	
 		//Start of the loop through the deme
 		for (size_t i = 0; i < NP; ++i) {
 			do {                       /* Pick a random population member */
@@ -526,35 +553,6 @@ void jde::evolve(population &pop) const
 
 		/* swap population arrays. New generation becomes old one */
 		std::swap(popold, popnew);
-
-
-		//9 - Check the exit conditions (every 40 generations)
-		if (gen % 40 == 0) {
-			double dx = 0;
-			for (decision_vector::size_type i = 0; i < D; ++i) {
-				tmp[i] = pop.get_individual(pop.get_worst_idx()).best_x[i] - pop.get_individual(pop.get_best_idx()).best_x[i];
-				dx += std::fabs(tmp[i]);
-			}
-			
-			if  ( dx < m_xtol ) {
-				if (m_screen_output) { 
-					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
-				}
-				m_fevals+=gen*NP;
-				return;
-			}
-
-			double mah = std::fabs(pop.get_individual(pop.get_worst_idx()).best_f[0] - pop.get_individual(pop.get_best_idx()).best_f[0]);
-
-			if (mah < m_ftol) {
-				if (m_screen_output) {
-					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
-				}
-				m_fevals+=gen*NP;
-				return;
-			}
-		}
-		
 
 	}//end main DE iterations
 	if (m_screen_output) {
