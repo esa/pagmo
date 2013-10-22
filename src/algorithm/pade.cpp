@@ -350,4 +350,4 @@ std::string pade::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pade);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pade)

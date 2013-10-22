@@ -557,6 +557,6 @@ std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 }
 }
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base)
 
 #endif
