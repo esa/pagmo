@@ -132,7 +132,7 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 /**
  * Run the PaDe algorithm for the number of generations specified in the constructors.
  *
- * @param[in] n_f diemenion of the fitness space
+ * @param[in] n_f diemension of the fitness space
  * @param[in] n_w number of weights to be produced
  */
  
@@ -213,6 +213,7 @@ void pade::evolve(population &pop) const
 	const problem::base &prob = pop.problem();
 	const population::size_type NP = pop.size();
 
+	// And make some sanity checks
 	if ( prob.get_f_dimension() < 2 ) {
 		pagmo_throw(value_error, "The problem is not multiobjective, try some other algorithm than PaDE");
 	}
@@ -234,10 +235,10 @@ void pade::evolve(population &pop) const
 		X[i]	=	pop.get_individual(i).cur_x;
 	}
 
-	// Generate the weights for the decomposed problems
+	// Generate the weights for the NP decomposed problems
 	std::vector<fitness_vector> weights = generate_weights(prob.get_f_dimension(), NP);
 	
-	// We then compute, for each weight vector, which ones are the closest ones (this will form the topology later on)
+	// We compute, for each weight vector, the neighbouring ones (this will form the topology later on)
 	std::vector<std::vector<population::size_type> > indices;
 	pagmo::util::neighbourhood::euclidian::compute_neighbours(indices, weights);
 
@@ -247,8 +248,8 @@ void pade::evolve(population &pop) const
 	// to have individuals from all connected island to be inserted.
 	pagmo::archipelago arch(pagmo::archipelago::broadcast);
 
-	// Set random number generators of the archipelago equal to the one of the
-	// algorithm (so that a copy of the algorithm behave exactly as the original)
+	// Sets random number generators of the archipelago using the algorithm urng to obtain
+	// a deterministic behaviour upon copy.
 	arch.set_seeds(m_urng());
 	
 	// Best individual will be selected for migration
@@ -342,11 +343,18 @@ void pade::evolve(population &pop) const
 		}
 	}
 
-	//The original population is set to contain the best individual of each island
-	pop.clear();
+	// Finally, we assemble the evolved population selecting from the original one + the evolved one
+	// the best NP (crowding distance)
+	population popnew(pop);
 	for(pagmo::population::size_type i=0; i<NP ;++i) {
-		pop.push_back(arch.get_island(i)->get_population().champion().x);
+		popnew.push_back(arch.get_island(i)->get_population().champion().x);
 	}
+	std::vector<population::size_type> selected_idx = popnew.get_best_idx(NP);
+	// We completely clear the population (NOTE: memory of all individuals and the notion of
+	// champion is thus destroyed)
+	pop.clear();
+	// And we recreate it with the best NP among the evolved and the new population
+	for (population::size_type i=0; i < NP; ++i) pop.push_back(popnew.get_individual(selected_idx[i]).cur_x);
 }
 
 /// Algorithm name
