@@ -29,6 +29,7 @@
 
 #include <boost/math/special_functions/binomial.hpp>
 #include <boost/random/uniform_real.hpp>
+#include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
 
 #include "../exceptions.h"
@@ -256,15 +257,58 @@ void pade::evolve(population &pop) const
 	// As m_T neighbours are connected, we replace m_T individuals on the island
 	const pagmo::migration::worst_r_policy replacement_policy(m_T);
 
-	for(pagmo::population::size_type i=0; i<NP;++i) {
-		pagmo::problem::decompose decomposed_prob(prob, m_method,weights[i],m_z);
-		pagmo::population decomposed_pop(decomposed_prob, 0, m_urng());
 
-		//Set the individuals of the new population as one individual of the original population plus m_T
-		//neighbours individuals
+	//We create a pseudo-random permutation of the poulation indexes
+	std::vector<population::size_type> shuffle(NP);
+	for(pagmo::population::size_type i=0; i < NP; ++i) {
+			shuffle[i] = i;
+	}
+	boost::uniform_int<int> pop_idx(0,NP-1);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
+	std::random_shuffle(shuffle.begin(), shuffle.end(), p_idx);
+
+
+	//We create all the decomposed problems (one for each individual)
+	std::vector<pagmo::problem::decompose*> problems_vector;
+	for(pagmo::population::size_type i=0; i<NP;++i) {
+		problems_vector.push_back(new pagmo::problem::decompose(prob, m_method,weights[i],m_z));
+	}
+
+	//We assign each problem to the individual which has minimum fitness on that problem
+	std::vector<int> assignation_list(NP); //problem i is assigned to the individual assignation_list[i]
+	std::vector<bool> selected_list(NP,false);	//keep track of the individuals already assigned to a problem
+	fitness_vector dec_fit(1);	//temporary stores the decomposed fitness
+	for(pagmo::population::size_type i=0; i<NP;++i) { //for each problem i, select an individual j
+		unsigned int j = 0;
+		while(selected_list[j]) j++; //get to the first not already selected individual
+
+		problems_vector[i]->compute_decomposed_fitness(dec_fit, pop.get_individual(shuffle[j]).cur_f);
+		double minFit = dec_fit[0];
+		int minFitPos = j;
+
+		for(;j < NP; ++j) { //find the minimum fitness individual for problem i
+			if(!selected_list[j]) { //just consider individuals which have not been selected already
+				problems_vector[i]->compute_decomposed_fitness(dec_fit, pop.get_individual(shuffle[j]).cur_f);
+				if(dec_fit[0] < minFit) {
+					minFit = dec_fit[0];
+					minFitPos = j;
+				}
+			}
+		}
+
+		assignation_list[i] = shuffle[minFitPos];
+		selected_list[minFitPos] = true;
+	}
+
+	for(pagmo::population::size_type i=0; i<NP;++i) { //for each island/problem i
+		pagmo::population decomposed_pop(*problems_vector[i], 0, m_urng()); //Create a population for each decomposed problem
+
+		//Set the individuals of the new population as one individual of the original population
+		// (according to assignation_list) plus m_T neighbours individuals
 		if(m_T < NP-1) {
-			for(pagmo::population::size_type  j = 0; j <= m_T; ++j) { 
-				decomposed_pop.push_back(X[indices[i][j]]);
+			decomposed_pop.push_back(X[assignation_list[i]]); //assign to the island the correct individual according to the assignation list
+			for(pagmo::population::size_type  j = 1; j <= m_T; ++j) { //add the neighbours
+				decomposed_pop.push_back(X[assignation_list[indices[i][j]]]); //add the individual assigned to the island indices[i][j]
 			}
 		} else { //complete topology
 			for(pagmo::population::size_type  j = 0 ; j < NP; ++j) {
