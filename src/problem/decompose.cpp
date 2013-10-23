@@ -130,23 +130,42 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	compute_decomposed_fitness(f, fit);
 }
 
+/// Compute the decomposed fitness
 /**
- * Compute the decomposed fitness given the original multi-objective one
+ * Compute the decomposed fitness from the original multi-objective one and a weight vector
+ *
  * @param f decomposed fitness vector
  * @param original_fit original multi-objective fitness vector
+ * @param weights weights vector
  */
 void decompose::compute_decomposed_fitness(fitness_vector &f, const fitness_vector &original_fit) const
 {
+	compute_decomposed_fitness(f, original_fit,m_weights);
+}
+
+/// Compute the decomposed fitness
+/**
+ * Compute the decomposed fitness from the original multi-objective one and a weight vector
+ *
+ * @param[out] f decomposed fitness vector
+ * @param[in] original_fit original multi-objective fitness vector
+ * @param[in] weights weights vector
+ */
+void decompose::compute_decomposed_fitness(fitness_vector &f, const fitness_vector &original_fit, const fitness_vector &weights) const
+{
+	if ( (m_weights.size() != weights.size()) || (original_fit.size() != m_weights.size()) ) {
+		pagmo_throw(value_error,"Check the sizes of input weights and fitness vector");
+	}
 	if(m_method == WEIGHTED) {
 		f[0] = 0.0;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-			f[0]+= m_weights[i]*original_fit[i];
+			f[0]+= weights[i]*original_fit[i];
 		}
 	} else if (m_method == TCHEBYCHEFF) {
-		f[0] = m_weights[0] * fabs(original_fit[0] - m_z[0]);
+		f[0] = weights[0] * fabs(original_fit[0] - m_z[0]);
 		double tmp;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-			tmp = m_weights[i] * fabs(original_fit[i] - m_z[i]);
+			tmp = weights[i] * fabs(original_fit[i] - m_z[i]);
 			if(tmp > f[0]) {
 				f[0] = tmp;
 			}
@@ -156,15 +175,15 @@ void decompose::compute_decomposed_fitness(fitness_vector &f, const fitness_vect
 		double d1 = 0.0;
 		double weight_norm = 0.0;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-			d1 += (original_fit[i] - m_z[i]) * m_weights[i];
-			weight_norm += pow(m_weights[i],2);
+			d1 += (original_fit[i] - m_z[i]) * weights[i];
+			weight_norm += pow(weights[i],2);
 		}
 		weight_norm = sqrt(weight_norm);
 		d1 = fabs(d1)/weight_norm;
 
 		double d2 = 0.0;
 		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
-			d2 += pow(original_fit[i] - (m_z[i] + d1*m_weights[i]/weight_norm), 2);
+			d2 += pow(original_fit[i] - (m_z[i] + d1*weights[i]/weight_norm), 2);
 		}
 		d2 = sqrt(d2);
 
@@ -181,8 +200,22 @@ std::string decompose::human_readable_extra() const
 {
 	std::ostringstream oss;
 	oss << m_original_problem->human_readable_extra() << std::endl;
-	oss << "\n\tDecomposition method: " << m_method << std::endl;
-	oss << "\tWeight vector: " << m_weights << std::endl;
+	oss << "\n\tDecomposition method: ";
+	switch(m_method){
+		case WEIGHTED: {
+			oss << "Weighted ";
+			break;
+		}
+		case BI: {
+			oss << "Boundary Interception ";
+			break;
+			}
+		case TCHEBYCHEFF: {
+			oss << "Tchebycheff ";
+			break;
+			}
+	}
+	oss << std::endl << "\tWeight vector: " << m_weights << std::endl;
 	oss << "\tReference point: " << m_z << std::endl;
 	return oss.str();
 }

@@ -67,6 +67,13 @@ std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::
 	return retval;
 }
 
+// wrapper of a decompose method
+static inline fitness_vector compute_decomposed_fitness_wrapper(const problem::decompose &p, const fitness_vector &original_fit, const fitness_vector &weights) {
+	fitness_vector retval(1);
+	p.compute_decomposed_fitness(retval,original_fit,weights);
+	return retval;
+}
+
 // Wrapper to expose problems.
 template <class Problem>
 static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *name, const char *descr)
@@ -110,7 +117,6 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_meta> > me
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	return retval;
 }
-
 
 // Wrapper to expose unconstrained multi-objective problems.
 template <class Problem>
@@ -440,6 +446,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("BI", problem::decompose::BI);
 	meta_problem_wrapper<problem::decompose>("decompose","Decomposed problem")
 		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &> >())
+		.def("compute_decomposed_fitness", &compute_decomposed_fitness_wrapper, 
+		"Computes the fitness of the decomposed problem\n\n"
+		"  USAGE:: w = prob.compute_decomposed_fitness(fit,weight)\n"
+		"   - fit: multi-dimensional fitness\n"
+		"   - weight: decomposition weights")
 		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()));
 
 	// Noisy meta-problem

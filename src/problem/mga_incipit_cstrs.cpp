@@ -428,6 +428,9 @@ std::string mga_incipit_cstrs::human_readable_extra() const
 	for (size_t i=0; i<m_seq.size(); ++i) {
 	  oss << m_tof[i]<<' ';
 	}
+	oss << "\n\tMaximum time of flight: " << m_tmax;
+	oss << "\n\tMinimum distance from Jupiter: " << m_dmin;
+	
 	return oss.str();
 }
 
