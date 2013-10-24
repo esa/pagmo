@@ -356,7 +356,7 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 		node_colors=[(node_colors[i] - float(m))/(M-m) for i in range(len(self))]
 
 	#And we draw the archipelago .....
-	pl.figure()
+	ax = pl.figure()
 	if cmap == 'default':
 		cmap = pl.cm.Reds_r
 	nx.draw_networkx_nodes(G,pos,nodelist=range(len(self)), node_color=node_colors, cmap=cmap, node_size=node_sizes,alpha=n_alpha)
@@ -367,7 +367,7 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 archipelago.draw = _archipelago_draw
 
 
-def _pop_plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6):
+def _pop_plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6, fronts=[]):
 	"""
 	Plots the population pareto front in a 2-D graph
 
@@ -377,6 +377,7 @@ def _pop_plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size =
 	* rgb: specify the color of the 1st front (use strong colors here)
 	* symbol: marker for the individual
 	* size: size of the markersymbol
+	* fronts: list of fronts to be plotted (use [0] to only show the first)
 	"""
 	from numpy import linspace
 	import matplotlib.pyplot as plt
@@ -394,19 +395,26 @@ def _pop_plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size =
 
 
 	p_list = pop.compute_pareto_fronts()
+	if (len(fronts) > 0):
+		n = len(p_list)
+		consistent = [d < n for d in fronts]
+		if consistent.count(False) > 0:
+			raise ValueError('Check your fronts list, there seem to be not enough fronts')
+		p_list = [p_list[idx] for idx in fronts]
+	
 	cl = zip(linspace(0.9 if rgb[0] else 0.1,0.9, len(p_list)), 
 			 linspace(0.9 if rgb[1] else 0.1,0.9, len(p_list)),  
 			 linspace(0.9 if rgb[2] else 0.1,0.9, len(p_list)))  
 
 	for id_f,f in enumerate(p_list):
 		for ind in f:
-			plt.plot([pop[ind].best_f[comp[0]]],[pop[ind].best_f[comp[1]]], symbol, color=cl[id_f], markersize=size)
+			ax = plt.plot([pop[ind].best_f[comp[0]]],[pop[ind].best_f[comp[1]]], symbol, color=cl[id_f], markersize=size)
 		x = [pop[ind].best_f[comp[0]] for ind in f]
 		y = [pop[ind].best_f[comp[1]] for ind in f]
 		tmp = [(a,b) for a,b in zip(x,y)]
 		tmp = sorted(tmp, key = lambda k:k[0])
 		plt.step([c[0] for c in tmp], [c[1] for c in tmp],color=cl[id_f],where='post')
-	plt.show()
+	return ax
 
 population.plot_pareto_fronts = _pop_plot_pareto_fronts
 	
