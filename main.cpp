@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include "src/pagmo.h"
 
@@ -62,8 +63,15 @@ int main() {
 
 	problem::zdt prob(1,30);
 	population pop(prob,100);
-	algorithm::moead algo;
+	algorithm::moead algo(500);
 	algo.evolve(pop);
-	std::cout << pop << std::endl;
+
+
+	std::ofstream osfile;
+	osfile.open ("paretofront.txt");
+	for(population::size_type i=0; i<pop.size(); i++){
+		osfile << pop.get_individual(i).cur_f[0] <<" "<<pop.get_individual(i).cur_f[1]<< std::endl;
+	}
+	osfile.close();
 	return 0;
 }
