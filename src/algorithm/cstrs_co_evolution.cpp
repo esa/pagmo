@@ -136,11 +136,11 @@ void cstrs_co_evolution::evolve(population &pop) const
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ:
 	{
-		pop_2_dim = 4;
+		pop_2_dim = 2;
 		break;
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS:
-		pop_2_dim = 2*prob.get_c_dimension();
+		pop_2_dim = prob.get_c_dimension();
 		break;
 	default: 
 		pagmo_throw(value_error,"The constraints co-evolutionary method is not valid.");

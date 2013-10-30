@@ -777,12 +777,14 @@ def _cstrs_co_evolution_ctor(self,original_algo = None,original_algo_penalties =
 	* pop_penalties_size: size of the population encoding the penalty parameters.
 	* gen: number of generations.
 	* method: cstrs_co_evolution.method.SIMPLE by default, the method used for the population encoding penalties coefficients.
-		Three possibililties are available: SIMPLE, SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS.
-		The simple one is the original version of the Coello/He implementation. The SPLIT_NEQ_EQ,
-		splits the equalities and inequalities constraints in two different sets for the
-		penalty weigths, containing respectively inequalities and equalities weigths. The
-		SPLIT_CONSTRAINTS splits the constraints in M set of weigths wehere M is the number of
-		constraints.
+		Three posssibililties are available: SIMPLE,
+		SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS. The simple one is the original
+		version of the Coello/He implementation (one penalty coefficient weights 
+		the sum of the constraints violation, one the number of violated constraints). 
+		The SPLIT_NEQ_EQ, splits the equalities and inequalities constraints in two different sets for the
+		penalty weigths, containing respectively inequalities and equalities
+		weigths. The SPLIT_CONSTRAINTS splits the constraints in M set of weigths
+		with M the number of constraints.
 	* pen_lower_bound: the lower boundary used for penalty.
 	* pen_upper_bound: the upper boundary used for penalty.
 	* ftol: 1e-15 by default. The stopping criteria on the x tolerance.

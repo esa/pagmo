@@ -31,8 +31,6 @@ using namespace pagmo;
 // Example in C++ of the use of PaGMO 1.1.5
 
 int main() {
-	double x_1 [16] = {10466.30234741616, 0.4134174760471763, 0.5028188179070112, 198.1961705829838, 1.548984035694917, 1.1999823933211586, 0.9999876422503512, 2.5808795876224186, -4.861037165832016, 1.0373216147703974, 0.5022120385344772, 54.908125153344876, 1.0036684306680947, 1.2570747046110966, 0.06301727892279088, 28.628205244720036};
-	fitness_vector x(x_1,x_1+16);
 	std::vector<kep_toolbox::planet_ptr> seq;
 	seq.push_back(kep_toolbox::planet_js("callisto").clone());
 	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
@@ -41,15 +39,24 @@ int main() {
 	
 	std::vector<std::vector<double> > tofs;
 	std::vector<double> dumb(2);
-			dumb[0] = 100;dumb[1] = 200;
+			dumb[0] = 180;dumb[1] = 200;
 			tofs.push_back(dumb);
 			dumb[0] = 0.1;dumb[1] = 5;
 			tofs.push_back(dumb);
-			dumb[0] = 30;dumb[1] = 100;
+			dumb[0] = 10;dumb[1] = 150;
 			tofs.push_back(dumb);
-			dumb[0] = 10;dumb[1] = 50;
+			dumb[0] = 10;dumb[1] = 40;
 			tofs.push_back(dumb);
-	problem::mga_incipit prob(seq, kep_toolbox::epoch(7305.0), kep_toolbox::epoch(11323.0),tofs);
-	fitness_vector retval = prob.objfun(x);
-	std::cout << retval << std::endl;
+	problem::mga_incipit_cstrs prob(seq, kep_toolbox::epoch(10460.0), kep_toolbox::epoch(104803.0),tofs);
+	
+	algorithm::jde algo(50), algo2(1);
+	algorithm::cstrs_co_evolution algo_coevo(algo,algo2,10,10,algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS,0,1);
+
+	for(int j=0;j<100;j++){
+		population pop(prob,20);
+		for(int i=0;i<100;i++){
+			algo_coevo.evolve(pop);
+		}
+		std::cout<<pop.champion().f<<std::endl;
+	}
 }
