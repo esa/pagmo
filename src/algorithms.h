@@ -53,6 +53,7 @@
 #include "algorithm/vega.h"
 #include "algorithm/cstrs_co_evolution.h"
 #include "algorithm/pade.h"
+#include "algorithm/moea_d.h"
 #include "algorithm/cstrs_immune_system.h"
 #include "algorithm/cstrs_core.h"
 #include "algorithm/sms_emoa.h"

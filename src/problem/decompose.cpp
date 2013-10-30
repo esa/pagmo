@@ -130,13 +130,17 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	compute_decomposed_fitness(f, fit);
 }
 
+/// Sets the ideal point
+void decompose::set_ideal_point(const fitness_vector &f) {
+	m_z = f;
+}
+
 /// Compute the decomposed fitness
 /**
  * Compute the decomposed fitness from the original multi-objective one and a weight vector
  *
  * @param f decomposed fitness vector
  * @param original_fit original multi-objective fitness vector
- * @param weights weights vector
  */
 void decompose::compute_decomposed_fitness(fitness_vector &f, const fitness_vector &original_fit) const
 {
@@ -164,7 +168,7 @@ void decompose::compute_decomposed_fitness(fitness_vector &f, const fitness_vect
 	} else if (m_method == TCHEBYCHEFF) {
 		f[0] = weights[0] * fabs(original_fit[0] - m_z[0]);
 		double tmp;
-		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
+		for(base::f_size_type i = 1; i < m_original_problem->get_f_dimension(); ++i) {
 			tmp = weights[i] * fabs(original_fit[i] - m_z[i]);
 			if(tmp > f[0]) {
 				f[0] = tmp;

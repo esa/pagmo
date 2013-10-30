@@ -346,15 +346,18 @@ void pade::evolve(population &pop) const
 	// Finally, we assemble the evolved population selecting from the original one + the evolved one
 	// the best NP (crowding distance)
 	population popnew(pop);
-	for(pagmo::population::size_type i=0; i<NP ;++i) {
+	for(pagmo::population::size_type i=0; i<arch.get_size() ;++i) {
 		popnew.push_back(arch.get_island(i)->get_population().champion().x);
+		m_fevals += arch.get_island(i)->get_algorithm()->get_fevals();
 	}
 	std::vector<population::size_type> selected_idx = popnew.get_best_idx(NP);
 	// We completely clear the population (NOTE: memory of all individuals and the notion of
 	// champion is thus destroyed)
 	pop.clear();
 	// And we recreate it with the best NP among the evolved and the new population
-	for (population::size_type i=0; i < NP; ++i) pop.push_back(popnew.get_individual(selected_idx[i]).cur_x);
+	for (population::size_type i=0; i < NP; ++i) {
+		pop.push_back(popnew.get_individual(selected_idx[i]).cur_x);
+	}
 }
 
 /// Algorithm name

@@ -378,7 +378,7 @@ struct one_dim_fit_comp {
 /**
  * Computes all pareto fronts, updates the pareto rank and the crowding distance of each individual.
  * Member variables for rank and crowding distance are set to zero and domination lists and
- * domination count are used to for the computation. 
+ * domination count are used to for the computation.
  */
 
 void population::update_pareto_information() const {
@@ -478,9 +478,9 @@ std::vector<std::vector<population::size_type> > population::compute_pareto_fron
 	// Be sure to have actual information about pareto rank
 	population::update_pareto_information();
 
-    for (population::size_type idx = 0; idx < size(); ++idx) {
+	for (population::size_type idx = 0; idx < size(); ++idx) {
 		if (m_pareto_rank[idx] >= retval.size()) {
-            retval.resize(m_pareto_rank[idx] + 1);
+			retval.resize(m_pareto_rank[idx] + 1);
 		}
 		retval[m_pareto_rank[idx]].push_back(idx);
 	}
@@ -497,19 +497,19 @@ std::vector<std::vector<population::size_type> > population::compute_pareto_fron
  * @return the ideal objective vector for the current optimal pareto set
  */
 fitness_vector population::compute_ideal() const {
-    update_pareto_information();
+	update_pareto_information();
 
-    fitness_vector ideal(m_champion.f);
-    for (population::size_type idx = 0; idx < size(); ++idx) {
-        if (m_pareto_rank[idx] == 0) { //it is in the first pareto front
-            for(fitness_vector::size_type i = 0; i < ideal.size(); ++i) {
-                if (m_container[idx].cur_f[i] < ideal[i]) {
-                    ideal[i] = m_container[idx].cur_f[i];
-                }
-            }
-        }
-    }
-    return ideal;
+	fitness_vector ideal(problem().get_f_dimension(),std::numeric_limits<double>::max());
+	for (population::size_type idx = 0; idx < size(); ++idx) {
+		if (m_pareto_rank[idx] == 0) { //it is in the first pareto front
+			for(fitness_vector::size_type i = 0; i < ideal.size(); ++i) {
+				if (m_container[idx].cur_f[i] < ideal[i]) {
+					ideal[i] = m_container[idx].cur_f[i];
+				}
+			}
+		}
+	}
+	return ideal;
 }
 
 /// Compute and return the nadir objective vector
@@ -521,19 +521,19 @@ fitness_vector population::compute_ideal() const {
  * @return the nadir objective vector for the current optimal pareto set
  */
 fitness_vector population::compute_nadir() const {
-    update_pareto_information();
+	update_pareto_information();
 
-    fitness_vector nadir(m_champion.f);
-    for (population::size_type idx = 0; idx < size(); ++idx) {
-        if (m_pareto_rank[idx] == 0) { //it is in the first pareto front
-            for(fitness_vector::size_type i = 0; i < nadir.size(); ++i) {
-                if (m_container[idx].cur_f[i] > nadir[i]) {
-                    nadir[i] = m_container[idx].cur_f[i];
-                }
-            }
-        }
-    }
-    return nadir;
+	fitness_vector nadir(m_champion.f);
+	for (population::size_type idx = 0; idx < size(); ++idx) {
+		if (m_pareto_rank[idx] == 0) { //it is in the first pareto front
+			for(fitness_vector::size_type i = 0; i < nadir.size(); ++i) {
+				if (m_container[idx].cur_f[i] > nadir[i]) {
+					nadir[i] = m_container[idx].cur_f[i];
+				}
+			}
+		}
+	}
+	return nadir;
 }
 
 /// Crowded comparison functor.
@@ -562,7 +562,7 @@ population::crowded_comparison_operator::crowded_comparison_operator(const popul
 /// Crowded comparison functor operator()(ind,ind)
 /**
  *
- * NOTE: The user has to make sure that the Pareto information (which includes the crowding distance) 
+ * NOTE: The user has to make sure that the Pareto information (which includes the crowding distance)
  * of m_pop is computed via update_pareto_information() before the use of this
  * operator.
  *
@@ -594,7 +594,7 @@ bool population::crowded_comparison_operator::operator()(const individual_type &
 /// Crowded comparison functor operator()(idx,idx)
 /**
  *
- * NOTE: The user has to make sure that the Pareto information (which includes the crowding distance) 
+ * NOTE: The user has to make sure that the Pareto information (which includes the crowding distance)
  * of m_pop is computed via update_pareto_information() before the use of this
  * operator.
  *
@@ -621,7 +621,7 @@ bool population::crowded_comparison_operator::operator()(const size_type &idx1, 
 
 /// Trivial comparison functor
 /**
- * A binary functor that can be used to sort population individuals in a 
+ * A binary functor that can be used to sort population individuals in a
  * single objective case. (constraints are accounted for)
  *
  * NOTE: This functor uses the virtual method compare_fc assuming a weak strict
@@ -811,7 +811,7 @@ void population::repair(const population::size_type &idx, const algorithm::base_
 	pop_repair.clear();
 	pop_repair.push_back(current_x);
 
-    repair_algo->evolve(pop_repair);
+	repair_algo->evolve(pop_repair);
 
 	this->set_x(idx,pop_repair.champion().x);
 

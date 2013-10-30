@@ -59,4 +59,5 @@ int main() {
 		}
 		std::cout<<pop.champion().f<<std::endl;
 	}
+
 }
