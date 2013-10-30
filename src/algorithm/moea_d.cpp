@@ -264,7 +264,7 @@ void moead::evolve(population &pop) const
 	// Initialize the candidate chromosome
 	decision_vector candidate(prob.get_dimension()); 
 
-	// Compute the ideal point
+	// Compute the starting ideal point
 	fitness_vector ideal_point = pop.compute_ideal();
 
 	// Generate the weights for NP decomposed problems
@@ -274,6 +274,7 @@ void moead::evolve(population &pop) const
 	std::vector<std::vector<population::size_type> > neigh_idx;
 	pagmo::util::neighbourhood::euclidian::compute_neighbours(neigh_idx, weights);
 	for (unsigned int i=0; i < neigh_idx.size();++i) {
+		neigh_idx[i].erase(neigh_idx[i].begin());
 		neigh_idx[i].erase(neigh_idx[i].begin()+m_T, neigh_idx[i].end());
 	}
 
