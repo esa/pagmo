@@ -349,6 +349,20 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		"   - nw: number of weights"
 		);
 		
+	// MOEA/D
+	enum_<algorithm::moead::weight_generation_type>("_weight_generation_moead")
+		.value("RANDOM", algorithm::moead::RANDOM)
+		.value("GRID", algorithm::moead::GRID)
+		.value("LOW_DISCREPANCY", algorithm::moead::LOW_DISCREPANCY);
+	algorithm_wrapper<algorithm::moead>("moead", "MOEA/D-DE")
+		.def(init<optional<int, pagmo::problem::decompose::method_type, population::size_type, algorithm::moead::weight_generation_type, double, unsigned int> >())
+		.def("generate_weights", &algorithm::moead::generate_weights,
+		"Generates the weights of the decomposed problem\n\n"
+		"  USAGE:: w = moead.generate_weights(nf,nw)\n"
+		"   - nf: fitness dimension\n"
+		"   - nw: number of weights"
+		);
+		
 	// SMS-EMOA
 	algorithm_wrapper<algorithm::sms_emoa>("sms_emoa", "The SMS-EMOA algorithm")
 		.def(init<optional<int, int, double, double, double, double> >())

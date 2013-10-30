@@ -18,6 +18,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cmaes.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/moea_d.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sms_emoa.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cs.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ihs.cpp
