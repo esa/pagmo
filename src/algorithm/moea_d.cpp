@@ -361,6 +361,11 @@ void moead::evolve(population &pop) const
 			}
 		}
 	}
+	// We reset the population memory (TODO... can be made much more efficient)
+	std::vector<decision_vector> X(NP,candidate);
+	for (population::size_type i=0; i < X.size(); ++i) X[i] = pop.get_individual(i).cur_x;
+	pop.clear();
+	for (population::size_type i=0; i < X.size(); ++i) pop.push_back(X[i]);
 }
 
 /// Algorithm name
