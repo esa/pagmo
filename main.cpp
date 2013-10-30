@@ -31,7 +31,7 @@ using namespace pagmo;
 // Example in C++ of the use of PaGMO 1.1.5
 
 int main() {
-	std::vector<kep_toolbox::planet_ptr> seq;
+	/*std::vector<kep_toolbox::planet_ptr> seq;
 	seq.push_back(kep_toolbox::planet_js("callisto").clone());
 	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
 	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
@@ -58,6 +58,12 @@ int main() {
 			algo_coevo.evolve(pop);
 		}
 		std::cout<<pop.champion().f<<std::endl;
-	}
+	}*/
 
+	problem::zdt prob(1,30);
+	population pop(prob,100);
+	algorithm::moead algo;
+	algo.evolve(pop);
+	std::cout << pop << std::endl;
+	return 0;
 }
