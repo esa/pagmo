@@ -46,8 +46,9 @@ namespace pagmo { namespace problem {
  * @param[in] method method_type to used for the co-evolution constraints
  * handling technique. Three posssibililties are available: SIMPLE,
  * SPLIT_NEQ_EQ and SPLIT_CONSTRAINTS. The simple one is the original
- * version of the Coello/He implementation. The SPLIT_NEQ_EQ, splits the
- * equalities and inequalities constraints in two different sets for the
+ * version of the Coello/He implementation (one penalty coefficient weights 
+ * the sum of the constraints violation, one the number of violated constraints). 
+ * The SPLIT_NEQ_EQ, splits the equalities and inequalities constraints in two different sets for the
  * penalty weigths, containing respectively inequalities and equalities
  * weigths. The SPLIT_CONSTRAINTS splits the constraints in M set of weigths
  * with M the number of constraints.
@@ -159,15 +160,18 @@ void cstrs_co_evolution::objfun_impl(fitness_vector &f, const decision_vector &x
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ:
 	{
-		f[0] += sum_viol.at(0) * m_penalty_coeff.at(0) + double(num_viol.at(0)) * m_penalty_coeff.at(1);
-		f[0] += sum_viol.at(1) * m_penalty_coeff.at(2) + double(num_viol.at(1)) * m_penalty_coeff.at(3);
+//		f[0] += sum_viol.at(0) * m_penalty_coeff.at(0) + double(num_viol.at(0)) * m_penalty_coeff.at(1);
+//		f[0] += sum_viol.at(1) * m_penalty_coeff.at(2) + double(num_viol.at(1)) * m_penalty_coeff.at(3);
+		f[0] += sum_viol.at(0) * m_penalty_coeff.at(0);
+		f[0] += sum_viol.at(1) * m_penalty_coeff.at(1);
 		break;
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS:
 	{
 		int c_dimension = m_original_problem->get_c_dimension();
 		for(int i=0; i<c_dimension; i++) {
-			f[0] += sum_viol.at(0+i) * m_penalty_coeff.at(0+i*2) + double(num_viol.at(0+i)) * m_penalty_coeff.at(1+i*2);
+//			f[0] += sum_viol.at(0+i) * m_penalty_coeff.at(0+i*2) + double(num_viol.at(0+i)) * m_penalty_coeff.at(1+i*2);
+			f[0] += sum_viol.at(i) * m_penalty_coeff.at(i);
 		}
 		break;
 	}
@@ -211,14 +215,14 @@ void cstrs_co_evolution::set_penalty_coeff(const std::vector<double> &penalty_co
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ:
 	{
-		if(penalty_coeff.size() != 4) {
-			pagmo_throw(value_error,"The size of the penalty coefficient vector is not 4.");
+		if(penalty_coeff.size() != 2) {
+			pagmo_throw(value_error,"The size of the penalty coefficient vector is not 2.");
 		}
 		break;
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS:
-		if(penalty_coeff.size() != 2 * m_original_problem->get_c_dimension()) {
-			pagmo_throw(value_error,"The size of the penalty coefficient vector is not 2*number of constraints");
+		if(penalty_coeff.size() != m_original_problem->get_c_dimension()) {
+			pagmo_throw(value_error,"The size of the penalty coefficient vector is not number of constraints");
 		}
 		break;
 	default: 
@@ -240,11 +244,11 @@ int cstrs_co_evolution::get_penalty_coeff_size() {
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ:
 	{
-		return 4;
+		return 2;
 		break;
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS:
-		return 2*m_original_problem->get_c_dimension();
+		return m_original_problem->get_c_dimension();
 		break;
 	default: 
 		pagmo_throw(value_error,"The constraints co-evolutionary method is not valid.");
@@ -318,9 +322,9 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 	case algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ:
 	{
 		sum_viol.resize(2);
-		num_viol.resize(2);
+		//num_viol.resize(2);
 		std::fill(sum_viol.begin(),sum_viol.end(),0.);
-		std::fill(num_viol.begin(),num_viol.end(),0.);
+		//std::fill(num_viol.begin(),num_viol.end(),0.);
 
 		// update sum_num_viol
 		for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
@@ -330,7 +334,7 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 			sum_viol[1] += c_vio.at(j);
 		}
 
-		for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
+		/*for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
 			if(!m_original_problem->test_constraint(c, j)) {
 				num_viol[0] += 1;
 			}
@@ -339,26 +343,26 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 			if(!m_original_problem->test_constraint(c, j)) {
 				num_viol[1] += 1;
 			}
-		}
+		}*/
 		break;
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS:
 	{
 		sum_viol.resize(prob_c_dimension);
-		num_viol.resize(prob_c_dimension);
+		//num_viol.resize(prob_c_dimension);
 		std::fill(sum_viol.begin(),sum_viol.end(),0.);
-		std::fill(num_viol.begin(),num_viol.end(),0.);
+		//std::fill(num_viol.begin(),num_viol.end(),0.);
 
 		// update sum_num_viol
 		for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
 			sum_viol[j] += c_vio.at(j);
 		}
 
-		for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
+		/*for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
 			if(!m_original_problem->test_constraint(c, j)) {
 				num_viol[j] += 1;
 			}
-		}
+		}*/
 		break;
 	}
 	}

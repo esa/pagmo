@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include "src/pagmo.h"
 
@@ -30,12 +31,47 @@ using namespace pagmo;
 
 // Example in C++ of the use of PaGMO 1.1.5
 
-int main()
-{
+int main() {
+	/*std::vector<kep_toolbox::planet_ptr> seq;
+	seq.push_back(kep_toolbox::planet_js("callisto").clone());
+	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
+	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
+	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
+	
+	std::vector<std::vector<double> > tofs;
+	std::vector<double> dumb(2);
+			dumb[0] = 180;dumb[1] = 200;
+			tofs.push_back(dumb);
+			dumb[0] = 0.1;dumb[1] = 5;
+			tofs.push_back(dumb);
+			dumb[0] = 10;dumb[1] = 150;
+			tofs.push_back(dumb);
+			dumb[0] = 10;dumb[1] = 40;
+			tofs.push_back(dumb);
+	problem::mga_incipit_cstrs prob(seq, kep_toolbox::epoch(10460.0), kep_toolbox::epoch(104803.0),tofs);
+	
+	algorithm::jde algo(50), algo2(1);
+	algorithm::cstrs_co_evolution algo_coevo(algo,algo2,10,10,algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS,0,1);
+
+	for(int j=0;j<100;j++){
+		population pop(prob,20);
+		for(int i=0;i<100;i++){
+			algo_coevo.evolve(pop);
+		}
+		std::cout<<pop.champion().f<<std::endl;
+	}*/
+
 	problem::zdt prob(1,30);
 	population pop(prob,100);
-	algorithm::moead algo;
+	algorithm::moead algo(500);
 	algo.evolve(pop);
-	std::cout << pop << std::endl;
+
+
+	std::ofstream osfile;
+	osfile.open ("paretofront.txt");
+	for(population::size_type i=0; i<pop.size(); i++){
+		osfile << pop.get_individual(i).cur_f[0] <<" "<<pop.get_individual(i).cur_f[1]<< std::endl;
+	}
+	osfile.close();
 	return 0;
 }

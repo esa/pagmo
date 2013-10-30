@@ -118,19 +118,27 @@ void cstrs_self_adaptive::evolve(population &pop) const
 		// way to implement it. But for DE, PSO in example, there is no fitness evaluator?
 		m_original_algo->evolve(pop_new);
 
-		// Reinsert best individual from the previous generation
+		// Reinsert best individual from the previous generation if not already present
 		// Uses the constrained problem. If we don't do that, we loose the best individual...
-		// Should we impose a certain porcentage of the best ones?
-		int worst=0;
-		for (pagmo::population::size_type i = 1; i<pop_new.size();i++) {
-			if ( prob.compare_x(pop_new.get_individual(worst).cur_x,pop_new.get_individual(i).cur_x) ) worst=i;
+		// Should we impose a certain percentage of the best ones?
+		bool exists = false;
+		for(population::size_type i=0; i<pop_size; i++) {
+			if(pop_new.get_individual(i).cur_x == pop.champion().x) {
+				exists=true;break;
+			}
 		}
+		if(!exists){
+			int worst=0;
+			for (pagmo::population::size_type i = 1; i<pop_new.size();i++) {
+				if ( prob.compare_x(pop_new.get_individual(worst).cur_x,pop_new.get_individual(i).cur_x) ) worst=i;
+			}
 
-		decision_vector dummy = pop.champion().x;
-		std::transform(dummy.begin(), dummy.end(), pop.get_individual(worst).cur_x.begin(), dummy.begin(),std::minus<double>());
-		//updates x and v (cache avoids to recompute the objective function)
-		pop_new.set_x(worst,pop.champion().x);
-		pop_new.set_v(worst,dummy);
+			decision_vector dummy = pop.champion().x;
+			std::transform(dummy.begin(), dummy.end(), pop.get_individual(worst).cur_x.begin(), dummy.begin(),std::minus<double>());
+			//updates x and v (cache avoids to recompute the objective function)
+			pop_new.set_x(worst,pop.champion().x);
+			pop_new.set_v(worst,dummy);
+		}
 
 		// update the population pop
 		pop.clear();
@@ -173,7 +181,6 @@ void cstrs_self_adaptive::evolve(population &pop) const
 			}
 		}
 
-		//std::cout << pop.champion() << std::endl;
 	}
 }
 

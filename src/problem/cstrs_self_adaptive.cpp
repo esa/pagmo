@@ -235,9 +235,11 @@ void cstrs_self_adaptive::update_penalty_coeff(const population &pop)
 
 	// if the population is only feasible, then nothing is done
 	if(infeasible_idx.size() == 0) {
+		update_c_scaling(pop);		
+		m_apply_penalty_1 = false;
+		m_scaling_factor = 0.;
 		return;
 	}
-
 	m_apply_penalty_1 = false;
 	m_scaling_factor = 0.;
 
@@ -420,6 +422,7 @@ void cstrs_self_adaptive::update_penalty_coeff(const population &pop)
 	if(m_f_hat_up[0] == m_f_hat_round[0]) {
 		m_scaling_factor = 0.;
 	}
+
 }
 
 /// Updates the constraints scaling.
