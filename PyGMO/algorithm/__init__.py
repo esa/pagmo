@@ -575,6 +575,48 @@ def _spea2_ctor(self, gen=100, cr = 0.95, eta_c = 10, m = 0.01, eta_m = 50, arch
 spea2._orig_init = spea2.__init__
 spea2.__init__ = _spea2_ctor
 
+from PyGMO.problem import decompose
+def _moead_ctor(self, gen=100, weights = 'grid', T = 20, realb = 0.9, limit = 2, cr = 1.0, f = 0.5, eta_m=20, diversity=True):
+	"""
+	Multi Objective Evolutionary Algorithm based on Decomposition and Differential Evolution (MOEA/D - DE)
+
+	REF Zhang, Qingfu, and Hui Li. "MOEA/D: A multiobjective evolutionary algorithm based on decomposition." Evolutionary Computation, IEEE Transactions on 11.6 (2007): 712-731.
+	REF Li, Hui, and Qingfu Zhang. "Multiobjective optimization problems with complicated Pareto sets, MOEA/D and NSGA-II." Evolutionary Computation, IEEE Transactions on 13.2 (2009): 284-302.
+	
+	USAGE: algorithm.spea2(gen=100, weights = 'grid', T = 20, realb = 0.9, limit = 2, cr = 1.0, f = 0.5, eta_m=20, diversity=True)
+	
+	* gen: Number of generations to evolve.
+	* weights: wight generation method, one of ('grid', 'low_discrepancy', 'random')
+	* T: Size of the neighbourhood
+	* realb Chance that the neighbourhood is T rather than the whole population (only if diversity is True)
+	* limit Maximum number of copies reinserted in the population  (only if diversity is True)
+	* cr Crossover parameter in the Differential Evolution operator
+	* f f parameter in the Differential Evolution operator
+	* eta_m Distribution index for the polynomial mutation
+	* diversity when true activates the two diversity preservation mechanism described in Li, Hui, and Qingfu Zhang paper
+	"""
+	def weight_generation_type(x):
+		return {
+			'low_discrepancy': _algorithm._weight_generation_moead.LOW_DISCREPANCY,
+			'grid': _algorithm._weight_generation_moead.GRID,
+			'radnom': _algorithm._weight_generation_moead.RANDOM,
+		}[x]
+	
+	# We set the defaults or the kwargs
+	arg_list=[]
+	arg_list.append(gen)
+	arg_list.append(weight_generation_type(weights))
+	arg_list.append(T)
+	arg_list.append(realb)
+	arg_list.append(limit)
+	arg_list.append(cr)
+	arg_list.append(f)
+	arg_list.append(eta_m)
+	arg_list.append(diversity)
+	self._orig_init(*arg_list)
+moead._orig_init = moead.__init__
+moead.__init__ = _moead_ctor
+
 def _sa_corana_ctor(self, iter = 10000, Ts = 10, Tf = .1, steps = 1, bin_size = 20, range = 1):
 	"""
 	Constructs Corana's Simulated Annealing

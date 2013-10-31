@@ -47,20 +47,41 @@
 
 namespace pagmo { namespace algorithm {
 
+
+/// Constructor
+ /**
+ * Constructs a MOEA/D-DE algorithm
+ *
+ * @param[in] gen Number of generations to evolve.
+ * @param[in] weight_generation Method to generate the weights (GRID, LOW-DISCREPANCY or RANDOM)
+ * @param[in] T Size of the neighborhood
+ * @param[in] realb Chance that the neighbourhood is T rather than the whole population (only if m_preserve_diversity is true)
+ * @param[in] limit Maximum number of copies reinserted in the population  (only if m_preserve_diversity is true)
+ * @param[in] cr Crossover parameter in the Differential Evolution operator
+ * @param[in] f f parameter in the Differential Evolution operator
+ * @param[in] eta_m Distribution index for the polynomial mutation
+ * @param[in] m_preserve_diversity when true activates the two diversity preservation mechanism described in Li, Hui, and Qingfu Zhang paper
+ * @throws value_error if gen is negative, weight_generation is not one of the allowed types, realb,cr or f are not in [1.0] or m_eta is < 0
+ */
 moead::moead(int gen,
-		   pagmo::problem::decompose::method_type method,
-		   population::size_type T, 
-		   weight_generation_type weight_generation,
-		   double realb,
-		   unsigned int limit
-		   )
-	  :base(),
+		 weight_generation_type weight_generation,
+		 population::size_type T, 
+		 double realb,
+		 unsigned int limit,
+		 double cr,
+		 double f,
+		 double eta_m,
+		 bool preserve_diversity
+		   ) : base(),
 	  m_gen(gen),
-	  m_method(method),
 	  m_T(T),
 	  m_weight_generation(weight_generation),
 	  m_realb(realb),
-	  m_limit(limit)
+	  m_limit(limit),
+	  m_cr(cr),
+	  m_f(f),
+	  m_eta_m(eta_m),
+	  m_preserve_diversity(preserve_diversity)
 {
 	// Sanity checks
 	if (gen < 0) {
@@ -69,6 +90,22 @@ moead::moead(int gen,
 
 	if(m_weight_generation != RANDOM && m_weight_generation != GRID && m_weight_generation != LOW_DISCREPANCY) {
 		pagmo_throw(value_error,"non existing weight generation method");
+	}
+	
+	if(realb > 1.0 || realb < 0) {
+		pagmo_throw(value_error,"The neighbor type chance realb needs to be in [0,1]");
+	}
+	
+	if(cr > 1.0 || cr < 0) {
+		pagmo_throw(value_error,"Differential Evolution crossover cr needs to be in [0,1]");
+	}
+	
+	if(f > 1.0 || f < 0) {
+		pagmo_throw(value_error,"Differential Evolution f parameter needs to be in [0,1]");
+	}
+	
+	if(eta_m < 0) {
+		pagmo_throw(value_error,"Distribution index for the polynomial mutation needs to be > 0");
 	}
 }
 
@@ -101,7 +138,17 @@ void moead::reksum(std::vector<std::vector<double> > &retval,
 	}
 }
 
-/// Generates the weights used in the problem decomposition
+/// Weight generation
+/**
+ * Generates the weights used to decompose the problem.
+ *
+ * @param[in] n_f dimesnion of each weight (i.e. fitness dimension)
+ * @param[in] n_w number of weights
+ *
+ * @returns an std:vector containing the weights (fitness_vector)
+ *
+ * @throws if the population size is not possible for the selected generation method
+**/
  std::vector<fitness_vector> moead::generate_weights(const unsigned int n_f, const unsigned int n_w) const {
 
 	// Definition of useful probability distributions
@@ -139,12 +186,10 @@ void moead::reksum(std::vector<std::vector<double> > &retval,
 			for (unsigned int i=0; i<H+1;++i) {
 				range.push_back(i);
 			}
-			double epsilon = 1E-6;
 			reksum(retval, range, n_f, H);
 			for(unsigned int i=0; i< retval.size(); ++i) {
 				for(unsigned int j=0; j< retval[i].size(); ++j) {
-					retval[i][j] += epsilon;  //NOTE: to avoid to have any weight exactly equal to zero
-					retval[i][j] /= H+epsilon*retval[i].size();
+					retval[i][j] /= H;
 				}
 			}
 	
@@ -175,7 +220,6 @@ void moead::mutation(decision_vector& child, const pagmo::population& pop, doubl
 	const decision_vector &lb = pop.problem().get_lb(), &ub = pop.problem().get_ub();
 	double rnd, delta1, delta2, mut_pow, deltaq;
 	double y, yl, yu, val, xy;
-	double eta_m = 20;
 
 	//This implements the real polinomial mutation of an individual
 	for (pagmo::problem::base::size_type j=0; j < D; ++j){
@@ -186,17 +230,17 @@ void moead::mutation(decision_vector& child, const pagmo::population& pop, doubl
 			delta1 = (y-yl)/(yu-yl);
 			delta2 = (yu-y)/(yu-yl);
 			rnd = m_drng();
-			mut_pow = 1.0/(eta_m+1.0);
+			mut_pow = 1.0/(m_eta_m+1.0);
 			if (rnd <= 0.5)
 			{
 				xy = 1.0-delta1;
-				val = 2.0*rnd+(1.0-2.0*rnd)*(pow(xy,(eta_m+1.0)));
+				val = 2.0*rnd+(1.0-2.0*rnd)*(pow(xy,(m_eta_m+1.0)));
 				deltaq =  pow(val,mut_pow) - 1.0;
 			}
 			else
 			{
 				xy = 1.0-delta2;
-				val = 2.0*(1.0-rnd)+2.0*(rnd-0.5)*(pow(xy,(eta_m+1.0)));
+				val = 2.0*(1.0-rnd)+2.0*(rnd-0.5)*(pow(xy,(m_eta_m+1.0)));
 				deltaq = 1.0 - (pow(val,mut_pow));
 			}
 			y = y + deltaq*(yu-yl);
@@ -280,7 +324,7 @@ void moead::evolve(population &pop) const
 
 	// We create the decomposed problem which we will use to compute the decomposed fitness values according
 	// to weights and ideal points (the construction parameter weights[0] is thus irrelevant)
-	pagmo::problem::decompose prob_decomposed(prob, m_method, weights[0], ideal_point);
+	pagmo::problem::decompose prob_decomposed(prob, problem::decompose::TCHEBYCHEFF, weights[0], ideal_point);
 
 	// We create a pseudo-random permutation of the indexes 1..NP
 	std::vector<population::size_type> shuffle(NP);
@@ -295,26 +339,26 @@ void moead::evolve(population &pop) const
 			int n = shuffle[i];
 			// We select at random between a neighborhood and the whole pop
 			int type;
-			if(m_drng()<m_realb)	type = 1;   // neighborhood
-			else					type = 2;   // whole population
-
+			if(m_drng()<m_realb || !m_preserve_diversity)	type = 1;	// neighborhood
+			else											type = 2;	// whole population
 			// 1 - We select two mating partners (not n) in the neighbourhood
 			std::vector<population::size_type> p(2);
 			mating_selection(p,n,type,neigh_idx);
 			
 			// 2 - We produce and evaluate an offspring using a DE operator
-			double rate =0.5;
 			for(decision_vector::size_type kk=0;kk<prob.get_dimension(); ++kk)
 			{
-				/*Selected Two Parents*/
-				candidate[kk] = pop.get_individual(n).cur_x[kk] + rate*(pop.get_individual(p[0]).cur_x[kk] - pop.get_individual(p[1]).cur_x[kk]);
-				
-				// Fix the bounds
-				if(candidate[kk]<lb[kk]){
-					candidate[kk] = lb[kk] + m_drng()*(pop.get_individual(n).cur_x[kk] - lb[kk]);
-				}
-				if(candidate[kk]>ub[kk]){ 
-					candidate[kk] = ub[kk] - m_drng()*(ub[kk] - pop.get_individual(n).cur_x[kk]);
+				if (m_drng()<m_cr) {
+					/*Selected Two Parents*/
+					candidate[kk] = pop.get_individual(n).cur_x[kk] + m_f*(pop.get_individual(p[0]).cur_x[kk] - pop.get_individual(p[1]).cur_x[kk]);
+					
+					// Fix the bounds
+					if(candidate[kk]<lb[kk]){
+						candidate[kk] = lb[kk] + m_drng()*(pop.get_individual(n).cur_x[kk] - lb[kk]);
+					}
+					if(candidate[kk]>ub[kk]){ 
+						candidate[kk] = ub[kk] - m_drng()*(ub[kk] - pop.get_individual(n).cur_x[kk]);
+					}
 				}
 			}
 			mutation(candidate, pop, 1.0 / prob.get_dimension());
@@ -356,8 +400,8 @@ void moead::evolve(population &pop) const
 					pop.set_x(pick,candidate);
 					time++;
 				}
-				// the maximal number of solutions updated is not allowed to exceed 'limit'
-				if(time>=m_limit) break;
+				// the maximal number of solutions updated is not allowed to exceed 'limit' if diversity is to be preserved
+				if(time>=m_limit && m_preserve_diversity) break;
 			}
 		}
 	}
@@ -371,7 +415,7 @@ void moead::evolve(population &pop) const
 /// Algorithm name
 std::string moead::get_name() const
 {
-	return "MOEA-D-DE (MOEA-D-DE)";
+	return "MOEA/D-DE";
 }
 
 /// Extra human readable algorithm info.
@@ -382,17 +426,6 @@ std::string moead::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	s << "neighbours:" << m_T << ' ';
-	s << "decomposition:";
-	switch (m_method)
-	{
-		case pagmo::problem::decompose::BI : s << "BI" << ' ';
-			break;
-		case pagmo::problem::decompose::WEIGHTED : s << "WEIGHTED" << ' ';
-			break;
-		case pagmo::problem::decompose::TCHEBYCHEFF : s << "TCHEBYCHEFF" << ' ';
-			break;
-	}
 	s << "weights:";
 	switch (m_weight_generation)
 	{
@@ -403,6 +436,14 @@ std::string moead::human_readable_extra() const
 		case GRID : s << "GRID" << ' ';
 			break;
 	}
+	s << "neighbours:" << m_T << ' ';
+	s << "realb:" << m_realb << ' ';
+	s << "limit:" << m_limit << ' ';
+	s << "cr:" << m_cr << ' ';
+	s << "f:" << m_f << ' ';
+	s << "preserve diversity:";
+	if (m_preserve_diversity) s << "True " ;
+	else s << "False ";
 	return s.str();
 }
 

@@ -34,10 +34,17 @@
 
 namespace pagmo { namespace algorithm {
 
-/// MOEA/D
+/// MOEA/D - DE
 /**
  *
- * This class implements the 
+ * This class implements the Multi Objective Evolutionary Algorithm based on Decomposition and Differential Evolution
+ * crossover. The reference papers can be found below. By activating or deactivating the bool preserve_diversity
+ * one can select to use the ideas introduced in the second paper or not. In all cases Tchebycheff decomposition and 
+ * a differential evolution operator are used
+ *
+ * @see Zhang, Qingfu, and Hui Li. "MOEA/D: A multiobjective evolutionary algorithm based on decomposition." Evolutionary Computation, IEEE Transactions on 11.6 (2007): 712-731.
+ * @see Li, Hui, and Qingfu Zhang. "Multiobjective optimization problems with complicated Pareto sets, MOEA/D and NSGA-II." Evolutionary Computation, IEEE Transactions on 13.2 (2009): 284-302.
+ *
  **/
 
 class __PAGMO_VISIBLE moead: public base
@@ -45,17 +52,21 @@ class __PAGMO_VISIBLE moead: public base
 public:
 	/// Mechanism used to generate the weight vectors
 	enum weight_generation_type {
-	    RANDOM=0, ///< Weights are generated uniformly at random on the simplex 
-	    GRID=1,///< Weights are generated on a uniform grid layed down on the simplex
-	    LOW_DISCREPANCY=2 ///< Weights are generated on the simplex with low-discrepancy
+	 RANDOM=0, ///< Weights are generated uniformly at random on the simplex 
+	 GRID=1,///< Weights are generated on a uniform grid layed down on the simplex
+	 LOW_DISCREPANCY=2 ///< Weights are generated on the simplex with low-discrepancy
 	};
+	
 	moead(
 		 int gen=100, 
-		 pagmo::problem::decompose::method_type =  pagmo::problem::decompose::TCHEBYCHEFF,
-		 population::size_type = 20,
 		 weight_generation_type = GRID, 
+		 population::size_type = 20,
 		 double realb = 0.9,
-		 unsigned int limit = 2
+		 unsigned int limit = 2,
+		 double CR = 1.0,
+		 double F=0.5,
+		 double eta_m = 20,
+		 bool preserve_diversity = true
 		);
 
 	base_ptr clone() const;
@@ -78,18 +89,26 @@ private:
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
-		ar & const_cast<pagmo::problem::decompose::method_type &>(m_method);
 		ar & const_cast<population::size_type &>(m_T);
 		ar & const_cast<weight_generation_type &>(m_weight_generation);
+		ar & const_cast<double &>(m_realb);
+		ar & const_cast<unsigned int &>(m_limit);
+		ar & const_cast<double &>(m_cr);
+		ar & const_cast<double &>(m_f);
+		ar & const_cast<double &>(m_eta_m);
+		ar & const_cast<double &>(m_preserve_diversity);
 	}
 	//Number of generations
 	const int m_gen;
-	const pagmo::problem::decompose::method_type m_method;
 	const population::size_type m_T;
 	const weight_generation_type m_weight_generation;
 	//probability of selecting mating parents from neighborhood
 	const double m_realb;
 	const unsigned int m_limit;
+	const double m_cr;
+	const double m_f;
+	const double m_eta_m;
+	const double m_preserve_diversity;
 };
 
 }} //namespaces

@@ -355,7 +355,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.value("GRID", algorithm::moead::GRID)
 		.value("LOW_DISCREPANCY", algorithm::moead::LOW_DISCREPANCY);
 	algorithm_wrapper<algorithm::moead>("moead", "MOEA/D-DE")
-		.def(init<optional<int, pagmo::problem::decompose::method_type, population::size_type, algorithm::moead::weight_generation_type, double, unsigned int> >())
+		.def(init<optional<int, algorithm::moead::weight_generation_type, population::size_type, double, unsigned int, double,double,double,bool> >())
 		.def("generate_weights", &algorithm::moead::generate_weights,
 		"Generates the weights of the decomposed problem\n\n"
 		"  USAGE:: w = moead.generate_weights(nf,nw)\n"
