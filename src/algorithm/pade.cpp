@@ -173,11 +173,11 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 			for (unsigned int i=0; i<H+1;++i) {
 				range.push_back(i);
 			}
-			double epsilon = 1E-6;
+			double epsilon = 0.0;
 			reksum(retval, range, n_f, H);
 			for(unsigned int i=0; i< retval.size(); ++i) {
 				for(unsigned int j=0; j< retval[i].size(); ++j) {
-					retval[i][j] += epsilon;  //NOTE: to avoid to have any weight exactly equal to zero
+					retval[i][j] += epsilon;  //NOTE: to avoid to have zero weights. This is no longer usefule as its implemented in the decompose problem directly
 					retval[i][j] /= H+epsilon*retval[i].size();
 				}
 			}

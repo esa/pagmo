@@ -166,10 +166,11 @@ void decompose::compute_decomposed_fitness(fitness_vector &f, const fitness_vect
 			f[0]+= weights[i]*original_fit[i];
 		}
 	} else if (m_method == TCHEBYCHEFF) {
-		f[0] = weights[0] * fabs(original_fit[0] - m_z[0]);
-		double tmp;
-		for(base::f_size_type i = 1; i < m_original_problem->get_f_dimension(); ++i) {
-			tmp = weights[i] * fabs(original_fit[i] - m_z[i]);
+		f[0] = 0.0;
+		double tmp,weight;
+		for(base::f_size_type i = 0; i < m_original_problem->get_f_dimension(); ++i) {
+			(weights[i]==0) ? (weight = 1e-4) : (weight = weights[i]); //fixes the numerical problem of 0 weights
+			tmp = weight * fabs(original_fit[i] - m_z[i]);
 			if(tmp > f[0]) {
 				f[0] = tmp;
 			}
