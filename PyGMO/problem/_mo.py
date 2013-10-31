@@ -1,6 +1,6 @@
 from _problem import zdt, dtlz
 
-def _mo3d_plot(pop, a=40, comp=[0,1,2]):
+def _mo3d_plot(self,pop, a=40, comp=[0,1,2]):
 	"""
 	Generic plot-method for multi-objective optimization problems with more then 2 objectives
 
@@ -23,11 +23,7 @@ def _mo3d_plot(pop, a=40, comp=[0,1,2]):
 		print 'Error. Please choose correct fitness dimensions for printing!'
 
 	ax.view_init(azim=a)
-	plt.show()
 	return ax
-
-
-
 
 def _dtlz234_plot(pop, a=40, comp=[0,1,2]):
 	"""
@@ -76,7 +72,6 @@ def _dtlz234_plot(pop, a=40, comp=[0,1,2]):
 		ax.plot(fit[comp[0]],fit[comp[1]],fit[comp[2]], 'ro')
 	except IndexError:
 		print 'Error. Please choose correct fitness dimensions for printing!'
-	plt.show()
 	return ax
 
 def _zdt_ctor(self, prob_id = 1, param_1 = None):
