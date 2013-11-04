@@ -473,7 +473,7 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 sms_emoa._orig_init = sms_emoa.__init__
 sms_emoa.__init__ = _sms_emoa_ctor
 
-def _pade_ctor(self, gen=10, , decomposition = 'tchebycheff', weights = 'grid', solver = None, max_parallelism = 1, T = 8, z = []):
+def _pade_ctor(self, gen=10, decomposition = 'tchebycheff', weights = 'grid', solver = None, max_parallelism = 1, T = 8, z = []):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	
