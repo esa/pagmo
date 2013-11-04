@@ -516,7 +516,7 @@ def _pade_ctor(self, gen=10, , decomposition = 'tchebycheff', weights = 'grid', 
 		solver=jde(100)
 	arg_list.append(solver)
 	arg_list.append(T)
-	arg_list.append(weights)
+	arg_list.append(weight_generation_type(weights.lower()))
 	arg_list.append(z)
 	self._orig_init(*arg_list)
 pade._orig_init = pade.__init__
