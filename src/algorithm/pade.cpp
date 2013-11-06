@@ -151,7 +151,7 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 			} else if (n_f == 3) {
 				H = floor(0.5 * (sqrt(8*n_w + 1) - 3));
 			} else {
-				std::cout << "Fitness dimension is " << n_f << std::endl;
+				// std::cout << "Fitness dimension is " << n_f << std::endl;
 				H = 1;
 				while(boost::math::binomial_coefficient<double>(H+n_f-1, n_f-1) <= n_w) {
 					++H;
@@ -292,9 +292,8 @@ void pade::evolve(population &pop) const
 				}
 			}
 		}
-
-//assignation_list[shuffle[i]] = minFitPos;
-assignation_list[i] = i;
+assignation_list[shuffle[i]] = minFitPos;
+//assignation_list[i] = i;
 		selected_list[minFitPos] = true;
 	}
 
@@ -339,6 +338,7 @@ assignation_list[i] = i;
 		for(int g = 0; g < m_gen; ++g) { //batched island evolution
 			arch.evolve_batch(1, m_max_parallelism);
 		}
+		
 	}
 
 	// Finally, we assemble the evolved population selecting from the original one + the evolved one
