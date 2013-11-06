@@ -293,7 +293,8 @@ void pade::evolve(population &pop) const
 			}
 		}
 
-		assignation_list[shuffle[i]] = minFitPos;
+//assignation_list[shuffle[i]] = minFitPos;
+assignation_list[i] = i;
 		selected_list[minFitPos] = true;
 	}
 
@@ -329,7 +330,6 @@ void pade::evolve(population &pop) const
 		}
 		arch.set_topology(topo);
 	}
-
 
 	//Evolve the archipelago for m_gen generations
 	if(m_max_parallelism == NP) { //asynchronous island evolution
