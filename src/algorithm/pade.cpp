@@ -56,7 +56,7 @@ namespace pagmo { namespace algorithm {
  * Constructs a PaDe algorithm
  *
  * @param[in] gen Number of generations to evolve.
- * @param[in] max_parallelism limits the amounts of threads spawned
+ * @param[in] threads the amounts of threads that will be used
  * @param[in] method the decomposition method to use (Weighted, Tchebycheff or BI)
  * @param[in] solver the algorithm to solve the single objective problems.
  * @param[in] T the size of the population on each subproblem (must be an even number)
@@ -66,12 +66,12 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if gen is negative, weight_generation is not sane
  * @see pagmo::problem::decompose::method_type
  */
-pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::method_type method,
+pade::pade(int gen, unsigned int threads, pagmo::problem::decompose::method_type method,
 		   const pagmo::algorithm::base & solver, population::size_type T, weight_generation_type weight_generation,
 		   const fitness_vector &z)
 	  :base(),
 	  m_gen(gen),
-	  m_max_parallelism(max_parallelism),
+	  m_threads(threads),
 	  m_method(method),
 	  m_solver(solver.clone()),
 	  m_T(T),
@@ -92,7 +92,7 @@ pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::met
 pade::pade(const pade &algo):
 	  base(algo),
 	  m_gen(algo.m_gen),
-	  m_max_parallelism(algo.m_max_parallelism),
+	  m_threads(algo.m_threads),
 	  m_method(algo.m_method),
 	  m_solver(algo.m_solver->clone()),
 	  m_T(algo.m_T),
@@ -333,12 +333,12 @@ void pade::evolve(population &pop) const
 
 
 	//Evolve the archipelago for m_gen generations
-	if(m_max_parallelism == NP) { //asynchronous island evolution
+	if(m_threads == NP) { //asynchronous island evolution
 		arch.evolve(m_gen);
 		arch.join();
 	} else {
 		for(int g = 0; g < m_gen; ++g) { //batched island evolution
-			arch.evolve_batch(1, m_max_parallelism);
+			arch.evolve_batch(1, m_threads);
 		}
 	}
 
@@ -373,7 +373,7 @@ std::string pade::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	s << "max_parallelism:" << m_max_parallelism << ' ';
+	s << "threads:" << m_threads << ' ';
 	s << "solver:" << m_solver->get_name() << ' ';
 	s << "neighbours:" << m_T << ' ';
 	s << "decomposition:";
@@ -402,4 +402,4 @@ std::string pade::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pade);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pade)

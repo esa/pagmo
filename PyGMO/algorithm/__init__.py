@@ -473,7 +473,7 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 sms_emoa._orig_init = sms_emoa.__init__
 sms_emoa.__init__ = _sms_emoa_ctor
 
-def _pade_ctor(self, gen=10, decomposition = 'tchebycheff', weights = 'grid', solver = None, max_parallelism = 1, T = 8, z = []):
+def _pade_ctor(self, gen=10, decomposition = 'tchebycheff', weights = 'grid', solver = None, threads = 8, T = 8, z = []):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	
@@ -482,10 +482,10 @@ def _pade_ctor(self, gen=10, decomposition = 'tchebycheff', weights = 'grid', so
 	At the end of the evolution the population is set as the best individual in each single-objective island.
 	This algorithm, original with PaGMO, builds upon the MOEA/D framework
 	
-	USAGE: algorithm.pade(self, gen=10, , decomposition = 'tchebycheff', weights = 'grid', solver = None, max_parallelism = 1, T = 8, z = [])
+	USAGE: algorithm.pade(self, gen=10, , decomposition = 'tchebycheff', weights = 'grid', solver = None, threads = 8, T = 8, z = [])
 
 	* gen: number of generations
-	* max_parallelism: the maximum number of single-objective problems to solve at the same time
+	* threads: the maximum number of single-objective problems to solve at the same time
 	* solver: the algorithm to use to solve the single-objective problems
 	* T: the size of the population on each subproblem (must be an even number)
 	* decomposition = the decomposition method to use, on of  ('weighted', 'tchebycheff' or 'bi')
@@ -510,7 +510,7 @@ def _pade_ctor(self, gen=10, decomposition = 'tchebycheff', weights = 'grid', so
 	
 	arg_list=[]
 	arg_list.append(gen)
-	arg_list.append(max_parallelism)
+	arg_list.append(threads)
 	arg_list.append(decomposition_type(decomposition.lower()))
 	if solver==None:
 		solver=jde(100)

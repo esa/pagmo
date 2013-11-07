@@ -87,7 +87,7 @@ private:
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & const_cast<int &>(m_gen);
-		ar & const_cast<unsigned int &>(m_max_parallelism);
+		ar & const_cast<unsigned int &>(m_threads);
 		ar & const_cast<pagmo::problem::decompose::method_type &>(m_method);
 		ar & const_cast<base_ptr &>(m_solver);
 		ar & const_cast<population::size_type &>(m_T);
@@ -96,7 +96,7 @@ private:
 	}
 	//Number of generations
 	const int m_gen;
-	const unsigned int m_max_parallelism;
+	const unsigned int m_threads;
 	const pagmo::problem::decompose::method_type m_method;
 	const base_ptr m_solver;
 	const population::size_type m_T;
