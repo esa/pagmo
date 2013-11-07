@@ -310,6 +310,7 @@ void nsga2::evolve(population &pop) const
 			mutate(child2,pop);
 			popnew.push_back(child1);
 			popnew.push_back(child2);
+			m_fevals += 4;
 		} // popnew now contains 2NP individuals
 
 		// This method returns the sorted N best individuals in the population according to the crowded comparison operator

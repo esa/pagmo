@@ -570,10 +570,7 @@ def _normalized_ctor(self, problem = None):
 normalized._orig_init = normalized.__init__
 normalized.__init__ = _normalized_ctor
 
-_problem.decompose.WEIGHTED = _problem._decomposition_method.WEIGHTED
-_problem.decompose.BI = _problem._decomposition_method.BI
-_problem.decompose.TCHEBYCHEFF = _problem._decomposition_method.TCHEBYCHEFF
-def _decompose_ctor(self, problem = None, method = decompose.WEIGHTED, weights = [], z = []):
+def _decompose_ctor(self, problem = None, method = 'tchebycheff', weights = [], z = []):
 	"""
 	Implements a meta-problem class resulting in a decomposed version
 	of the multi-objective input problem, i.e. a single-objective problem
@@ -581,21 +578,29 @@ def _decompose_ctor(self, problem = None, method = decompose.WEIGHTED, weights =
 
 	NOTE: this meta-problem constructs a new single-objective problem
 
-	USAGE: problem.decompose(problem=PyGMO.zdt(1, 2), method = problem.decompose.WEIGHTED, weights=a random vector (summing to one), z= a zero vector)
+	USAGE: problem.decompose(problem=PyGMO.zdt(1, 2), method = 'tchebycheff', weights=a random vector (summing to one), z= a zero vector)
 
 	* problem: PyGMO problem one wants to decompose
-	* method: the decomposition method to use (WEIGHTED, TCHEBYCHEEF or BI)
+	* method: the decomposition method to use ('weighted', 'tchebycheff' or 'bi')
 	* weights: the weight vector to build the new fitness function
-	* z: the reference point (used in TCHEBYCHEEF and BI methods)
+	* z: the reference point (used in TCHEBYCHEFF and BI methods)
 
 	"""
 
 	# We construct the arg list for the original constructor exposed by boost_python
+	
+	def decomposition_type(x):
+		return {
+			'weighted': _problem._decomposition_method.WEIGHTED,
+			'tchebycheff': _problem._decomposition_method.TCHEBYCHEFF,
+			'bi': _problem._decomposition_method.BI,
+		}[x]
+
 	arg_list=[]
 	if problem == None:
 		problem=zdt(1,2)
 	arg_list.append(problem)
-	arg_list.append(method)
+	arg_list.append(decomposition_type(method.lower()))
 	arg_list.append(weights)
 	arg_list.append(z)
 	self._orig_init(*arg_list)
@@ -746,34 +751,38 @@ death_penalty.__init__ = _death_penalty_ctor
 # Renaming and placing the enums
 _problem.con2mo.method = _problem._con2mo_method_type
 
-def _con2mo_ctor(self, problem = None, method = None):
+def _con2mo_ctor(self, problem = None, method = 'obj_cstrsvio'):
 	""" 
-	Implements a meta-problem class that wraps some other constrained problems, 
-	resulting in multi-objective problem.
+	Transforms a constrained problem into a multi-objective problem
  
-	Three implementations of the constrained to multi-objective are available. For a problem with m constraints,
-	m+1 objective functions, the first objective function is the original objective function.
-	The first implementation is the constrained to multi-objective defined by Coello Coello. The
-	objectives defined from constraints includes number of violated constraints and objective functions.
-	The second implementation is the COMOGA multi-objective problem: a biobjective problem with the second
-	objective the sum of the violations of the constraints.
-	The third implementation is the same as the second one but splitting the sum of violations between equality
-	and inequality constraints, resulting in a total of three objectives problem.
+	Three implementations of the constrained to multi-objective are available.
+	1) 'obj_cstrs': The multi-objective problem is created with two objectives. The first
+	objective is the same as that of the input problem, the second is the number of constraint violated
+	2) 'obj_cstrsvio': The multi-objective problem is created with two objectives. The first
+	objective is the same as that of the input problem, the second is the norm of the total constraint violation
+	3) 'obj_eqvio_ineqvio': 	2) 'obj_cstrsvio': The multi-objective problem is created with three objectives. The first
+	objective is the same as that of the input problem, the second is the norm of the total equality constraint violation,
+	the third is the norm of the total inequality constraint violation.
 	
-	USAGE: problem.con2mo(problem=PyGMO.cec2006(4), method=con2mo.method.OBJ_CSTRS)
+	USAGE: problem.con2mo(problem=PyGMO.cec2006(4), method='obj_cstrsvio')
 
 	* problem: original PyGMO constrained problem 
-	* method: Coello constraints to multi-objective set with OBJ_CSTRS, COMOGA method 
-		set with OBJ_CSTRSVIO and COMOGA with splitting of inequality and equality 
-		constraints set with OBJ_EQVIO_INEQVIO
+	* method: one of 'obj_cstrsvio', 'obj_eqvio_ineqvio', 'obj_cstrs'
 	""" 
 
 	# We construct the arg list for the original constructor exposed by boost_python
+	
+	def method_type(x):
+		return {
+			'obj_cstrs': _problem._con2mo_method_type.OBJ_CSTRS,
+			'obj_cstrsvio': _problem._con2mo_method_type.OBJ_CSTRSVIO,
+			'obj_eqvio_ineqvio': _problem._con2mo_method_type.OBJ_EQVIO_INEQVIO,
+		}[x]
+	
 	arg_list=[]
 	if problem == None:
 		problem = cec2006(4)
-	if method == None:
-		method = con2mo.method.OBJ_CSTRS
+	method = method_type(method.lower())
 	arg_list.append(problem)
 	arg_list.append(method)
 	self._orig_init(*arg_list)

@@ -473,11 +473,7 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 sms_emoa._orig_init = sms_emoa.__init__
 sms_emoa.__init__ = _sms_emoa_ctor
 
-_algorithm.pade.RANDOM = _algorithm._weight_generation.RANDOM
-_algorithm.pade.GRID = _algorithm._weight_generation.GRID
-_algorithm.pade.LOW_DISCREPANCY = _algorithm._weight_generation.LOW_DISCREPANCY
-from PyGMO.problem import decompose
-def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.BI, solver = None, T = 8, weights = pade.LOW_DISCREPANCY, z = []):
+def _pade_ctor(self, gen=10, decomposition = 'tchebycheff', weights = 'grid', solver = None, threads = 8, T = 8, z = []):
 	"""
 	Constructs a Parallel Decomposition Algorithm (PaDe).
 	
@@ -486,31 +482,46 @@ def _pade_ctor(self, gen=10, max_parallelism = 1, decomposition = decompose.BI, 
 	At the end of the evolution the population is set as the best individual in each single-objective island.
 	This algorithm, original with PaGMO, builds upon the MOEA/D framework
 	
-	USAGE: algorithm.pade(self, gen=10, max_parallelism = 1, decomposition = decompose.WEIGHTED, solver = jde(100), T = 8, weights = pade.RANDOM, z = None)
+	USAGE: algorithm.pade(self, gen=10, , decomposition = 'tchebycheff', weights = 'grid', solver = None, threads = 8, T = 8, z = [])
 
 	* gen: number of generations
-	* max_parallelism: the maximum number of single-objective problems to solve at the same time
+	* threads: the maximum number of single-objective problems to solve at the same time
 	* solver: the algorithm to use to solve the single-objective problems
 	* T: the size of the population on each subproblem (must be an even number)
-	* decomposition = the decomposition method to use (Weighted, Tchebycheff or BI)
-	* weights: the weight generation method
+	* decomposition = the decomposition method to use, on of  ('weighted', 'tchebycheff' or 'bi')
+	* weights: weight generation method, one of ('grid', 'low_discrepancy', 'random')
 	* z: the reference point (used with Tchebycheff and BI decomposition methods)
 	"""
 	# We set the defaults or the kwargs
+	from PyGMO.problem._problem import _decomposition_method
+	def decomposition_type(x):
+		return {
+			'weighted': _decomposition_method.WEIGHTED,
+			'tchebycheff': _decomposition_method.TCHEBYCHEFF,
+			'bi': _decomposition_method.BI,
+		}[x]
+		
+	def weight_generation_type(x):
+		return {
+			'low_discrepancy': _algorithm._weight_generation.LOW_DISCREPANCY,
+			'grid': _algorithm._weight_generation.GRID,
+			'random': _algorithm._weight_generation.RANDOM,
+		}[x]
+	
 	arg_list=[]
 	arg_list.append(gen)
-	arg_list.append(max_parallelism)
-	arg_list.append(decomposition)
+	arg_list.append(threads)
+	arg_list.append(decomposition_type(decomposition.lower()))
 	if solver==None:
 		solver=jde(100)
 	arg_list.append(solver)
 	arg_list.append(T)
-	arg_list.append(weights)
+	arg_list.append(weight_generation_type(weights.lower()))
 	arg_list.append(z)
 	self._orig_init(*arg_list)
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
-del decompose
+
 
 _algorithm.nspso.CROWDING_DISTANCE = _algorithm._diversity_mechanism.CROWDING_DISTANCE
 _algorithm.nspso.NICHE_COUNT = _algorithm._diversity_mechanism.NICHE_COUNT
@@ -586,7 +597,7 @@ def _moead_ctor(self, gen=100, weights = 'grid', T = 20, realb = 0.9, limit = 2,
 	USAGE: algorithm.spea2(gen=100, weights = 'grid', T = 20, realb = 0.9, limit = 2, cr = 1.0, f = 0.5, eta_m=20, diversity=True)
 	
 	* gen: Number of generations to evolve.
-	* weights: wight generation method, one of ('grid', 'low_discrepancy', 'random')
+	* weights: weight generation method, one of ('grid', 'low_discrepancy', 'random')
 	* T: Size of the neighbourhood
 	* realb Chance that the neighbourhood is T rather than the whole population (only if diversity is True)
 	* limit Maximum number of copies reinserted in the population  (only if diversity is True)
@@ -599,7 +610,7 @@ def _moead_ctor(self, gen=100, weights = 'grid', T = 20, realb = 0.9, limit = 2,
 		return {
 			'low_discrepancy': _algorithm._weight_generation_moead.LOW_DISCREPANCY,
 			'grid': _algorithm._weight_generation_moead.GRID,
-			'radnom': _algorithm._weight_generation_moead.RANDOM,
+			'random': _algorithm._weight_generation_moead.RANDOM,
 		}[x]
 	
 	# We set the defaults or the kwargs

@@ -40,6 +40,7 @@
 #include "../population.h"
 #include "../topology/fully_connected.h"
 #include "../topology/custom.h"
+#include "../topology/watts_strogatz.h"
 #include "../problem/decompose.h"
 #include "../util/discrepancy.h"
 #include "../util/neighbourhood.h"
@@ -55,7 +56,7 @@ namespace pagmo { namespace algorithm {
  * Constructs a PaDe algorithm
  *
  * @param[in] gen Number of generations to evolve.
- * @param[in] max_parallelism limits the amounts of threads spawned
+ * @param[in] threads the amounts of threads that will be used
  * @param[in] method the decomposition method to use (Weighted, Tchebycheff or BI)
  * @param[in] solver the algorithm to solve the single objective problems.
  * @param[in] T the size of the population on each subproblem (must be an even number)
@@ -65,12 +66,12 @@ namespace pagmo { namespace algorithm {
  * @throws value_error if gen is negative, weight_generation is not sane
  * @see pagmo::problem::decompose::method_type
  */
-pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::method_type method,
+pade::pade(int gen, unsigned int threads, pagmo::problem::decompose::method_type method,
 		   const pagmo::algorithm::base & solver, population::size_type T, weight_generation_type weight_generation,
 		   const fitness_vector &z)
 	  :base(),
 	  m_gen(gen),
-	  m_max_parallelism(max_parallelism),
+	  m_threads(threads),
 	  m_method(method),
 	  m_solver(solver.clone()),
 	  m_T(T),
@@ -91,7 +92,7 @@ pade::pade(int gen, unsigned int max_parallelism, pagmo::problem::decompose::met
 pade::pade(const pade &algo):
 	  base(algo),
 	  m_gen(algo.m_gen),
-	  m_max_parallelism(algo.m_max_parallelism),
+	  m_threads(algo.m_threads),
 	  m_method(algo.m_method),
 	  m_solver(algo.m_solver->clone()),
 	  m_T(algo.m_T),
@@ -151,7 +152,7 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 			} else if (n_f == 3) {
 				H = floor(0.5 * (sqrt(8*n_w + 1) - 3));
 			} else {
-				std::cout << "Fitness dimension is " << n_f << std::endl;
+				// std::cout << "Fitness dimension is " << n_f << std::endl;
 				H = 1;
 				while(boost::math::binomial_coefficient<double>(H+n_f-1, n_f-1) <= n_w) {
 					++H;
@@ -173,12 +174,10 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 			for (unsigned int i=0; i<H+1;++i) {
 				range.push_back(i);
 			}
-			double epsilon = 0.0;
 			reksum(retval, range, n_f, H);
 			for(unsigned int i=0; i< retval.size(); ++i) {
 				for(unsigned int j=0; j< retval[i].size(); ++j) {
-					retval[i][j] += epsilon;  //NOTE: to avoid to have zero weights. This is no longer usefule as its implemented in the decompose problem directly
-					retval[i][j] /= H+epsilon*retval[i].size();
+					retval[i][j] /= H;
 				}
 			}
 	
@@ -274,6 +273,7 @@ void pade::evolve(population &pop) const
 	std::random_shuffle(shuffle.begin(), shuffle.end(), p_idx);
 
 	//We assign each problem to the individual which has minimum fitness on that problem
+	//This allows greater performance .... check without on dtlz2 for example.
 	std::vector<int> assignation_list(NP); //problem i is assigned to the individual assignation_list[i]
 	std::vector<bool> selected_list(NP,false);	//keep track of the individuals already assigned to a problem
 	fitness_vector dec_fit(1);	//temporary stores the decomposed fitness
@@ -294,7 +294,6 @@ void pade::evolve(population &pop) const
 				}
 			}
 		}
-
 		assignation_list[shuffle[i]] = minFitPos;
 		selected_list[minFitPos] = true;
 	}
@@ -317,10 +316,10 @@ void pade::evolve(population &pop) const
 		arch.push_back(pagmo::island(*m_solver,decomposed_pop, 1.0, selection_policy, replacement_policy));
 	}
 
+	topology::custom topo;
 	if(m_T >= NP-1) {
-		arch.set_topology(topology::fully_connected());
+		topo = topology::fully_connected();
 	} else {
-		topology::custom topo;
 		for(unsigned int i = 0; i < NP; ++i) {
 			topo.push_back();
 		}
@@ -329,17 +328,17 @@ void pade::evolve(population &pop) const
 				topo.add_edge(i,indices[i][j]);
 			}
 		}
-		arch.set_topology(topo);
 	}
+	arch.set_topology(topo);
 
 
 	//Evolve the archipelago for m_gen generations
-	if(m_max_parallelism == NP) { //asynchronous island evolution
+	if(m_threads == NP) { //asynchronous island evolution
 		arch.evolve(m_gen);
 		arch.join();
 	} else {
 		for(int g = 0; g < m_gen; ++g) { //batched island evolution
-			arch.evolve_batch(1, m_max_parallelism);
+			arch.evolve_batch(1, m_threads);
 		}
 	}
 
@@ -374,7 +373,7 @@ std::string pade::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	s << "max_parallelism:" << m_max_parallelism << ' ';
+	s << "threads:" << m_threads << ' ';
 	s << "solver:" << m_solver->get_name() << ' ';
 	s << "neighbours:" << m_T << ' ';
 	s << "decomposition:";
@@ -403,4 +402,4 @@ std::string pade::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pade);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pade)

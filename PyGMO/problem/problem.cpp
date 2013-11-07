@@ -451,7 +451,9 @@ BOOST_PYTHON_MODULE(_problem) {
 		"  USAGE:: w = prob.compute_decomposed_fitness(fit,weight)\n"
 		"   - fit: multi-dimensional fitness\n"
 		"   - weight: decomposition weights")
-		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()));
+		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()))
+		.add_property("ideal_point", &problem::decompose::get_ideal_point, &problem::decompose::set_ideal_point,"the (z) point used to compute tchebycheff and bi decompositions");
+
 
 	// Noisy meta-problem
 	// Exposing enums of problem::noisy

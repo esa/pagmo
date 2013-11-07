@@ -130,6 +130,11 @@ void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	compute_decomposed_fitness(f, fit);
 }
 
+/// Gets the ideal point
+fitness_vector decompose::get_ideal_point() const {
+	return m_z;
+}
+
 /// Sets the ideal point
 void decompose::set_ideal_point(const fitness_vector &f) {
 	m_z = f;

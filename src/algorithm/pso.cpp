@@ -324,6 +324,7 @@ void pso::evolve(population &pop) const
 			
 			// We evaluate here the new individual fitness as to be able to update the global best in real time
 			prob.objfun( fit[p], X[p] );
+			m_fevals++;
 			
 			if( prob.compare_fitness( fit[p], lbfit[p] ) ){
 				// update the particle's previous best position
