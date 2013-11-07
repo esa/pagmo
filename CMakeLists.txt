@@ -41,7 +41,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
 	# Add to the base flags extra warnings. Also, additional flags to turn off some GCC warnings that in practice clutter the compilation output.
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization -ffast-math -std=c++0x -ftemplate-depth=256")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)

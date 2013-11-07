@@ -40,6 +40,7 @@
 #include "../population.h"
 #include "../topology/fully_connected.h"
 #include "../topology/custom.h"
+#include "../topology/watts_strogatz.h"
 #include "../problem/decompose.h"
 #include "../util/discrepancy.h"
 #include "../util/neighbourhood.h"
@@ -272,6 +273,7 @@ void pade::evolve(population &pop) const
 	std::random_shuffle(shuffle.begin(), shuffle.end(), p_idx);
 
 	//We assign each problem to the individual which has minimum fitness on that problem
+	//This allows greater performance .... check without on dtlz2 for example.
 	std::vector<int> assignation_list(NP); //problem i is assigned to the individual assignation_list[i]
 	std::vector<bool> selected_list(NP,false);	//keep track of the individuals already assigned to a problem
 	fitness_vector dec_fit(1);	//temporary stores the decomposed fitness
@@ -292,8 +294,7 @@ void pade::evolve(population &pop) const
 				}
 			}
 		}
-assignation_list[shuffle[i]] = minFitPos;
-//assignation_list[i] = i;
+		assignation_list[shuffle[i]] = minFitPos;
 		selected_list[minFitPos] = true;
 	}
 
@@ -315,10 +316,10 @@ assignation_list[shuffle[i]] = minFitPos;
 		arch.push_back(pagmo::island(*m_solver,decomposed_pop, 1.0, selection_policy, replacement_policy));
 	}
 
+	topology::custom topo;
 	if(m_T >= NP-1) {
-		arch.set_topology(topology::fully_connected());
+		topo = topology::fully_connected();
 	} else {
-		topology::custom topo;
 		for(unsigned int i = 0; i < NP; ++i) {
 			topo.push_back();
 		}
@@ -327,8 +328,9 @@ assignation_list[shuffle[i]] = minFitPos;
 				topo.add_edge(i,indices[i][j]);
 			}
 		}
-		arch.set_topology(topo);
 	}
+	arch.set_topology(topo);
+
 
 	//Evolve the archipelago for m_gen generations
 	if(m_max_parallelism == NP) { //asynchronous island evolution
@@ -338,7 +340,6 @@ assignation_list[shuffle[i]] = minFitPos;
 		for(int g = 0; g < m_gen; ++g) { //batched island evolution
 			arch.evolve_batch(1, m_max_parallelism);
 		}
-		
 	}
 
 	// Finally, we assemble the evolved population selecting from the original one + the evolved one
