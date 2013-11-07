@@ -160,8 +160,6 @@ void cstrs_co_evolution::objfun_impl(fitness_vector &f, const decision_vector &x
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ:
 	{
-//		f[0] += sum_viol.at(0) * m_penalty_coeff.at(0) + double(num_viol.at(0)) * m_penalty_coeff.at(1);
-//		f[0] += sum_viol.at(1) * m_penalty_coeff.at(2) + double(num_viol.at(1)) * m_penalty_coeff.at(3);
 		f[0] += sum_viol.at(0) * m_penalty_coeff.at(0);
 		f[0] += sum_viol.at(1) * m_penalty_coeff.at(1);
 		break;
@@ -170,7 +168,6 @@ void cstrs_co_evolution::objfun_impl(fitness_vector &f, const decision_vector &x
 	{
 		int c_dimension = m_original_problem->get_c_dimension();
 		for(int i=0; i<c_dimension; i++) {
-//			f[0] += sum_viol.at(0+i) * m_penalty_coeff.at(0+i*2) + double(num_viol.at(0+i)) * m_penalty_coeff.at(1+i*2);
 			f[0] += sum_viol.at(i) * m_penalty_coeff.at(i);
 		}
 		break;
@@ -334,35 +331,18 @@ void cstrs_co_evolution::compute_penalty(std::vector<double> &sum_viol, std::vec
 			sum_viol[1] += c_vio.at(j);
 		}
 
-		/*for(problem::base::c_size_type j=0; j<number_of_eq_constraints; j++) {
-			if(!m_original_problem->test_constraint(c, j)) {
-				num_viol[0] += 1;
-			}
-		}
-		for(problem::base::c_size_type j=number_of_eq_constraints; j<prob_c_dimension; j++) {
-			if(!m_original_problem->test_constraint(c, j)) {
-				num_viol[1] += 1;
-			}
-		}*/
 		break;
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS:
 	{
 		sum_viol.resize(prob_c_dimension);
-		//num_viol.resize(prob_c_dimension);
 		std::fill(sum_viol.begin(),sum_viol.end(),0.);
-		//std::fill(num_viol.begin(),num_viol.end(),0.);
 
 		// update sum_num_viol
 		for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
 			sum_viol[j] += c_vio.at(j);
 		}
 
-		/*for(problem::base::c_size_type j=0; j<prob_c_dimension; j++) {
-			if(!m_original_problem->test_constraint(c, j)) {
-				num_viol[j] += 1;
-			}
-		}*/
 		break;
 	}
 	}

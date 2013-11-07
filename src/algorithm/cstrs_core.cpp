@@ -212,6 +212,9 @@ void cstrs_core::evolve(population &pop) const
 			}
 		}
 	}
+
+	//update number of fitness evaluations
+	m_fevals = m_original_algo->get_fevals() + m_repair_algo->get_fevals();
 }
 
 /// Algorithm name

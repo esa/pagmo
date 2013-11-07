@@ -49,7 +49,7 @@ int main() {
 			dumb[0] = 10;dumb[1] = 40;
 			tofs.push_back(dumb);
 	problem::mga_incipit_cstrs prob(seq, kep_toolbox::epoch(10460.0), kep_toolbox::epoch(104803.0),tofs);
-	
+
 	algorithm::jde algo(1);
 	algorithm::gsl_nm2 algo_repair(100, 1e-8, 0.02);
 	algorithm::cstrs_core algo_core(algo,algo_repair,500,10);
@@ -59,7 +59,10 @@ int main() {
 		for(int i=0;i<100;i++){
 			algo_core.evolve(pop);
 		}
-		std::cout<<pop.champion().f<<std::endl;
+		std::cout<<"champion: "<<pop.champion().f<<std::endl;
+		std::cout<<"fevals: "<<algo_core.get_fevals()<<std::endl;
+		int dummy;
+		std::cin>>dummy;
 	}
 
 	/*problem::zdt prob(1,30);
