@@ -18,8 +18,19 @@ IF(SYSTEM_M_LIBRARY)
 	MESSAGE(STATUS "m library found: ${SYSTEM_M_LIBRARY}")
 ENDIF(SYSTEM_M_LIBRARY)
 
-# Configuration for GCC.
-IF(CMAKE_COMPILER_IS_GNUCXX)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	CHECK_CXX_COMPILER_FLAG(-ftemplate-depth=256 CLANG_TEMPLATE_DEPTH)
+	IF(CLANG_TEMPLATE_DEPTH)
+		MESSAGE(STATUS "Enabling '-ftemplate-depth=256' compiler flag required since boost 1.54.")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
+	ENDIF(CLANG_TEMPLATE_DEPTH)
+	CHECK_CXX_COMPILER_FLAG(-std=c++0x CLANG_C0X)
+	IF(CLANG_C0X)
+		MESSAGE(STATUS "Enabling '-std=c++0x' compiler flag")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+	ENDIF(CLANG_C0X)
+	CHECK_CXX_COMPILER_FLAG(-std=c++0x CLANG_C0X)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	CHECK_CXX_COMPILER_FLAG(-fmessage-length=0 GNUCXX_MESSAGE_LENGTH)
 	IF(GNUCXX_MESSAGE_LENGTH)
 		MESSAGE(STATUS "Enabling '-fmessage-length=0' compiler flag.")
@@ -41,10 +52,15 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
 	# Add to the base flags extra warnings. Also, additional flags to turn off some GCC warnings that in practice clutter the compilation output.
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization -ffast-math -std=c++0x -ftemplate-depth=256")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization -ffast-math -std=c++0x")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
-ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  # using Intel C++
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  # using Visual Studio C++
+endif()
+
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)

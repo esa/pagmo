@@ -30,42 +30,8 @@ using namespace pagmo;
 
 // Example in C++ of the use of PaGMO 1.1.5
 
-
-int main() {
-	std::vector<kep_toolbox::planet_ptr> seq;
-	seq.push_back(kep_toolbox::planet_js("callisto").clone());
-	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
-	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
-	seq.push_back(kep_toolbox::planet_js("ganymede").clone());
-	
-	std::vector<std::vector<double> > tofs;
-	std::vector<double> dumb(2);
-			dumb[0] = 180;dumb[1] = 200;
-			tofs.push_back(dumb);
-			dumb[0] = 0.1;dumb[1] = 5;
-			tofs.push_back(dumb);
-			dumb[0] = 10;dumb[1] = 150;
-			tofs.push_back(dumb);
-			dumb[0] = 10;dumb[1] = 40;
-			tofs.push_back(dumb);
-	problem::mga_incipit_cstrs prob(seq, kep_toolbox::epoch(10460.0), kep_toolbox::epoch(104803.0),tofs);
-
-	algorithm::jde algo(1);
-	algorithm::gsl_nm2 algo_repair(100, 1e-8, 0.02);
-	algorithm::cstrs_core algo_core(algo,algo_repair,500,10);
-
-	for(int j=0;j<100;j++){
-		population pop(prob,20);
-		for(int i=0;i<100;i++){
-			algo_core.evolve(pop);
-		}
-		std::cout<<"champion: "<<pop.champion().f<<std::endl;
-		std::cout<<"fevals: "<<algo_core.get_fevals()<<std::endl;
-		int dummy;
-		std::cin>>dummy;
-	}
-
-	/*
+int main()
+{
 	//We instantiate the problem Schwefel with diemnsion 50
 	pagmo::problem::schwefel prob(50);
 	//We instantiate the algorithm differential evolution with 500 generations
@@ -107,5 +73,5 @@ int main() {
 		temp.push_back(archi2.get_island(i)->get_population().champion().f[0]);
 	}
 	std::cout << "Evolve method of the archipelago (with migration): " << *std::min_element(temp.begin(),temp.end()) << std::endl; 
-	return 0;*/
+	return 0;
 }
