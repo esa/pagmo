@@ -328,6 +328,8 @@ void moead::evolve(population &pop) const
 	// We create a pseudo-random permutation of the indexes 1..NP
 	std::vector<population::size_type> shuffle(NP);
 	for(pagmo::population::size_type i=0; i < shuffle.size(); ++i) shuffle[i] = i;
+	
+	fitness_vector new_f(prob.get_f_dimension()), f1(1), f2(1); 
 
 	// Main MOEA/D loop
 	for (int g = 0; g<m_gen; ++g) {
@@ -361,7 +363,7 @@ void moead::evolve(population &pop) const
 				}
 			}
 			mutation(candidate, pop, 1.0 / prob.get_dimension());
-			fitness_vector new_f = prob.objfun(candidate);
+			new_f = prob.objfun(candidate);
 			m_fevals++;
 			
 			// 3 - We update the ideal point
@@ -373,7 +375,6 @@ void moead::evolve(population &pop) const
 			// 4-  We insert the newly found solution into the population
 			unsigned int size, time = 0;
 			// First try on problem n
-			fitness_vector f1(1),f2(1);
 			prob_decomposed.compute_decomposed_fitness(f1,pop.get_individual(n).cur_f,weights[n]);
 			prob_decomposed.compute_decomposed_fitness(f2,new_f,weights[n]);
 			if(f2[0]<f1[0])
