@@ -6,30 +6,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 # Setup and include CMake modules.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 
+# We activate compiler dependent flags
 INCLUDE(CheckCXXCompilerFlag)
-
-# Initialise (empty) list of libraries to link against.
-SET(MANDATORY_LIBRARIES "")
-
-# Look for the math library and if found set it as mandatory
-FIND_LIBRARY(SYSTEM_M_LIBRARY NAMES m)
-IF(SYSTEM_M_LIBRARY)
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SYSTEM_M_LIBRARY})
-	MESSAGE(STATUS "m library found: ${SYSTEM_M_LIBRARY}")
-ENDIF(SYSTEM_M_LIBRARY)
-
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	CHECK_CXX_COMPILER_FLAG(-ftemplate-depth=256 CLANG_TEMPLATE_DEPTH)
 	IF(CLANG_TEMPLATE_DEPTH)
 		MESSAGE(STATUS "Enabling '-ftemplate-depth=256' compiler flag required since boost 1.54.")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
 	ENDIF(CLANG_TEMPLATE_DEPTH)
-	CHECK_CXX_COMPILER_FLAG(-std=c++0x CLANG_C0X)
-	IF(CLANG_C0X)
-		MESSAGE(STATUS "Enabling '-std=c++0x' compiler flag")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-	ENDIF(CLANG_C0X)
-	CHECK_CXX_COMPILER_FLAG(-std=c++0x CLANG_C0X)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	CHECK_CXX_COMPILER_FLAG(-fmessage-length=0 GNUCXX_MESSAGE_LENGTH)
 	IF(GNUCXX_MESSAGE_LENGTH)
@@ -52,7 +36,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
 	# Add to the base flags extra warnings. Also, additional flags to turn off some GCC warnings that in practice clutter the compilation output.
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization -ffast-math -std=c++0x")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
@@ -61,6 +45,22 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # using Visual Studio C++
 endif()
 
+CHECK_CXX_COMPILER_FLAG(-std=c++11 ALL_C0X)
+IF(ALL_C0X)
+	MESSAGE(STATUS "Enabling '-std=c++11' compiler flag")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ENDIF(ALL_C0X)
+
+
+# Initialise (empty) list of libraries to link against.
+SET(MANDATORY_LIBRARIES "")
+
+# Look for the math library and if found set it as mandatory
+FIND_LIBRARY(SYSTEM_M_LIBRARY NAMES m)
+IF(SYSTEM_M_LIBRARY)
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SYSTEM_M_LIBRARY})
+	MESSAGE(STATUS "m library found: ${SYSTEM_M_LIBRARY}")
+ENDIF(SYSTEM_M_LIBRARY)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
@@ -127,7 +127,7 @@ IF(ENABLE_GTOP_DATABASE)
 ENDIF(ENABLE_GTOP_DATABASE)
 MESSAGE(STATUS "Required Boost libraries: ${REQUIRED_BOOST_LIBS}")
 
-FIND_PACKAGE(Boost 1.42.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
+FIND_PACKAGE(Boost 1.48.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
 MESSAGE(STATUS "Detected Boost version: ${Boost_VERSION}")
 # Include system Boost headers.
 MESSAGE(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
