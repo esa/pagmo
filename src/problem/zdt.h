@@ -36,7 +36,7 @@ namespace pagmo{ namespace problem {
 /// ZDT problem test suite
 /**
  * ZDT1:
- * 
+ *
  * This is a box-constrained continuous n-dimensional (n>1) multi-objecive problem.
  * \f[
  *	g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)
@@ -48,7 +48,7 @@ namespace pagmo{ namespace problem {
  *      F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} \right]  x \in \left[ 0,1 \right].
  *
  * \f]
- * 
+ *
  * ZDT2:
  *
  * This is a box-constrained continuous n-dimension multi-objecive problem.
@@ -62,9 +62,9 @@ namespace pagmo{ namespace problem {
  *      F_2 \left(x\right) = g(x) \left[ 1 - \left(x_1 / g(x)\right)^2 \right]  x \in \left[ 0,1 \right].
  *
  * \f]
- * 
+ *
  * ZDT3:
- * 
+ *
  * This is a box-constrained continuous n-dimension multi-objecive problem.
  * \f[
  *      g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)
@@ -78,7 +78,7 @@ namespace pagmo{ namespace problem {
  * \f]
  *
  * ZDT4:
- * 
+ *
  * This is a box-constrained continuous n-dimension multi-objecive problem.
  * \f[
  *      g\left(x\right) = 91 + \sum_{i=2}^{n} \left[x_i^2 - 10 \cos \left(4\pi x_i \right) \right]
@@ -90,26 +90,26 @@ namespace pagmo{ namespace problem {
  *      F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} \right]  x_1 \in [0,1], x_i \in \left[ -5,5 \right] i=2, \cdots, 10.
  *
  * \f]
- * 
+ *
  * ZDT5
- * 
+ *
  * This is a box-constrained integer n-dimension multi-objecive problem.
- * \f[ 
- *       F_1\left(x\right) = 1 + u \left(x_{1} \right) 
+ * \f[
+ *       F_1\left(x\right) = 1 + u \left(x_{1} \right)
  * \f]
  * \f[
- *       g\left(x\right) = \sum_{i=2}^{11} v \left(u \left(x_{i} \right) \right) 
+ *       g\left(x\right) = \sum_{i=2}^{11} v \left(u \left(x_{i} \right) \right)
  * \f]
  * \f[
  *       v\left(u\left(x_{i}\right)\right) =  2 + u \left(x_{i} \right)    if u \left(x_{i} \right) < 5
- *       v\left(u\left(x_{i}\right)\right) =  1                            if u \left(x_{i} \right) = 5 
+ *       v\left(u\left(x_{i}\right)\right) =  1                            if u \left(x_{i} \right) = 5
  * \f]
  * \f[
- *       F_2 = g \left(x \right) * 1/F_1 \left(x \right) 
- * \f] 
- * 
+ *       F_2 = g \left(x \right) * 1/F_1 \left(x \right)
+ * \f]
+ *
  * ZDT6
- * 
+ *
  * This is a box-constrained continuous 30-dimension multi-objecive problem.
  * \f[
  *      g\left(x\right) = 1 + 9 \left[\left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)\right]^{0.25}
@@ -141,26 +141,26 @@ class __PAGMO_VISIBLE zdt : public base_unc_mo
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		double convergence_metric(const decision_vector &) const;
 	private:
-                void g01_objfun_impl(fitness_vector &, const decision_vector &) const;
-                double g0123_convergence_metric(const decision_vector &) const;
-                void g02_objfun_impl(fitness_vector &, const decision_vector &) const;
-                void g03_objfun_impl(fitness_vector &, const decision_vector &) const;
-                void g04_objfun_impl(fitness_vector &, const decision_vector &) const;
-                double g04_convergence_metric(const decision_vector &) const;
-                void g05_objfun_impl(fitness_vector &, const decision_vector &) const;
-                double g05_convergence_metric(const decision_vector &) const;
-                void g06_objfun_impl(fitness_vector &, const decision_vector &) const;
-                double g06_convergence_metric(const decision_vector &) const;
-            
-                friend class boost::serialization::access;
+				void g01_objfun_impl(fitness_vector &, const decision_vector &) const;
+				double g0123_convergence_metric(const decision_vector &) const;
+				void g02_objfun_impl(fitness_vector &, const decision_vector &) const;
+				void g03_objfun_impl(fitness_vector &, const decision_vector &) const;
+				void g04_objfun_impl(fitness_vector &, const decision_vector &) const;
+				double g04_convergence_metric(const decision_vector &) const;
+				void g05_objfun_impl(fitness_vector &, const decision_vector &) const;
+				double g05_convergence_metric(const decision_vector &) const;
+				void g06_objfun_impl(fitness_vector &, const decision_vector &) const;
+				double g06_convergence_metric(const decision_vector &) const;
+
+				friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base_unc_mo>(*this);
-                        ar & const_cast<unsigned int&>(m_problem_number);
-                }
+						ar & const_cast<unsigned int&>(m_problem_number);
+				}
 
-                const unsigned int m_problem_number;
+				const unsigned int m_problem_number;
 };
 
 }} //namespaces
