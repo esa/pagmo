@@ -285,7 +285,6 @@ void cmaes::evolve(population &pop) const
 				if (m_screen_output) { 
 					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
 				}
-				m_fevals+=g*lam;
 				return;
 			}
 
@@ -295,7 +294,6 @@ void cmaes::evolve(population &pop) const
 				if (m_screen_output) {
 					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
 				}
-				m_fevals+=g*lam;
 				return;
 			}
 		}
@@ -322,6 +320,7 @@ void cmaes::evolve(population &pop) const
 				pop.push_back(dumb);
 			}
 			counteval += lam;
+			m_fevals += lam;
 		}
 		catch (const std::bad_cast& e)
 		{
@@ -333,6 +332,7 @@ void cmaes::evolve(population &pop) const
 				pop.set_x(i,dumb);
 			}
 			counteval += lam;
+			m_fevals += lam; //not necessarily equal to counteval ....
 		}
 		
 		// 2 - We extract the elite from this generation. We use cur_f, equivalent to the
@@ -445,7 +445,6 @@ void cmaes::evolve(population &pop) const
 	}
 		
 	} // end loop on g
-	m_fevals+=m_gen*lam;
 }
 
 /// Setter for m_gen 

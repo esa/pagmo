@@ -174,7 +174,6 @@ void jde::evolve(population &pop) const
 				if (m_screen_output) { 
 					std::cout << "Exit condition -- xtol < " <<  m_xtol << std::endl;
 				}
-				m_fevals+=gen*NP;
 				return;
 			}
 
@@ -184,11 +183,10 @@ void jde::evolve(population &pop) const
 				if (m_screen_output) {
 					std::cout << "Exit condition -- ftol < " <<  m_ftol << std::endl;
 				}
-				m_fevals+=gen*NP;
 				return;
 			}
 		}
-	
+
 		//Start of the loop through the deme
 		for (size_t i = 0; i < NP; ++i) {
 			do {                       /* Pick a random population member */
@@ -522,6 +520,7 @@ void jde::evolve(population &pop) const
 
 			//b) how good?
 			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
+			m_fevals++;
 			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
 				fit[i]=newfitness;
 				popnew[i] = tmp;
@@ -558,7 +557,6 @@ void jde::evolve(population &pop) const
 	if (m_screen_output) {
 		std::cout << "Exit condition -- generations > " <<  m_gen << std::endl;
 	}
-	m_fevals+=m_gen*NP;
 }
 
 /// Algorithm name
