@@ -254,6 +254,24 @@ class HVContributionsTest(unittest.TestCase):
 		c[0] = round(c[0], 9)
 		self.assertEqual(tuple(c), ans)
 
+	def test4d(self):
+		"""
+		Gradually adding points.
+		Tests whether contributions and repeated exclusive methods produce the same results.
+		"""
+		S = ((1,1,1,1), )
+		R = (5,5,5,5)
+		self.assertContribs(S, R, (256,))
+
+		S += ((4,4,4,4),)
+		self.assertContribs(S, R, (255, 0, ))
+
+		S += ((3,3,3,3),)
+		self.assertContribs(S, R, (240, 0, 0 ))
+
+		S += ((1,1,1,1),)
+		self.assertContribs(S, R, (0, ) * 4)
+
 	def test5d(self):
 		"""
 		Gradually adding points.
