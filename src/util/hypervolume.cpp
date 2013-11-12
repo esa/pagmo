@@ -181,6 +181,7 @@ hv_algorithm::base_ptr hypervolume::get_best_compute(const fitness_vector &r_poi
 
 hv_algorithm::base_ptr hypervolume::get_best_exclusive(const unsigned int p_idx, const fitness_vector &r_point) const
 {
+	(void)p_idx;
 	// Exclusive contribution and compute method share the same "best" set of algorithms.
 	return get_best_compute(r_point);
 }
