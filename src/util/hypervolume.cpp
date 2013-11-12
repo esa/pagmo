@@ -179,6 +179,13 @@ hv_algorithm::base_ptr hypervolume::get_best_compute(const fitness_vector &r_poi
 	}
 }
 
+hv_algorithm::base_ptr hypervolume::get_best_exclusive(const unsigned int p_idx, const fitness_vector &r_point) const
+{
+	(void)p_idx;
+	// Exclusive contribution and compute method share the same "best" set of algorithms.
+	return get_best_compute(r_point);
+}
+
 hv_algorithm::base_ptr hypervolume::get_best_contributions(const fitness_vector &r_point) const
 {
 	switch(r_point.size()) {
@@ -273,7 +280,7 @@ double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_
  */
 double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_point) const
 {
-	return exclusive(p_idx, r_point, get_best_contributions(r_point));
+	return exclusive(p_idx, r_point, get_best_exclusive(p_idx, r_point));
 }
 
 /// Find the least contributing individual

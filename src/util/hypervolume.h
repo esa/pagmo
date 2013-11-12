@@ -89,6 +89,7 @@ public:
 
 private:
 	hv_algorithm::base_ptr get_best_compute(const fitness_vector &) const;
+	hv_algorithm::base_ptr get_best_exclusive(const unsigned int, const fitness_vector &) const;
 	hv_algorithm::base_ptr get_best_contributions(const fitness_vector &) const;
 	void verify_after_construct() const;
 	void verify_before_compute(const fitness_vector &, const hv_algorithm::base_ptr) const;
