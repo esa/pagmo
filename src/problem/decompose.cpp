@@ -142,7 +142,7 @@ void decompose::set_ideal_point(const fitness_vector &f) {
 
 /// Compute the original fitness
 /**
- * Compute the original fitness of the multi-objective problem. It also updates the ideal point in case
+ * Computes the original fitness of the multi-objective problem. It also updates the ideal point in case
  * m_adapt_ideal is true
  *
  * @param f decomposed fitness vector

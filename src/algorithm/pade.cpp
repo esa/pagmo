@@ -341,7 +341,7 @@ void pade::evolve(population &pop) const
 
 
 	//Evolve the archipelago for m_gen generations
-	if(m_threads == NP) { //asynchronous island evolution
+	if(m_threads >= NP) { //asynchronous island evolution
 		arch.evolve(m_gen);
 		arch.join();
 	} else {

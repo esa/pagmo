@@ -374,7 +374,8 @@ void moead::evolve(population &pop) const
 				}
 			}
 			mutation(candidate, pop, 1.0 / prob.get_dimension());
-			// Note that we do not use prob, hence the cache of prob does not get these vlues.
+			// Note that we do not use prob, hence the cache of prob does not get these values.
+			// Note that the ideal point is here updated too
 			prob_decomposed.compute_original_fitness(new_f, candidate);
 			m_fevals++;
 			
