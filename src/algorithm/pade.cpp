@@ -137,7 +137,12 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
  * @param[in] n_w number of weights to be produced
  */
  
- std::vector<fitness_vector> pade::generate_weights(const unsigned int n_f, const unsigned int n_w) const {
+std::vector<fitness_vector> pade::generate_weights(const unsigned int n_f, const unsigned int n_w) const {
+
+	// Sanity check
+	if (n_f > n_w) {
+		pagmo_throw(value_error,"To allow weight be generated correctly the number of weights must be strictly larger than the number of objectives");
+	}
 
 	// Definition of useful probability distributions
 	boost::uniform_real<double> uniform(0.0,1.0);
@@ -152,7 +157,6 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 			} else if (n_f == 3) {
 				H = floor(0.5 * (sqrt(8*n_w + 1) - 3));
 			} else {
-				// std::cout << "Fitness dimension is " << n_f << std::endl;
 				H = 1;
 				while(boost::math::binomial_coefficient<double>(H+n_f-1, n_f-1) <= n_w) {
 					++H;
@@ -182,8 +186,12 @@ void pade::reksum(std::vector<std::vector<double> > &retval,
 			}
 	
 		} else if(m_weight_generation == LOW_DISCREPANCY) {
+			for(unsigned int i = 0; i< n_f; ++i) {
+				retval.push_back(fitness_vector(n_f,0.0));
+				retval[i][i] = 1.0;
+			}
 			pagmo::util::discrepancy::simplex generator(n_f,1);
-			for(unsigned int i = 0; i <n_w; ++i) {
+			for(unsigned int i = n_f; i <n_w; ++i) {
 				retval.push_back(generator());
 			}
 	

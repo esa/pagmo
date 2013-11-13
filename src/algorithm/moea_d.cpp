@@ -151,6 +151,11 @@ void moead::reksum(std::vector<std::vector<double> > &retval,
 **/
  std::vector<fitness_vector> moead::generate_weights(const unsigned int n_f, const unsigned int n_w) const {
 
+	// Sanity check
+	if (n_f > n_w) {
+		pagmo_throw(value_error,"To allow weight be generated correctly the number of weights must be strictly larger than the number of objectives");
+	}
+
 	// Definition of useful probability distributions
 	boost::uniform_real<double> uniform(0.0,1.0);
 	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > r_dist(m_drng,uniform);
@@ -193,8 +198,12 @@ void moead::reksum(std::vector<std::vector<double> > &retval,
 			}
 	
 		} else if(m_weight_generation == LOW_DISCREPANCY) {
+			for(unsigned int i = 0; i< n_f; ++i) {
+				retval.push_back(fitness_vector(n_f,0.0));
+				retval[i][i] = 1.0;
+			}
 			pagmo::util::discrepancy::simplex generator(n_f,1);
-			for(unsigned int i = 0; i <n_w; ++i) {
+			for(unsigned int i = n_f; i <n_w; ++i) {
 				retval.push_back(generator());
 			}
 	
