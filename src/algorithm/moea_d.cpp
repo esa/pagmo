@@ -330,9 +330,11 @@ void moead::evolve(population &pop) const
 		neigh_idx[i].erase(neigh_idx[i].begin()+m_T, neigh_idx[i].end());
 	}
 
-	// We create the decomposed problem which we will use to compute the decomposed fitness values according
-	// to weights and ideal points (the construction parameter weights[0] is thus irrelevant)
-	pagmo::problem::decompose prob_decomposed(prob, problem::decompose::TCHEBYCHEFF, weights[0], ideal_point);
+	// We create a decomposed problem which we will use not as a polymorphic problem,
+	// only as fitness and decomposed fitness evaluator
+	// (the construction parameter weights[0] is thus irrelevant). Note that the flag
+	// adtapt_ideal is set to true so that the problem will udate the ideal point at each call of the original obj fun.
+	pagmo::problem::decompose prob_decomposed(prob, problem::decompose::TCHEBYCHEFF, weights[0], ideal_point, true);
 
 	// We create a pseudo-random permutation of the indexes 1..NP
 	std::vector<population::size_type> shuffle(NP);
@@ -372,14 +374,15 @@ void moead::evolve(population &pop) const
 				}
 			}
 			mutation(candidate, pop, 1.0 / prob.get_dimension());
-			new_f = prob.objfun(candidate);
+			// Note that we do not use prob, hence the cache of prob does not get these vlues.
+			prob_decomposed.compute_original_fitness(new_f, candidate);
 			m_fevals++;
 			
-			// 3 - We update the ideal point
-			for (fitness_vector::size_type j=0; j<prob.get_f_dimension(); ++j){
-				if (new_f[j] < ideal_point[j]) ideal_point[j] = new_f[j];
-			}
-			prob_decomposed.set_ideal_point(ideal_point);
+			// 3 - We update the ideal point (Not needed as its done in decomposed when the flag adapt_weight is true)
+			//for (fitness_vector::size_type j=0; j<prob.get_f_dimension(); ++j){
+			//	if (new_f[j] < ideal_point[j]) ideal_point[j] = new_f[j];
+			//}
+			//prob_decomposed.set_ideal_point(ideal_point);
 			
 			// 4-  We insert the newly found solution into the population
 			unsigned int size, time = 0;

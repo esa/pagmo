@@ -40,14 +40,14 @@ namespace pagmo { namespace problem {
  * @param[in] p base::problem to be decomposed
  * @param[in] method decomposition method (WEIGHTS, TCHEBYCHEFF, BI)
  * @param[in] weights the weight vector (by default is set to random weights)
- * @param[in] z reference point (used in Tchebycheff and Boundary Intersection (BI) methods, by default it is set to 0)
+ * @param[in] z ideal reference point (used in Tchebycheff and Boundary Intersection (BI) methods, by default it is set to 0)
  *
  * @see For the uniform random generation of weights vector see Appendix 2 in "A. Jaszkiewicz - On the Performance of Multiple-Objective Genetic Local Search
 on the 0/1 Knapsack Problem—A Comparative Experiment"
  * @see For the different decomposition methods see "Q. Zhang - MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition"
 
  */
-decompose::decompose(const base & p, method_type method, const std::vector<double> & weights, const std::vector<double> & z):
+decompose::decompose(const base & p, method_type method, const std::vector<double> & weights, const std::vector<double> & z, const bool adapt_ideal):
 	base_meta(
 		 p,
 		 p.get_dimension(), // Ambiguous without the cast ...
@@ -58,7 +58,8 @@ decompose::decompose(const base & p, method_type method, const std::vector<doubl
 		 p.get_c_tol()),
 		 m_method(method),
 		 m_weights(weights),
-		 m_z(z)
+		 m_z(z),
+		 m_adapt_ideal(adapt_ideal)
 {
 
 	//0 - Check whether method is implemented
@@ -125,9 +126,8 @@ base_ptr decompose::clone() const
 void decompose::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 	fitness_vector fit(m_original_problem->get_f_dimension());
-	m_original_problem->objfun(fit, x);
-
-	compute_decomposed_fitness(f, fit);
+	compute_original_fitness(fit, x);
+	compute_decomposed_fitness(f, fit,m_weights);
 }
 
 /// Gets the ideal point
@@ -138,6 +138,23 @@ fitness_vector decompose::get_ideal_point() const {
 /// Sets the ideal point
 void decompose::set_ideal_point(const fitness_vector &f) {
 	m_z = f;
+}
+
+/// Compute the original fitness
+/**
+ * Compute the original fitness of the multi-objective problem. It also updates the ideal point in case
+ * m_adapt_ideal is true
+ *
+ * @param f decomposed fitness vector
+ * @param original_fit original multi-objective fitness vector
+ */
+void decompose::compute_original_fitness(fitness_vector &f, const decision_vector &x) const {
+	m_original_problem->objfun(f,x);
+	if (m_adapt_ideal) {
+		for (fitness_vector::size_type i=0; i<f.size(); ++i) {
+			if (f[i] < m_z[i]) m_z[i] = f[i];
+		}
+	}
 }
 
 /// Compute the decomposed fitness

@@ -445,7 +445,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("TCHEBYCHEFF", problem::decompose::TCHEBYCHEFF)
 		.value("BI", problem::decompose::BI);
 	meta_problem_wrapper<problem::decompose>("decompose","Decomposed problem")
-		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &> >())
+		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &, const bool> >())
 		.def("compute_decomposed_fitness", &compute_decomposed_fitness_wrapper, 
 		"Computes the fitness of the decomposed problem\n\n"
 		"  USAGE:: w = prob.compute_decomposed_fitness(fit,weight)\n"
