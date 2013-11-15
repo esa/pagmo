@@ -395,7 +395,7 @@ mga_1dsm_alpha.plot = _mga_1dsm_alpha_plot
 
 
 #Plot of the trajectory for an mga_1dsm problem
-def _mga_1dsm_tof_plot(self,x):
+def _mga_1dsm_tof_plot_old(self,x):
 	"""
 	Plots the trajectory represented by the decision vector x
 	"""
@@ -467,10 +467,10 @@ def _mga_1dsm_tof_plot(self,x):
 		#DSM occurring at time nu2*T2
 		DV[i] = norm([a-b for a,b in zip(v_beg_l,v)])
 	return ax
-mga_1dsm_tof.plot = _mga_1dsm_tof_plot
+mga_1dsm_tof.plot_old = _mga_1dsm_tof_plot_old
 
 #Plot of the trajectory of an mga_incipit problem
-def _mga_incipit_plot(self,x, plot_leg_0 = False):
+def _mga_incipit_plot_old(self,x, plot_leg_0 = False):
 	"""
 	Plots the trajectory represented by the decision vector x
 	
@@ -539,10 +539,10 @@ def _mga_incipit_plot(self,x, plot_leg_0 = False):
 		v_beg_l = l.get_v1()[0]
 	plt.show()
 	return ax
-mga_incipit.plot = _mga_incipit_plot
+mga_incipit.plot_old = _mga_incipit_plot_old
 
 #Plot of the trajectory of an mga_part problem
-def _mga_part_plot(self,x):
+def _mga_part_plot_old(self,x):
 	"""
 	Plots the trajectory represented by the decision vector x
 	
@@ -598,6 +598,164 @@ def _mga_part_plot(self,x):
 		v_beg_l = l.get_v1()[0]
 	plt.show()
 	return ax
+mga_part.plot_old = _mga_part_plot_old
+
+#Plot of concatenated fly-by legs
+def _part_plot(x, units, ax, seq, start_mjd2000,vinf_in):
+	"""
+	Plots the trajectory represented by a decision vector x = [beta,rp,eta,T] * N
+	associated to a sequence seq, a start_mjd2000 and an incoming vinf_in
+	"""
+	from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
+	from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
+	from math import pi, acos, cos, sin
+	from scipy.linalg import norm
+
+	legs = len(x)/4
+	common_mu = seq[0].mu_central_body
+
+	#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
+	T = x[3::4]
+
+	#2 - We compute the epochs and ephemerides of the planetary encounters
+	t_P = list([None] * (legs+1))
+	r_P = list([None] * (legs+1))
+	v_P = list([None] * (legs+1))
+
+	for i,planet in enumerate(seq):
+		t_P[i] = epoch(start_mjd2000+sum(T[:i]))
+		r_P[i],v_P[i] = planet.eph(t_P[i])
+		plot_planet(ax, planet, t0=t_P[i], color=(0.8,0.6,0.8), legend=True, units = units)
+
+	v_end_l = [a+b for a,b in zip(v_P[0],vinf_in)]
+	#4 - And we iterate on the legs
+	for i in xrange(0,legs):
+		#Fly-by
+		v_out = fb_prop(v_end_l,v_P[i],x[1+4*i]*seq[i-1].radius,x[4*i],seq[i].mu_self)
+		#s/c propagation before the DSM
+		r,v = propagate_lagrangian(r_P[i],v_out,x[4*i+2]*T[i]*DAY2SEC,common_mu)
+		plot_kepler(ax,r_P[i],v_out,x[4*i+2]*T[i]*DAY2SEC,common_mu,N = 500, color='b', legend=False, units = units)
+		#Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
+		dt = (1-x[4*i+2])*T[i]*DAY2SEC
+		l = lambert_problem(r,r_P[i+1],dt,common_mu, False, False)
+		plot_lambert(ax,l, sol = 0, color='r', legend=False, units = units, N=500)
+		v_end_l = l.get_v2()[0]
+		v_beg_l = l.get_v1()[0]
+
+#Plot of the trajectory of an mga_part problem
+def _mga_part_plot(self,x):
+	"""
+	Plots the trajectory represented by the decision vector x
+
+	Example::
+
+	  prob.plot(x)
+	"""
+	import matplotlib as mpl
+	from mpl_toolkits.mplot3d import Axes3D
+	import matplotlib.pyplot as plt
+
+	mpl.rcParams['legend.fontsize'] = 10
+	fig = plt.figure()
+	ax = fig.gca(projection='3d', aspect='equal')
+
+	# Plots the central 'planet'star
+	ax.scatter(0,0,0, color='y')
+
+	JR = 71492000.0
+	seq = self.get_sequence()
+	start_mjd2000 = self.t0.mjd2000
+	_part_plot(x, JR, ax, seq, start_mjd2000,self.vinf_in)
+	return ax
 mga_part.plot = _mga_part_plot
 
 
+def _mga_incipit_plot(self,x, plot_leg_0 = False):
+	"""
+	Plots the trajectory represented by the decision vector x
+
+	Example::
+
+	  prob.plot(x)
+	"""
+	import matplotlib as mpl
+	from mpl_toolkits.mplot3d import Axes3D
+	import matplotlib.pyplot as plt
+	from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
+	from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
+	from math import pi, acos, cos, sin
+	from scipy.linalg import norm
+
+	mpl.rcParams['legend.fontsize'] = 10
+	fig = plt.figure()
+	ax = fig.gca(projection='3d',aspect='equal')
+	ax.scatter(0,0,0, color='y')
+
+	JR = 71492000.0
+	seq = self.get_sequence()
+	common_mu = seq[0].mu_central_body
+	r_P,v_P = seq[0].eph(epoch(x[0]+x[3]))
+
+	#3 - We start with the first leg: a lambert arc
+	theta = 2*pi*x[1]
+	phi = acos(2*x[2]-1)-pi/2
+	r = [cos(phi)*sin(theta), cos(phi)*cos(theta), sin(phi)] #phi close to zero is in the moon orbit plane injection
+	r = [JR*1000*d for d in r]
+
+	l = lambert_problem(r,r_P,x[3]*DAY2SEC,common_mu, False, False)
+	if (plot_leg_0):
+		plot_lambert(ax,l, sol = 0, color='k', legend=False, units = JR, N=500)
+
+	#Lambert arc to reach seq[1]
+	v_end_l = l.get_v2()[0]
+	vinf_in = [a-b for a,b in zip(v_end_l,v_P)]
+	_part_plot(x[4:], JR, ax, seq, x[0]+x[3],vinf_in)
+
+	return ax
+mga_incipit.plot = _mga_incipit_plot
+
+#Plot of the trajectory for an mga_1dsm problem
+def _mga_1dsm_tof_plot(self,x):
+	"""
+	Plots the trajectory represented by the decision vector x
+	"""
+	import matplotlib as mpl
+	from mpl_toolkits.mplot3d import Axes3D
+	import matplotlib.pyplot as plt
+	from PyKEP.orbit_plots import plot_planet, plot_lambert, plot_kepler
+	from PyKEP import epoch, propagate_lagrangian, lambert_problem,fb_prop, AU, MU_SUN, DAY2SEC
+	from math import pi, acos, cos, sin
+	from scipy.linalg import norm
+
+	mpl.rcParams['legend.fontsize'] = 10
+	fig = plt.figure()
+	ax = fig.gca(projection='3d')
+	ax.scatter(0,0,0, color='y')
+
+	seq = self.get_sequence()
+
+	#2 - We plot the first leg
+	r_P0,v_P0 = seq[0].eph(epoch(x[0]))
+	plot_planet(ax, seq[0], t0=epoch(x[0]), color=(0.8,0.6,0.8), legend=True, units = AU)
+	r_P1,v_P1 = seq[1].eph(epoch(x[0]+x[5]))
+	theta = 2*pi*x[1]
+	phi = acos(2*x[2]-1)-pi/2
+
+	Vinfx = x[3]*cos(phi)*cos(theta)
+	Vinfy =	x[3]*cos(phi)*sin(theta)
+	Vinfz = x[3]*sin(phi)
+
+	v0 = [a+b for a,b in zip(v_P0,[Vinfx,Vinfy,Vinfz])]
+	r,v = propagate_lagrangian(r_P0,v0,x[4]*x[5]*DAY2SEC,seq[0].mu_central_body)
+	plot_kepler(ax,r_P0,v0,x[4]*x[5]*DAY2SEC,seq[0].mu_central_body,N = 100, color='b', legend=False, units = AU)
+
+	#Lambert arc to reach seq[1]
+	dt = (1-x[4])*x[5]*DAY2SEC
+	l = lambert_problem(r,r_P1,dt,seq[0].mu_central_body)
+	plot_lambert(ax,l, sol = 0, color='r', legend=False, units = AU)
+	v_end_l = l.get_v2()[0]
+
+	vinf_in = [a-b for a,b in zip(v_end_l,v_P1)]
+	_part_plot(x[6:], AU, ax, seq[1:], x[0]+x[5],vinf_in)
+	return ax
+mga_1dsm_tof.plot = _mga_1dsm_tof_plot
