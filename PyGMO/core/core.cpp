@@ -257,7 +257,6 @@ BOOST_PYTHON_MODULE(_core)
 
 	common_module_init();
 	typedef boost::array<double,2> array2D;
-	typedef std::pair<std::vector<int>, int> new_pair;
 	//Register std converters to lists if not already registered by some other module
 	REGISTER_CONVERTER(array2D,fixed_size_policy);
 	REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
