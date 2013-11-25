@@ -121,7 +121,7 @@ int main()
 
 	compute_algs.push_back(util::hv_algorithm::hoy().clone());
 	compute_algs_new.push_back(util::hv_algorithm::hoy().clone());
-	compute_input.push_back(std::make_pair(hv_7d, nadir_7d));
+	compute_input.push_back(std::make_pair(hv_3d, nadir_3d));
 
 	compute_algs.push_back(util::hv_algorithm::hv4d().clone());
 	compute_algs_new.push_back(util::hv_algorithm::hv4d().clone());

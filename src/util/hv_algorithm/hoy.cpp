@@ -197,7 +197,7 @@ double hoy::get_median(double* bounds, unsigned int n) const
 		return bounds[n - 1];
 	}
 	unsigned int n2 = n/2;
-	std::nth_element(bounds, bounds + n2, bounds + n);
+	std::partial_sort(bounds, bounds + n2, bounds + n);
 	return bounds[n2];
 }
 
