@@ -54,7 +54,7 @@ bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
 // associated population that contains the same individuals ordered
 // with respect to the denoised problem objective function.
 // It then tests that race returns, as it should [0,1,2,3,....,end_size-1].
-// Such a check cannot be strict as for the stochastic natire of race.
+// Such a check cannot be strict as for the stochastic nature of race.
 // So some error is allowed. In particular
 // it is only requested that a permutation of the correct indexes is returned
 // and some small error in rankings is allowed:
@@ -74,9 +74,8 @@ bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
 //
 // The error is defined as the difference between the true ranks sum and the
 // returned ranks sum. For example if race returns [1,3,5], then the error is
-// (1+3+5) - (0+1+2) = 6. The allowed error is the size of the returned list,
-// corresponding, to allow just losing the winner (i.e. [1,2,3] is still valid, but
-// [1,2,4] not)
+// (1+3+5) - (0+1+2) = 6. The allowed error is twice the size of the returned list,
+// (i.e. [2,3,4] is still valid, but [3,4,5] not)
 
 
 int test_racing(const problem::base_ptr& prob, population::size_type pop_size, 
@@ -110,7 +109,7 @@ int test_racing(const problem::base_ptr& prob, population::size_type pop_size,
 	std::vector<population::size_type> winners = race_results.first;
 	double ground_truth = ((winners.size()-1)+1) * (winners.size()-1) / 2;
 	double obtained = std::accumulate(winners.begin(),winners.end(),0.0,std::plus<population::size_type>());
-	double acceptable = winners.size();
+    double acceptable = 2 * winners.size();
 
 	std::cout << prob->get_name() << std::endl;
 	std::cout << "\tRace winners: " << winners << std::endl;

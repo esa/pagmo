@@ -41,11 +41,16 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	ADD_DEFINITIONS(-D_REENTRANT)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # using Intel C++
+    CHECK_CXX_COMPILER_FLAG(-mieee-fp INTEL_IEEE_COMPLIANT)
+    IF(INTEL_IEEE_COMPLIANT)
+            MESSAGE(STATUS "Enabling '-mieee-fp' compiler flag to get IEEE compliant code")
+            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mieee-fp")
+    ENDIF(INTEL_IEEE_COMPLIANT)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # using Visual Studio C++
 endif()
 
-CHECK_CXX_COMPILER_FLAG(-std=c++11 ALL_C0X)
+#CHECK_CXX_COMPILER_FLAG(-std=c++11 ALL_C0X)
 IF(ALL_C0X)
 	MESSAGE(STATUS "Enabling '-std=c++11' compiler flag")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
