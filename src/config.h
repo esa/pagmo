@@ -170,7 +170,6 @@ blah
 
 
 // We solve the library madness in windows
-
 #ifdef _WIN32
 	#ifdef PAGMO_DLL_EXPORT_API
 		#define __PAGMO_VISIBLE __declspec(dllexport)
@@ -186,8 +185,7 @@ blah
 #endif
 
 // We avoid this bug http://stackoverflow.com/questions/2331613/problem-creating-a-circular-buffer-in-shared-memory-using-boost 
-
-#define DBOOST_CB_DISABLE_DEBUG 
+#define BOOST_CB_DISABLE_DEBUG 
 
 /// Root PaGMO namespace.
 namespace pagmo {}
