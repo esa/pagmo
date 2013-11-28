@@ -82,4 +82,4 @@ std::string sagas::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::sagas);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::sagas)

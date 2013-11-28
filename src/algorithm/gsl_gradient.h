@@ -102,6 +102,6 @@ class __PAGMO_VISIBLE gsl_gradient: public base_gsl
 
 }}
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::gsl_gradient);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::gsl_gradient)
 
 #endif

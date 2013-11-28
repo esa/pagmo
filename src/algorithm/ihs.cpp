@@ -184,4 +184,4 @@ std::string ihs::human_readable_extra() const
 }
 }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::ihs);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::ihs)

@@ -60,4 +60,4 @@ std::string bukin::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::bukin);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::bukin)

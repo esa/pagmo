@@ -379,4 +379,4 @@ std::string hoy::get_name() const
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hoy);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hoy)

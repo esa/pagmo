@@ -117,6 +117,6 @@ class __PAGMO_VISIBLE knapsack: public base_aco
 }
 }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::knapsack);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::knapsack)
 
 #endif

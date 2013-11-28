@@ -108,4 +108,4 @@ void tens_comp_string::initialize_best(void)
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tens_comp_string);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tens_comp_string)

@@ -87,6 +87,6 @@ class __PAGMO_VISIBLE ageing_clustered_ba : public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::ageing_clustered_ba);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::ageing_clustered_ba)
 
 #endif

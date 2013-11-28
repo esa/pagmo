@@ -133,4 +133,4 @@ std::vector<population::individual_type> hv_greedy_s_policy::select(population &
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::hv_greedy_s_policy);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::hv_greedy_s_policy)

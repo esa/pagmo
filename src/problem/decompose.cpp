@@ -259,4 +259,4 @@ const std::vector<double>& decompose::get_weights() const
 }
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::decompose);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::decompose)

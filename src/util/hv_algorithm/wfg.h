@@ -111,6 +111,6 @@ private:
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::wfg);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::wfg)
 
 #endif

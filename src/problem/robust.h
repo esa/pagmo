@@ -95,6 +95,6 @@ class __PAGMO_VISIBLE robust : public base_stochastic
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::robust);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::robust)
 
 #endif // PAGMO_PROBLEM_ROBUST_H

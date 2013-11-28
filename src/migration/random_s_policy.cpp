@@ -75,4 +75,4 @@ std::vector<population::individual_type> random_s_policy::select(population &pop
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::random_s_policy);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::random_s_policy)

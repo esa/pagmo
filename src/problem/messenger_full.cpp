@@ -135,4 +135,4 @@ std::string messenger_full::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::messenger_full);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::messenger_full)

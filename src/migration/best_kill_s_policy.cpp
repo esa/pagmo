@@ -69,4 +69,4 @@ std::vector<population::individual_type> best_kill_s_policy::select(population &
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::best_kill_s_policy);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::best_kill_s_policy)

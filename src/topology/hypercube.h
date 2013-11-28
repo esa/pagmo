@@ -59,6 +59,6 @@ class __PAGMO_VISIBLE hypercube: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::hypercube);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::hypercube)
 
 #endif

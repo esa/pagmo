@@ -59,4 +59,4 @@ std::string gsl_pr::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_pr);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_pr)

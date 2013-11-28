@@ -442,4 +442,4 @@ std::string bf_approx::get_name() const
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::bf_approx);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::bf_approx)

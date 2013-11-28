@@ -44,7 +44,7 @@ const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
 	retval.push_back(kep_toolbox::planet_ss("earth").clone());
 	retval.push_back(kep_toolbox::planet_ss("earth").clone());
 	return retval;
-};
+}
 #endif
 
 //knapsack

@@ -480,4 +480,4 @@ hypervolume_ptr hypervolume::clone() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hypervolume);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hypervolume)

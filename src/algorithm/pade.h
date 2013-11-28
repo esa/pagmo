@@ -106,6 +106,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pade);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pade)
 
 #endif // PAGMO_ALGORITHM_PADE_H

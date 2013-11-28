@@ -43,7 +43,7 @@ namespace pagmo { namespace topology {
 /**
  * Will build an empty topology.
  */
-base::base():m_graph() {};
+base::base():m_graph() {}
 
 /// Copy constructor.
 /**

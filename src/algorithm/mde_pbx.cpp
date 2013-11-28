@@ -336,4 +336,4 @@ std::string mde_pbx::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::mde_pbx);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::mde_pbx)

@@ -114,6 +114,6 @@ private:
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::mde_pbx);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::mde_pbx)
 
 #endif // PAGMO_ALGORITHM_MDE_PBX_H

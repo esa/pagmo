@@ -152,6 +152,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nspso);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nspso)
 
 #endif // PAGMO_ALGORITHM_NSPSO_H

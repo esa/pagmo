@@ -131,4 +131,4 @@ std::string sea::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sea);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sea)

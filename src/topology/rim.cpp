@@ -97,4 +97,4 @@ std::string rim::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::rim);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::rim)

@@ -337,4 +337,4 @@ std::string cstrs_co_evolution::human_readable_extra() const
 }
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cstrs_co_evolution);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cstrs_co_evolution)

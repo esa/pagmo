@@ -285,4 +285,4 @@ bool hv_fair_r_policy::ind_cmp(const std::pair<unsigned int, double> &a, const s
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::hv_fair_r_policy);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::hv_fair_r_policy)

@@ -79,7 +79,7 @@ class __PAGMO_VISIBLE rng_uint32: public boost::mt19937 {
 			std::stringstream ss(tmp);
 			ss >> *static_cast<boost::mt19937 *>(this);
 		}
-		BOOST_SERIALIZATION_SPLIT_MEMBER();
+		BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 /// This rng returns a double in the [0,1[ range.
@@ -117,7 +117,7 @@ class __PAGMO_VISIBLE rng_double: public boost::lagged_fibonacci607 {
 			std::stringstream ss(tmp);
 			ss >> *static_cast<boost::lagged_fibonacci607 *>(this);
 		}
-		BOOST_SERIALIZATION_SPLIT_MEMBER();
+		BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 /// Generic thread-safe generator of pseudo-random number generators.

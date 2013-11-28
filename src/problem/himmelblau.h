@@ -71,6 +71,6 @@ class __PAGMO_VISIBLE himmelblau: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::himmelblau);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::himmelblau)
 
 #endif

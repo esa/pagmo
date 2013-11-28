@@ -287,5 +287,5 @@ const Eigen::MatrixXd& rotated::get_rotation_matrix() const {
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::rotated);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::rotated)
 

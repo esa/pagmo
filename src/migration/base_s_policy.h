@@ -89,6 +89,6 @@ return base_ptr(new derived_policy(*this));
 
 }}
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::migration::base_s_policy);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::migration::base_s_policy)
 
 #endif

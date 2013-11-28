@@ -104,6 +104,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::mbh);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::mbh)
 
 #endif // PAGMO_ALGORITHM_MBH_H

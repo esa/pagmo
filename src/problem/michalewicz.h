@@ -70,6 +70,6 @@ class __PAGMO_VISIBLE michalewicz : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::michalewicz);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::michalewicz)
 
 #endif // PAGMO_PROBLEM_MICHALEWICZ_H

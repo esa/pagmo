@@ -887,4 +887,4 @@ std::string pso_generational_racing::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pso_generational_racing);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pso_generational_racing)

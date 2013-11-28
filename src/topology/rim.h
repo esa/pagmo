@@ -62,6 +62,6 @@ class __PAGMO_VISIBLE rim: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::rim);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::rim)
 
 #endif

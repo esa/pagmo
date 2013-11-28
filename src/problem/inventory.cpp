@@ -79,4 +79,4 @@ std::string inventory::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::inventory);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::inventory)

@@ -77,4 +77,4 @@ std::string snopt_toyprob::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::snopt_toyprob);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::snopt_toyprob)

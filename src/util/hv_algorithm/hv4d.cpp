@@ -85,4 +85,4 @@ std::string hv4d::get_name() const
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hv4d);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hv4d)

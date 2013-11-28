@@ -354,4 +354,4 @@ std::string snopt::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::snopt);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::snopt)

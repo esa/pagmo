@@ -617,4 +617,4 @@ std::string nspso::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nspso);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nspso)

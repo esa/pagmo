@@ -114,6 +114,6 @@ class __PAGMO_VISIBLE dtlz : public base_dtlz
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::dtlz)
 
 #endif // PAGMO_PROBLEM_DTLZ_H

@@ -87,6 +87,6 @@ class __PAGMO_VISIBLE tsp: public base_aco
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp)
 
 #endif

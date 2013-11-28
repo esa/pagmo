@@ -155,4 +155,4 @@ void hv2d::verify_before_compute(const std::vector<fitness_vector> &points, cons
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hv2d);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hv2d)

@@ -66,6 +66,6 @@ class __PAGMO_VISIBLE base_unc_mo : public base
 
 }} //namespaces
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_unc_mo);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_unc_mo)
 
 #endif //PAGMO_PROBLEM_BASE_UNC_MO_H

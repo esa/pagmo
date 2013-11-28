@@ -987,4 +987,4 @@ void cec2009::CF10(const double *x, double *f, double *c, const unsigned int nx)
 
 #undef MYSIGN
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cec2009);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cec2009)

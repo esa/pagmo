@@ -92,6 +92,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sa_corana);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sa_corana)
 
 #endif // PAGMO_ALGORITHM_SA_CORANA_H

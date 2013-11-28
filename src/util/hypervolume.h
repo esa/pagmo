@@ -111,6 +111,6 @@ private:
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hypervolume);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hypervolume)
 
 #endif

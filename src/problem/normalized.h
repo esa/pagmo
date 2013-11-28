@@ -73,6 +73,6 @@ class __PAGMO_VISIBLE normalized : public base_meta
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::normalized);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::normalized)
 
 #endif // PAGMO_PROBLEM_NORMALIZED_H

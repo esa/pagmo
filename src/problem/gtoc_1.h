@@ -78,6 +78,6 @@ class __PAGMO_VISIBLE gtoc_1: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc_1);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::gtoc_1)
 
 #endif // PAGMO_PROBLEM_GTOC_1_H

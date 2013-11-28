@@ -1529,4 +1529,4 @@ void cec2006::g24_compute_constraints_impl(constraint_vector &c, const decision_
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cec2006);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cec2006)

@@ -68,6 +68,6 @@ class __PAGMO_VISIBLE rastrigin: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::rastrigin);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::rastrigin)
 
 #endif

@@ -68,6 +68,6 @@ class __PAGMO_VISIBLE sch : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::sch);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::sch)
 
 #endif // PAGMO_PROBLEM_SCH_H

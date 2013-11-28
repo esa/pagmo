@@ -584,4 +584,4 @@ std::string jde::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::jde);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::jde)

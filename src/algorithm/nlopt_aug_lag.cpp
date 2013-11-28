@@ -121,4 +121,4 @@ std::string nlopt_aug_lag::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_aug_lag);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_aug_lag)

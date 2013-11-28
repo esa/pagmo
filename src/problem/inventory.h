@@ -102,6 +102,6 @@ class __PAGMO_VISIBLE inventory: public base_stochastic
 }
 }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::inventory);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::inventory)
 
 #endif //PAGMO_PROBLEM_INVENTORY_H

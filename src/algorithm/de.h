@@ -108,6 +108,6 @@ private:
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::de);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::de)
 
 #endif // DE_H

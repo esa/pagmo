@@ -68,6 +68,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::pressure_vessel);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::pressure_vessel)
 
 #endif

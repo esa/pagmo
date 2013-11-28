@@ -160,11 +160,16 @@ can be found in \ref mpi_support "this page".
 blah
 */
 
+// We detect the gcc version (not sure if this is used)
+
 #ifdef __GNUC__
 #define GCC_VERSION (__GNUC__ * 100000 \
 	+ __GNUC_MINOR__ * 1000 \
 	+ __GNUC_PATCHLEVEL__ * 10)
 #endif
+
+
+// We solve the library madness in windows
 
 #ifdef _WIN32
 	#ifdef PAGMO_DLL_EXPORT_API
@@ -179,6 +184,10 @@ blah
 	#define __PAGMO_VISIBLE __attribute__ ((visibility("default")))
 	#define __PAGMO_VISIBLE_FUNC
 #endif
+
+// We avoid this bug http://stackoverflow.com/questions/2331613/problem-creating-a-circular-buffer-in-shared-memory-using-boost 
+
+#define DBOOST_CB_DISABLE_DEBUG 
 
 /// Root PaGMO namespace.
 namespace pagmo {}

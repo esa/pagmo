@@ -82,6 +82,6 @@ class __PAGMO_VISIBLE nlopt_aug_lag_eq: public base_nlopt
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_aug_lag_eq);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_aug_lag_eq)
 
 #endif

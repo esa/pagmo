@@ -116,5 +116,5 @@ class __PAGMO_VISIBLE mga_1dsm_tof: public base
 
 }} // namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_1dsm_tof);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_1dsm_tof)
 #endif // PAGMO_PROBLEM_MGA_1DSM_TOF_H

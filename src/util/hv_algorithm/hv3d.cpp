@@ -302,4 +302,4 @@ std::string hv3d::get_name() const
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hv3d);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::hv3d)

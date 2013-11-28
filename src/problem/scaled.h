@@ -71,6 +71,6 @@ class __PAGMO_VISIBLE scaled : public base_meta
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::scaled);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::scaled)
 
 #endif // PAGMO_PROBLEM_SCALED_H

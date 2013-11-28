@@ -240,5 +240,5 @@ std::string con2mo::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::con2mo);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::con2mo)
 

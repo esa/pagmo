@@ -75,6 +75,6 @@ class __PAGMO_VISIBLE shifted : public base_meta
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::shifted);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::shifted)
 
 #endif // PAGMO_PROBLEM_SHIFTED_H

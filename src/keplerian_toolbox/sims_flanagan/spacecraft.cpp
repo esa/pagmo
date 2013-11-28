@@ -13,13 +13,13 @@ std::string spacecraft::human_readable() const {
 	s << "thrust: " << get_thrust() << std::endl;
 	s << "isp: " << get_isp() << std::endl;
 	return s.str();
-};
+}
 
 std::ostream &operator<<(std::ostream &s, const spacecraft &in ) {
 	s << "Spacecraft mass: " << in.get_mass() << std::endl;
 	s << "Spacecraft thrust: " << in.get_thrust() << std::endl;
 	s << "Spacecraft isp: " << in.get_isp();
 	return s;
-};
+}
 
 }} //end of namespaces

@@ -165,6 +165,6 @@ class __PAGMO_VISIBLE zdt : public base_unc_mo
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::zdt);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::zdt)
 
 #endif // PAGMO_PROBLEM_ZDT_H

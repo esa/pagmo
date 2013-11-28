@@ -128,4 +128,4 @@ std::string luksan_vlcek_2::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::luksan_vlcek_2);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::luksan_vlcek_2)

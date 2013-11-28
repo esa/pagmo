@@ -58,6 +58,6 @@ class __PAGMO_VISIBLE gsl_nm2rand: public gsl_derivative_free
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_nm2rand);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_nm2rand)
 
 #endif

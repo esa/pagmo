@@ -55,4 +55,4 @@ std::string null::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::null);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::null)

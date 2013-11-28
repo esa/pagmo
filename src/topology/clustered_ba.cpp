@@ -182,4 +182,4 @@ std::string clustered_ba::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::clustered_ba);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::clustered_ba)

@@ -62,4 +62,4 @@ std::string sch::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::sch);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::sch)

@@ -1157,4 +1157,4 @@ void cec2013::cf_cal(const double *x, double *f, int nx, const double *Os,double
 #undef E
 #undef INF
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cec2013);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cec2013)

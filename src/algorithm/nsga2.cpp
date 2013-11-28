@@ -347,4 +347,4 @@ std::string nsga2::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nsga2);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nsga2)

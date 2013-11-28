@@ -136,6 +136,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::spea2);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::spea2)
 
 #endif // PAGMO_ALGORITHM_SPEA2_H

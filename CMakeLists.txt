@@ -36,25 +36,32 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
 	# Add to the base flags extra warnings. Also, additional flags to turn off some GCC warnings that in practice clutter the compilation output.
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors -Wlogical-op -fno-strict-aliasing -Wall -Wextra -Wnoexcept -Wdisabled-optimization")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
+
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # using Intel C++
-    CHECK_CXX_COMPILER_FLAG(-mieee-fp INTEL_IEEE_COMPLIANT)
-    IF(INTEL_IEEE_COMPLIANT)
-            MESSAGE(STATUS "Enabling '-mieee-fp' compiler flag to get IEEE compliant code")
-            SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mieee-fp")
-    ENDIF(INTEL_IEEE_COMPLIANT)
+	CHECK_CXX_COMPILER_FLAG(-mieee-fp INTEL_IEEE_COMPLIANT)
+	IF(INTEL_IEEE_COMPLIANT)
+			MESSAGE(STATUS "Enabling '-mieee-fp' compiler flag to get IEEE compliant code")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mieee-fp")
+	ENDIF(INTEL_IEEE_COMPLIANT)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # using Visual Studio C++
 endif()
 
-#CHECK_CXX_COMPILER_FLAG(-std=c++11 ALL_C0X)
+CHECK_CXX_COMPILER_FLAG(-std=c++0x ALL_C0X)
 IF(ALL_C0X)
+	MESSAGE(STATUS "Enabling '-std=c++0x' compiler flag")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+ENDIF(ALL_C0X)
+
+CHECK_CXX_COMPILER_FLAG(-std=c++11 ALL_C11)
+IF(ALL_C11)
 	MESSAGE(STATUS "Enabling '-std=c++11' compiler flag")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-ENDIF(ALL_C0X)
+ENDIF(ALL_C11)
 
 
 # Initialise (empty) list of libraries to link against.
@@ -76,7 +83,7 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # Use CMake's 2.6 new policy for library paths.
 IF(COMMAND CMAKE_POLICY)
-    CMAKE_POLICY(SET CMP0003 NEW)
+	CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND CMAKE_POLICY)
 
 # Provides build options to CMake.
@@ -93,7 +100,7 @@ OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 # Build Option: when active the GTOP database problems are built.
 OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)
 IF(ENABLE_GTOP_DATABASE)
-        ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
+		ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
 ENDIF(ENABLE_GTOP_DATABASE)
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
@@ -172,12 +179,12 @@ ELSE(UNIX)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
 	ENDIF(MINGW)
 	IF(MSVC)
-	    #This flags are necessary for MSVC requires boost libs to be named in a stupid way. (i.e. without lib in front)
-        ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+		#This flags are necessary for MSVC requires boost libs to be named in a stupid way. (i.e. without lib in front)
+		ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
 		#This flag is necesary for MSVC to access mathematical constants such as M_PI,...
 		ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
-        #This is necessary to add Additional Library Directories in the linker path of MSVC
-        link_directories(${Boost_LIBRARY_DIRS})
+		#This is necessary to add Additional Library Directories in the linker path of MSVC
+		link_directories(${Boost_LIBRARY_DIRS})
 	ENDIF(MSVC)
 ENDIF(UNIX)
 
@@ -294,7 +301,7 @@ IF(ENABLE_SNOPT)
 	ENDIF(NOT SNOPT_F2C_LIBRARY)
 	MESSAGE(STATUS "f2c library: ${SNOPT_F2C_LIBRARY}")
 
-        SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_SNOPT_LIBRARY} ${SNOPT_SNPRINT_LIBRARY} ${SNOPT_F2C_LIBRARY} -lgfortran)
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_SNOPT_LIBRARY} ${SNOPT_SNPRINT_LIBRARY} ${SNOPT_F2C_LIBRARY} -lgfortran)
 
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_SNOPT)
 ENDIF(ENABLE_SNOPT)
@@ -327,7 +334,7 @@ IF(ENABLE_IPOPT)
 		FIND_LIBRARY(COINHSL_LIBRARY NAMES coinhsl)
 
 		FIND_LIBRARY(COINMETIS_LIBRARY NAMES coinmetis)
-		
+
 		IF(COINMETIS_LIBRARY)
 			MESSAGE(STATUS "COINMETIS Library Found ... linking it in")
 			MESSAGE(STATUS "coin metis library: ${COINMETIS_LIBRARY}")
@@ -351,8 +358,8 @@ IF(ENABLE_IPOPT)
 		IF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
 			MESSAGE(STATUS "Linear Solver for IPOPT could not be detected. I tried with HSL and MUMPS. You need to link manually the library if necessary")
 		ENDIF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
-		SET(MANDATORY_LIBRARIES ${IPOPT_LIBRARY} ${MANDATORY_LIBRARIES} ${LAPACK_LIBRARIES} ${DL_LIBRARY})	
-	
+		SET(MANDATORY_LIBRARIES ${IPOPT_LIBRARY} ${MANDATORY_LIBRARIES} ${LAPACK_LIBRARIES} ${DL_LIBRARY})
+
 	ELSE(UNIX)
 		IF(NOT WIN32)
 			MESSAGE(FATAL_ERROR "Sorry, at the moment pagmo can be built only on Unix and Win32 environments.")
@@ -367,7 +374,7 @@ IF(ENABLE_IPOPT)
 		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${COIN_MUMPS_LIBRARY} ${COIN_BLAS_LIBRARY} ${COIN_LAPACK_LIBRARY} -lgfortran -lpthread)
 
 	ENDIF(UNIX)
-			
+
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_IPOPT)
 	INCLUDE_DIRECTORIES("${IPOPT_INCLUDE_DIR}")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} ${LAPACK_LINKER_FLAGS}")
@@ -391,7 +398,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_LIB_PAGMO_USE_FLAGS}")
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
-        TARGET_LINK_LIBRARIES(main ${MANDATORY_LIBRARIES} pagmo_static)
+		TARGET_LINK_LIBRARIES(main ${MANDATORY_LIBRARIES} pagmo_static)
 ENDIF(BUILD_MAIN)
 
 IF(ENABLE_TESTS)

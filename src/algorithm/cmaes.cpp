@@ -517,4 +517,4 @@ std::string cmaes::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cmaes);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cmaes)

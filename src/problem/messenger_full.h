@@ -74,6 +74,6 @@ class __PAGMO_VISIBLE messenger_full: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::messenger_full);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::messenger_full)
 
 #endif // PAGMO_PROBLEM_MESSENGER_FULL_H

@@ -67,6 +67,6 @@ class __PAGMO_VISIBLE custom: public base
 
 } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::custom);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::custom)
 
 #endif

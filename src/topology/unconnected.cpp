@@ -47,4 +47,4 @@ std::string unconnected::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::unconnected);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::unconnected)

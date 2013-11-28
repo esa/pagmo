@@ -77,6 +77,6 @@ private:
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hv4d);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hv4d)
 
 #endif

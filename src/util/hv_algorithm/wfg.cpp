@@ -333,4 +333,4 @@ std::string wfg::get_name() const
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::wfg);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::wfg)

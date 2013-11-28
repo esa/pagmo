@@ -48,4 +48,4 @@ std::string nlopt_slsqp::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_slsqp);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_slsqp)

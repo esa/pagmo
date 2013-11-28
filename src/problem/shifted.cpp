@@ -187,4 +187,4 @@ std::string shifted::human_readable_extra() const
 }
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::shifted);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::shifted)

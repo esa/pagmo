@@ -277,4 +277,4 @@ std::string cstrs_core::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cstrs_core);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cstrs_core)

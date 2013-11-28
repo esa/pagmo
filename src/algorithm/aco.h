@@ -75,6 +75,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::aco);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::aco)
 
 #endif // PAGMO_ALGORITHM_ACO_H

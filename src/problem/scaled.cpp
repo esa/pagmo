@@ -121,4 +121,4 @@ std::string scaled::human_readable_extra() const
 }
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::scaled);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::scaled)

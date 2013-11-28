@@ -87,4 +87,4 @@ std::string ring::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::ring);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::ring)

@@ -632,4 +632,4 @@ std::string pso_generational::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pso_generational);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::pso_generational)

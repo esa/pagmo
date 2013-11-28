@@ -61,4 +61,4 @@ std::string gsl_nm2rand::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_nm2rand);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_nm2rand)

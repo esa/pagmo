@@ -47,4 +47,4 @@ std::string nlopt_bobyqa::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_bobyqa);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_bobyqa)

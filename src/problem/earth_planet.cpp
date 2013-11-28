@@ -148,4 +148,4 @@ std::string earth_planet::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::earth_planet);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::earth_planet)

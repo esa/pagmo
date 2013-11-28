@@ -89,6 +89,6 @@ class __PAGMO_VISIBLE rotated : public base_meta
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::rotated);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::rotated)
 
 #endif // PAGMO_PROBLEM_ROTATED_H

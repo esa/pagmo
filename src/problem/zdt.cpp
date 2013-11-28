@@ -382,4 +382,4 @@ std::string zdt::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::zdt);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::zdt)

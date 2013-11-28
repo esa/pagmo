@@ -558,5 +558,5 @@ void cstrs_co_evolution_penalty::compute_penalty(double &sum_viol, int &num_viol
 
 //! @endcond
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_co_evolution);
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_co_evolution_penalty);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_co_evolution)
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_co_evolution_penalty)

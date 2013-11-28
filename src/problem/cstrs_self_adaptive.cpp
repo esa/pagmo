@@ -510,5 +510,5 @@ double cstrs_self_adaptive::compute_solution_infeasibility(const constraint_vect
 
 //! @endcond
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_self_adaptive);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::cstrs_self_adaptive)
 

@@ -86,4 +86,4 @@ std::string levy5::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::levy5);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::levy5)

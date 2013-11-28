@@ -161,4 +161,4 @@ std::string watts_strogatz::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::watts_strogatz);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::watts_strogatz)

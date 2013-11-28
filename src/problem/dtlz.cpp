@@ -340,4 +340,4 @@ std::string dtlz::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::dtlz);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::dtlz)

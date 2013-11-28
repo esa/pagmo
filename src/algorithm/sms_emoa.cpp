@@ -407,4 +407,4 @@ std::string sms_emoa::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sms_emoa);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sms_emoa)

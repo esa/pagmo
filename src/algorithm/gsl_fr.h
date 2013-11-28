@@ -60,6 +60,6 @@ class __PAGMO_VISIBLE gsl_fr: public gsl_gradient
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_fr);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::gsl_fr)
 
 #endif

@@ -87,6 +87,6 @@ class __PAGMO_VISIBLE branin: public base
 
 } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::branin);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::branin)
 
 #endif

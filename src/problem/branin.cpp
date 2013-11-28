@@ -62,4 +62,4 @@ std::string branin::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::branin);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::branin)

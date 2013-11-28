@@ -79,4 +79,4 @@ std::string pol::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::pol);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::pol)

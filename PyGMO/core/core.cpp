@@ -92,17 +92,17 @@ static inline void set_##name(type1 &arg1, const type2 &arg2) \
 	arg1.name = arg2; \
 }
 
-TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,cur_x);
-TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,cur_v);
-TRIVIAL_GETTER_SETTER(population::individual_type,fitness_vector,cur_f);
-TRIVIAL_GETTER_SETTER(population::individual_type,constraint_vector,cur_c);
-TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,best_x);
-TRIVIAL_GETTER_SETTER(population::individual_type,fitness_vector,best_f);
-TRIVIAL_GETTER_SETTER(population::individual_type,constraint_vector,best_c);
+TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,cur_x)
+TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,cur_v)
+TRIVIAL_GETTER_SETTER(population::individual_type,fitness_vector,cur_f)
+TRIVIAL_GETTER_SETTER(population::individual_type,constraint_vector,cur_c)
+TRIVIAL_GETTER_SETTER(population::individual_type,decision_vector,best_x)
+TRIVIAL_GETTER_SETTER(population::individual_type,fitness_vector,best_f)
+TRIVIAL_GETTER_SETTER(population::individual_type,constraint_vector,best_c)
 
-TRIVIAL_GETTER_SETTER(population::champion_type,decision_vector,x);
-TRIVIAL_GETTER_SETTER(population::champion_type,fitness_vector,f);
-TRIVIAL_GETTER_SETTER(population::champion_type,constraint_vector,c);
+TRIVIAL_GETTER_SETTER(population::champion_type,decision_vector,x)
+TRIVIAL_GETTER_SETTER(population::champion_type,fitness_vector,f)
+TRIVIAL_GETTER_SETTER(population::champion_type,constraint_vector,c)
 
 // Wrappers to make functions taking size_type as input take integers instead, with safety checks.
 inline static base_island_ptr archipelago_get_island(const archipelago &a, int n)

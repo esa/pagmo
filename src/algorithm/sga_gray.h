@@ -131,6 +131,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sga_gray);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sga_gray)
 
 #endif // PAGMO_ALGORITHM_SGA_GRAY_H
