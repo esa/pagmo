@@ -150,13 +150,25 @@ void gsl_derivative_free::evolve(population &pop) const
 	try {
 		do
 		{
-			++iter;
 			status = gsl_multimin_fminimizer_iterate(s);
+			++iter;
 			if (status) {
 				break;
 			}
 			size = gsl_multimin_fminimizer_size(s);
 			status = gsl_multimin_test_size(size, m_tol);
+			if (m_screen_output) {
+				if (!((iter-1)%20)) {
+					std::cout << std::endl << std::left << std::setw(20) << 
+					"Iter." << std::setw(20) << 
+					"Best " << std::setw(20) <<
+					"Size "<< std::endl; 
+				}
+			std::cout << std::left << std::setprecision(14) << std::setw(20) << 
+			 iter << std::setw(20) << 
+			 gsl_multimin_fminimizer_minimum(s) << std::setw(20) << 
+			 size << std::endl;
+			}
 		} while (status == GSL_CONTINUE && iter < m_max_iter);
 	} catch (const std::exception &e) {
 		// Cleanup and re-throw.
