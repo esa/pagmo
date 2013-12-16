@@ -369,7 +369,7 @@ void sms_emoa::evolve(population &pop) const
 		parent2_idx = ((m_urng() % (NP-1)) + parent1_idx) % NP;
 
 		crossover(child1, child2, parent1_idx, parent2_idx, pop);
-		m_fevals += 2;
+		++m_fevals;
 		mutate(child1, pop);
 		pop.push_back(child1);
 		pop.erase(evaluate_s_metric_selection(pop));
