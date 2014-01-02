@@ -251,7 +251,7 @@ std::vector<std::pair<population::size_type,std::vector<population::individual_t
 	sort(discarded_islanders.begin(), discarded_islanders.end(), hv_fair_r_policy::ind_cmp);
 
 	// Number of exchanges is the minimum of the number of non discarded immigrants and the number of discarded islanders
-	unsigned int no_exchanges = std::min(no_available_immigrants, boost::numeric_cast<unsigned int>(discarded_islanders.size()));
+	unsigned int no_exchanges = std::min(boost::numeric_cast<unsigned int>(available_immigrants.size()), boost::numeric_cast<unsigned int>(discarded_islanders.size()));
 
 	it = available_immigrants.begin();
 	std::vector<std::pair<unsigned int, double> >::reverse_iterator r_it = discarded_islanders.rbegin();
