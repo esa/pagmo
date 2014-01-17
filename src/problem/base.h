@@ -398,6 +398,7 @@ class __PAGMO_VISIBLE base
 		/** @name Properties getters.*/
 		//@{
 		unsigned int get_fevals() const;
+		unsigned int get_cevals() const;
 		size_type get_dimension() const;
 		size_type get_i_dimension() const;
 		f_size_type get_f_dimension() const;
@@ -516,6 +517,7 @@ return base_ptr(new derived_problem(*this));
 			ar & m_best_f;
 			ar & m_best_c;
 			ar & m_fevals;
+			ar & m_cevals;
 		}
 
 		// Data members.
@@ -553,8 +555,9 @@ return base_ptr(new derived_problem(*this));
 		std::vector<fitness_vector> m_best_f;
 		std::vector<constraint_vector> m_best_c;
 
-		// Number of function evaluations
+		// Number of function and constraints evaluations
 		mutable unsigned int                    m_fevals;
+		mutable unsigned int                    m_cevals;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);

@@ -207,6 +207,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("best_f",make_function(&problem::base::get_best_f,return_value_policy<copy_const_reference>()),"Best known fitness vector(s).")
 		.add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
 		.add_property("fevals",&problem::base::get_fevals,"Number of function evaluations.")
+		.add_property("cevals",&problem::base::get_cevals,"Number of constraints evaluations.")
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
