@@ -20,7 +20,7 @@ def _mo3d_plot(self,pop, a=40, comp=[0,1,2]):
 	try:
 		ax.plot(fit[comp[0]],fit[comp[1]],fit[comp[2]], 'ro')
 	except IndexError:
-		print 'Error. Please choose correct fitness dimensions for printing!'
+		print('Error. Please choose correct fitness dimensions for printing!')
 
 	ax.view_init(azim=a)
 	return ax
@@ -71,7 +71,7 @@ def _dtlz234_plot(pop, a=40, comp=[0,1,2]):
 	try:
 		ax.plot(fit[comp[0]],fit[comp[1]],fit[comp[2]], 'ro')
 	except IndexError:
-		print 'Error. Please choose correct fitness dimensions for printing!'
+		print('Error. Please choose correct fitness dimensions for printing!')
 	return ax
 
 def _zdt_ctor(self, prob_id = 1, param_1 = None):

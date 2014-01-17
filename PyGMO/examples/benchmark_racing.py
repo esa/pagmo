@@ -57,7 +57,7 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
         gen_budget = fevals_max/(2*pop_size)
     else:
         gen_budget = fevals_max/(2*pop_size*nr_eval_per_x)
-    print 'Non-racing pso gen will evolve for %d generations' % gen_budget
+    print('Non-racing pso gen will evolve for %d generations' % gen_budget)
     algo_psogen = algorithm.pso_gen(gen_budget,0.7298,2.05,2.05,0.05,5,2,4)
     
     # 2B. Set up pso_gen algorithm with racing:
@@ -78,7 +78,7 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
 
     np.random.seed(seed)
     for i in range(num_trials):
-        print '::: Trial #%d :::' % i
+        print('::: Trial #%d :::' % i)
         results = []
         seed += np.random.randint(100000)
         for algo, prob in algo_prob_pairs: 
@@ -87,12 +87,12 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
             pop = population(prob, pop_size, seed)
             pop = algo.evolve(pop)
             #winner_idx = pop.race(1)[0][0];
-            #print "race winner", winner_idx, "vs champion idx", pop.get_best_idx()
+            #print("race winner", winner_idx, "vs champion idx", pop.get_best_idx())
             #champion_true_fitness = prob_orig.objfun(pop[winner_idx].cur_x)
             champion_true_fitness = prob_post_eval.objfun(pop.champion.x)[0]
-            #print 'Final champion =', champion_true_fitness
+            #print('Final champion =', champion_true_fitness)
             results.append(champion_true_fitness)
-        print results
+        print(results)
         post_evaluated_fitnesses.append(results)
 
     post_evaluated_fitnesses = zip(*post_evaluated_fitnesses)
@@ -100,11 +100,11 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
     averaged_no_racing = np.mean(post_evaluated_fitnesses[0])
     averaged_racing = np.mean(post_evaluated_fitnesses[1])
 
-    print '----------------------------------------------'
-    print 'Final averaged actual fitness over %d trials:' % num_trials
-    print 'pso_gen without racing: %f' % averaged_no_racing
-    print 'pso_gen with racing: %f' % averaged_racing
-    print '----------------------------------------------'
+    print('----------------------------------------------')
+    print('Final averaged actual fitness over %d trials:' % num_trials)
+    print('pso_gen without racing: %f' % averaged_no_racing)
+    print('pso_gen with racing: %f' % averaged_racing)
+    print('----------------------------------------------')
 
     return (averaged_no_racing, averaged_racing)
 
