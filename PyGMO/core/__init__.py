@@ -211,8 +211,6 @@ island.__doc__ = '\n'.join(['Island factory function.\n\nThis function will retu
 	'if the arguments include\neither a pythonic problem or a pythonic algorithm, then an instance\nof :class:`py_island` will be returned; '+
 	'otherwise, an instance of\n:class:`local_island` will be returned.'] + [s.replace('\t','') for s in _generic_island_ctor.__doc__.split('\n')])
 
-del s
-
 def _get_island_list():
 	from PyGMO import core
 	names = filter(lambda n: not n.startswith('_') and not n.startswith('base') and n.endswith('_island'),dir(core))
