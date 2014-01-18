@@ -1,4 +1,4 @@
-from _base import base
+from ._base import base
 
 class py_cmaes(base):
 	"""

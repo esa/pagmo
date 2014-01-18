@@ -59,7 +59,7 @@ def visualize(self,world_states):
 	v.rate(.5)
 
 	#
-	for i in xrange( 1, world_states.shape[0] ):
+	for i in range( 1, world_states.shape[0] ):
 
 		for sph_id, sph in enumerate(bodies):
 			sph.pos = world_states[ i, sph_id*3 + 1 : (sph_id+1)*3 + 1]

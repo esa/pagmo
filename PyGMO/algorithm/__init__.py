@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from _algorithm import *
 from _algorithm import _base
-from _base import base
-from _example import py_example
-from _cmaes import py_cmaes
-from _scipy_algos import *
+from ._base import base
+from ._example import py_example
+from ._cmaes import py_cmaes
+from ._scipy_algos import *
 
 _base = _algorithm._base
 
@@ -14,9 +14,9 @@ def _get_algorithm_list():
 	# Try importing SciPy and NumPy.
 	try:
 		import scipy, numpy
-		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))]
+		algorithm_list = [algorithm.__dict__[n] for n in [n for n in dir(algorithm) if not n.startswith('_') and not n == 'base']]
 	except ImportError as e:
-		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
+		algorithm_list = [algorithm.__dict__[n] for n in [n for n in dir(algorithm) if not n.startswith('_') and not n == 'base' and not n.startswith('scipy')]]
 	return algorithm_list
 	
 

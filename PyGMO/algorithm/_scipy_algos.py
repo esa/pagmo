@@ -1,4 +1,4 @@
-from _base import base
+from ._base import base
 
 # Helper class to ease the inclusion of scipy.optimize solvers.
 class _scipy_base(base):

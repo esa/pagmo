@@ -21,7 +21,7 @@ class post_eval:
     def objfun(self, x):
         post_f = 0
         np.random.seed(self.seed)
-        for i in xrange(self.post_eval_n): 
+        for i in range(self.post_eval_n): 
             self.post_eval_prob.seed = np.random.randint(1000000)
             post_f += self.post_eval_prob.objfun(x)[0] / float(self.post_eval_n)
         return (post_f,)
@@ -95,7 +95,7 @@ def start_experiment(num_trials=20, pop_size=40, fevals_max=100000, nr_eval_per_
         print(results)
         post_evaluated_fitnesses.append(results)
 
-    post_evaluated_fitnesses = zip(*post_evaluated_fitnesses)
+    post_evaluated_fitnesses = list(zip(*post_evaluated_fitnesses))
 
     averaged_no_racing = np.mean(post_evaluated_fitnesses[0])
     averaged_racing = np.mean(post_evaluated_fitnesses[1])
@@ -113,7 +113,7 @@ def vary_nr_eval_per_x(default_params):
 
     pars = copy.deepcopy(default_params)
 
-    param_list = range(3,20,2)
+    param_list = list(range(3,20,2))
     f_no_racing_list = []
     f_racing_list = []
     for n in param_list:
@@ -159,7 +159,7 @@ def vary_fevals_budget(num_trials=20, nr_eval_per_x=10, nb_size=0.5):
 
     pars = copy.deepcopy(default_params)
 
-    param_list = range(10000,200000,20000)
+    param_list = list(range(10000,200000,20000))
     f_no_racing_list = []
     f_racing_list = []
     for fevals_max in param_list:
