@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from _util import *
-from _util.hv_algorithm import hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy
+from ._util import *
+from ._util.hv_algorithm import hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy
 from ..core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']

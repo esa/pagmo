@@ -1,4 +1,4 @@
-from _problem import _base
+from ._problem import _base
 
 class base(_base):
 	def __init__(self,*args):

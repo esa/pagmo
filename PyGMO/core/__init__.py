@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _core import *
+from ._core import *
 import threading as _threading
 import signal as _signal
 import os as _os

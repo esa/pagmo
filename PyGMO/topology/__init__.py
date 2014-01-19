@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _topology import *
+from ._topology import *
 
 
 # Some methods added to interface to networkx

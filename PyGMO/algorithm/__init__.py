@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from _algorithm import *
-from _algorithm import _base
+from ._algorithm import *
+from ._algorithm import _base
 from ._base import base
 from ._example import py_example
 from ._cmaes import py_cmaes
@@ -10,7 +10,7 @@ _base = _algorithm._base
 
 #Creating the list of algorithms
 def _get_algorithm_list():
-	import _algorithm as algorithm
+	from . import _algorithm as algorithm
 	# Try importing SciPy and NumPy.
 	try:
 		import scipy, numpy

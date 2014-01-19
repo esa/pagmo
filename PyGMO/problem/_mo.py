@@ -1,4 +1,4 @@
-from _problem import zdt, dtlz
+from ._problem import zdt, dtlz
 
 def _mo3d_plot(self,pop, a=40, comp=[0,1,2]):
 	"""
