@@ -97,6 +97,20 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 # Build Option: when active the bindings to Python are compiled and linked (installation).
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
+IF(BUILD_PYGMO)
+	# Detect default Python version  
+	IF(NOT DEFINED PYGMO_PYTHON_VERSION)
+	       INCLUDE(FindPythonInterp)
+	       IF(NOT PYTHONINTERP_FOUND)
+	       	      MESSAGE(FATAL_ERROR "Unable to locate Python interpreter. Turn off BUILD_PYGMO please.")
+	       ELSE(NOT PYTHONINTERP_FOUND)
+	       	      MESSAGE(STATUS "Python version ${PYTHON_VERSION_STRING} found.")
+		      # Build Option: build with specific specific Python compatibility 
+		      SET(PYGMO_PYTHON_VERSION ${PYTHON_VERSION_STRING} CACHE STRING "Build PyGMO with specific Python compatibility.")
+	       ENDIF(NOT PYTHONINTERP_FOUND)
+	ENDIF(NOT DEFINED PYGMO_PYTHON_VERSION)
+ENDIF(BUILD_PYGMO)
+
 # Build Option: when active the GTOP database problems are built.
 OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)
 IF(ENABLE_GTOP_DATABASE)
@@ -133,13 +147,13 @@ SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
 SET(REQUIRED_BOOST_LIBS system serialization thread)
 IF(BUILD_PYGMO)
 	INCLUDE(PaGMOPythonSetup)
-	IF(PYTHON_LIBRARY_VERSION_DOT LESS 3)
+	IF(PYGMO_PYTHON_VERSION LESS 3)
 		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
 		ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/PyGMO")
-	ELSE(PYTHON_LIBRARY_VERSION_DOT LESS 3)
+	ELSE(PYGMO_PYTHON_VERSIO LESS 3)
 		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python3)
 		ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/PyGMO3")
-	ENDIF(PYTHON_LIBRARY_VERSION_DOT LESS 3)
+	ENDIF(PYGMO_PYTHON_VERSION LESS 3)
 ENDIF(BUILD_PYGMO)
 IF(ENABLE_GTOP_DATABASE)
 	SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} date_time)
@@ -396,6 +410,10 @@ ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
 
 # From now on all targets will use the static PaGMO library. Add the relevant flags.
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_LIB_PAGMO_USE_FLAGS}")
+
+MESSAGE(STATUS "Build flags: " "${CMAKE_CXX_FLAGS}")
+MESSAGE(STATUS "Module linker flags: " "${CMAKE_MODULE_LINKER_FLAGS}")
+MESSAGE(STATUS "Shared linker flags: " "${CMAKE_SHARED_LINKER_FLAGS}")
 
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)
