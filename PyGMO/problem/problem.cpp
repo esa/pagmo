@@ -473,6 +473,13 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &,unsigned int, const double, unsigned int>())
 		.add_property("rho", &problem::robust::get_rho);
 
+
+    // Quadrature encoding problem
+    problem_wrapper<problem::quadrature_encoding>("quadrature_encoding", "Quadrature encoding problem")
+        .def(init<const problem::base &, const std::vector<decision_vector::size_type> &>())
+        .add_property("transform2old", &problem::quadrature_encoding::transform2old)
+        .add_property("transform2new", &problem::quadrature_encoding::transform2new);
+
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
 //	problem_wrapper<problem::sample_return>("sample_return","Asteroid sample return problem.")

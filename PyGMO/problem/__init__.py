@@ -824,3 +824,24 @@ def _con2uncon_ctor(self, problem = None, method = None):
 con2uncon._orig_init = con2uncon.__init__
 con2uncon.__init__ = _con2uncon_ctor
 
+def _quadrature_encoding_ctor(self, problem = schwefel(1), idx=[0]):
+        """
+        Quadrature encoding problem. Transforms genes that encode angles to
+        quadrature encoding. The resulting problem has two genes (i,j) for every
+        tranformed gene (x) of the original problem:
+        i = sin(x)
+        j = cos(x)
+        The sin component remains at the position of the original gene. The cos
+        component is added to the end of the chromosome.
+
+        USAGE: problem.quadrature_encoding(problem=schwefel(1), idx=[0])
+
+        * problem: original problem
+        * idx: indices of genes in original chromosome to be transformed
+        """
+        arg_list = [problem, idx]
+        self._orig_init(*arg_list)
+
+quadrature_encoding._orig_init = quadrature_encoding.__init__
+quadrature_encoding.__init__ = _quadrature_encoding_ctor
+

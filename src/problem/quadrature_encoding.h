@@ -117,7 +117,7 @@ public:
 	 * @param[in] decision vector in original encoding
 	 * @param[out] decision vector in quadrature encoding
 	 */
-	decision_vector transfrom2new(const decision_vector &x) const 
+	decision_vector transform2new(const decision_vector &x) const 
 	{ 
 		decision_vector _x(x);
 		for (std::set<size_type>::iterator it = m_idx.begin(); it != m_idx.end(); it++)
