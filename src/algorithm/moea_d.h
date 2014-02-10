@@ -23,7 +23,7 @@
  *****************************************************************************/
 
 #ifndef PAGMO_ALGORITHM_MOEAD_H
-#define PAGMO_ALGORITHM_PADE_H
+#define PAGMO_ALGORITHM_MOEAD_H
 
 #include "../config.h"
 #include "../serialization.h"

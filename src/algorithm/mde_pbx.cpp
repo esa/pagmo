@@ -249,11 +249,11 @@ void mde_pbx::evolve(population &pop) const
 //			wcr = 0.9  + (0.001 * r_dist());
 //			m_crm = (wcr * m_crm) + (1.0 - wcr) * powermean(m_crsuccess, m_nexp);
 // THIRD difference from the paper. Adaptation happen with normally distributed noise and fm has two different regimes
-			m_crm = (0.9+0.001*abs(gauss()))*m_crm + 0.1*(1+0.001*abs(gauss())) * powermean(m_crsuccess, m_nexp);
+			m_crm = (0.9+0.001*std::abs(gauss()))*m_crm + 0.1*(1+0.001*std::abs(gauss())) * powermean(m_crsuccess, m_nexp);
 //			wf = 0.8 + (0.01 * r_dist());
 //			m_fm = (wf * m_fm) + ((1.0 - wf) * powermean(m_fsuccess, m_nexp));
-			(m_fm < 0.85)  ? m_fm = (0.9+0.01*abs(gauss()))*m_fm + 0.1*(1+0.01*abs(gauss())) * powermean(m_fsuccess, m_nexp) :
-							 m_fm = (0.8+0.01*abs(gauss()))*m_fm + 0.1*(1+0.01*abs(gauss())) * powermean(m_fsuccess, m_nexp);
+			(m_fm < 0.85)  ? m_fm = (0.9+0.01*std::abs(gauss()))*m_fm + 0.1*(1+0.01*std::abs(gauss())) * powermean(m_fsuccess, m_nexp) :
+				m_fm = (0.8+0.01*std::abs(gauss()))*m_fm + 0.1*(1+0.01*std::abs(gauss())) * powermean(m_fsuccess, m_nexp);
 
 		}
 
