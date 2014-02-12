@@ -419,7 +419,7 @@ std::vector<double> hypervolume::contributions(const fitness_vector &r_point) co
  *
  * @return expected number of operations for given n and d
  */
-unsigned long long hypervolume::get_expected_operations(const unsigned int n, const unsigned int d)
+double hypervolume::get_expected_operations(const unsigned int n, const unsigned int d)
 {
 	if (d == 2) {
 		return 2. * n * log(n);  // hv2d

@@ -50,7 +50,7 @@ namespace pagmo { namespace util { namespace hv_algorithm {
 class __PAGMO_VISIBLE bf_approx : public base
 {
 public:
-	bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-1, const double delta = 1e-4, const double delta_multiplier = 0.775, const double m_alpha = 0.2, const double initial_delta_coeff = 1e-1, const double gamma = 0.25);
+	bf_approx(const bool use_exact = true, const unsigned int trivial_subcase_size = 1, const double eps = 1e-2, const double delta = 1e-6, const double delta_multiplier = 0.775, const double m_alpha = 0.2, const double initial_delta_coeff = 0.1, const double gamma = 0.25);
 	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
 	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
 	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;

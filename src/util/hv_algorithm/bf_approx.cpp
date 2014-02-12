@@ -92,7 +92,7 @@ unsigned int bf_approx::greatest_contributor(std::vector<fitness_vector> &points
 /**
  * Compute the extreme contributor using the approximated algorithm.
  * In order to make the original algorithm work for both the least and the greatest contributor, some portions
- * of the code had to be removed to an external methods.
+ * of the code had to be removed to external methods.
  * The following argument and functions are passed as arguments in the corresponding least/greatest contributor methods:
  *
  * - ec_type (argument):
@@ -128,10 +128,13 @@ unsigned int bf_approx::approx_extreme_contributor(std::vector<fitness_vector> &
 
 	// round counter
 	unsigned int round_no = 0;
+
 	// round delta
 	double r_delta = 0.0;
 
 	bool stop_condition = false;
+
+	// index of extreme contributor
 	unsigned int EC = 0;
 
 	// put every point into the set
@@ -240,7 +243,7 @@ void bf_approx::sampling_round(const std::vector<fitness_vector> &points, const 
 		}
 		
 		// if the exact computation is trivial OR when the sampling takes too long in terms of elementary operations
-		if ( m_box_points[idx].size() <= m_trivial_subcase_size || m_no_ops[idx] >= hypervolume::get_expected_operations(m_box_points[idx].size(), points[0].size()) ) {
+		if ( m_box_points[idx].size() <= m_trivial_subcase_size || static_cast<double>(m_no_ops[idx]) >= hypervolume::get_expected_operations(m_box_points[idx].size(), points[0].size()) ) {
 			const std::vector<unsigned int> &bp = m_box_points[idx];
 			if (bp.size() == 0) {
 				m_approx_volume[idx] = m_box_volume[idx];

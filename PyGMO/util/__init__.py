@@ -396,7 +396,7 @@ def _wfg_ctor(self, stop_dimension = 2):
 wfg._original_init = wfg.__init__
 wfg.__init__ = _wfg_ctor
 
-def _bf_approx_ctor(self, use_exact = True, trivial_subcase_size = 1, eps = 1e-1, delta = 1e-4, gamma = 0.25, delta_multiplier = 0.775, initial_delta_coeff = 1e-1, alpha = 0.2):
+def _bf_approx_ctor(self, use_exact = True, trivial_subcase_size = 1, eps = 1e-2, delta = 1e-6, gamma = 0.25, delta_multiplier = 0.775, initial_delta_coeff = 0.1, alpha = 0.2):
 	"""
 	Hypervolume algorithm: Bringmann-Friedrich approximation.
 

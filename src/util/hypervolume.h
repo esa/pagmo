@@ -75,7 +75,7 @@ public:
 	std::vector<double> contributions(const fitness_vector &, const hv_algorithm::base_ptr) const;
 	std::vector<double> contributions(const fitness_vector &) const;
 
-	static unsigned long long get_expected_operations(const unsigned int n, const unsigned int d);
+	static double get_expected_operations(const unsigned int n, const unsigned int d);
 
 	void set_copy_points(const bool);
 	bool get_copy_points();
