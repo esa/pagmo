@@ -1,6 +1,5 @@
-========================================================================
-Example 4: Multi-objective optimization in the asynchronous island model
-========================================================================
+Multi-objective optimization in the asynchronous island model
+=============================================================
 
 PyGMO can be used to optimize problems with more than one objective. While
 the general workflow is similar to single-objective optimization, there

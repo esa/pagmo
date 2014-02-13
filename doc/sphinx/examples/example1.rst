@@ -1,6 +1,5 @@
-================================================================
-Example 1: A study on Mixing Variants of Differential Evolution
-================================================================
+A study on Mixing Variants of Differential Evolution
+====================================================
 
 Several studies made in the decade 2000-2010 pointed towards a sharp
 benefit in the concurrent use of several different variants of the Differential-Evolution

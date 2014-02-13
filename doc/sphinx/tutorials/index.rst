@@ -1,15 +1,11 @@
-:orphan:
-
-This is a collection of tutorials on PyGMO's basics
-
 .. _pygmotutorials:
 
-==========================
-Available Tutorials
-==========================
+Tutorials
+=========
+
+This is a collection of tutorials on PyGMO's basics:
 
 .. toctree::
-   :maxdepth: 2
 
    adding_problems_and_algorithms_to_PyGMO
    meta_problems_meta_algorithms

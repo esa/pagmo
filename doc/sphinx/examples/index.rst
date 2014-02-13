@@ -1,15 +1,11 @@
-:orphan:
+.. _PyGMOexamples:
 
-This is a collection of examples on advanced uses of PyGMO
+Examples
+========
 
-.. _pygmoexamples:
-
-==========================
-Available Examples
-==========================
+This is a collection of examples on advanced uses of PyGMO.
 
 .. toctree::
-   :maxdepth: 2
 
    example1
    example2
