@@ -421,14 +421,12 @@ std::vector<double> hypervolume::contributions(const fitness_vector &r_point) co
  */
 double hypervolume::get_expected_operations(const unsigned int n, const unsigned int d)
 {
-	if (d == 2) {
-		return 2. * n * log(n);  // hv2d
-	} else if (d == 3) {
-		return 3. * n * log(n);  // hv3d
-	} else if (d == 3) {
-		return 4. * n * n;  // hv4d
+	if (d <= 3) {
+		return d * n * log(n);  // hv3d
+	} else if (d == 4) {
+		return 4.0 * n * n;  // hv4d
 	} else {
-		return pow(n, d/2);  // exponential complexity
+		return 0.0005 * d * pow(n, d * 0.5);  // exponential complexity
 	}
 }
 
