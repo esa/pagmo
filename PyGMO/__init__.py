@@ -21,15 +21,15 @@
 # Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-from . import core, algorithm, migration, problem, topology, test, util
-from .util import hypervolume, hv_algorithm
+from PyGMO import core, algorithm, migration, problem, topology, test, util
+from PyGMO.util import hypervolume, hv_algorithm
 
 __doc__ = 'PyGMO is a pretty cool guy. it kills aliens and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test', 'util']
 __version__ = '1.1.5'
 
 # For convenience, bring all core classes into the root namespace when importing *.
-from .core import *
+from PyGMO.core import *
 __all__ += [name for name in dir(core) if not name.startswith('_')]
 
 problem_list = problem._get_problem_list()

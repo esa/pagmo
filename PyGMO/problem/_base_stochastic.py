@@ -1,4 +1,4 @@
-from ._problem import _base_stochastic
+from PyGMO.problem._problem import _base_stochastic
 
 class base_stochastic(_base_stochastic):
 	def __init__(self,*args):

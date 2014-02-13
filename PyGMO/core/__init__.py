@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ._core import *
+from PyGMO.core._core import *
 import threading as _threading
 import signal as _signal
 import os as _os
@@ -210,6 +210,10 @@ def island(*args,**kwargs):
 island.__doc__ = '\n'.join(['Island factory function.\n\nThis function will return an instance of an island object\nbuilt according to the following rule: '+
 	'if the arguments include\neither a pythonic problem or a pythonic algorithm, then an instance\nof :class:`py_island` will be returned; '+
 	'otherwise, an instance of\n:class:`local_island` will be returned.'] + [s.replace('\t','') for s in _generic_island_ctor.__doc__.split('\n')])
+# The following is necessary for Python 2. s remains in the workspace and will cause the error:
+# AttributeError: 'module' object has no attribute 's'
+# However in Python 3 s is not anylonger in the workspace and del s will cause an exception!
+if 's' in globals(): del s
 
 def _get_island_list():
 	from PyGMO import core

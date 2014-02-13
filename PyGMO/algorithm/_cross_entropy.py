@@ -1,4 +1,4 @@
-from ._base import base
+from PyGMO.algorithm._base import base
 
 class py_cross_entropy(base):
        """

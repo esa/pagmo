@@ -1,4 +1,4 @@
-from ._base_stochastic import base_stochastic
+from PyGMO.problem._base_stochastic import base_stochastic
 
 class py_example_stochastic(base_stochastic):
 	"""

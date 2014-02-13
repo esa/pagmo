@@ -1,24 +1,24 @@
 # -*- coding: iso-8859-1 -*-
-from ._base import base
-from ._base_stochastic import base_stochastic
-from ._problem import *
-from ._problem import _base
-from ._problem import _base_stochastic
-from ._example import py_example
-from ._example import py_example_max
-from ._example_stochastic import py_example_stochastic
-from ._pl2pl import py_pl2pl
-from ._mo import *
+from PyGMO.problem._base import base
+from PyGMO.problem._base_stochastic import base_stochastic
+from PyGMO.problem._problem import *
+from PyGMO.problem._problem import _base
+from PyGMO.problem._problem import _base_stochastic
+from PyGMO.problem._example import py_example
+from PyGMO.problem._example import py_example_max
+from PyGMO.problem._example_stochastic import py_example_stochastic
+from PyGMO.problem._pl2pl import py_pl2pl
+from PyGMO.problem._mo import *
 
 # If GTOP database support is active import interplanetary trajectory problems
 try:
-	from ._gtop import *
+	from PyGMO.problem._gtop import *
 except ImportError:
 	pass
 
 # If GSL support is active import mit_sphere
 try:
-	from ._mit_spheres import visualize as _visualize
+	from PyGMO.problem._mit_spheres import visualize as _visualize
 	mit_spheres.visualize = _visualize
 	def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0, sides = [0.6,0.7,0.8]):
 		"""
