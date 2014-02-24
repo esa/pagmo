@@ -377,7 +377,6 @@ void moead::evolve(population &pop) const
 			// Note that we do not use prob, hence the cache of prob does not get these values.
 			// Note that the ideal point is here updated too
 			prob_decomposed.compute_original_fitness(new_f, candidate);
-			m_fevals++;
 			
 			// 3 - We update the ideal point (Not needed as its done in decomposed when the flag adapt_weight is true)
 			//for (fitness_vector::size_type j=0; j<prob.get_f_dimension(); ++j){

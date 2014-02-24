@@ -176,7 +176,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		// NOTE: This needs special treatment because its prototype changes in the wrapper.
 		.def("evolve",&algorithm::python_base::py_evolve, "Returns the evolved population")
 		.def("human_readable_extra", &algorithm::base::human_readable_extra, &algorithm::python_base::default_human_readable_extra)
-		.add_property("fevals", &algorithm::base::get_fevals, &algorithm::base::set_fevals, "Number of function evaluations made")
 		.def_pickle(python_class_pickle_suite<algorithm::python_base>());
 
 	// Exposing enums

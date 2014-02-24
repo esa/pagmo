@@ -355,7 +355,6 @@ void pade::evolve(population &pop) const
 	population popnew(pop);
 	for(pagmo::population::size_type i=0; i<arch.get_size() ;++i) {
 		popnew.push_back(arch.get_island(i)->get_population().champion().x);
-		m_fevals += arch.get_island(i)->get_algorithm()->get_fevals();
 	}
 	std::vector<population::size_type> selected_idx = popnew.get_best_idx(NP);
 	// We completely clear the population (NOTE: memory of all individuals and the notion of

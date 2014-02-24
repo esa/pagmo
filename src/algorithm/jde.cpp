@@ -520,7 +520,6 @@ void jde::evolve(population &pop) const
 
 			//b) how good?
 			prob.objfun(newfitness, tmp);    /* Evaluate new vector in tmp[] */
-			m_fevals++;
 			if ( pop.problem().compare_fitness(newfitness,fit[i]) ) {  /* improved objective function value ? */
 				fit[i]=newfitness;
 				popnew[i] = tmp;

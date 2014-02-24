@@ -290,12 +290,6 @@ void cstrs_co_evolution::evolve(population &pop) const
 	for(population::size_type i=0; i<pop_1_size; i++) {
 		pop = pop_1_vector.at(best_idx);
 	}
-
-	//update number of fitness evaluations. It is equal to the number computed by the wrapped algorithm since 
-	//(excluding PaGMO structures dependent problems) the objfun is called just by the evolve of the original algorithm
-	// on the prob_1 problem (penalized fitness). Since m_original_algo->evolve() is called inside a cycle the number 
-	// of functions evaluations is a multiple of pop_2 size
-	m_fevals = m_original_algo->get_fevals();
 }
 
 /// Algorithm name

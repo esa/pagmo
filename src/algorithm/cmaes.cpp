@@ -320,7 +320,6 @@ void cmaes::evolve(population &pop) const
 				pop.push_back(dumb);
 			}
 			counteval += lam;
-			m_fevals += lam;
 		}
 		catch (const std::bad_cast& e)
 		{
@@ -332,7 +331,6 @@ void cmaes::evolve(population &pop) const
 				pop.set_x(i,dumb);
 			}
 			counteval += lam;
-			m_fevals += lam; //not necessarily equal to counteval ....
 		}
 		
 		// 2 - We extract the elite from this generation. We use cur_f, equivalent to the
