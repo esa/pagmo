@@ -7,3 +7,7 @@ The main purpose of the software is to provide a parallelization engine common t
 through the 'generalized island model'. Initially developed within the European Space Agency,
 the code was intended to help the automated design of interplanetary trajectories and spacecraft
 transfers in general. The user can implement his own problem and algorithm both in C++ and in Python.
+
+Check the doxygen for PaGMO at http://esa.github.io/pagmo
+
+Check the sphinx for the PaGMO Python bindings (PyGMO) at http://esa.github.io/pagmo
