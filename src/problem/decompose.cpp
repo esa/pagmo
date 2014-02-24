@@ -41,7 +41,7 @@ namespace pagmo { namespace problem {
  * @param[in] method decomposition method (WEIGHTS, TCHEBYCHEFF, BI)
  * @param[in] weights the weight vector (by default is set to random weights)
  * @param[in] z ideal reference point (used in Tchebycheff and Boundary Intersection (BI) methods, by default it is set to 0)
- *
+ * @param[in] adapt_ideal if true it updates the ideal reference point each time the objective function is called checking if the computed fitness is better (assumes minimization)
  * @see For the uniform random generation of weights vector see Appendix 2 in "A. Jaszkiewicz - On the Performance of Multiple-Objective Genetic Local Search
 on the 0/1 Knapsack Problem—A Comparative Experiment"
  * @see For the different decomposition methods see "Q. Zhang - MOEA/D: A Multiobjective Evolutionary Algorithm Based on Decomposition"
@@ -140,13 +140,13 @@ void decompose::set_ideal_point(const fitness_vector &f) {
 	m_z = f;
 }
 
-/// Compute the original fitness
+/// Computes the original fitness
 /**
  * Computes the original fitness of the multi-objective problem. It also updates the ideal point in case
  * m_adapt_ideal is true
  *
- * @param f decomposed fitness vector
- * @param original_fit original multi-objective fitness vector
+ * @param[out] f non-decomposed fitness vector
+ * @param[in] x chromosome
  */
 void decompose::compute_original_fitness(fitness_vector &f, const decision_vector &x) const {
 	m_original_problem->objfun(f,x);
@@ -157,9 +157,9 @@ void decompose::compute_original_fitness(fitness_vector &f, const decision_vecto
 	}
 }
 
-/// Compute the decomposed fitness
+/// Computes the decomposed fitness
 /**
- * Compute the decomposed fitness from the original multi-objective one and a weight vector
+ * Computes the decomposed fitness from the original multi-objective fitness using the data member m_weights
  *
  * @param f decomposed fitness vector
  * @param original_fit original multi-objective fitness vector
@@ -169,9 +169,9 @@ void decompose::compute_decomposed_fitness(fitness_vector &f, const fitness_vect
 	compute_decomposed_fitness(f, original_fit,m_weights);
 }
 
-/// Compute the decomposed fitness
+/// Computes the decomposed fitness
 /**
- * Compute the decomposed fitness from the original multi-objective one and a weight vector
+ * Computes the decomposed fitness from the original multi-objective one and a weight vector
  *
  * @param[out] f decomposed fitness vector
  * @param[in] original_fit original multi-objective fitness vector

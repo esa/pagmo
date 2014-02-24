@@ -60,7 +60,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] cr Crossover parameter in the Differential Evolution operator
  * @param[in] f f parameter in the Differential Evolution operator
  * @param[in] eta_m Distribution index for the polynomial mutation
- * @param[in] m_preserve_diversity when true activates the two diversity preservation mechanism described in Li, Hui, and Qingfu Zhang paper
+ * @param[in] preserve_diversity when true activates the two diversity preservation mechanism described in Li, Hui, and Qingfu Zhang paper
  * @throws value_error if gen is negative, weight_generation is not one of the allowed types, realb,cr or f are not in [1.0] or m_eta is < 0
  */
 moead::moead(int gen,

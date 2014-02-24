@@ -80,7 +80,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE dtlz : public base_dtlz
 {
 	public:
-		dtlz(size_type = 1, size_type = 5, fitness_vector::size_type = 3, const size_t = 100);
+		dtlz(size_type id = 1, size_type k = 5, fitness_vector::size_type fdim = 3, const size_t alpha = 100);
 		base_ptr clone() const;
 		std::string get_name() const;
 	protected:

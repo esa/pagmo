@@ -27,10 +27,9 @@
 
 /*! \mainpage PaGMO (Parallel Global Multiobjective Optimizer)
 \section intro_sec Introduction 
-PaGMO offers a generalization of the island model paradigm working for global and local optimization
+These pages contain the documentation of PaGMO (C++) API. PaGMO offers a generalization of the island model paradigm working for global and local optimization
 algorithms. Its main parallelization approach makes use of multiple threads, but MPI is also implemented and can be 
-mixed in with multithreading. It provides a set of C++ classes and their exposition in Python language (PyGMO)
-as to allow the user to solve, in a parallel fashion, global optimization tasks in the form: \n\n
+mixed in with multithreading. PaGMO can be used to solve in a parallel fashion, global optimization tasks in the form: \n\n
 <center>
 	\f$
 	\begin{array}{rl}
@@ -50,115 +49,13 @@ continuous, integer, box-constrained, non linear constrained, stochastic, determ
  * @see Izzo, D., Rucinski, M., and Biscani, F., The Generalized Island Model, Parallel Architectures and Bioinspired Algorithms, Springer Berlin/Heidelberg, pp.151--169, 2012.
  * @see Rucinski, M., Izzo, D., and Biscani, F., On the Impact of the Migration Topology on the Island Model, Parallel Computing, 36, Elsevier, pp.555-571, 2010.
  
-\section algorithms Algorithms currently implemented in PaGMO
-
-A number of algorithms are already implemented in PaGMO and thus immediately
-available after installation. The user can implement his own algorithms both in C++
-and directly in Python. Check the algorithm documentation to verify whether a particolar problem class
-can be fed to it (i.e. box-constrained, mixed integer etc.):
-
-- A Simple Genetic Algorithm (pagmo::algorithm::sga)
-- A Simple Evolutionary Algorithm (N+1)-EA (pagmo::algorithm::sea)
-- Differential Evolution [the original algorithm] (pagmo::algorithm::de)
-- jDE [self-adaptive Differential volution] (pagmo::algorithm::jde)
-- mde_pbx [self-adaptive Differential volution] (pagmo::algorithm::mde_pbx)
-- Particle Swarm Optimization (pagmo::algorithm::pso)
-- Particle Swarm Optimization [generational version] (pagmo::algorithm::pso_generational)
-- Non-dominated Sorting Genetic Algorithm (pagmo::algorithm::nsga2)
-- Adaptive Neighbourhood Simulated Annealing (pagmo::algorithm::sa_corana)
-- Improved Harmony Search (pagmo::algorithm::ihs)
-- Compass Search (pagmo::algorithm::cs)
-- Monotonic Basin Hopping (pagmo::algorithm::mbh)
-- Multistart (pagmo::algorithm::ms)
-- Monte-Carlo (pagmo::algorithm::monte_carlo)
-
-Other algorithm are available via third party libraries, and can be included activating the respective
-options in CMake, in particular:
-
-- GSL library (open-source) -- includes Nelder-Mead, BFGS and more, see pagmo::algorithm::base_gsl
-- NLOPT library (open-source) -- includes BOBYQA, COBYLA and more, see pagmo::algorithm::base_nlopt
-- IPOPT library (open-source) -- includes IPOPT, see pagmo::algorithm::ipopt
-- SNOPT library (commercial) -- includes SNOPT, see pagmo::algorithm::snopt
-
-When working only in Python the SciPy algorithms from the 'optimize module' are available too (see http://docs.scipy.org/doc/scipy/reference/optimize.html).
-
-\section problems Problems currently implemented in PaGMO
-
-A number of global otimization problems are already implemented in PaGMO and thus
-immediately available after installation. The user can implement his own problems both in C++ or
-directly in Python.
-
-- Classical Test Problems
- - Box-Constrained Contnuous Single-Objective
-  - Paraboloid, Ackley, Rastrigin, Rosenbrock, Branin, Schwefel, Griewank, Lennard-Jones, Levy5, Himmelblau ....
- - Continuous, constrained Single-Objective
-  - From Luksan-Vlcek book (3 problems also in the original IPOPT dist.), Toy-problem from SNOPT manual
- - Integer, constrained Single-Objective
-  - Golomb Ruler, Knapsack Problem
- - Box-Constrained Integer Single-Objective
-  - The string match problem
- - Multi-objective, continuous, box-constrained
-  - The SCH, FON, DTLZ and ZDT problems 
- - Stochastic, continuous and box-constrained
-  - A simple inventory problem
-- Engineering Problems
-  - All problems from the GTOP database (http://www.esa.int/gsp/ACT/inf/op/globopt.htm) and An Interplanetary, Multiple Gravity Assist, Low-Thrust problem (MGA-LT)
-  - Spheres (pagmo::problem::spheres, pagmo::problem::spheres_q). Two problems of neurocontroller evolution for the MIT SPHERE test-bed on board the ISS
-\section install Installation guide
-
-To install PaGMO from source code you will need git and CMake installed in your system. 
-
-On Unix systems:
-
-- Clone the PaGMO git repository on your local machine: \code git
-  clone git://git.code.sf.net/p/pagmo/code pagmo-code \endcode
-- Please check that all needed libraries are available. Pagmo/Pygmo is
-  based on boost so you might need to run (example valid for apt-get package manager) \code sudo apt-get install
-  libboost1.48-all-dev  \endcode  or simply  \code sudo apt-get install
-  libboost-all-dev  \endcode. This includes the syste, serialization, date-time, thread and python library that are actually used here. 
-- Create a build directory in your pagmo directory and move there: \code 
-cd pagmo-code \endcode \code mkdir build \endcode \code cd build 
-\endcode
-- You will need cmake and, optionally, ccmake to go ahead with the
- instructions. Install them using sudo apt-get install
- cmake-curses-gui which will automatically install cmake as a
- dependence. 
-- You can go straight ahead and run \code cmake ../ \endcode or, if
- you want a finer control on what is compiled, run ccmake to configure your makefile (or project): \code ccmake ../ \endcode
-- In ccmake, press c to configure, then (see figure below) select the options that are desired 
-(e.g. compile the main file?, compile  PyGMO?) press c to configure again and then g to generate the makefile. 
-Selecting the option PyGMO you will also build the python version of the code. 
-In this case make sure you have python installed. CMake will try to locate the current installation 
-directory of your python and install there the code upon make install.
-
-\image html ccmake.png
-- Build PaGMO: \code make \endcode.
-- Test PaGMO (if tests are enabled in ccmake): \code make test\endcode.
-- Install PaGMO: \code make install \endcode , or possibly \code sudo make install \endcode.
-
-On Windows systems, the procedure is analogous (you will likely use the Windows CMake GUI instead of ccmake). We have so 
-far tested compilation only using MinGW and MSCV 11 (see here for more info on windows compilation (https://sourceforge.net/apps/mediawiki/pagmo/index.php?title=Main_Page)
-
-\section PyGMO Interactive python session
-
-Our suggestion in using PaGMO is to activate the option PyGMO and, after installation, start an
-interactive session with ipython. In the image below you see an example on how to solve the 100
-dimensional pagmo::problem::schwefel using a pagmo::topology::ring evolution of 8 island (20 individuals each)
-using pagmo::algorithm::de (Differential Evolution) in a 4 CPU machine.
-
-\image html ipython.png
 
 \section mpi_intro MPI support
 
 By default PaGMO parallelizes the optimization process by opening multiple local threads of execution, and hence the parallelism is confined to a single machine. For use in cluster
-environments, PaGMO can employ MPI (Message Passing Interface) to distribute the workload among multiple machines. Detailed instructions on how to enable and use the MPI support in PaGMO
-can be found in \ref mpi_support "this page".
+environments, PaGMO can employ MPI (Message Passing Interface) to distribute the workload among multiple machines. Detailed instructions on how to enable and use the MPI support in PaGMO can be found in \ref mpi_support "this page".
 */
 
-/*!
-\page serialization Serialization
-blah
-*/
 
 // We detect the gcc version (not sure if this is used)
 

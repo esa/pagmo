@@ -110,8 +110,7 @@ return base_ptr(new derived_algorithm(*this));
 
 		/// Resets the seed of the internal rngs using a user-provided seed
 		void reset_rngs(const unsigned int) const;
-		unsigned int get_fevals() const {return m_fevals;}
-		void set_fevals(unsigned int f) {m_fevals = f;}
+
 	protected:
 		/// Indicates to the derived class whether to print stuff on screen
 		bool m_screen_output;
@@ -127,10 +126,9 @@ return base_ptr(new derived_algorithm(*this));
 			ar & m_drng;
 			ar & m_urng; 
 			ar & m_screen_output;
-			ar & m_fevals;
 		}
 	protected:
-		// A counter for the number of function evaluations
+		/// A counter for the number of function evaluations
 		mutable unsigned int m_fevals;
 };
 

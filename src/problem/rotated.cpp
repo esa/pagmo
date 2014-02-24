@@ -36,14 +36,13 @@ namespace pagmo { namespace problem {
 /**
  * Constructor using Eigen Matrix
  *
- * @param[in] problem base::problem to be rotated
+ * @param[in] p base::problem to be rotated
  * @param[in] rotation Eigen::MatrixXd expressing the problem rotation
  *
  * @see problem::base constructors.
  */
 
-rotated::rotated(const base &p,
-				 const Eigen::MatrixXd &rotation ):
+rotated::rotated(const base &p, const Eigen::MatrixXd &rotation ):
 		base_meta(
 		 p,
 		 p.get_dimension(),
@@ -69,7 +68,7 @@ rotated::rotated(const base &p,
 /**
  * Constructor using std::vector (for python exposition purposes)
  *
- * @param[in] problem base::problem to be rotated
+ * @param[in] p base::problem to be rotated
  * @param[in] rotation std::vector<std::vector<double> > expressing the problem rotation
  *
  * @see problem::base constructors.
@@ -113,7 +112,7 @@ rotated::rotated(const base &p,
 /**
  * Constructor with a random matrix
  *
- * @param[in] problem base::problem to be rotated
+ * @param[in] p base::problem to be rotated
  */
 
 rotated::rotated(const base &p):

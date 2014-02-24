@@ -35,7 +35,7 @@ namespace pagmo { namespace problem {
 /**
  * Construct with a specified shift
  *
- * @param[in] problem base::problem to be shifted
+ * @param[in] p base::problem to be shifted
  * @param[in] translation The vector specifying the translation
  *
  * @see problem::base constructors.
@@ -63,7 +63,7 @@ shifted::shifted(const base & p,
 /**
  * Construct with a constant shift (across dimensions)
  *
- * @param[in] problem pagmo::problem::base to be shifted
+ * @param[in] p pagmo::problem::base to be shifted
  * @param[in] t Specify the amount of translation, applied universally to all dimensions
  *
  * @see problem::base constructors.

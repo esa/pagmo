@@ -34,7 +34,7 @@ namespace pagmo { namespace problem {
 /**
  * Construct with a vector of new units
  *
- * @param[in] problem base::problem to be shifted
+ * @param[in] p base::problem to be shifted
  * @param[in] units The vector specifying the new fitness units
  *
  * @see problem::base constructors.
@@ -65,7 +65,7 @@ base_ptr scaled::clone() const
 /**
  * Returns the de-scaled fitness 
  *
- * @param[in] x decision vector to be de-shifted
+ * @param[in] f fitness vector to be de-scaled
  */
 fitness_vector scaled::descale(const fitness_vector& f) const
 {

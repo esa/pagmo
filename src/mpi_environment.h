@@ -57,8 +57,7 @@ support in the root node, PaGMO will refuse to operate in MPI mode.
 
 In a PaGMO MPI cluster, problem, population and algorithm instances are sent from the master node to the slave nodes where the optimisation process
 takes place. In order for the objects to be sent over the network, they need to be serializable. Serialization for all classes shipped with PaGMO is
-already implemented. The writer of new PaGMO classes will need to make sure that her own classes are serializable. General instructions are available
-in the \ref serialization "serialization page".
+already implemented. The writer of new PaGMO classes will need to make sure that her own classes are serializable. 
 
 Additionally, it must always kept in mind that when working with MPI each processor is living inside a separate process: aside from the objects serialized
 and dispatched around in the cluster, there is no other form of communication. For instance, problems or algorithms employing a shared memory state
