@@ -31,12 +31,12 @@ See the dedicated pages on how to make sure this happens.
 Download PyGMO code
 -------------------
 
-PyGMO source code is part of the `pagmo sourceforge project <http://sourceforge.net/projects/pagmo/>`_.
+PyGMO source code is part of the `pagmo GitHub  project <https://github.com/esa/pagmo/>`_.
 The `git`_ versioning system is needed to access the code. 
 
 Open a terminal (where git is available) and type::
 
-  git clone git://git.code.sf.net/p/pagmo/code pagmo-code
+  git clone https://github.com/esa/pagmo.git 
 
 
 Compiling and Installing under Unix
