@@ -1,3 +1,5 @@
+.. figure:: _static/logo.png
+
 Welcome to PyGMO
 ================
 
@@ -10,6 +12,7 @@ Welcome to PyGMO
    tutorials/index
    examples/index
    documentation/index
+   PaGMO API <http://esa.github.io/pagmo/>
 
 .. figure:: images/movie.gif   
    :align: right
