@@ -1,6 +1,18 @@
-========================================
-Welcome to PyGMO (V1.1.5)!
-========================================
+.. figure:: _static/logo.png
+
+Welcome to PyGMO
+================
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   install
+   quickstart
+   tutorials/index
+   examples/index
+   documentation/index
+   PaGMO API <http://esa.github.io/pagmo/>
 
 .. figure:: images/movie.gif   
    :align: right

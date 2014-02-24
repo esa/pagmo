@@ -1,6 +1,5 @@
-===============================================================
-Example 6: Participating to the CEC2013 Competition (V1.1.5)
-===============================================================
+Participating to the CEC2013 Competition (v 1.1.5)
+==================================================
 
 In this example we will show how to use PaGMO to test algorithms on the
 `test problem suite <http://www.ntu.edu.sg/home/EPNSugan/index_files/CEC2013/CEC2013.htm>`_ used in the

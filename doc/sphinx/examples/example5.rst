@@ -1,6 +1,5 @@
-===============================================================
-Example 5: Designing and optimizing interplanetary trajectories
-===============================================================
+Designing and optimizing interplanetary trajectories
+====================================================
 
 
 PyGMO can be used to optimize spacecraft trajectories by using the MGA-1DSM
