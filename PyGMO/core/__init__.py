@@ -367,6 +367,39 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 archipelago.draw = _archipelago_draw
 
 
+def _pop_ctor(self, prob_or_pop, n_individuals=0, seed=None):
+	"""
+	Constructs a population.
+
+	Popopulation can be constructed in two ways, specified by prob_or_pop.  If
+	prob_or_pop is a population (see USAGE 2 below), the other two arguments
+	are ignored, and the population is constructed by performing a deep-copy of
+	the provided population.
+
+	USAGE 1: pop = population(problem.zdt(), n_individuals=100, seed=1234)
+
+	* prob_or_prob: problem to be associated with the population
+	* n_individuals: number of individuals in the population
+	* seed: seed used to randomly initialize the individuals
+
+	USAGE 2:
+		from PyGMO import *
+		pop1 = population(problem.schwefel(50), 10) #population with 10 individuals
+		pop2 = population(pop1) # pop2 is a copy of pop1
+	"""
+
+	arg_list = []
+	arg_list.append(prob_or_pop)
+	# For construction by copying, ignore the rest of the arguments (could be
+	# the default kwargs).
+	if type(prob_or_pop) != population:
+		arg_list.append(n_individuals)
+		if seed is not None:
+			arg_list.append(seed)
+	return self._original_init(*arg_list)
+population._original_init = population.__init__
+population.__init__ = _pop_ctor
+
 def _pop_plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size = 6, fronts=[]):
 	"""
 	Plots the population pareto front in a 2-D graph
