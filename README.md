@@ -10,4 +10,4 @@ transfers in general. The user can implement his own problem and algorithm both 
 
 Check the doxygen for PaGMO at http://esa.github.io/pagmo
 
-Check the sphinx for PyGMO (the PaGMO Python bindings) at http://esa.github.io/pagmo
+Check the sphinx for PyGMO (the PaGMO Python bindings) at http://esa.github.io/pygmo
