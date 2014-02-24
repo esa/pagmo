@@ -1,5 +1,5 @@
-Copyright (C) 2004-2014 The PaGMO development team,
-Advanced Concepts Team (ACT), European Space Agency (ESA)
+PaGMO
+=====
 
 Parallel Global Multiobjective Optimizer (and its Python alter ego PyGMO) offers a
 user-friendly access to a wide array of global and local optimization algorithms and problems.
@@ -10,4 +10,4 @@ transfers in general. The user can implement his own problem and algorithm both 
 
 Check the doxygen for PaGMO at http://esa.github.io/pagmo
 
-Check the sphinx for the PaGMO Python bindings (PyGMO) at http://esa.github.io/pagmo
+Check the sphinx for PyGMO (the PaGMO Python bindings) at http://esa.github.io/pagmo
