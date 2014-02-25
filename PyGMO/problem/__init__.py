@@ -1,24 +1,24 @@
 # -*- coding: iso-8859-1 -*-
-from _base import base
-from _base_stochastic import base_stochastic
-from _problem import *
-from _problem import _base
-from _problem import _base_stochastic
-from _example import py_example
-from _example import py_example_max
-from _example_stochastic import py_example_stochastic
-from _pl2pl import py_pl2pl
-from _mo import *
+from PyGMO.problem._base import base
+from PyGMO.problem._base_stochastic import base_stochastic
+from PyGMO.problem._problem import *
+from PyGMO.problem._problem import _base
+from PyGMO.problem._problem import _base_stochastic
+from PyGMO.problem._example import py_example
+from PyGMO.problem._example import py_example_max
+from PyGMO.problem._example_stochastic import py_example_stochastic
+from PyGMO.problem._pl2pl import py_pl2pl
+from PyGMO.problem._mo import *
 
 # If GTOP database support is active import interplanetary trajectory problems
 try:
-	from _gtop import *
+	from PyGMO.problem._gtop import *
 except ImportError:
 	pass
 
 # If GSL support is active import mit_sphere
 try:
-	from _mit_spheres import visualize as _visualize
+	from PyGMO.problem._mit_spheres import visualize as _visualize
 	mit_spheres.visualize = _visualize
 	def _mit_spheres_ctor(self, sample_size = 10, n_hidden = 10, ode_prec = 1E-3, seed = 0, symmetric = False, simulation_time = 50.0, sides = [0.6,0.7,0.8]):
 		"""
@@ -59,7 +59,7 @@ except:
 #Creating the list of problems
 def _get_problem_list():
 	from PyGMO import problem
-	return [problem.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n =="base_stochastic" and (issubclass(problem.__dict__[n],problem._base) or issubclass(problem.__dict__[n],problem._base_stochastic)),dir(problem))]
+	return [problem.__dict__[n] for n in [n for n in dir(problem) if not n.startswith('_') and not n == 'base' and not n =="base_stochastic" and (issubclass(problem.__dict__[n],problem._base) or issubclass(problem.__dict__[n],problem._base_stochastic))]]
 
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
 def _rastrigin_ctor(self,dim = 10):

@@ -1,4 +1,4 @@
-from _base import base
+from PyGMO.algorithm._base import base
 
 class py_cross_entropy(base):
        """
@@ -86,7 +86,7 @@ class py_cross_entropy(base):
 		       for ind in elite:
 		       		pl.plot(ind[0,0],ind[0,1],'or')
 		       pl.show()
-		       raw_input()
+		       input()
 
 
 		       #2 - We evaluate the Covariance Matrix 
@@ -109,7 +109,7 @@ class py_cross_entropy(base):
 		       for i in range(1,n_elite):
 		       		mu = mu + elite[i]*self.__weights[i]	
 		       pl.plot(mu[0,0],mu[0,1],'ob')
-		       raw_input()
+		       input()
 
 		       #4 - We generate the new sample  
 		       variation = multivariate_normal([0]*dim,C,[np]) 
@@ -126,7 +126,7 @@ class py_cross_entropy(base):
 		       		newpop[i] = mu + d_mu * self.__scale
 		       		pl.plot(newpop[i][0],newpop[i][1],'ok')
 		       pl.show()
-		       raw_input()
+		       input()
 
 		       #5 - We fix it within the bounds
 		       for row in range(newpop.shape[0]):
@@ -144,8 +144,8 @@ class py_cross_entropy(base):
 		       #7 - We print to screen if necessary
 		       if self.__screen_output:
 		       		if not(gen%20):
-		       			print "\nGen.\tChampion\tHighest\t\tLowest\t\tVariation"
-		       		print "%d\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],max([ind.cur_f[0] for ind in pop]),min([ind.cur_f[0] for ind in pop]), norm(d_mu))
+		       			print("\nGen.\tChampion\tHighest\t\tLowest\t\tVariation")
+		       		print("%d\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],max([ind.cur_f[0] for ind in pop]),min([ind.cur_f[0] for ind in pop]), norm(d_mu)))
 	       return pop
 	       
  

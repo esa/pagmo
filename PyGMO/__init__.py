@@ -21,16 +21,16 @@
 # Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-import core, algorithm, migration, problem, topology, test, util
-from util import hypervolume, hv_algorithm
+from PyGMO import core, algorithm, migration, problem, topology, test, util
+from PyGMO.util import hypervolume, hv_algorithm
 
 __doc__ = 'PyGMO is a pretty cool guy. it kills aliens and doesnt afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test', 'util']
 __version__ = '1.1.5'
 
 # For convenience, bring all core classes into the root namespace when importing *.
-from core import *
-__all__ += filter(lambda name: not name.startswith('_'),dir(core))
+from PyGMO.core import *
+__all__ += [name for name in dir(core) if not name.startswith('_')]
 
 problem_list = problem._get_problem_list()
 algorithm_list = algorithm._get_algorithm_list()
@@ -150,7 +150,7 @@ if __extensions__['scipy']:
 			self.p = 0
 			self.z = 0
 			self.p_req = p
-			print "Racing the algorithms ..."
+			print("Racing the algorithms ...")
 			
 			for i in range(max_runs):
 				stdout.write("\rRuns: %i" % i); stdout.flush()
@@ -210,7 +210,7 @@ def example_1(n_trials=25, variant_adptv=1, memory=True):
 		archi = archipelago(topology=fully_connected())
 		for algo in algos:
 			archi.push_back(island(algo,prob,25)) 
-		print "Trial N: " + str(trial)
+		print("Trial N: " + str(trial))
 		archi.evolve(30)
 		results.append(min([isl.population.champion.f[0] for isl in archi]))
 	return (mean(results), median(results), min(results), max(results))
@@ -219,14 +219,14 @@ def example_2(algo=algorithm.de(1), prob = problem.rosenbrock(10), topo = topolo
 	from PyGMO import problem, algorithm, island, archipelago
 	from matplotlib.pyplot import savefig, close
 	archi = archipelago(algo,prob,n_isl,pop_size,topology=topo)
-	print "Drawing Initial Condition .. "
+	print("Drawing Initial Condition .. ")
 	pos = archi.draw(scale_by_degree=True,n_size=3,e_alpha=0.03, n_color = color_code)
 	savefig('archi000', dpi = 72)
 	close()
 	for i in range(1,n_evolve):
 		archi.evolve(1); 
 		archi.join();
-		print "Drawing"+ str(i) +  "-th evolution .. "
+		print("Drawing"+ str(i) +  "-th evolution .. ")
 		pos = archi.draw(layout = pos, scale_by_degree=True,n_size=3,e_alpha=0.03, n_color = color_code)
 		savefig('archi%03d' % i, dpi = 72);  
 		close()

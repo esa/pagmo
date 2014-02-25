@@ -181,7 +181,7 @@ def run_varying_noise(prob_orig):
 	success_rates = [];
 
 	for noise in noise_levels:
-		print 'Setup A: noise = %lf' % noise
+		print('Setup A: noise = %lf' % noise)
 		averaged_rates = repeat_and_average(metric_fn, prob_orig, noise, start_n,
 											final_n, eval_budget)
 		success_rates.append(averaged_rates)
@@ -206,7 +206,7 @@ def run_varying_initial_size(prob_orig):
 	success_rates = [];
 
 	for start in start_n_list:
-		print 'Setup B: initial popsize = %d' % start
+		print('Setup B: initial popsize = %d' % start)
 		averaged_rates = repeat_and_average(metric_fn, prob_orig,
 											default_noise, start, final_n,
 											start * 5)
@@ -233,7 +233,7 @@ def run_varying_eval_budget(prob_orig):
 	success_rates = [];
 
 	for eval_budget in eval_budget_list:
-		print 'Setup C: evaluation budget = %d' % eval_budget
+		print('Setup C: evaluation budget = %d' % eval_budget)
 		averaged_rates = repeat_and_average(metric_fn, prob_orig,
 											default_noise, start_n, final_n,
 											eval_budget)

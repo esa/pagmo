@@ -1,4 +1,4 @@
-from _problem import cassini_1, gtoc_1,cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_incipit_cstrs, mga_part
+from PyGMO.problem._problem import cassini_1, gtoc_1,cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_incipit_cstrs, mga_part
 #from _problem import _gtoc_2_objective 
 		
 # Redefining the constructors of all problems to obtain good documentation and allowing kwargs
@@ -334,10 +334,10 @@ def _mga_1dsm_alpha_plot(self,x):
 	#1 -  we 'decode' the chromosome recording the various times of flight (days) in the list T
 	T = list([0]*(n))
 	alpha_sum = 0
-	for i in xrange(n):	
+	for i in range(n):	
 		T[i] = x[1]*x[6+4*i]
 		alpha_sum += x[6+4*i]
-	for i in xrange(n):
+	for i in range(n):
 		T[i] /= alpha_sum
 
 	
@@ -525,7 +525,7 @@ def _mga_incipit_plot_old(self,x, plot_leg_0 = False):
 	v_beg_l = l.get_v1()[0]
 
 	#4 - And we proceed with each successive leg
-	for i in xrange(1,legs):
+	for i in range(1,legs):
 		#Fly-by 
 		v_out = fb_prop(v_end_l,v_P[i-1],x[1+4*i]*seq[i-1].radius,x[4*i],seq[i-1].mu_self)
 		#s/c propagation before the DSM
@@ -584,7 +584,7 @@ def _mga_part_plot_old(self,x):
 
 	v_end_l = [a+b for a,b in zip(v_P[0],self.vinf_in)]
 	#4 - And we iterate on the legs
-	for i in xrange(0,legs):
+	for i in range(0,legs):
 		#Fly-by 
 		v_out = fb_prop(v_end_l,v_P[i],x[1+4*i]*seq[i-1].radius,x[4*i],seq[i].mu_self)
 		#s/c propagation before the DSM
@@ -629,7 +629,7 @@ def _part_plot(x, units, ax, seq, start_mjd2000,vinf_in):
 
 	v_end_l = [a+b for a,b in zip(v_P[0],vinf_in)]
 	#4 - And we iterate on the legs
-	for i in xrange(0,legs):
+	for i in range(0,legs):
 		#Fly-by
 		v_out = fb_prop(v_end_l,v_P[i],x[1+4*i]*seq[i-1].radius,x[4*i],seq[i].mu_self)
 		#s/c propagation before the DSM

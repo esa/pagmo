@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _algorithm import _base
+from PyGMO.algorithm._algorithm import _base
 
 class base(_base):
 	"""

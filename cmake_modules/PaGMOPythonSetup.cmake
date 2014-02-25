@@ -20,12 +20,18 @@
 # Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-INCLUDE(FindPythonLibs)
-# We need the Python interpreter to figure out Python's version in SuckOSX.
-INCLUDE(FindPythonInterp)
+# Unset previous values, to allow changing of Python version.
+UNSET(PYTHON_EXECUTABLE CACHE)
+UNSET(PYTHON_DEBUG_LIBRARY CACHE)
+UNSET(PYTHON_LIBRARY CACHE)
+UNSET(PYTHON_INCLUDE_PATH CACHE)
+UNSET(PYTHON_INCLUDE_DIR CACHE)
+
+# Find Python executable
+FIND_PACKAGE(PythonInterp ${PYGMO_PYTHON_VERSION} REQUIRED)
 
 # Find Python libraries
-FIND_PACKAGE(PythonLibs REQUIRED)
+FIND_PACKAGE(PythonLibs "${PYGMO_PYTHON_VERSION}" REQUIRED)
 MESSAGE(STATUS "Python libraries: " "${PYTHON_LIBRARIES}")
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 MESSAGE(STATUS "Python library: " "${PYTHON_LIBRARY}")

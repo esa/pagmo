@@ -133,7 +133,7 @@ class HVContributionsTest(unittest.TestCase):
 		"""
 		hv = hypervolume(S)
 		self.assertEqual(hv.contributions(R), ans)
-		self.assertEqual(tuple(hv.exclusive(i, R) for i in xrange(len(S))), ans)
+		self.assertEqual(tuple(hv.exclusive(i, R) for i in range(len(S))), ans)
 
 	def test2d(self):
 		"""

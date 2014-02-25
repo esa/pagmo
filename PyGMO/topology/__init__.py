@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _topology import *
+from PyGMO.topology._topology import *
 
 
 # Some methods added to interface to networkx
@@ -47,7 +47,7 @@ def _draw(self, layout = 'spring', n_color = 'blue', n_size = 15, n_alpha = 0.5,
 		raise ValueError('Cannot draw topology with one single vertex or less.')
 
 	G = self.to_networkx()
-	node_sizes = range(nx.number_of_nodes(G))
+	node_sizes = list(range(nx.number_of_nodes(G)))
 	for i in range(nx.number_of_nodes(G)):
 		if scale_by_degree:
 			node_sizes[i] = nx.degree(G,i)*n_size

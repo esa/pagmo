@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _core import *
+from PyGMO.core._core import *
 import threading as _threading
 import signal as _signal
 import os as _os
@@ -210,16 +210,18 @@ def island(*args,**kwargs):
 island.__doc__ = '\n'.join(['Island factory function.\n\nThis function will return an instance of an island object\nbuilt according to the following rule: '+
 	'if the arguments include\neither a pythonic problem or a pythonic algorithm, then an instance\nof :class:`py_island` will be returned; '+
 	'otherwise, an instance of\n:class:`local_island` will be returned.'] + [s.replace('\t','') for s in _generic_island_ctor.__doc__.split('\n')])
-
-del s
+# The following is necessary for Python 2. s remains in the workspace and will cause the error:
+# AttributeError: 'module' object has no attribute 's'
+# However in Python 3 s is not anylonger in the workspace and del s will cause an exception!
+if 's' in globals(): del s
 
 def _get_island_list():
 	from PyGMO import core
-	names = filter(lambda n: not n.startswith('_') and not n.startswith('base') and n.endswith('_island'),dir(core))
+	names = [n for n in dir(core) if not n.startswith('_') and not n.startswith('base') and n.endswith('_island')]
 	try:
 		from IPython.kernel.client import TaskClient, MapTask
 	except ImportError:
-		names = filter(lambda n: n != 'ipy_island',names)
+		names = [n for n in names if n != 'ipy_island']
 	return [core.__dict__[n] for n in names]
 
 def _generic_archi_ctor(self,*args,**kwargs):
@@ -317,7 +319,7 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 	G = t.to_networkx()
 
 	#We scale the node sizes
-	node_sizes = range(nx.number_of_nodes(G))
+	node_sizes = list(range(nx.number_of_nodes(G)))
 	for i in range(nx.number_of_nodes(G)):
 		if scale_by_degree:
 			node_sizes[i] = nx.degree(G,i)*n_size
@@ -343,7 +345,7 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 		node_colors=[t.get_num_adjacent_vertices(i) for i in range(len(self))]
 	elif n_color == 'rank':
 		vec = [-isl.population.champion.f[0] for isl in self]
-		node_colors=sorted(range(len(vec)), key=vec.__getitem__)
+		node_colors=sorted(list(range(len(vec))), key=vec.__getitem__)
 		M = max(node_colors)
 		m= min(node_colors)
 		
@@ -359,7 +361,7 @@ def _archipelago_draw(self, layout = 'spring', n_color = 'fitness', n_size = 15,
 	ax = pl.figure()
 	if cmap == 'default':
 		cmap = pl.cm.Reds_r
-	nx.draw_networkx_nodes(G,pos,nodelist=range(len(self)), node_color=node_colors, cmap=cmap, node_size=node_sizes,alpha=n_alpha)
+	nx.draw_networkx_nodes(G,pos,nodelist=list(range(len(self))), node_color=node_colors, cmap=cmap, node_size=node_sizes,alpha=n_alpha)
 	nx.draw_networkx_edges(G,pos,alpha=e_alpha,arrows=e_arrows)
 	pl.axis('off')
 	pl.show()
@@ -435,9 +437,9 @@ def _pop_plot_pareto_fronts(pop, rgb=(0,0,0), comp = [0,1], symbol = 'o', size =
 			raise ValueError('Check your fronts list, there seem to be not enough fronts')
 		p_list = [p_list[idx] for idx in fronts]
 	
-	cl = zip(linspace(0.9 if rgb[0] else 0.1,0.9, len(p_list)), 
+	cl = list(zip(linspace(0.9 if rgb[0] else 0.1,0.9, len(p_list)), 
 			 linspace(0.9 if rgb[1] else 0.1,0.9, len(p_list)),  
-			 linspace(0.9 if rgb[2] else 0.1,0.9, len(p_list)))  
+			 linspace(0.9 if rgb[2] else 0.1,0.9, len(p_list))))  
 
 	for id_f,f in enumerate(p_list):
 		for ind in f:

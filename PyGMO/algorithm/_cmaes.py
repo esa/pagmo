@@ -1,4 +1,4 @@
-from _base import base
+from PyGMO.algorithm._base import base
 
 class py_cmaes(base):
 	"""
@@ -156,9 +156,9 @@ class py_cmaes(base):
 		sigma=self.__sigma0
 
 		if self.screen_output:
-			print "CMAES 4 PaGMO (Python)\n"
-			print "mu: " + str(mu) + " - lambda: " + str(lam) + " - N: " + str(N) + " - muef: " + str(mueff) + "\n"
-			print "cc: " + str(cc ) + " - cs: " + str(cs) + " - c1: " + str(c1) + " - cmu: " + str(cmu) + " - sigma: " + str(sigma) + " - damps: " + str(damps) + " - chiN: " + str(chiN) + "\n"
+			print("CMAES 4 PaGMO (Python)\n")
+			print("mu: " + str(mu) + " - lambda: " + str(lam) + " - N: " + str(N) + " - muef: " + str(mueff) + "\n")
+			print("cc: " + str(cc ) + " - cs: " + str(cs) + " - c1: " + str(c1) + " - cmu: " + str(cmu) + " - sigma: " + str(sigma) + " - damps: " + str(damps) + " - chiN: " + str(chiN) + "\n")
 
 		# Let's start the algorithm
 		for gen in range(self.__gen):
@@ -224,23 +224,23 @@ class py_cmaes(base):
 			#8 - Print to screen if necessary
 			if self.screen_output:
 				if not(gen%20):
-					print "\nGen.\tChampion\tHighest\t\tLowest\t\tVariation\t\tStep"
-				print "%d\t%e\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],
+					print("\nGen.\tChampion\tHighest\t\tLowest\t\tVariation\t\tStep")
+				print("%d\t%e\t%e\t%e\t%e\t%e" % (gen,pop.champion.f[0],
 				    max([ind.cur_f[0] for ind in pop]),min([ind.cur_f[0] for ind in pop]),
-				    norm(d_mu), sigma)
+				    norm(d_mu), sigma))
 
 			#9 - Check the exit conditions (every 40 generations)
 			if not(gen%40):
 				if (norm(d_mu) < self.__xtol):
 					if self.screen_output:
-						print("Exit condition -- xtol < ") + str(self.__xtol)
+						print("Exit condition -- xtol < " + str(self.__xtol))
 					return pop
 
 				tmp = abs(pop[pop.get_worst_idx()].best_f[0] - pop[pop.get_best_idx()].best_f[0])
 
 				if (tmp < self.__ftol):
 					if self.screen_output:
-						print("Exit condition -- ftol < ") + str(self.__ftol)
+						print("Exit condition -- ftol < " + str(self.__ftol))
 					return pop
 
 		#Update algorithm memory
@@ -259,7 +259,7 @@ class py_cmaes(base):
 			self.__sigma0 = sigma
 
 		if self.screen_output:
-			print("Exit condition -- iteration > ") + str(self.__gen)
+			print("Exit condition -- iteration > " + str(self.__gen))
 		return pop
 
 

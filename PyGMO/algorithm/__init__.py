@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
-from _algorithm import *
-from _algorithm import _base
-from _base import base
-from _example import py_example
-from _cmaes import py_cmaes
-from _scipy_algos import *
+from PyGMO.algorithm._algorithm import *
+from PyGMO.algorithm._algorithm import _base
+from PyGMO.algorithm._base import base
+from PyGMO.algorithm._example import py_example
+from PyGMO.algorithm._cmaes import py_cmaes
+from PyGMO.algorithm._scipy_algos import *
 
 _base = _algorithm._base
 
 #Creating the list of algorithms
 def _get_algorithm_list():
-	import _algorithm as algorithm
+	from PyGMO.algorithm import _algorithm as algorithm
 	# Try importing SciPy and NumPy.
 	try:
 		import scipy, numpy
-		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base',dir(algorithm))]
+		algorithm_list = [algorithm.__dict__[n] for n in [n for n in dir(algorithm) if not n.startswith('_') and not n == 'base']]
 	except ImportError as e:
-		algorithm_list = [algorithm.__dict__[n] for n in filter(lambda n: not n.startswith('_') and not n == 'base' and not n.startswith('scipy'),dir(algorithm))]
+		algorithm_list = [algorithm.__dict__[n] for n in [n for n in dir(algorithm) if not n.startswith('_') and not n == 'base' and not n.startswith('scipy')]]
 	return algorithm_list
 	
 
@@ -459,7 +459,7 @@ def _sms_emoa_ctor(self, hv_algorithm = None, gen=100, sel_m = 2, cr = 0.95, eta
 	# We set the defaults or the kwargs
 	arg_list=[]
 
-	from ..util import HypervolumeValidation
+	from PyGMO.util import HypervolumeValidation
 	if hv_algorithm:
 		hv_algorithm = HypervolumeValidation.validate_hv_algorithm(hv_algorithm)
 		arg_list.append(hv_algorithm)
