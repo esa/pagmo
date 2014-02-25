@@ -254,8 +254,9 @@ class py_cmaes(base):
             # 4 - Update evolution paths
             ps = (1 - cs) * ps + sqrt(cs * (2 - cs) * mueff) * \
                 invsqrtC * (mean - meanold) / sigma
-            hsig = (
-                (ps.T * ps)[0, 0] / (1 - (1 - cs) ** (2.0 * counteval / lam)) / N) < (2.0 + 4.0 / (N + 1))
+            hsig = ((ps.T * ps)[0, 0] /
+                    (1 - (1 - cs) ** (2.0 * counteval / lam)) / N) < (2.0 + 4.0 /
+                                                                      (N + 1))
             hsig = int(hsig)
             pc = (1 - cc) * pc + hsig * sqrt(cc * (2 - cc) * mueff) * \
                 (mean - meanold) / sigma
@@ -289,12 +290,11 @@ class py_cmaes(base):
                 if not(gen % 20):
                     print(
                         "\nGen.\tChampion\tHighest\t\tLowest\t\tVariation\t\tStep")
-                print("%d\t%e\t%e\t%e\t%e\t%e" % (gen,
-                                                  pop.champion.f[0],
-                                                  max([ind.cur_f[0] for ind in pop]),
-                                                  min([ind.cur_f[0] for ind in pop]),
-                                                  norm(d_mu),
-                                                  sigma))
+                print(
+                    "%d\t%e\t%e\t%e\t%e\t%e" %
+                    (gen, pop.champion.f[0], max(
+                        [ind.cur_f[0] for ind in pop]), min(
+                        [ind.cur_f[0] for ind in pop]), norm(d_mu), sigma))
 
             # 9 - Check the exit conditions (every 40 generations)
             if not(gen % 40):

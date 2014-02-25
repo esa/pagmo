@@ -169,11 +169,11 @@ class py_cross_entropy(base):
             if self.__screen_output:
                 if not(gen % 20):
                     print("\nGen.\tChampion\tHighest\t\tLowest\t\tVariation")
-                print("%d\t%e\t%e\t%e\t%e" % (gen,
-                                              pop.champion.f[0],
-                                              max([ind.cur_f[0] for ind in pop]),
-                                              min([ind.cur_f[0] for ind in pop]),
-                                              norm(d_mu)))
+                print(
+                    "%d\t%e\t%e\t%e\t%e" %
+                    (gen, pop.champion.f[0], max(
+                        [ind.cur_f[0] for ind in pop]), min(
+                        [ind.cur_f[0] for ind in pop]), norm(d_mu)))
         return pop
 
     def get_name(self):

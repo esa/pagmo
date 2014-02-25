@@ -18,12 +18,19 @@ def _get_algorithm_list():
         import scipy
         import numpy
         algorithm_list = [
-            algorithm.__dict__[n] for n in [
-                n for n in dir(algorithm) if not n.startswith('_') and not n == 'base']]
+            algorithm.__dict__[n]
+            for n in
+            [n
+             for n in dir(algorithm)
+             if not n.startswith('_') and not n == 'base']]
     except ImportError as e:
         algorithm_list = [
-            algorithm.__dict__[n] for n in [
-                n for n in dir(algorithm) if not n.startswith('_') and not n == 'base' and not n.startswith('scipy')]]
+            algorithm.__dict__[n]
+            for n in
+            [n
+             for n in dir(algorithm)
+             if not n.startswith('_') and not n == 'base' and not n.
+             startswith('scipy')]]
     return algorithm_list
 
 

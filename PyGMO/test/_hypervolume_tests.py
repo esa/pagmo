@@ -42,7 +42,8 @@ class HVCtorTest(unittest.TestCase):
         # good point definition with extra arg (hypervolume(ps, "something
         # extra")
         self.assertRaises(
-            TypeError, hypervolume, [[1, 2, 3], [2, 3, 4], [2, 3, 5]], "extra arg")
+            TypeError, hypervolume, [[1, 2, 3], [2, 3, 4], [2, 3, 5]],
+            "extra arg")
         self.assertRaises(
             TypeError, hypervolume, [[1, 2, 3], [2, 3, 4], "foo"])  # bad point
         # bad point value
@@ -65,8 +66,8 @@ class HVFlagsTest(unittest.TestCase):
         self.assertTrue(hv.get_copy_points())
         hv.set_verify(False)
         hv.set_copy_points(False)
-        self.assertTrue(hv.get_verify() == False)
-        self.assertTrue(hv.get_copy_points() == False)
+        self.assertTrue(hv.get_verify() is False)
+        self.assertTrue(hv.get_copy_points() is False)
 
 
 class HVComputeTest(unittest.TestCase):
@@ -136,7 +137,8 @@ class HVComputeTest(unittest.TestCase):
         self.assertEqual(self.hv2d.compute(r=[3.5, 3.5]), 3.25)
         # using kwargs 'r', 'algorithm' correctly
         self.assertEqual(
-            self.hv2d.compute(r=[3.5, 3.5], algorithm=hv_algorithm.hv2d()), 3.25)
+            self.hv2d.compute(r=[3.5, 3.5], algorithm=hv_algorithm.hv2d()),
+            3.25)
 
         # bad kwarg for reference point
         self.assertRaises(TypeError, self.hv2d.compute, refpoint=[4, 4])
@@ -147,8 +149,8 @@ class HVComputeTest(unittest.TestCase):
         self.assertRaises(
             TypeError, self.hv2d.compute, [4, 4], foo="Something extra")
         self.assertRaises(
-            TypeError, self.hv2d.compute, [
-                4, 4], hv_algorithm.hv2d(), foo="Something extra")  # we do not accept random kwargs
+            TypeError, self.hv2d.compute, [4, 4], hv_algorithm.hv2d(),
+            foo="Something extra")   # we do not accept random kwargs
 
     def test_kwargs_hv_algo(self):
         # using kwargs correctly
@@ -385,8 +387,8 @@ class HVLeastContribTest(unittest.TestCase):
             TypeError, self.hv2d_0.least_contributor, [
                 4, 4], foo="Something extra")
         self.assertRaises(
-            TypeError, self.hv2d_0.least_contributor, [
-                4, 4], hv_algorithm.hv2d(), foo="Something extra")  # we do not accept random kwargs
+            TypeError, self.hv2d_0.least_contributor, [4, 4], hv_algorithm.
+            hv2d(), foo="Something extra")   # we do not accept random kwargs
 
     def test_bad_algo(self):
         self.assertRaises(
@@ -456,8 +458,8 @@ class HVExclusiveTest(unittest.TestCase):
         self.assertRaises(
             TypeError, self.hv2d.exclusive, 0, [4, 4], foo="Something extra")
         self.assertRaises(
-            TypeError, self.hv2d.exclusive, 0, [
-                4, 4], hv_algorithm.hv2d(), foo="Something extra")  # we do not accept random kwargs
+            TypeError, self.hv2d.exclusive, 0, [4, 4], hv_algorithm.hv2d(),
+            foo="Something extra")   # we do not accept random kwargs
         self.assertRaises(
             TypeError,
             self.hv2d.exclusive,

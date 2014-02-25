@@ -61,21 +61,13 @@ class py_pl2pl(base):
         self.__leg.set_mu(PyKEP.MU_SUN)
         self.__leg.set_spacecraft(self.__sc)
         self.__nseg = nseg
-        self.set_bounds([0, 10, self.__sc.mass /
-                         10, -
-                         abs(self.__Vinf_0), -
-                         abs(self.__Vinf_0), -
-                         abs(self.__Vinf_0), -
-                         abs(self.__Vinf_f), -
-                         abs(self.__Vinf_f), -
-                         abs(self.__Vinf_f)] +
-                        [-
-                         1] *
-                        3 *
-                        nseg, [3000, 1500, self.__sc.mass, abs(self.__Vinf_0), abs(self.__Vinf_0), abs(self.__Vinf_0), abs(self.__Vinf_f), abs(self.__Vinf_f), abs(self.__Vinf_f)] +
-                        [1] *
-                        3 *
-                        nseg)
+        self.set_bounds(
+            [0, 10, self.__sc.mass / 10, -abs(self.__Vinf_0), -abs(self.
+                                                                   __Vinf_0), -abs(self.__Vinf_0), -abs(self.__Vinf_f), -abs(self.
+                                                                                                                             __Vinf_f), -abs(self.__Vinf_f)] + [-1] * 3 * nseg,
+            [3000, 1500, self.__sc.mass, abs(self.__Vinf_0),
+             abs(self.__Vinf_0), abs(self.__Vinf_0), abs(self.__Vinf_f), abs(
+                 self.__Vinf_f), abs(self.__Vinf_f)] + [1] * 3 * nseg)
         self.__optimise4mass = optimise4mass
 
     def _objfun_impl(self, x):
@@ -111,19 +103,21 @@ class py_pl2pl(base):
         # Computing Vinf constraints (careful here, the weights do count). In case of a larger than constarint
         # a factor of 100 has been added
         if (self.__Vinf_0 >= 0):
-            v_inf_con_0 = (
-                x[3] * x[3] + x[4] * x[4] + x[5] * x[5] - self.__Vinf_0 * self.__Vinf_0) / (
-                PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+            v_inf_con_0 = (x[3] * x[3] + x[4] * x[4] + x[5] * x[5] - self.__Vinf_0 *
+                           self.__Vinf_0) / (PyKEP.EARTH_VELOCITY * PyKEP.
+                                             EARTH_VELOCITY)
         else:
-            v_inf_con_0 = - 100 * (x[3] * x[3] + x[4] * x[4] + x[5] * x[5] -
-                                   self.__Vinf_0 * self.__Vinf_0) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+            v_inf_con_0 = -100 * (x[3] * x[3] + x[4] * x[4] + x[5] * x[5] - self.
+                                  __Vinf_0 * self.__Vinf_0) / (PyKEP.
+                                                               EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
         if (self.__Vinf_f >= 0):
-            v_inf_con_f = (
-                x[6] * x[6] + x[7] * x[7] + x[8] * x[8] - self.__Vinf_f * self.__Vinf_f) / (
-                PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+            v_inf_con_f = (x[6] * x[6] + x[7] * x[7] + x[8] * x[8] - self.__Vinf_f *
+                           self.__Vinf_f) / (PyKEP.EARTH_VELOCITY * PyKEP.
+                                             EARTH_VELOCITY)
         else:
-            v_inf_con_f = - 100 * (x[6] * x[6] + x[7] * x[7] + x[8] * x[8] -
-                                   self.__Vinf_f * self.__Vinf_f) / (PyKEP.EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
+            v_inf_con_f = -100 * (x[6] * x[6] + x[7] * x[7] + x[8] * x[8] - self.
+                                  __Vinf_f * self.__Vinf_f) / (PyKEP.
+                                                               EARTH_VELOCITY * PyKEP.EARTH_VELOCITY)
 
         # Setting all constraints
         retval = list(self.__leg.mismatch_constraints(

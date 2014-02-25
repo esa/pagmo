@@ -43,11 +43,13 @@ class _scipy_base(base):
         n_ec = pop.problem.c_dimension - pop.problem.ic_dimension
         # Extract the continuous part of the first individual's current
         # chromosome.
-        x0 = array(pop[pop.get_best_idx()].cur_x[
-                   0:pop.problem.dimension - pop.problem.i_dimension], dtype=float)
+        x0 = array(
+            pop[pop.get_best_idx()].cur_x
+            [0: pop.problem.dimension - pop.problem.i_dimension], dtype=float)
         # Combinatorial part of the chromosome (which will not be optimised).
-        x0_comb = array(pop[pop.get_best_idx()].cur_x[
-                        pop.problem.dimension - pop.problem.i_dimension:], dtype=float)
+        x0_comb = array(
+            pop[pop.get_best_idx()].cur_x
+            [pop.problem.dimension - pop.problem.i_dimension:], dtype=float)
         return n_ec, x0, x0_comb
 
 
