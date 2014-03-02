@@ -164,18 +164,18 @@ void hypervolume::verify_before_compute(const fitness_vector &r_point, hv_algori
  */
 hv_algorithm::base_ptr hypervolume::get_best_compute(const fitness_vector &r_point) const
 {
-	switch(r_point.size()) {
-		case 2:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
-			break;
-		case 3:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
-			break;
-		case 4:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv4d());
-			break;
-		default:
-			return hv_algorithm::base_ptr(new hv_algorithm::wfg());
+	unsigned int fdim = r_point.size();
+	unsigned int n = m_points.size();
+	if (fdim == 2) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
+	} else if (fdim == 3) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
+	} else if (fdim == 4) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv4d());
+	} else if (fdim == 5 && n < 80) {
+		return hv_algorithm::base_ptr(new hv_algorithm::fpl());
+	} else {
+		return hv_algorithm::base_ptr(new hv_algorithm::wfg());
 	}
 }
 
@@ -188,15 +188,13 @@ hv_algorithm::base_ptr hypervolume::get_best_exclusive(const unsigned int p_idx,
 
 hv_algorithm::base_ptr hypervolume::get_best_contributions(const fitness_vector &r_point) const
 {
-	switch(r_point.size()) {
-		case 2:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
-			break;
-		case 3:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
-			break;
-		default:
-			return hv_algorithm::base_ptr(new hv_algorithm::wfg());
+	unsigned int fdim = r_point.size();
+	if (fdim == 2) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
+	} else if (fdim == 3) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
+	} else {
+		return hv_algorithm::base_ptr(new hv_algorithm::wfg());
 	}
 }
 

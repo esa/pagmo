@@ -67,6 +67,8 @@ public:
 			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hv4d());
 		} else if (method_name == "wfg") {
 			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::wfg());
+		} else if (method_name == "fpl") {
+			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::fpl());
 		} else if (method_name == "hoy") {
 			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hoy());
 		} else if (method_name == "bf_approx") {

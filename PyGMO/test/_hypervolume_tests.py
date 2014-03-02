@@ -1,5 +1,5 @@
-from PyGMO import *
-from PyGMO.util import *
+from PyGMO import population, problem
+from PyGMO.util import hypervolume, hv_algorithm
 import unittest
 
 
@@ -96,21 +96,29 @@ class HVComputeTest(unittest.TestCase):
         hv = hypervolume([[1, 1, 1, 1], [2, 2, 2, 2]])
         self.assertEqual(
             hv.compute(r=(3, 3, 3, 3), algorithm=hv_algorithm.hv4d()), 16)
+        self.assertEqual(
+            hv.compute(r=(3, 3, 3, 3), algorithm=hv_algorithm.fpl()), 16)
 
     def test4d_edge(self):
         hv = hypervolume([[1, 1, 1, 3], [2, 2, 2, 3]])
         self.assertEqual(
             hv.compute(r=(3, 3, 3, 3), algorithm=hv_algorithm.hv4d()), 0)
+        self.assertEqual(
+            hv.compute(r=(3, 3, 3, 3), algorithm=hv_algorithm.fpl()), 0)
 
     def test4d_duplicate(self):
         hv = hypervolume([[1, 1, 1, 1], [1, 1, 1, 1]])
         self.assertEqual(
             hv.compute(r=(2, 2, 2, 2), algorithm=hv_algorithm.hv4d()), 1)
+        self.assertEqual(
+            hv.compute(r=(2, 2, 2, 2), algorithm=hv_algorithm.fpl()), 1)
 
         # Duplicate and dominated
         hv = hypervolume([[1, 1, 1, 1], [1, 1, 1, 1], [0, 0, 0, 0]])
         self.assertEqual(
             hv.compute(r=(2, 2, 2, 2), algorithm=hv_algorithm.hv4d()), 16)
+        self.assertEqual(
+            hv.compute(r=(2, 2, 2, 2), algorithm=hv_algorithm.fpl()), 16)
 
     def test_tuple_ctor(self):
         # test that hypervolume can be computed using a tuple as well
