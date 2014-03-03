@@ -146,7 +146,9 @@ std::vector<double> hv3d::contributions(std::vector<fitness_vector> &points, con
 	for(unsigned int i = 0 ; i < p.size() ; ++i) {
 		point_pairs.push_back(std::make_pair(p[i], i));
 	}
-	sort(point_pairs.begin(), point_pairs.end(), hycon3d_sort_cmp);
+	if (m_initial_sorting) {
+		sort(point_pairs.begin(), point_pairs.end(), hycon3d_sort_cmp);
+	}
 	for(unsigned int i = 0 ; i < p.size() ; ++i) {
 		p[i] = point_pairs[i].first;
 	}
