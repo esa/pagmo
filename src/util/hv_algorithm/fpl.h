@@ -22,56 +22,57 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HV_ALGORITHM_HV2D_H
-#define PAGMO_UTIL_HV_ALGORITHM_HV2D_H
+#ifndef PAGMO_UTIL_HV_ALGORITHM_FPL_H
+#define PAGMO_UTIL_HV_ALGORITHM_FPL_H
 
-#include <iostream>
 #include <vector>
-#include <cmath>
-#include <algorithm>
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <limits.h>
+#include <float.h>
 
 #include "base.h"
+#include "../hypervolume.h"
+
+#include "fpl_cpp_original/hv.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// hv2d hypervolume algorithm class
+/// fpl hypervolume algorithm
 /**
- * This is the class containing the implementation of the hypervolume algorithm for the 2-dimensional fronts.
- * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then computing the partial areas linearly.
+ * This is the class containing the interface to the the hypervolume computation package FPL (version 2.0).
  *
- * @author Krzysztof Nowak (kn@kiryx.net)
+ * The original code was altered in following ways:
+ * - Line 496 ("#define VARIANT 4") was added in order to make the file self-sustainable without external makefiles. This is also the default value according to the original FPL pacage makefile.
+ *
+ * @see Andreia P. Guerreiro, Carlos M. Fonseca, Michael T. Emmerich, "A Fast Dimension-Sweep Algorithm for the Hypervolume Indicator in Four Dimensions", CCCG 2012, Charlottetown, P.E.I., August 8–10, 2012.
+ * @see C. M. Fonseca, L. Paquete, and M. Lopez-Ibanez. "An improved dimension-sweep algorithm for the hypervolume indicator". In IEEE Congress on Evolutionary Computation, pages 1157-1163, Vancouver, Canada, July 2006.
+ * @see Nicola Beume, Carlos M. Fonseca, Manuel López-Ibáñez, Luís Paquete, and J. Vahrenhold. "On the complexity of computing the hypervolume indicator". IEEE Transactions on Evolutionary Computation, 13(5):1075-1082, 2009.
+ *
+ * @author (original implementation) C. M. Fonseca, L. Paquete, M. Lopez-Ibanez and A. P. Guerreiro
+ * @author (C++ wrapper) Krzysztof Nowak (kn@kiryx.net)
  */
-class __PAGMO_VISIBLE hv2d : public base
+class __PAGMO_VISIBLE fpl : public base
 {
 public:
-	hv2d(const bool initial_sorting = true);
 	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
-	double compute(double**, unsigned int n_points, double*) const;
-	std::vector<double> contributions(std::vector<fitness_vector> &, const fitness_vector &) const;
 
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
 
 private:
-	// Flag stating whether the points should be sorted in the first step of the algorithm.
-	const bool m_initial_sorting;
-
-	static bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &, const std::pair<fitness_vector, unsigned int> &);
-
-	static bool cmp_double_2d(double*, double*);
-
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<base>(*this);
-		ar & const_cast<bool &>(m_initial_sorting);
 	}
 };
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hv2d)
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::fpl)
 
 #endif

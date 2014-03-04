@@ -24,6 +24,7 @@
 
 
 #include "hv2d.h"
+#include "hv3d.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
@@ -113,6 +114,30 @@ double hv2d::compute(double** points, unsigned int n_points, double* r_point) co
 
 	return hypervolume;
 }
+
+/// Contributions method
+/**
+ * Computes the contributions of each point by invoking the HV3D algorithm with mock third dimension.
+ *
+ * @param[in] points vector of points containing the 2-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
+ * @return vector of exclusive contributions by every point
+ */
+std::vector<double> hv2d::contributions(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	std::vector<fitness_vector> new_points(points.size(), fitness_vector(3, 0.0));
+	fitness_vector new_r(r_point);
+	new_r.push_back(1.0);
+
+	for(unsigned int i = 0 ; i < points.size() ; ++i) {
+		new_points[i][0] = points[i][0];
+		new_points[i][1] = points[i][1];
+		new_points[i][2] = 0.0;
+	}
+	// Set sorting to off since contributions are sorted by third dimension
+	return hv3d(false).contributions(new_points, new_r);
+}
+
 
 /// Comparison function for sorting of pairs (point, index)
 /**

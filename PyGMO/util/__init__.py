@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyGMO.util._util import *
-from PyGMO.util._util.hv_algorithm import hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy
+from PyGMO.util._util.hv_algorithm import hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy, fpl
 from PyGMO.core._core import population
 
 __all__ = ['hypervolume', 'hv_algorithm']
@@ -15,6 +15,7 @@ hv_algorithm.__doc__ = """Module containing available algorithms for the hypervo
                 hv_algorithm.bf_approx()
                 hv_algorithm.bf_fpras()
                 hv_algorithm.hoy()
+                hv_algorithm.fpl()
 """
 
 
@@ -57,7 +58,7 @@ class HypervolumeValidation:
         "Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
     # types of hypervolume algorithms
-    types_hv_algo = (hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy)
+    types_hv_algo = (hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy, fpl)
 
     # allowed types for the refernce point
     types_rp = (list, tuple,)
@@ -404,10 +405,28 @@ hv4d._original_init = hv4d.__init__
 hv4d.__init__ = _hv4d_ctor
 
 
+def _fpl_ctor(self):
+    """
+    Hypervolume algorithm: FPL.
+    Computational complexity: O(n ^ (d - 2) * log(n))
+    Applicable to hypervolume computation problems of arbitrary dimension.
+
+    USAGE:
+            hv = hypervolume(...) # see 'hypervolume?' for usage
+            refpoint = [1.0]*5
+            hv.compute(r=refpoint, algorithm=hv_algorithm.fpl())
+            hv.exclusive(p_idx=13, r=refpoint, algorithm=hv_algorithm.fpl())
+            hv.least_contributor(r=refpoint, algorithm=hv_algorithm.fpl())
+    """
+    return self._original_init()
+fpl._original_init = fpl.__init__
+fpl.__init__ = _fpl_ctor
+
+
 def _hoy_ctor(self):
     """
     Hypervolume algorithm: HOY.
-    Computational complexity: O(n*log(n) + n^(d/2))
+    Computational complexity: O(n * log(n) + n ^ (d / 2))
     Applicable to hypervolume computation problems of dimension in [2, ..]
 
 

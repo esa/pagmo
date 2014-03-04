@@ -22,56 +22,65 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_UTIL_HV_ALGORITHM_HV2D_H
-#define PAGMO_UTIL_HV_ALGORITHM_HV2D_H
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <algorithm>
-
-#include "base.h"
+#include "fpl.h"
 
 namespace pagmo { namespace util { namespace hv_algorithm {
 
-/// hv2d hypervolume algorithm class
+/// Compute hypervolume
 /**
- * This is the class containing the implementation of the hypervolume algorithm for the 2-dimensional fronts.
- * This method achieves the lower bound of n*log(n) time by sorting the initial set of points and then computing the partial areas linearly.
+ * @param[in] points vector of points containing the D-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the points
  *
- * @author Krzysztof Nowak (kn@kiryx.net)
+ * @return hypervolume.
  */
-class __PAGMO_VISIBLE hv2d : public base
+double fpl::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
-public:
-	hv2d(const bool initial_sorting = true);
-	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
-	double compute(double**, unsigned int n_points, double*) const;
-	std::vector<double> contributions(std::vector<fitness_vector> &, const fitness_vector &) const;
-
-	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
-	base_ptr clone() const;
-	std::string get_name() const;
-
-private:
-	// Flag stating whether the points should be sorted in the first step of the algorithm.
-	const bool m_initial_sorting;
-
-	static bool point_pairs_cmp(const std::pair<fitness_vector, unsigned int> &, const std::pair<fitness_vector, unsigned int> &);
-
-	static bool cmp_double_2d(double*, double*);
-
-	friend class boost::serialization::access;
-	template <class Archive>
-	void serialize(Archive &ar, const unsigned int)
-	{
-		ar & boost::serialization::base_object<base>(*this);
-		ar & const_cast<bool &>(m_initial_sorting);
+	// Prepare the initial data to suit the original code
+	unsigned int fdim = points[0].size();
+	double* data = new double[points.size() * fdim];
+	double refpoint[fdim];
+	for (unsigned int d_idx = 0 ; d_idx < fdim ; ++d_idx) {
+		refpoint[d_idx] = r_point[d_idx];
 	}
-};
+	unsigned int data_idx = 0;
+	for (unsigned int p_idx = 0 ; p_idx < points.size() ; ++p_idx) {
+		for (unsigned int d_idx = 0 ; d_idx < fdim ; ++d_idx) {
+			data[data_idx++] = points[p_idx][d_idx];
+		}
+	}
+
+	double hv = fpli_hv(data, fdim, points.size(), refpoint);
+	delete[] data;
+	return hv;
+}
+
+/// Verify before compute
+/**
+ * Verifies whether given algorithm suits the requested data.
+ *
+ * @param[in] points vector of points containing the 4-dimensional points for which we compute the hypervolume
+ * @param[in] r_point reference point for the vector of points
+ *
+ * @throws value_error when trying to compute the hypervolume for the non-maximal reference point
+ */
+void fpl::verify_before_compute(const std::vector<fitness_vector> &points, const fitness_vector &r_point) const
+{
+	base::assert_minimisation(points, r_point);
+}
+
+/// Clone method.
+base_ptr fpl::clone() const
+{
+	return base_ptr(new fpl(*this));
+}
+
+/// Algorithm name
+std::string fpl::get_name() const
+{
+	return "FPL algorithm";
+}
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hv2d)
-
-#endif
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::fpl)
