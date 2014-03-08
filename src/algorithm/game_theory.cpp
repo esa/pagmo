@@ -240,37 +240,57 @@ weights_vector_type game_theory::generate_weights(const unsigned int n_x,
  */
 void game_theory::downscale( ) const
 {
-	unsigned int prob_dimension = m_var_weights[0].size();
-	unsigned int prob_objectives = m_obj_weights[0].size();
 
 	weights_vector_type new_var_weights;
+	weights_vector_type new_obj_weights;
 
-	for( unsigned int i =  0; i < prob_objectives; ++i ){
+	// Option not implemented yet, but allows the selection based 
+	// on the current weight -> 0.1 has a 10 percent chance of 
+	// being activated.
+	bool weighted_random = false;
 
-		weights_type new_weights( prob_dimension, 0.0 );
+	for( unsigned int i =  0; i < m_dim; ++i ){
 
-		// Check all obj weight vectors
-		for( unsigned int j = 0; j < m_dim; ++j ){
-
-			// Find the idx linked to the max obj weight
-			unsigned int idxmax = 0;
-			double obwmax = m_obj_weights[j][0];
-			for( unsigned int k = 1; k < prob_objectives; ++k ){
-				if( m_obj_weights[j][k] > obwmax ){
-					idxmax = k;
-					obwmax = m_obj_weights[j][k];
-				}
-			}
-
-			// If that is of current row
-			if( idxmax == i ){
-				new_weights = sum_of_vec( new_weights, m_var_weights[j] );
+		// Make new weight vector of either activated (1) or 
+		// inactivated weights (0), based on threshold
+		weights_type new_obj_vector( m_obj_weights[0].size(), 0.0 );
+		double threshold = 0.1 / m_obj_weights[0].size();
+		int hitcounter = 0;
+		for( unsigned int j = 0; j < m_obj_weights[0].size(); ++j ){
+			if( m_obj_weights[i][j] > threshold || 
+				( static_cast< int >( m_drng() + m_obj_weights[i][j] ) == 1 && weighted_random)){
+				new_obj_vector[j] = 1.0;
+				hitcounter++;
 			}
 		}
-		new_var_weights.push_back( new_weights ); 
+		// Normalise so sum = 1.0
+		for( unsigned int j = 0; j < m_obj_weights[0].size(); ++j ){
+			new_obj_vector[j] /= static_cast< double >( hitcounter );
+		}
+
+
+		// Find the matching entry in new_obj_weights (if any)
+		bool match_found = false;
+		for( unsigned int j =  0; j < new_obj_weights.size(); ++j ){
+			if( new_obj_vector == new_obj_weights[j] ){
+				// Then add the var_vector to the current
+				for( unsigned int k = 0; k < m_var_weights[0].size(); ++k ){
+					if( m_var_weights[i][k] == 1.0 ){
+						new_var_weights[j][k] == 1.0;
+					}
+				}
+				match_found = true;
+				break;
+			}
+		}
+		// Otherwise add new entries to the obj and var weights.
+		if( !match_found ){
+			new_obj_weights.push_back( new_obj_vector );
+			new_var_weights.push_back( m_var_weights[i] );
+		}
 	}
-	m_dim = prob_objectives;
-	m_obj_weights = generate_weights( m_dim, m_dim, true, false );
+	m_dim = new_obj_weights.size();
+	m_obj_weights = new_obj_weights;
 	m_var_weights = new_var_weights;
 	m_weight_generation = UNIFORM;
 }
