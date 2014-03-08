@@ -276,7 +276,7 @@ void game_theory::downscale( ) const
 				// Then add the var_vector to the current
 				for( unsigned int k = 0; k < m_var_weights[0].size(); ++k ){
 					if( m_var_weights[i][k] == 1.0 ){
-						new_var_weights[j][k] == 1.0;
+						new_var_weights[j][k] = 1.0;
 					}
 				}
 				match_found = true;
