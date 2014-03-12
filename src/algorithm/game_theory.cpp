@@ -69,6 +69,7 @@ game_theory::game_theory(int gen,
 	const weights_vector_type &var_weights,
 	const weights_vector_type &obj_weights,
 	weight_generation_type weight_generation,
+	downscaling_type downscaling,
 	const std::vector< double > &relative_tolerance,
 	const std::vector< double > &absolute_tolerance )
 	:base(),
@@ -79,6 +80,7 @@ game_theory::game_theory(int gen,
 	 m_var_weights(var_weights),
 	 m_obj_weights(obj_weights),
 	 m_weight_generation(weight_generation),
+	 m_downscaling(downscaling),
 	 m_relative_tolerance(relative_tolerance),
 	 m_absolute_tolerance(absolute_tolerance)
 {
@@ -89,6 +91,10 @@ game_theory::game_theory(int gen,
 		m_weight_generation != TCHEBYCHEFF && m_weight_generation != ADAPTIVE && 
 	m_weight_generation != TCHEBYCHEFF_ADAPTIVE ) {
 		pagmo_throw(value_error,"non existing weight generation method.");
+	}
+	if(m_downscaling != NOSCALING && m_downscaling != SINGULARSCALING && 
+		m_downscaling != THRESHOLDSCALING && m_downscaling != RANDOMSCALING ){
+		pagmo_throw(value_error,"non existing downscaling method.");
 	}
 }
 
@@ -102,6 +108,7 @@ game_theory::game_theory(const game_theory &algo):
 	m_var_weights(algo.m_var_weights),
 	m_obj_weights(algo.m_obj_weights),
 	m_weight_generation(algo.m_weight_generation),
+	m_downscaling(algo.m_downscaling),
 	m_relative_tolerance(algo.m_relative_tolerance),
 	m_absolute_tolerance(algo.m_absolute_tolerance)
 {}
@@ -197,9 +204,9 @@ weights_vector_type game_theory::generate_weights(const unsigned int n_x,
 	const unsigned int n_v, const bool fracs, const bool random ) const
 {
 	// Preform sanity checks
-	if ( n_v > n_x ) {
-		pagmo_throw(value_error, "The number of weight vector cannot be longer than the number of entries in a weight vector.");
-	}
+	// if ( n_v > n_x ) {
+	// 	pagmo_throw(value_error, "The number of weight vector cannot be longer than the number of entries in a weight vector.");
+	// }
 
 	std::vector< int >  c( n_v, 0);
 	std::vector< int >  a( n_x, 0);
@@ -244,30 +251,57 @@ void game_theory::downscale( ) const
 	weights_vector_type new_var_weights;
 	weights_vector_type new_obj_weights;
 
-	// Option not implemented yet, but allows the selection based 
-	// on the current weight -> 0.1 has a 10 percent chance of 
-	// being activated.
-	bool weighted_random = false;
+	// Selection based on the current weight -> 0.1 has a 10%
+	// chance of being activated. 
+	if( m_downscaling == RANDOMSCALING ){
+		// Since random is different every time store the old
+		// values for repeated usage.
+		if( m_unscaled_obj_weights.empty() ){
+			m_unscaled_obj_weights = m_obj_weights;
+		}else{
+			m_obj_weights = m_unscaled_obj_weights;
+		}
+		if( m_unscaled_var_weights.empty() ){
+			m_unscaled_var_weights = m_var_weights;
+		}else{
+			m_var_weights = m_unscaled_var_weights;
+		}
+		m_dim = m_unscaled_var_weights.size();
+	}
 
 	for( unsigned int i =  0; i < m_dim; ++i ){
-
 		// Make new weight vector of either activated (1) or 
 		// inactivated weights (0), based on threshold
 		weights_type new_obj_vector( m_obj_weights[0].size(), 0.0 );
 		double threshold = 0.1 / m_obj_weights[0].size();
 		int hitcounter = 0;
+		int maxidx = 0;
+		double maxval = 0;
 		for( unsigned int j = 0; j < m_obj_weights[0].size(); ++j ){
-			if( m_obj_weights[i][j] > threshold || 
-				( static_cast< int >( m_drng() + m_obj_weights[i][j] ) == 1 && weighted_random)){
+			if( m_downscaling == SINGULARSCALING ){
+				if( m_obj_weights[i][j] > maxval ){
+					maxidx = j;
+					hitcounter = 1;
+				}
+			} else if( m_downscaling == THRESHOLDSCALING && 
+				m_obj_weights[i][j] > threshold ){
+				new_obj_vector[j] = 1.0;
+				hitcounter++;
+			} else if( m_downscaling == RANDOMSCALING &&
+				static_cast< int >( m_drng() + m_obj_weights[i][j] ) == 1 ){
 				new_obj_vector[j] = 1.0;
 				hitcounter++;
 			}
 		}
-		// Normalise so sum = 1.0
-		for( unsigned int j = 0; j < m_obj_weights[0].size(); ++j ){
-			new_obj_vector[j] /= static_cast< double >( hitcounter );
+		if( m_downscaling == SINGULARSCALING ){
+			new_obj_vector[maxidx] = 1.0;
 		}
-
+		// Normalise so sum = 1.0
+		if( hitcounter > 1 ){
+			for( unsigned int j = 0; j < m_obj_weights[0].size(); ++j ){
+				new_obj_vector[j] /= static_cast< double >( hitcounter );
+			}
+		}
 
 		// Find the matching entry in new_obj_weights (if any)
 		bool match_found = false;
@@ -284,7 +318,7 @@ void game_theory::downscale( ) const
 			}
 		}
 		// Otherwise add new entries to the obj and var weights.
-		if( !match_found ){
+		if( !match_found && hitcounter != 0 ){
 			new_obj_weights.push_back( new_obj_vector );
 			new_var_weights.push_back( m_var_weights[i] );
 		}
@@ -326,9 +360,9 @@ void game_theory::evolve(population &pop) const
 	if ( m_dim > prob_dimension ) {
 		pagmo_throw(value_error, "The dimension of the decomposition can not be greater than the problem dimension.");
 	}
-	if ( min_dim > m_dim ) {
-		pagmo_throw(value_error, "The dimension of the decomposition should be at least the minimum between the problem dimension and the number of objectives.");
-	}
+	// if ( min_dim >  m_dim ) {
+	// 	pagmo_throw(value_error, "The dimension of the decomposition should be at least the minimum between the problem dimension and the number of objectives.");
+	// }
 	
 	// Get out if there is nothing to do.
 	if (m_gen == 0) {
@@ -596,7 +630,12 @@ void game_theory::evolve(population &pop) const
 	for (population::size_type i = 0; i < worst_idx.size(); ++i) {
 		pop.erase( worst_idx[i] );
 	}
-	
+
+	// Downscale the decomposition for further evaluations if
+	// requested.
+	if( m_downscaling != NOSCALING ){
+		downscale();
+	}
 }
 
 /// Algorithm name

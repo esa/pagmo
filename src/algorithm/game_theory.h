@@ -65,6 +65,13 @@ class __PAGMO_VISIBLE game_theory: public base
 		TCHEBYCHEFF_ADAPTIVE,
 		ADAPTIVE
 	};
+	/// Different types of downscaling methods
+	enum downscaling_type {
+		NOSCALING,
+		SINGULARSCALING,
+		THRESHOLDSCALING,
+		RANDOMSCALING
+	};
 	game_theory(
 	        int = 10,
 		unsigned int = 0,
@@ -73,6 +80,7 @@ class __PAGMO_VISIBLE game_theory: public base
 		const weights_vector_type & = weights_vector_type(),
 		const weights_vector_type & = weights_vector_type(),
 		weight_generation_type = UNIFORM,
+		downscaling_type = NOSCALING,
 		const std::vector< double > & = std::vector< double >(1,1e-6),
 		const std::vector< double > & = std::vector< double >(1,1e-6)
 	);
@@ -82,7 +90,6 @@ class __PAGMO_VISIBLE game_theory: public base
 	void evolve(population &) const;
 	std::string get_name() const;
 	weights_vector_type generate_weights(const unsigned int, const unsigned int, const bool, const bool ) const;
-	void downscale( ) const;
 	weights_vector_type get_var_weights() const;
 	weights_vector_type get_obj_weights() const;
   protected:
@@ -101,6 +108,7 @@ class __PAGMO_VISIBLE game_theory: public base
 		ar & m_var_weights;
 		ar & m_obj_weights;
 		ar & const_cast<weight_generation_type &>(m_weight_generation);
+		ar & const_cast<downscaling_type &>(m_downscaling);
 		ar & m_relative_tolerance;
 		ar & m_absolute_tolerance;
 	}
@@ -111,11 +119,15 @@ class __PAGMO_VISIBLE game_theory: public base
 	const base_ptr m_solver;
 	mutable weights_vector_type m_var_weights;
 	mutable weights_vector_type m_obj_weights;
+	mutable weights_vector_type m_unscaled_var_weights;
+	mutable weights_vector_type m_unscaled_obj_weights;
 	mutable weight_generation_type m_weight_generation;
+	mutable downscaling_type m_downscaling;
 	std::vector< double > m_relative_tolerance;
 	std::vector< double > m_absolute_tolerance;
 	
 	// Private functions
+	void downscale( ) const;
   	template <typename T>
 		std::vector<T> sum_of_vec(const std::vector<T>& a, const std::vector<T>& b) const;
 	template <typename T>
