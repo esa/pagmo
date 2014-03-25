@@ -292,7 +292,7 @@ void game_theory::initialise_weights(
 /**
  * 
  */
-void game_theory::decompose( population &pop ) const
+void game_theory::decompose( population pop ) const
 {
 	
 	const problem::base &prob = pop.problem();
@@ -346,6 +346,12 @@ void game_theory::decompose( population &pop ) const
 		// problem
 		population decomp_pop(*prob_vector[i], 0, m_urng()); 
 
+		// Subtract initial number of fevals (yes, there are
+		// initial values as prob got cloned and so did the
+		// fevals)
+		m_fevals -= decomp_pop.problem().get_fevals();
+		m_cevals -= decomp_pop.problem().get_cevals();
+
 		// Fill the population from the original and calculate
 		// the objective.
 		for ( population::size_type j = 0; j< pop.size(); j++ ) {
@@ -395,13 +401,50 @@ void game_theory::adapt_obj_weights() const
 	}
 }
 
+
+/// Update the population that keeps track of all the best solutions
+/**
+ * 
+ */
+void game_theory::update_population( ) const {
+	for( unsigned int i = 0; i < m_best_vector.size(); ++i ){
+		m_pop->push_back( m_best_vector[i] );
+	}
+	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
+		// Add top three
+		std::vector<population::size_type> best_idx = m_arch.get_island(i)->get_population().get_best_idx( 3 );
+		for (population::size_type j=0; j < best_idx.size(); ++j) {
+			m_pop->push_back(m_arch.get_island(i)->get_population().get_individual(best_idx[j]).best_x);
+		}
+		m_pop->push_back( m_arch.get_island(i)->get_population().champion().x );
+	}
+	
+	// Remove duplicates
+	std::vector<population::size_type> best_idx = m_pop->get_best_idx( m_pop->size() );
+	std::sort( best_idx.begin(), best_idx.end(), std::greater<int>());
+        for( unsigned int i = 0; i < best_idx.size() - 1; ++i ){
+		if( m_pop->get_individual(best_idx[i]).cur_x ==
+			m_pop->get_individual(best_idx[i+1]).cur_x ){
+			m_pop->erase(best_idx[i]);
+		}
+	}
+
+	// Prune the list
+	unsigned int pop_size = m_arch.get_island(0)->get_population().size();
+	best_idx = m_pop->get_best_idx( m_pop->size() );
+	std::vector<population::size_type> worst_idx( best_idx.begin() + pop_size, best_idx.end() );
+	std::sort( worst_idx.begin(), worst_idx.end(), std::greater<int>());
+	for (population::size_type i = 0; i < worst_idx.size(); ++i) {
+		m_pop->erase( worst_idx[i] );
+	}
+}
+
 /// Computes the best vector as a combination of the chromosomes of
 /// the decomposed pops
 /**
  * 
  */
-fitness_vector game_theory::compute_best_vector( ) const
-{
+fitness_vector game_theory::compute_best_vector( ) const {
 	fitness_vector best_vector( m_var_weights[0].size(), 0.0 );
 	for( problem::base::f_size_type i = 0; i < m_dim; i++ ) {
 		int best_idx = m_arch.get_island(i)->get_population().get_best_idx();
@@ -416,8 +459,7 @@ fitness_vector game_theory::compute_best_vector( ) const
 /**
  * 
  */
-void game_theory::downscale( ) const
-{
+void game_theory::downscale( ) const {
 
 	weights_vector_type new_var_weights;
 	weights_vector_type new_obj_weights;
@@ -512,18 +554,13 @@ void game_theory::evolve(population &pop) const
 		return;
 	}
 
-	// Set population pointer to champions as empty population
-	if( !m_champs ){
-		m_champs = pop_ptr( new population(prob,0) );
-	}
-
 	// Some tests for checking if pop and prob in cache math pop.
 	bool popeq = true;
 	bool probeq = true;
 	if( m_pop ){
 
 		// Check for altered chromosomes. Rest is not important.
-		for( population::size_type i = 0; i< pop.size(); ++i ) {
+		for( population::size_type i = 0; i< pop_size; ++i ) {
 			popeq *= (pop.get_individual(i).cur_x == 
 				m_pop->get_individual(i).cur_x);
 		}
@@ -549,6 +586,10 @@ void game_theory::evolve(population &pop) const
 
 	// Initialise weights if problem is different from cache or new
 	if( !probeq ){
+
+		// Initiate m_pop as copy of pop
+		m_pop = pop_ptr( new population(pop) );
+
 		// Store initial weights
 		m_init_obj_weights = m_obj_weights;
 		m_init_var_weights = m_var_weights;
@@ -583,7 +624,7 @@ void game_theory::evolve(population &pop) const
 	m_fevals = 0;
 	m_cevals = 0;
 	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
-		// Add the number of fevals
+		// Subtract initial number of fevals
 		m_fevals -= m_arch.get_island(i)->get_population().problem().get_fevals();
 		m_cevals -= m_arch.get_island(i)->get_population().problem().get_cevals();
 	}
@@ -621,9 +662,7 @@ void game_theory::evolve(population &pop) const
 				nash_equilibrium );
 		}
 		if( nash_equilibrium ){
-			for( unsigned int i = 0; i < m_best_vector.size(); ++i ){
-				m_champs->push_back( m_best_vector[i] );
-			}
+			update_population();
 			pop.reinit();
 			m_z = pop.compute_ideal();
 			m_best_vector.clear();
@@ -719,99 +758,24 @@ void game_theory::evolve(population &pop) const
 
 	// Add best vector, note this is not an individual in any
 	// population perse, but rather the combination of
-	// chromosomes.
-	pop.push_back( compute_best_vector() );
+	// chromosomes. 
+	m_pop->push_back( compute_best_vector() );
+	update_population();
 
-	// Add the stored champions (if any)
-	for (population::size_type i=0; i < m_champs->size(); ++i) {
-		pop.push_back( m_champs->get_individual(i).cur_x );
+	// Change the chromosomes 
+	for (population::size_type i=0; i < m_pop->size(); ++i) {
+		pop.set_x( i, m_pop->get_individual(i).cur_x );
 	}
 
 	// Fill population will all individuals.
-	for (problem::base::f_size_type i=0; i < m_dim; ++i) {
-		for (population::size_type j=0; j < pop_size; ++j) {
-			pop.push_back(m_arch.get_island(i)->get_population().get_individual(j).best_x);
-		}
-		
+	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
+
 		m_fevals += m_arch.get_island(i)->get_population().problem().get_fevals();
 		m_cevals += m_arch.get_island(i)->get_population().problem().get_cevals();
 	}
 
-	// Get sorted list from best to worst
-	std::vector<population::size_type> best_idx = pop.get_best_idx( pop.size() );
-
-	// Get worst pop.size() - NP
-	std::vector<population::size_type> worst_idx( best_idx.begin() + pop_size, best_idx.end() );
-
-	// Sort list in descending order
-	std::sort( worst_idx.begin(), worst_idx.end(), std::greater<int>());
-
-	// Remove worst from population (back to front)
-	for (population::size_type i = 0; i < worst_idx.size(); ++i) {
-		pop.erase( worst_idx[i] );
-	}
-
-	std::cout << prob.get_fevals() << " + " << m_fevals << " = ";
 	prob.add_fevals( m_fevals );
 	prob.add_cevals( m_cevals );
-	std::cout << prob.get_fevals() << std::endl;
-
-	m_pop = pop_ptr( new population(pop) );
-
-	// Approach 2:
-
-	// // Start with fresh population
-	// population pop_ret( prob, 0 );
-	// const problem::base &prob_ret = pop_ret.problem();
-
-	// // Add best vector, note this is not an individual in any
-	// // population perse, but rather the combination of
-	// // chromosomes.
-	// pop_ret.push_back( compute_best_vector() );
-	// pop_ret.push_back( pop.champion().x );
-
-	// // Add the stored champions (if any)
-	// for (population::size_type i=0; i < m_champs->size(); ++i) {
-	// 	pop_ret.push_back( m_champs->get_individual(i).cur_x );
-	// }
-
-	// for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
-
-	// 	pop_ret.push_back(m_arch.get_island(i)->get_population().champion().x);
-		
-	// 	// Add the number of fevals
-	// 	m_fevals += m_arch.get_island(i)->get_population().problem().get_fevals();
-	// 	m_cevals += m_arch.get_island(i)->get_population().problem().get_cevals();
-	// }
-
-	// prob_ret.add_fevals( m_fevals );
-	// prob_ret.add_cevals( m_cevals );
-
-	// // Fill remaining with best of population
-	// std::vector<population::size_type> best_idx = pop.get_best_idx( pop.size() );
-	// std::vector<population::size_type>::iterator it = best_idx.begin();
-	// while( pop_ret.size() < pop_size ){
-	// 	pop_ret.push_back( pop.get_individual(*it).best_x );
-	// 	it++;
-	// }
-
-	// // Prune if too large
-	// best_idx = pop_ret.get_best_idx( pop_ret.size() );
-
-	// // Get worst pop.size() - NP
-	// std::vector<population::size_type> worst_idx( best_idx.begin() + pop_size, best_idx.end() );
-
-	// // Sort list in descending order
-	// std::sort( worst_idx.begin(), worst_idx.end(), std::greater<int>());
-
-	// // Remove worst from population (back to front)
-	// for (population::size_type i = 0; i < worst_idx.size(); ++i) {
-	// 	pop_ret.erase( worst_idx[i] );
-	// }
-
-	// m_pop = pop_ptr( new population(pop_ret) );
-
-	// pop = pop_ret;
 }
 
 /// Algorithm name

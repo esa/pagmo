@@ -113,7 +113,6 @@ class __PAGMO_VISIBLE game_theory: public base
 		ar & m_z;
 		ar & m_best_vector;
 		ar & const_cast<pop_ptr &>(m_pop);
-		ar & const_cast<pop_ptr &>(m_champs);
 		ar & const_cast<unsigned int &>(m_threads);
 		ar & const_cast<base_ptr &>(m_solver);
 		ar & m_var_weights;
@@ -135,7 +134,6 @@ class __PAGMO_VISIBLE game_theory: public base
 	mutable fitness_vector m_z;
 	mutable std::vector< fitness_vector > m_best_vector;
 	mutable pop_ptr m_pop;
-	mutable pop_ptr m_champs;
 	const unsigned int m_threads;
 	const base_ptr m_solver;
 	mutable weights_vector_type m_var_weights;
@@ -150,7 +148,8 @@ class __PAGMO_VISIBLE game_theory: public base
 	// Private functions
 	void initialise_weights( const problem::base::f_size_type, 
 		const problem::base::size_type ) const;
-	void decompose( population& ) const;
+	void decompose( population ) const;
+	void update_population( ) const;
 	fitness_vector compute_best_vector( ) const;
 	void adapt_obj_weights( ) const;
 	void downscale( ) const;
