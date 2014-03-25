@@ -107,8 +107,8 @@ class __PAGMO_VISIBLE game_theory: public base
 		ar & const_cast<int &>(m_gen);
 		ar & const_cast<unsigned int &>(m_dim);
 		ar & const_cast<unsigned int &>(m_init_dim);
-		ar & const_cast<unsigned int &>(m_fevals);
-		ar & const_cast<unsigned int &>(m_cevals);
+		ar & const_cast<int &>(m_fevals);
+		ar & const_cast<int &>(m_cevals);
 		ar & m_arch;
 		ar & m_z;
 		ar & m_best_vector;
@@ -129,8 +129,8 @@ class __PAGMO_VISIBLE game_theory: public base
 	const int m_gen;
 	mutable unsigned int m_dim;
 	mutable unsigned int m_init_dim;
-	mutable unsigned int m_fevals;
-	mutable unsigned int m_cevals;
+	mutable int m_fevals;
+	mutable int m_cevals;
 	mutable archipelago m_arch;
 	mutable fitness_vector m_z;
 	mutable std::vector< fitness_vector > m_best_vector;

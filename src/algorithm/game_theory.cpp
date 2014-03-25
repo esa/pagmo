@@ -96,8 +96,6 @@ game_theory::game_theory(int gen,
 		m_downscaling != THRESHOLDSCALING && m_downscaling != RANDOMSCALING ){
 		pagmo_throw(value_error,"non existing downscaling method.");
 	}
-	m_fevals = 0;
-	m_cevals = 0;
 }
 
 /// Copy constructor. Performs a deep copy. Necessary as a pointer to a base algorithm is here contained
@@ -581,7 +579,9 @@ void game_theory::evolve(population &pop) const
 		}
 	}
 
-	// Subtract initial fevals and cevals
+	// Set to zero and subtract initial fevals and cevals 
+	m_fevals = 0;
+	m_cevals = 0;
 	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
 		// Add the number of fevals
 		m_fevals -= m_arch.get_island(i)->get_population().problem().get_fevals();
@@ -715,39 +715,30 @@ void game_theory::evolve(population &pop) const
 		}
 	}
 
-	// Start with fresh population
-	population pop_ret( prob, 0 );
+	// Approach 1:
 
 	// Add best vector, note this is not an individual in any
 	// population perse, but rather the combination of
 	// chromosomes.
-	pop_ret.push_back( compute_best_vector() );
-	pop_ret.push_back( pop.champion().x );
+	pop.push_back( compute_best_vector() );
 
 	// Add the stored champions (if any)
 	for (population::size_type i=0; i < m_champs->size(); ++i) {
-		pop_ret.push_back( m_champs->get_individual(i).cur_x );
+		pop.push_back( m_champs->get_individual(i).cur_x );
 	}
 
-	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
-
-		pop_ret.push_back(m_arch.get_island(i)->get_population().champion().x);
+	// Fill population will all individuals.
+	for (problem::base::f_size_type i=0; i < m_dim; ++i) {
+		for (population::size_type j=0; j < pop_size; ++j) {
+			pop.push_back(m_arch.get_island(i)->get_population().get_individual(j).best_x);
+		}
 		
-		// Add the number of fevals
 		m_fevals += m_arch.get_island(i)->get_population().problem().get_fevals();
 		m_cevals += m_arch.get_island(i)->get_population().problem().get_cevals();
 	}
 
-	// Fill remaining with best of population
+	// Get sorted list from best to worst
 	std::vector<population::size_type> best_idx = pop.get_best_idx( pop.size() );
-	std::vector<population::size_type>::iterator it = best_idx.begin();
-	while( pop_ret.size() < pop.size() ){
-		pop_ret.push_back( pop.get_individual(*it).best_x );
-		it++;
-	}
-
-	// Prune if too large
-	best_idx = pop_ret.get_best_idx( pop_ret.size() );
 
 	// Get worst pop.size() - NP
 	std::vector<population::size_type> worst_idx( best_idx.begin() + pop_size, best_idx.end() );
@@ -757,13 +748,70 @@ void game_theory::evolve(population &pop) const
 
 	// Remove worst from population (back to front)
 	for (population::size_type i = 0; i < worst_idx.size(); ++i) {
-		pop_ret.erase( worst_idx[i] );
+		pop.erase( worst_idx[i] );
 	}
 
-	m_pop = pop_ptr( new population(pop_ret) );
-	pop = pop_ret;
-	pop.problem().add_fevals( m_fevals );
-	pop.problem().add_cevals( m_cevals );
+	std::cout << prob.get_fevals() << " + " << m_fevals << " = ";
+	prob.add_fevals( m_fevals );
+	prob.add_cevals( m_cevals );
+	std::cout << prob.get_fevals() << std::endl;
+
+	m_pop = pop_ptr( new population(pop) );
+
+	// Approach 2:
+
+	// // Start with fresh population
+	// population pop_ret( prob, 0 );
+	// const problem::base &prob_ret = pop_ret.problem();
+
+	// // Add best vector, note this is not an individual in any
+	// // population perse, but rather the combination of
+	// // chromosomes.
+	// pop_ret.push_back( compute_best_vector() );
+	// pop_ret.push_back( pop.champion().x );
+
+	// // Add the stored champions (if any)
+	// for (population::size_type i=0; i < m_champs->size(); ++i) {
+	// 	pop_ret.push_back( m_champs->get_individual(i).cur_x );
+	// }
+
+	// for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
+
+	// 	pop_ret.push_back(m_arch.get_island(i)->get_population().champion().x);
+		
+	// 	// Add the number of fevals
+	// 	m_fevals += m_arch.get_island(i)->get_population().problem().get_fevals();
+	// 	m_cevals += m_arch.get_island(i)->get_population().problem().get_cevals();
+	// }
+
+	// prob_ret.add_fevals( m_fevals );
+	// prob_ret.add_cevals( m_cevals );
+
+	// // Fill remaining with best of population
+	// std::vector<population::size_type> best_idx = pop.get_best_idx( pop.size() );
+	// std::vector<population::size_type>::iterator it = best_idx.begin();
+	// while( pop_ret.size() < pop_size ){
+	// 	pop_ret.push_back( pop.get_individual(*it).best_x );
+	// 	it++;
+	// }
+
+	// // Prune if too large
+	// best_idx = pop_ret.get_best_idx( pop_ret.size() );
+
+	// // Get worst pop.size() - NP
+	// std::vector<population::size_type> worst_idx( best_idx.begin() + pop_size, best_idx.end() );
+
+	// // Sort list in descending order
+	// std::sort( worst_idx.begin(), worst_idx.end(), std::greater<int>());
+
+	// // Remove worst from population (back to front)
+	// for (population::size_type i = 0; i < worst_idx.size(); ++i) {
+	// 	pop_ret.erase( worst_idx[i] );
+	// }
+
+	// m_pop = pop_ptr( new population(pop_ret) );
+
+	// pop = pop_ret;
 }
 
 /// Algorithm name
