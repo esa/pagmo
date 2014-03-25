@@ -64,9 +64,9 @@ class __PAGMO_VISIBLE base_meta : public base
 		unsigned int get_cevals() const 
 			{return m_original_problem->get_cevals();}
 	        void add_fevals( unsigned int fevals ) const 
-			{return m_original_problem->add_fevals(fevals);}
+		        { m_original_problem->add_fevals(fevals);}
 		void add_cevals( unsigned int cevals ) const 
-			{return m_original_problem->add_cevals(cevals);}
+			{ m_original_problem->add_cevals(cevals);}
 			
 	protected:
 		bool compare_fitness_impl(const fitness_vector &f1, const fitness_vector &f2) const 
