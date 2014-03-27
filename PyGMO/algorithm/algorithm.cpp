@@ -362,8 +362,7 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	enum_<algorithm::game_theory::downscaling_type>("_downscaling")
 		.value("NOSCALING", algorithm::game_theory::NOSCALING)
 		.value("SINGULARSCALING", algorithm::game_theory::SINGULARSCALING)
-		.value("THRESHOLDSCALING", algorithm::game_theory::THRESHOLDSCALING)
-		.value("RANDOMSCALING", algorithm::game_theory::RANDOMSCALING);
+		.value("THRESHOLDSCALING", algorithm::game_theory::THRESHOLDSCALING);
 	algorithm_wrapper<algorithm::game_theory>("game_theory", "Game Theory")
 		.def(init<optional<int, int, int, const algorithm::base &, pagmo::algorithm::weights_vector_type, pagmo::algorithm::weights_vector_type, algorithm::game_theory::weight_generation_type, algorithm::game_theory::downscaling_type, std::vector< double >, std::vector< double >>>())
 		.def("generate_weights", &algorithm::game_theory::generate_weights,

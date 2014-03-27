@@ -79,11 +79,11 @@ class __PAGMO_VISIBLE game_theory: public base
 	        int = 10,
 		unsigned int = 0,
 		unsigned int = 1,
-		const pagmo::algorithm::base & = pagmo::algorithm::jde(100),
+		const pagmo::algorithm::base & = pagmo::algorithm::jde(8),
 		const weights_vector_type & = weights_vector_type(),
 		const weights_vector_type & = weights_vector_type(),
-		weight_generation_type = UNIFORM,
-		downscaling_type = NOSCALING,
+		weight_generation_type = ADAPTIVE,
+		downscaling_type = THRESHOLDSCALING,
 		const std::vector< double > & = std::vector< double >(1,1e-6),
 		const std::vector< double > & = std::vector< double >(1,1e-6)
 	);

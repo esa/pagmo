@@ -93,7 +93,7 @@ game_theory::game_theory(int gen,
 		pagmo_throw(value_error,"non existing weight generation method.");
 	}
 	if(m_downscaling != NOSCALING && m_downscaling != SINGULARSCALING && 
-		m_downscaling != THRESHOLDSCALING && m_downscaling != RANDOMSCALING ){
+		m_downscaling != THRESHOLDSCALING ){
 		pagmo_throw(value_error,"non existing downscaling method.");
 	}
 }
@@ -203,10 +203,6 @@ bool game_theory::solution_within_tolerance(const std::vector<T>& a, const std::
 weights_vector_type game_theory::generate_weights(const unsigned int n_x, 
 	const unsigned int n_v, const bool fracs, const bool random ) const
 {
-	// Preform sanity checks
-	// if ( n_v > n_x ) {
-	// 	pagmo_throw(value_error, "The number of weight vector cannot be longer than the number of entries in a weight vector.");
-	// }
 
 	std::vector< int >  c( n_v, 0);
 	std::vector< int >  a( n_x, 0);
@@ -228,8 +224,9 @@ weights_vector_type game_theory::generate_weights(const unsigned int n_x,
 	}
 
 	// Shuffle around
-	if( random )
+	if( random ){
 		std::random_shuffle(a.begin(), a.end());
+	}
 
 	// If no fracs then reset all counters to 1
 	if(!fracs)
@@ -473,12 +470,7 @@ void game_theory::downscale( ) const {
 		int maxidx = 0;
 		double maxval = 0;
 		for( unsigned int j = 0; j < m_obj_weights[0].size(); ++j ){
-			// if( m_downscaling == RANDOMSCALING &&
-			// 	static_cast< int >( m_drng() + m_obj_weights[i][j] ) == 1 ){
-			// 	new_obj_vector[j] = 1.0;
-			// 	hitcounter++;
-			// } else 
-				if( m_downscaling == THRESHOLDSCALING && 
+			if( m_downscaling == THRESHOLDSCALING && 
 				m_obj_weights[i][j] > threshold ){
 				new_obj_vector[j] = 1.0;
 				hitcounter++;
