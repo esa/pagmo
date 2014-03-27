@@ -457,6 +457,23 @@ unsigned int base::get_cevals() const
 	return m_cevals;
 }
 
+/// Return number of function evaluations.
+/**
+ * @return number of function evaluations.
+ */
+void base::add_fevals(unsigned int fevals) const
+{
+	m_fevals += fevals;
+}
+
+/// Return number of constraints function evaluations.
+/**
+ * @return number of constraints function evaluations.
+ */
+void base::add_cevals(unsigned int cevals) const
+{
+	m_cevals += cevals;
+}
 
 /// Return global dimension.
 /**

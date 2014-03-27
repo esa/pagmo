@@ -657,7 +657,7 @@ def _pade_ctor(
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
 
-def _game_theory_ctor(self, gen=10, dim = 0, threads = 8, solver = None, var_weights= [], obj_weights = [], weight_generation = 'uniform', relative_tolerance = [1e-6], absolute_tolerance = [1e-6] ):
+def _game_theory_ctor(self, gen=10, dim = 0, threads = 1, solver = None, var_weights= [], obj_weights = [], weight_generation = 'adaptive', downscaling = 'thresholdscaling', relative_tolerance = [1e-6], absolute_tolerance = [1e-6] ):
 	"""
 	Constructs a Game Theory algorithm (GT)
 
@@ -672,6 +672,7 @@ def _game_theory_ctor(self, gen=10, dim = 0, threads = 8, solver = None, var_wei
 	* var_weights: a vector of decision variable weights, which specifies which variables are linked (free) to which population. Unlinked variables are fixed.
         * obj_weights: a vector of objective weights, which specifies which objectives are linked to which population.
         * weight_generation: mode of weight generation, note that weights are always different each time evolve is called if the mode is RANDOM.
+        * downscaling: mode of downscaling the decompositon. noscaling, singularscaling: only one objs per subpop (d=dim(f)), thresholdscaling: >=1 objs per subpop ignore weak correlations (dim(x) > d > dim(f)).
         * relative_tolerance: relative tolerance for determining Nash equilibrium.
         * absolute_tolerance: absolute tolerance for determining Nash equilibrium.
 	"""
@@ -684,16 +685,23 @@ def _game_theory_ctor(self, gen=10, dim = 0, threads = 8, solver = None, var_wei
 			'tchebycheff_adaptive': _algorithm._weight_generation.TCHEBYCHEFF_ADAPTIVE,
 			'adaptive': _algorithm._weight_generation.ADAPTIVE
 		}[x]
+        def downscaling_type(x):
+		return {
+			'noscaling': _algorithm._downscaling.NOSCALING,
+			'singularscaling': _algorithm._downscaling.SINGULARSCALING,
+			'thresholdscaling': _algorithm._downscaling.THRESHOLDSCALING
+		}[x]
 	arg_list=[]
 	arg_list.append(gen)
 	arg_list.append(dim)
 	arg_list.append(threads)
 	if solver==None:
-		solver=jde(100)
+		solver=jde(8)
 	arg_list.append(solver)
 	arg_list.append(var_weights)
 	arg_list.append(obj_weights)
 	arg_list.append(weight_generation_type(weight_generation.lower()))
+	arg_list.append(downscaling_type(downscaling.lower()))
 	arg_list.append(relative_tolerance)
 	arg_list.append(absolute_tolerance)
 	self._orig_init(*arg_list)

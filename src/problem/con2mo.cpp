@@ -190,6 +190,50 @@ void con2mo::objfun_impl(fitness_vector &f, const decision_vector &x) const
 	}
 }
 
+/// Implementation of compare_fc
+/**
+ * Will return true or false, need to do sneaky for con2mo comparison
+ * to work.
+ */
+bool con2mo::compare_fc_impl(const fitness_vector &f1, const constraint_vector &c1, 
+	const fitness_vector &f2, const constraint_vector &c2) const {
+	
+	assert( f1.size() == f2.size() );
+	assert( c1.size() == c2.size() );
+
+	return compare_fitness_impl(f1,f2);
+}
+
+/// Implementation of compare_fitness
+/**
+ * Same as above if m_c_dimension is null the above will be bypassed
+ * and the following directly used.
+ */
+bool con2mo::compare_fitness_impl(const fitness_vector &f1, const fitness_vector &f2 ) const {
+
+	assert( f1.size() == f2.size() );
+
+	unsigned int dim_f = m_original_problem->get_f_dimension();
+	unsigned int dim_c = m_original_problem->get_c_dimension();
+	decision_vector   of1( dim_f, 0. );
+	decision_vector   of2( dim_f, 0. );
+	constraint_vector oc1( dim_c, 0. );
+	constraint_vector oc2( dim_c, 0. );
+
+	for( unsigned int i = 0; i < dim_f; ++i ){
+		of1[i] = f1[i];
+		of2[i] = f2[i];
+	}
+
+	// Expected c1, c2 will be dim_c, however there might be less
+	// information to work with.
+	for( unsigned int i = 0; i < f1.size() - dim_f; ++i ){
+		oc1[i] = f1[i + dim_f];
+		oc2[i] = f2[i + dim_f];
+	}
+	return m_original_problem->compare_fc(of1,oc1,of2,oc2);
+}
+
 /// Extra human readable info for the problem.
 /**
  * Will return a formatted string containing the type of constraint handling

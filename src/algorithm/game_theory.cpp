@@ -69,6 +69,7 @@ game_theory::game_theory(int gen,
 	const weights_vector_type &var_weights,
 	const weights_vector_type &obj_weights,
 	weight_generation_type weight_generation,
+	downscaling_type downscaling,
 	const std::vector< double > &relative_tolerance,
 	const std::vector< double > &absolute_tolerance )
 	:base(),
@@ -79,6 +80,7 @@ game_theory::game_theory(int gen,
 	 m_var_weights(var_weights),
 	 m_obj_weights(obj_weights),
 	 m_weight_generation(weight_generation),
+	 m_downscaling(downscaling),
 	 m_relative_tolerance(relative_tolerance),
 	 m_absolute_tolerance(absolute_tolerance)
 {
@@ -89,6 +91,10 @@ game_theory::game_theory(int gen,
 		m_weight_generation != TCHEBYCHEFF && m_weight_generation != ADAPTIVE && 
 	m_weight_generation != TCHEBYCHEFF_ADAPTIVE ) {
 		pagmo_throw(value_error,"non existing weight generation method.");
+	}
+	if(m_downscaling != NOSCALING && m_downscaling != SINGULARSCALING && 
+		m_downscaling != THRESHOLDSCALING ){
+		pagmo_throw(value_error,"non existing downscaling method.");
 	}
 }
 
@@ -102,6 +108,7 @@ game_theory::game_theory(const game_theory &algo):
 	m_var_weights(algo.m_var_weights),
 	m_obj_weights(algo.m_obj_weights),
 	m_weight_generation(algo.m_weight_generation),
+	m_downscaling(algo.m_downscaling),
 	m_relative_tolerance(algo.m_relative_tolerance),
 	m_absolute_tolerance(algo.m_absolute_tolerance)
 {}
@@ -196,10 +203,6 @@ bool game_theory::solution_within_tolerance(const std::vector<T>& a, const std::
 weights_vector_type game_theory::generate_weights(const unsigned int n_x, 
 	const unsigned int n_v, const bool fracs, const bool random ) const
 {
-	// Preform sanity checks
-	if ( n_v > n_x ) {
-		pagmo_throw(value_error, "The number of weight vector cannot be longer than the number of entries in a weight vector.");
-	}
 
 	std::vector< int >  c( n_v, 0);
 	std::vector< int >  a( n_x, 0);
@@ -221,8 +224,9 @@ weights_vector_type game_theory::generate_weights(const unsigned int n_x,
 	}
 
 	// Shuffle around
-	if( random )
+	if( random ){
 		std::random_shuffle(a.begin(), a.end());
+	}
 
 	// If no fracs then reset all counters to 1
 	if(!fracs)
@@ -234,45 +238,284 @@ weights_vector_type game_theory::generate_weights(const unsigned int n_x,
 	return r;
 }
 
+/// Initialise the objective and variable weight matrices
+/**
+ * 
+ */
+void game_theory::initialise_weights( 
+	const problem::base::f_size_type prob_objectives, 
+	const problem::base::size_type prob_dimension ) const
+{
+	bool random_weights = false;
+	unsigned int min_dim = std::min( prob_objectives, prob_dimension );
+
+	if ( m_weight_generation == RANDOM){
+		m_var_weights.clear();
+		m_obj_weights.clear();
+		random_weights = true;
+	}
+
+	if(m_var_weights.empty()){
+		m_var_weights = generate_weights( prob_dimension, m_dim, false, random_weights );
+	}
+
+	if(m_obj_weights.empty() && m_weight_generation == UNIFORM){
+		// Generate the objective weights
+		weights_vector_type tmp_weights = generate_weights( 
+			prob_objectives, min_dim, true, random_weights );
+		m_obj_weights = tmp_weights;
+
+		// If m_dim > min_dim weights have to be repeated
+		// (i.e. one objective linked to more than one
+		// decomposed population).
+		int k;
+		for( unsigned int i = 0; i < (m_dim - min_dim); ++i ){
+			// If m_dim > 2 * min_dim, reset index
+			k = i % min_dim;
+			// If m_dim > min_dim all potential vector are
+			// already in tmp_weights, just reshuffle.
+			if( k == 0 && random_weights ){
+				std::random_shuffle(tmp_weights.begin(), tmp_weights.end());
+			}
+			m_obj_weights.push_back( tmp_weights[ k ] );
+		}
+	} else if(m_obj_weights.empty()){
+		m_obj_weights = generate_weights( prob_objectives, 1, true, random_weights );
+		m_obj_weights = weights_vector_type( m_dim, m_obj_weights[0] );
+	}
+}
+
+/// Decomposition the problem
+/**
+ * 
+ */
+void game_theory::decompose( population pop ) const
+{
+	
+	const problem::base &prob = pop.problem();
+
+	problem::decompose::method_type decompose_method = 
+		pagmo::problem::decompose::WEIGHTED;
+
+	if( m_weight_generation == TCHEBYCHEFF || 
+		m_weight_generation == TCHEBYCHEFF_ADAPTIVE ){
+		decompose_method = pagmo::problem::decompose::TCHEBYCHEFF;
+	}
+
+	// Add the fevals and cevals for each island as they will be
+	// deconstructed later.
+	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
+		// Add the number of fevals
+		m_fevals += m_arch.get_island(i)->get_population().problem().get_fevals();
+		m_cevals += m_arch.get_island(i)->get_population().problem().get_cevals();
+	}
+
+	fitness_vector best_vector;
+	// If there is currently an archipelago, then also store its
+	// best vector, otherwise use pop's best.
+	if( m_best_vector.empty() ){
+		int best_idx = pop.get_best_idx();
+		best_vector = pop.get_individual(best_idx).cur_x;
+	} else {
+		best_vector = m_best_vector[0];
+	}
+
+	// Set unconnected topology, only using arch for parallel
+	// processing, where each island solve one decomposed part of
+	// the problem.
+	topology::unconnected topo;
+	pagmo::archipelago archempty(topo);
+	archempty.set_seeds(m_urng());
+	m_arch = archempty;
+	
+	// Create all the decomposed problems 
+	std::vector<pagmo::problem::decompose*> prob_vector;
+	for( problem::base::f_size_type i = 0; i < m_dim; i++ ) {
+		prob_vector.push_back(
+			new pagmo::problem::decompose( prob, decompose_method, 
+				m_obj_weights[i], m_z, true ));
+	}
+
+	// Assign population to each problem
+	for( problem::base::f_size_type i = 0; i < m_dim; i++ ) { 
+		
+		// Create an empty population for each decomposed
+		// problem
+		population decomp_pop(*prob_vector[i], 0, m_urng()); 
+
+		// Subtract initial number of fevals (yes, there are
+		// initial values as prob got cloned and so did the
+		// fevals)
+		m_fevals -= decomp_pop.problem().get_fevals();
+		m_cevals -= decomp_pop.problem().get_cevals();
+
+		// Fill the population from the original and calculate
+		// the objective.
+		for ( population::size_type j = 0; j< pop.size(); j++ ) {
+			// Push back modified chromosomes
+			decomp_pop.push_back( 
+				sum_of_vec( had_of_vec( inv_of_vec( m_var_weights[i] ), best_vector ),
+					had_of_vec( m_var_weights[i], pop.get_individual(j).cur_x )));
+		}
+
+		// Put pop in island and add to arch.
+		m_arch.push_back(pagmo::island(*m_solver, decomp_pop, 1.0));
+	}
+}
+
+/// Adapt the objective weights based on minmax history.
+/**
+ * 
+ */
+void game_theory::adapt_obj_weights() const
+{
+	const problem::base::f_size_type prob_objectives = m_obj_weights[0].size();
+
+	for( problem::base::f_size_type i = 0; i < m_dim; i++ ) {
+
+		// Need to cast, as problem::base_ptr doesn't
+		// have all functions of problem::decomposed
+		population pop_i = m_arch.get_island(i)->get_population();
+		boost::shared_ptr< problem::decompose > prob_i = 
+			boost::static_pointer_cast< problem::decompose >(
+				population_access::get_problem_ptr(pop_i));
+
+		// Get the minmax history (from the
+		// initialisation of the populations).
+		std::vector< fitness_vector > f_history = prob_i->get_minmax_history();
+
+		// Only if something to adapt
+		if( !f_history.empty() ){
+			double obj_sum = 0.0;
+			for( unsigned int j = 0; j < prob_objectives; ++j ){
+				m_obj_weights[i][j] = f_history[1][j] - f_history[0][j];
+				obj_sum += m_obj_weights[i][j];
+			}
+			for( unsigned int j = 0; j < prob_objectives; ++j ){
+				m_obj_weights[i][j] /= obj_sum;
+			}
+		}
+	}
+}
+
+
+/// Update the population that keeps track of all the best solutions
+/**
+ * 
+ */
+void game_theory::update_population( ) const {
+	for( unsigned int i = 0; i < m_best_vector.size(); ++i ){
+		m_pop->push_back( m_best_vector[i] );
+	}
+	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
+		// Add top three
+		std::vector<population::size_type> best_idx = m_arch.get_island(i)->get_population().get_best_idx( 3 );
+		for (population::size_type j=0; j < best_idx.size(); ++j) {
+			m_pop->push_back(m_arch.get_island(i)->get_population().get_individual(best_idx[j]).best_x);
+		}
+		m_pop->push_back( m_arch.get_island(i)->get_population().champion().x );
+	}
+	
+	// Remove duplicates
+	std::vector<population::size_type> best_idx = m_pop->get_best_idx( m_pop->size() );
+	std::sort( best_idx.begin(), best_idx.end(), std::greater<int>());
+        for( unsigned int i = 0; i < best_idx.size() - 1; ++i ){
+		if( m_pop->get_individual(best_idx[i]).cur_x ==
+			m_pop->get_individual(best_idx[i+1]).cur_x ){
+			m_pop->erase(best_idx[i]);
+		}
+	}
+
+	// Prune the list
+	unsigned int pop_size = m_arch.get_island(0)->get_population().size();
+	best_idx = m_pop->get_best_idx( m_pop->size() );
+	std::vector<population::size_type> worst_idx( best_idx.begin() + pop_size, best_idx.end() );
+	std::sort( worst_idx.begin(), worst_idx.end(), std::greater<int>());
+	for (population::size_type i = 0; i < worst_idx.size(); ++i) {
+		m_pop->erase( worst_idx[i] );
+	}
+}
+
+/// Computes the best vector as a combination of the chromosomes of
+/// the decomposed pops
+/**
+ * 
+ */
+fitness_vector game_theory::compute_best_vector( ) const {
+	fitness_vector best_vector( m_var_weights[0].size(), 0.0 );
+	for( problem::base::f_size_type i = 0; i < m_dim; i++ ) {
+		int best_idx = m_arch.get_island(i)->get_population().get_best_idx();
+		best_vector = sum_of_vec( best_vector,  
+			had_of_vec( m_var_weights[i], 
+				m_arch.get_island(i)->get_population().get_individual( best_idx ).cur_x ));
+	}
+	return best_vector;
+}
+
 /// Downscale the decomposition
 /**
  * 
  */
-void game_theory::downscale( ) const
-{
-	unsigned int prob_dimension = m_var_weights[0].size();
-	unsigned int prob_objectives = m_obj_weights[0].size();
+void game_theory::downscale( ) const {
 
 	weights_vector_type new_var_weights;
+	weights_vector_type new_obj_weights;
 
-	for( unsigned int i =  0; i < prob_objectives; ++i ){
-
-		weights_type new_weights( prob_dimension, 0.0 );
-
-		// Check all obj weight vectors
-		for( unsigned int j = 0; j < m_dim; ++j ){
-
-			// Find the idx linked to the max obj weight
-			unsigned int idxmax = 0;
-			double obwmax = m_obj_weights[j][0];
-			for( unsigned int k = 1; k < prob_objectives; ++k ){
-				if( m_obj_weights[j][k] > obwmax ){
-					idxmax = k;
-					obwmax = m_obj_weights[j][k];
-				}
+	for( unsigned int i =  0; i < m_dim; ++i ){
+		// Make new weight vector of either activated (1) or 
+		// inactivated weights (0), based on threshold
+		weights_type new_obj_vector( m_obj_weights[0].size(), 0.0 );
+		double threshold = 0.1 / m_obj_weights[0].size();
+		int hitcounter = 0;
+		int maxidx = 0;
+		double maxval = 0;
+		for( unsigned int j = 0; j < m_obj_weights[0].size(); ++j ){
+			if( m_downscaling == THRESHOLDSCALING && 
+				m_obj_weights[i][j] > threshold ){
+				new_obj_vector[j] = 1.0;
+				hitcounter++;
 			}
-
-			// If that is of current row
-			if( idxmax == i ){
-				new_weights = sum_of_vec( new_weights, m_var_weights[j] );
+			if( m_obj_weights[i][j] > maxval ){
+				maxidx = j;
+				maxval = m_obj_weights[i][j];
 			}
 		}
-		new_var_weights.push_back( new_weights ); 
+		// Always ensure one hit
+		if( new_obj_vector[maxidx] == 0.0 ){
+			new_obj_vector[maxidx] = 1.0;
+		       	hitcounter++;
+		}
+		
+		// Normalize if multiple hits
+		if( hitcounter > 1 ){
+			for( unsigned int j = 0; j < m_obj_weights[0].size(); ++j ){
+				new_obj_vector[j] /= static_cast< double >( hitcounter );
+			}
+		}
+
+		// Find the matching entry in new_obj_weights (if any)
+		bool match_found = false;
+		for( unsigned int j =  0; j < new_obj_weights.size(); ++j ){
+			if( new_obj_vector == new_obj_weights[j] ){
+				// Then add the var_vector to the current
+				for( unsigned int k = 0; k < m_var_weights[0].size(); ++k ){
+					if( m_var_weights[i][k] == 1.0 ){
+						new_var_weights[j][k] = 1.0;
+					}
+				}
+				match_found = true;
+				break;
+			}
+		}
+		// Otherwise add new entries to the obj and var weights.
+		if( !match_found && hitcounter != 0 ){
+			new_obj_weights.push_back( new_obj_vector );
+			new_var_weights.push_back( m_var_weights[i] );
+		}
 	}
-	m_dim = prob_objectives;
-	m_obj_weights = generate_weights( m_dim, m_dim, true, false );
+	m_dim = new_obj_weights.size();
+	m_obj_weights = new_obj_weights;
 	m_var_weights = new_var_weights;
-	m_weight_generation = UNIFORM;
 }
 
 /// Evolve implementation.
@@ -297,168 +540,128 @@ void game_theory::evolve(population &pop) const
 	if ( prob_dimension < 2 ) {
 		pagmo_throw(value_error, "The problem has only one decision variable. This is not supported by Game Theory, select a different algorithm.");
 	}
-
-	// Number of populations.
-	unsigned int min_dim = std::min( prob_objectives, prob_dimension );
-	if ( m_dim == 0 ){
-		m_dim = prob_dimension;
-	}
-	if ( m_dim > prob_dimension ) {
-		pagmo_throw(value_error, "The dimension of the decomposition can not be greater than the problem dimension.");
-	}
-	if ( min_dim > m_dim ) {
-		pagmo_throw(value_error, "The dimension of the decomposition should be at least the minimum between the problem dimension and the number of objectives.");
-	}
 	
-	// Get out if there is nothing to do.
+	// Nothing to see, move along.
 	if (m_gen == 0) {
 		return;
 	}
 
-	bool random_weights = false;
-	bool adaptive_weights = false;
+	// Some tests for checking if pop and prob in cache math pop.
+	bool popeq = true;
+	bool probeq = true;
+	if( m_pop ){
 
-	problem::decompose::method_type decompose_method = pagmo::problem::decompose::WEIGHTED;
-
-	switch (m_weight_generation)
-	{
-		case UNIFORM : 
-			decompose_method = pagmo::problem::decompose::WEIGHTED;
-		        random_weights   = false;
-			adaptive_weights = false;
-			break;
-		case RANDOM :
-			// Ignoring previously calculated weight matrices
-			m_var_weights.clear();
-			m_obj_weights.clear();
-			decompose_method = pagmo::problem::decompose::WEIGHTED;
-			random_weights   = true;
-			adaptive_weights = false;
-			break;
-		case TCHEBYCHEFF : 
-			decompose_method = pagmo::problem::decompose::TCHEBYCHEFF;
-			random_weights   = true;
-			adaptive_weights = false;
-			m_obj_weights = generate_weights( prob_objectives, 1, true, random_weights );
-			m_obj_weights = weights_vector_type( m_dim, m_obj_weights[0] );
-			break;
-		case TCHEBYCHEFF_ADAPTIVE : 
-			decompose_method = pagmo::problem::decompose::TCHEBYCHEFF;
-			random_weights   = false;
-			adaptive_weights = true;
-			break;
-		case ADAPTIVE : 
-			decompose_method = pagmo::problem::decompose::WEIGHTED;
-			random_weights   = false;
-			adaptive_weights = true;
-			break;
-	}
-
-	if(m_var_weights.empty()){
-		m_var_weights = generate_weights( prob_dimension, m_dim, false, random_weights );
-	}
-
-	if( adaptive_weights ){
-		// If adaptive every objective should be coupled to
-		// every decomposed problem initially.
-		m_obj_weights = generate_weights( prob_objectives, 1, true, random_weights );
-		m_obj_weights = weights_vector_type( m_dim, m_obj_weights[0] );
-	}else if(m_obj_weights.empty()){
-		// Generate the objective weights
-		weights_vector_type tmp_weights = generate_weights( 
-			prob_objectives, min_dim, true, random_weights );
-		m_obj_weights = tmp_weights;
-
-		// If m_dim > min_dim weights have to be repeated
-		// (i.e. one objective linked to more than one
-		// decomposed population).
-		int k;
-		for( unsigned int i = 0; i < (m_dim - min_dim); ++i ){
-			// If m_dim > 2 * min_dim, reset index
-			k = i % min_dim;
-			// If m_dim > min_dim all potential vector are
-			// already in tmp_weights, just reshuffle.
-			if( k == 0 && random_weights ){
-				std::random_shuffle(tmp_weights.begin(), tmp_weights.end());
-			}
-			m_obj_weights.push_back( tmp_weights[ k ] );
+		// Check for altered chromosomes. Rest is not important.
+		for( population::size_type i = 0; i< pop_size; ++i ) {
+			popeq *= (pop.get_individual(i).cur_x == 
+				m_pop->get_individual(i).cur_x);
 		}
+		// Do compatibility check
+		probeq *= (pop.problem()==m_pop->problem());
+		// Check bounds
+		probeq *= (pop.problem().get_lb()==m_pop->problem().get_lb());
+		probeq *= (pop.problem().get_ub()==m_pop->problem().get_ub());
+		// Check name
+		probeq *= (pop.problem().get_name()==m_pop->problem().get_name());
+	} else {
+		popeq = false;
+		probeq = false;
 	}
 
-	// More sanity checks
-	if ( m_var_weights.size() != m_dim ) {
-		pagmo_throw(value_error, "The vector of variable weights has an incorrect number of entries. Create an entry for each population.");
-	}
-	if ( m_obj_weights.size() != m_dim ) {
-		pagmo_throw(value_error, "The vector of objective weights has an incorrect number of entries. Create an entry for each population.");
-	}
-	if ( m_var_weights[0].size() != prob_dimension ) {
-		pagmo_throw(value_error, "The dimension of the variable weights do not match the problem. The dimension must be equal to the number of decision variables.");
-	}
-	if ( m_obj_weights[0].size() != prob_objectives ) {
-		pagmo_throw(value_error, "The dimension of the objective weights do not match the problem. The dimension must be equal to the number of objectives.");
+	// If there is a problem on cache and does not match, restore
+	// the initial weights.
+	if( m_pop && !probeq ){
+		m_obj_weights = m_init_obj_weights;
+		m_var_weights = m_init_var_weights;
+		m_dim = m_init_dim;
 	}
 
-	// Compute the starting ideal point
-	fitness_vector ideal_point = pop.compute_ideal();
+	// Initialise weights if problem is different from cache or new
+	if( !probeq ){
 
-	// Create all the decomposed problems 
-	std::vector<pagmo::problem::decompose*> prob_vector;
-	for( problem::base::f_size_type i = 0; i < m_dim; i++ ) {
-		prob_vector.push_back(
-			new pagmo::problem::decompose( prob, decompose_method, 
-				m_obj_weights[i], ideal_point, true ));
-	}
+		// Initiate m_pop as copy of pop
+		m_pop = pop_ptr( new population(pop) );
 
-	// Set unconnected topology, only using arch for parallel processing
-	topology::unconnected topo;
-	
-	// Create unconnected archipelago of m_dim islands. Each island solve a different decomposed part of the problem.
-	pagmo::archipelago arch(topo);
+		// Store initial weights
+		m_init_obj_weights = m_obj_weights;
+		m_init_var_weights = m_var_weights;
+		m_init_dim = m_dim;
 
-	// Sets random number generators of the archipelago using the
-	// algorithm urng to obtain a deterministic behaviour upon
-	// copy.
-	arch.set_seeds(m_urng());
-
-	// Assign population to each problem
-	for( problem::base::f_size_type i = 0; i < m_dim; i++ ) { 
+		if ( m_dim == 0 ){
+			m_dim = prob_dimension;
+		}
+		if ( m_dim > prob_dimension ) {
+			pagmo_throw(value_error, "The dimension of the decomposition can not be greater than the problem dimension.");
+		}
 		
-		// Create an empty population for each decomposed
-		// problem
-		population decomp_pop(*prob_vector[i], 0, m_urng()); 
+		// Initialise weight if their empty
+		initialise_weights( prob_objectives, prob_dimension );
 
-		// Fill the population from the original and calculate
-		// the objective.
-		for ( population::size_type j = 0; j<pop.size(); j++ ) {
-			decomp_pop.push_back( pop.get_individual(j).cur_x );
+		// More sanity checks
+		if ( m_var_weights.size() != m_dim ) {
+			pagmo_throw(value_error, "The vector of variable weights has an incorrect number of entries. Create an entry for each population.");
 		}
-
-		// Put pop in island and add to arch.
-		arch.push_back(pagmo::island(*m_solver, decomp_pop, 1.0));
+		if ( m_obj_weights.size() != m_dim ) {
+			pagmo_throw(value_error, "The vector of objective weights has an incorrect number of entries. Create an entry for each population.");
+		}
+		if ( m_var_weights[0].size() != prob_dimension ) {
+			pagmo_throw(value_error, "The dimension of the variable weights do not match the problem. The dimension must be equal to the number of decision variables.");
+		}
+		if ( m_obj_weights[0].size() != prob_objectives ) {
+			pagmo_throw(value_error, "The dimension of the objective weights do not match the problem. The dimension must be equal to the number of objectives.");
+		}
 	}
 
-	// Create a last best vector for convergence check
-	std::vector< double > last_best_vector( prob_dimension, 0.0 );
+	// Set to zero and subtract initial fevals and cevals 
+	m_fevals = 0;
+	m_cevals = 0;
+	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
+		// Subtract initial number of fevals
+		m_fevals -= m_arch.get_island(i)->get_population().problem().get_fevals();
+		m_cevals -= m_arch.get_island(i)->get_population().problem().get_cevals();
+	}
+
+	// Population different from cache (or new)
+	if( !popeq ){
+		m_z = pop.compute_ideal();
+
+		// Decompose the problem
+		decompose( pop );
+	}
+
+	// Scale down and redecompose if problem is new
+	if( m_downscaling != NOSCALING && !probeq ){
+		adapt_obj_weights();			
+		downscale();
+		decompose( pop );
+	}
 
 	for(int g = 0; g < m_gen; ++g) {
 
 		// Define best decision vector for fixed variables
-		std::vector< double > best_vector( prob_dimension, 0.0 );
-		for( problem::base::f_size_type i = 0; i < m_dim; i++ ) {
-			int best_idx = arch.get_island(i)->get_population().get_best_idx();
-			best_vector = sum_of_vec( best_vector,  
-				had_of_vec( m_var_weights[i], 
-					arch.get_island(i)->get_population().get_individual( best_idx ).cur_x ));
-		}
+		fitness_vector best_vector = compute_best_vector();
 
+		// Trim vector to size 2
+		while( m_best_vector.size() > 2 ){
+			// pop_front
+			m_best_vector.erase(m_best_vector.begin());
+		}
 		// Check if Nash equilibrium is reached
-		
-		if( solution_within_tolerance( best_vector, last_best_vector )){
-			break;
+		bool nash_equilibrium = false;
+		for( unsigned int i = 0; i < m_best_vector.size(); ++i ){
+			nash_equilibrium = ( solution_within_tolerance( 
+					best_vector, m_best_vector[i] ) || 
+				nash_equilibrium );
 		}
-
-		last_best_vector = best_vector;
+		if( nash_equilibrium ){
+			update_population();
+			pop.reinit();
+			m_z = pop.compute_ideal();
+			m_best_vector.clear();
+			decompose( pop );
+			best_vector = compute_best_vector();
+		}
+		m_best_vector.push_back( best_vector );
 
 		// Change the boundaries of each problem, this is
 		// equal to fixing!
@@ -467,7 +670,7 @@ void game_theory::evolve(population &pop) const
 			// island. Each get creates a clone (except
 			// problem_ptr), so that they must be set back
 			// later on.
-			base_island_ptr isl_i = arch.get_island(i);
+			base_island_ptr isl_i = m_arch.get_island(i);
 			population pop_i = isl_i->get_population();
 
 			// This doesn't work as set_bounds is not a
@@ -495,21 +698,6 @@ void game_theory::evolve(population &pop) const
 			// Change the bounds of the problem.
 			prob_i->set_bounds( mod_lb, mod_ub );
 
-			// In case of adaptive weights use the f
-			// minmax history to update the weights.
-			if( adaptive_weights ){
-				std::vector< fitness_vector > f_history = prob_i->get_minmax_history();
-				prob_i->reset_minmax_history();
-				double obj_sum = 0.0;
-				for( unsigned int j = 0; j < prob_objectives; ++j ){
-					m_obj_weights[i][j] = f_history[1][j] - f_history[0][j];
-					obj_sum += m_obj_weights[i][j];
-				}
-				for( unsigned int j = 0; j < prob_objectives; ++j ){
-					m_obj_weights[i][j] /= obj_sum;
-				}
-				prob_i->set_weights( m_obj_weights[i] );
-			}
 			bool reinit_pop_after_bounds_change = true;
 
 			// Change the chromosomes according to bounds.
@@ -522,61 +710,64 @@ void game_theory::evolve(population &pop) const
 
 			// Update global ideal point.
 			fitness_vector z_i = prob_i->get_ideal_point();
+
 			for( unsigned int j = 0; j < z_i.size(); ++j ){
-				if( z_i[j] < ideal_point[j] ){
-					ideal_point[j] = z_i[j];
+
+				if( z_i[j] < m_z[j] ){
+					m_z[j] = z_i[j];
 				}
 			}
-			
+
 			// Update local ideal points. This causes a
 			// lag between synchronising of one
 			// generation, but it saves pulling everything
 			// inside-out again.
-			prob_i->set_ideal_point( ideal_point );
-			
+			prob_i->set_ideal_point( m_z );
+
+			// Change the weights if adaptive
+			if( m_weight_generation == ADAPTIVE ||
+				m_weight_generation == TCHEBYCHEFF_ADAPTIVE ){
+				prob_i->reset_minmax_history();
+				prob_i->set_weights( m_obj_weights[i] );
+			}
+	
 			// Set population back into island, island
 			// back into arch.
 			isl_i->set_population( pop_i );
-			arch.set_island( i, *isl_i );
-		}
+			m_arch.set_island( i, *isl_i );
+		}		
 
 		// Evolve entire archipelago once
-		arch.evolve_batch(1, m_threads);
-	}
+		m_arch.evolve_batch(1, m_threads);
 
-	// Calculate best vector for last time and push to population.
-	std::vector< double > best_vector( prob_dimension, 0.0 );
-	for( problem::base::f_size_type i = 0; i < m_dim; i++ ) {
-		best_vector = sum_of_vec( best_vector,  
-			had_of_vec( m_var_weights[i], 
-				arch.get_island(i)->get_population().champion().x ));
-	}
-	pop.push_back( best_vector );
-
-        // Fill population will all individuals.
-	for (problem::base::f_size_type i=0; i < m_dim; ++i) {
-		for (population::size_type j=0; j < pop_size; ++j) {
-			pop.push_back(arch.get_island(i)->get_population().get_individual(j).cur_x);
+		if( m_weight_generation == ADAPTIVE ||
+			m_weight_generation == TCHEBYCHEFF_ADAPTIVE ){
+			adapt_obj_weights();
 		}
-		// Add the number of fevals
-		prob.add_fevals( arch.get_island(i)->get_population().problem().get_fevals() );
-		prob.add_cevals( arch.get_island(i)->get_population().problem().get_cevals() );
 	}
 
-	// Get sorted list from best to worst
-	std::vector<population::size_type> best_idx = pop.get_best_idx( pop.size() );
+	// Approach 1:
 
-	// Get worst pop.size() - NP
-	std::vector<population::size_type> worst_idx( best_idx.begin() + pop_size, best_idx.end() );
+	// Add best vector, note this is not an individual in any
+	// population perse, but rather the combination of
+	// chromosomes. 
+	m_pop->push_back( compute_best_vector() );
+	update_population();
 
-	// Sort list in descending order
-	std::sort( worst_idx.begin(), worst_idx.end(), std::greater<int>());
-
-	// Remove worst from population (back to front)
-	for (population::size_type i = 0; i < worst_idx.size(); ++i) {
-		pop.erase( worst_idx[i] );
+	// Change the chromosomes 
+	for (population::size_type i=0; i < m_pop->size(); ++i) {
+		pop.set_x( i, m_pop->get_individual(i).cur_x );
 	}
-	
+
+	// Fill population will all individuals.
+	for( archipelago::size_type i = 0; i < m_arch.get_size(); i++ ) {
+
+		m_fevals += m_arch.get_island(i)->get_population().problem().get_fevals();
+		m_cevals += m_arch.get_island(i)->get_population().problem().get_cevals();
+	}
+
+	prob.add_fevals( m_fevals );
+	prob.add_cevals( m_cevals );
 }
 
 /// Algorithm name

@@ -359,8 +359,12 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.value("TCHEBYCHEFF", algorithm::game_theory::TCHEBYCHEFF)
 		.value("TCHEBYCHEFF_ADAPTIVE", algorithm::game_theory::TCHEBYCHEFF_ADAPTIVE)
 		.value("ADAPTIVE", algorithm::game_theory::ADAPTIVE);
+	enum_<algorithm::game_theory::downscaling_type>("_downscaling")
+		.value("NOSCALING", algorithm::game_theory::NOSCALING)
+		.value("SINGULARSCALING", algorithm::game_theory::SINGULARSCALING)
+		.value("THRESHOLDSCALING", algorithm::game_theory::THRESHOLDSCALING);
 	algorithm_wrapper<algorithm::game_theory>("game_theory", "Game Theory")
-		.def(init<optional<int, int, int, const algorithm::base &, pagmo::algorithm::weights_vector_type, pagmo::algorithm::weights_vector_type, algorithm::game_theory::weight_generation_type, std::vector< double >, std::vector< double >>>())
+		.def(init<optional<int, int, int, const algorithm::base &, pagmo::algorithm::weights_vector_type, pagmo::algorithm::weights_vector_type, algorithm::game_theory::weight_generation_type, algorithm::game_theory::downscaling_type, std::vector< double >, std::vector< double >>>())
 		.def("generate_weights", &algorithm::game_theory::generate_weights,
 			"Generates the weights for linking x to populations.\n\n"
 			"  USAGE:: w = game_theory.generate_weights(n_x,n_v,f,r)\n"
@@ -376,9 +380,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def("get_obj_weights", &algorithm::game_theory::get_obj_weights,
 			"Will return the objective variable weights.\n\n"
 			"  USAGE:: w = game_theory.get_obj_weights()\n"
-        ).def("downscale", &algorithm::game_theory::downscale,
-        	"Downscale the decomposition.\n\n"
-        	"  USAGE:: game_theory.downscale()\n"
 		);
 	
 	// MOEA/D

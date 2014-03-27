@@ -87,6 +87,9 @@ class __PAGMO_VISIBLE con2mo : public base_meta
 	protected:
 		std::string human_readable_extra() const;
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		bool compare_fc_impl(const fitness_vector &, const constraint_vector &, 
+			const fitness_vector &, const constraint_vector &) const;
+		bool compare_fitness_impl(const fitness_vector &, const fitness_vector & ) const;
 
 	private:
 		friend class boost::serialization::access;
