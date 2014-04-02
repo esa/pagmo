@@ -108,6 +108,9 @@ void cstrs_self_adaptive::evolve(population &pop) const
 		// if the problem has changed it needs to be reassigned to the population
 		population pop_new(prob_new,0);
 
+		unsigned int init_fevals = pop_new.problem().get_fevals();
+		unsigned int init_cevals = pop_new.problem().get_cevals();
+
 		for(population::size_type i=0; i<pop_size; i++) {
 			// Evaluate according to the new fitness;
 			pop_new.push_back(pop.get_individual(i).cur_x);
@@ -182,8 +185,8 @@ void cstrs_self_adaptive::evolve(population &pop) const
 		}
 		
 		//update number of fitness and constraints evaluations.
-		prob.add_fevals(pop_new.problem().get_fevals());
-		prob.add_cevals(pop_new.problem().get_cevals());
+		prob.add_fevals( pop_new.problem().get_fevals() - init_fevals );
+		prob.add_cevals( pop_new.problem().get_cevals() - init_cevals );
 
 	}
 

@@ -128,6 +128,9 @@ void cstrs_immune_system::evolve(population &pop) const
 	population pop_mixed(prob_unconstrained);
 	std::vector<decision_vector> pop_mixed_c(pop_size);
 
+	unsigned int init_fevals = pop_mixed.problem().get_fevals();
+	unsigned int init_cevals = pop_mixed.problem().get_cevals();
+
 	// initializaton of antigens vector and antibodies population
 
 	// antigens population
@@ -479,8 +482,8 @@ void cstrs_immune_system::evolve(population &pop) const
 	}
 
 	//update number of fitness and constraints evaluations.
-	prob.add_fevals(pop_mixed.problem().get_fevals());
-	prob.add_cevals(pop_mixed.problem().get_cevals());
+	prob.add_fevals(pop_mixed.problem().get_fevals() - init_fevals);
+	prob.add_cevals(pop_mixed.problem().get_cevals() - init_cevals);
 	//m_fevals = m_original_algo->get_fevals();
 }
 

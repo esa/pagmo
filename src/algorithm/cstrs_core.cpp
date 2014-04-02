@@ -136,6 +136,9 @@ void cstrs_core::evolve(population &pop) const
 	// associates the population to this problem
 	population pop_uncon(prob_unconstrained);
 
+	unsigned int init_fevals = pop_uncon.problem().get_fevals();
+	unsigned int init_cevals = pop_uncon.problem().get_cevals();
+
 	// fill this unconstrained population
 	pop_uncon.clear();
 	for(population::size_type i=0; i<pop_size; i++) {
@@ -239,8 +242,8 @@ void cstrs_core::evolve(population &pop) const
 	}
 
 	//update number of fitness and constraints evaluations.
-	prob.add_fevals(pop_uncon.problem().get_fevals());
-	prob.add_cevals(pop_uncon.problem().get_cevals());
+	prob.add_fevals(pop_uncon.problem().get_fevals() - init_fevals);
+	prob.add_cevals(pop_uncon.problem().get_cevals() - init_cevals);
 	//m_fevals = m_original_algo->get_fevals() + m_repair_algo->get_fevals();
 }
 

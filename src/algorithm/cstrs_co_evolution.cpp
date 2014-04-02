@@ -108,7 +108,7 @@ void cstrs_co_evolution::evolve(population &pop) const
 	const problem::base &prob = pop.problem();
 	const population::size_type pop_size = pop.size();
 	const problem::base::size_type prob_dimension = prob.get_dimension();
-	unsigned int fevals = 0, cevals = 0;
+	int fevals = 0, cevals = 0;
 
 	// get the constraints dimension
 	problem::base::c_size_type prob_c_dimension = prob.get_c_dimension();
@@ -175,7 +175,8 @@ void cstrs_co_evolution::evolve(population &pop) const
 	//vector of the population P1. Initialized with clones of the original population
 	std::vector<population> pop_1_vector;
 	for(population::size_type i=0; i<pop_2_size; i++){
-		pop_1_vector.push_back(population(pop));
+		population pop_1_i = population(pop);
+		pop_1_vector.push_back( pop_1_i );
 	}
 
 	// Main Co-Evolution loop
@@ -196,6 +197,8 @@ void cstrs_co_evolution::evolve(population &pop) const
 			// prob_1 is a BASE_META???? THE CLONE OF prob_1 IN POP_1 IS AT THE LEVEL OF
 			// THE BASE CLASS AND NOT AT THE LEVEL OF THE BASE_META, NO?!?
 			population pop_1(prob_1,0);
+			fevals -= pop_1.problem().get_fevals();
+			cevals -= pop_1.problem().get_cevals();
 
 			// initialize P1 chromosomes. The fitnesses related to problem 1 are computed
 			for(population::size_type i=0; i<pop_1_size; i++) {
@@ -223,6 +226,8 @@ void cstrs_co_evolution::evolve(population &pop) const
 		// creating the POPULATION 2 instance based on the
 		// updated prob 2
 		population pop_2(prob_2,0);
+		fevals -= pop_2.problem().get_fevals();
+		cevals -= pop_2.problem().get_cevals();
 
 		// compute the fitness values of the second population
 		for(population::size_type i=0; i<pop_2_size; i++) {

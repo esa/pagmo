@@ -31,7 +31,6 @@ using namespace pagmo;
 // Example in C++ of the use of PaGMO 1.1.5
 int main()
 {
-	/*
 	//We instantiate the problem Schwefel with diemnsion 50
 	pagmo::problem::schwefel prob(50);
 	//We instantiate the algorithm differential evolution with 500 generations
@@ -74,33 +73,4 @@ int main()
 	}
 	std::cout << "Evolve method of the archipelago (with migration): " << *std::min_element(temp.begin(),temp.end()) << std::endl; 
 	return 0;
-	*/
-
-	std::vector<std::vector<double> > retval;
-	std::vector<double> dumb(2);
-	dumb[0] = 180;dumb[1] = 200;
-	retval.push_back(dumb);
-	dumb[0] = 0.1;dumb[1] = 5;
-	retval.push_back(dumb);
-	dumb[0] = 10;dumb[1] = 150;
-	retval.push_back(dumb);
-	dumb[0] = 10;dumb[1] = 40;
-	retval.push_back(dumb);
-
-	std::vector<kep_toolbox::planet_ptr> retval_planet;
-	retval_planet.push_back(kep_toolbox::planet_js("callisto").clone());
-	retval_planet.push_back(kep_toolbox::planet_js("ganymede").clone());
-	retval_planet.push_back(kep_toolbox::planet_js("ganymede").clone());
-	retval_planet.push_back(kep_toolbox::planet_js("ganymede").clone());
-
-	decision_vector x(18);
-	for(int i=0; i<18; i++) 
-		x[i] = 0.5;
-
-	pagmo::problem::mga_incipit_cstrs prob(retval_planet, kep_toolbox::epoch(10460.0), kep_toolbox::epoch(10480.0),retval,365,std::vector<double>(3,2.0),0.3,10000000,0.1,0.0);
-
-	prob.compute_constraints(x);
-
-	int uscita;
-	std::cin>>uscita;
 }
