@@ -776,7 +776,7 @@ def _part_plot(x, units, ax, seq, start_mjd2000, vinf_in):
         # Fly-by
         v_out = fb_prop(v_end_l,
                         v_P[i],
-                        x[1 + 4 * i] * seq[i - 1].radius,
+						x[1 + 4 * i] * seq[i].radius,
                         x[4 * i],
                         seq[i].mu_self)
         # s/c propagation before the DSM
