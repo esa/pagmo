@@ -93,6 +93,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_self_adaptive);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_self_adaptive)
 
 #endif // PAGMO_ALGORITHM_cstrs_self_adaptive_H

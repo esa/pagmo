@@ -247,7 +247,6 @@ static double close_boxes_right(boxlist *bl, double x, double uz){
 }
 
 static double close_boxes_left(boxlist *bl, double y, double uz){
-
     double volume;	
     box * b;
 
@@ -256,10 +255,10 @@ static double close_boxes_left(boxlist *bl, double y, double uz){
     double ly;
     double lz;
 
-	if(y >= bl->head->uy)
+    if(y >= bl->head->uy)
         return 0;
 
-	volume = 0;	
+    volume = 0;	
     b = bl->head;
 
     lastlx = b->ux;
@@ -470,7 +469,7 @@ hv_increment3D(dlnode_t *list, dlnode_t *p, const double * ref){
         }else{
 
             if(q->x[2] > zprev->x[2] && (q->x[2] < p->x[2] || (q->x[2] == p->x[2] &&  q->x[1] <= p->x[1]))){
-                 //because of xrightbelow, in other to avoid height 0 boxes (in spite of not causing wrong results)
+                 //because of xrightbelow, in order to avoid height 0 boxes (in spite of not causing wrong results)
                 zprev = q;
             }
 
@@ -478,8 +477,13 @@ hv_increment3D(dlnode_t *list, dlnode_t *p, const double * ref){
                 yprev = q;
             }
             
-            if(q->x[2] <= p->x[2] && q->x[1] <= p->x[1] && q->x[0] > p->x[0] && q->x[0] < xrightbelow){
+            if(q->x[2] <= p->x[2] && q->x[1] <= p->x[1]){
+ 
+              if(q->x[0] <= p->x[0]){
+                return 0;
+              }else if(q->x[0] < xrightbelow){ //q->x[0] > p->x[0]
                 xrightbelow = q->x[0];
+              }
             }
         }
         q = q->prevz;
@@ -585,20 +589,24 @@ double guerreiro_hv4d(double *data, int n, const double *ref)
     dlnode_t *list;
     double hyperv;
 
-    if (n == 0) {
-		return 0.0;
+    if (n == 0) { 
+        /* Returning here would leak memory.  */
+        hyperv = 0.0;
+    } else {
+
+        list = setup_cdllist(data, n, ref);
+      
+        add_sentinels(list+n, ref);
+
+        hyperv = hv(list, n, ref);
+        
+        free_sentinels(list+n);
+        /* Clean up.  */
+        free_cdllist (list);
+    
+      
     }
-
-    list = setup_cdllist(data, n, ref);
-
-    add_sentinels(list+n, ref);
-
-    hyperv = hv(list, n, ref);
-
-    free_sentinels(list+n);
-    /* Clean up.  */
-    free_cdllist (list);
-
+    
     return hyperv;
 }
 

@@ -240,6 +240,6 @@ class island_init: public base
 
 }
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::base_island);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::base_island)
 
 #endif

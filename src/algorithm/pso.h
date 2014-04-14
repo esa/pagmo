@@ -121,6 +121,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pso);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pso)
 
 #endif // PSO_H

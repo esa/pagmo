@@ -68,6 +68,6 @@ class __PAGMO_VISIBLE rosenbrock : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::rosenbrock);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::rosenbrock)
 
 #endif // ROSENBROCK_H

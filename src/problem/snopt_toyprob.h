@@ -75,6 +75,5 @@ class __PAGMO_VISIBLE snopt_toyprob: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::snopt_toyprob);
-
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::snopt_toyprob)
 #endif

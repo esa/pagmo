@@ -68,6 +68,6 @@ class __PAGMO_VISIBLE fon : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::fon);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::fon)
 
 #endif // PAGMO_PROBLEM_FON_H

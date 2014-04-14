@@ -84,6 +84,6 @@ class __PAGMO_VISIBLE clustered_ba : public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::clustered_ba);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::clustered_ba)
 
 #endif

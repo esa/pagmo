@@ -109,6 +109,6 @@ private:
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::jde);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::jde)
 
 #endif // JDE_H

@@ -105,6 +105,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_core);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_core)
 
 #endif // PAGMO_ALGORITHM_CSTRS_CORE_H

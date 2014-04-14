@@ -82,6 +82,6 @@ private:
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::bf_fpras);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::bf_fpras)
 
 #endif

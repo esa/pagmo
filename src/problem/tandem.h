@@ -107,6 +107,6 @@ class __PAGMO_VISIBLE tandem: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::tandem);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::tandem)
 
 #endif // PAGMO_PROBLEM_TANDEM_H

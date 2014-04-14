@@ -221,4 +221,4 @@ std::string firefly::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::firefly);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::firefly)

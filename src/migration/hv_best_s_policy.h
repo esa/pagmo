@@ -66,6 +66,6 @@ private:
 
 } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_best_s_policy);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_best_s_policy)
 
 #endif

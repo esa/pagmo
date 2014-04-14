@@ -60,6 +60,6 @@ class __PAGMO_VISIBLE random_s_policy: public base_s_policy
 
 } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::migration::random_s_policy);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::random_s_policy)
 
 #endif

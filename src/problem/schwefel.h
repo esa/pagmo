@@ -69,6 +69,6 @@ class __PAGMO_VISIBLE schwefel : public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::schwefel);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::schwefel)
 
 #endif // SCHWEFEL_H

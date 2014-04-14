@@ -67,6 +67,13 @@ std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::
 	return retval;
 }
 
+// wrapper of a decompose method
+static inline fitness_vector compute_decomposed_fitness_wrapper(const problem::decompose &p, const fitness_vector &original_fit, const fitness_vector &weights) {
+	fitness_vector retval(1);
+	p.compute_decomposed_fitness(retval,original_fit,weights);
+	return retval;
+}
+
 // Wrapper to expose problems.
 template <class Problem>
 static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *name, const char *descr)
@@ -110,7 +117,6 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_meta> > me
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	return retval;
 }
-
 
 // Wrapper to expose unconstrained multi-objective problems.
 template <class Problem>
@@ -200,6 +206,8 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("best_x",make_function(&problem::base::get_best_x,return_value_policy<copy_const_reference>()), best_x_setter(&problem::base::set_best_x), "Best known decision vector(s).")
 		.add_property("best_f",make_function(&problem::base::get_best_f,return_value_policy<copy_const_reference>()),"Best known fitness vector(s).")
 		.add_property("best_c",make_function(&problem::base::get_best_c,return_value_policy<copy_const_reference>()),"Best known constraints vector(s).")
+		.add_property("fevals",&problem::base::get_fevals,"Number of function evaluations.")
+		.add_property("cevals",&problem::base::get_cevals,"Number of constraints evaluations.")
 		.def_pickle(python_class_pickle_suite<problem::python_base>());
 
 	// Expose base stochastic problem class, including the virtual methods. Here we explicitly
@@ -412,14 +420,20 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &, std::vector<double> >())
 		.def(init<const problem::base &, double>())
 		.add_property("shift_vector",make_function(&problem::shifted::get_shift_vector,return_value_policy<copy_const_reference>()))
-		.add_property("deshift",&problem::shifted::deshift);
+		.def("deshift",&problem::shifted::deshift);
+		
+	// Scaled meta-problem
+	meta_problem_wrapper<problem::scaled>("scaled","Scaled problem")
+		.def(init<const problem::base &, fitness_vector >())
+		.add_property("units",make_function(&problem::scaled::get_units,return_value_policy<copy_const_reference>()))
+		.def("descale",&problem::scaled::descale);
 		
 	// Rotated meta-problem
 	meta_problem_wrapper<problem::rotated>("rotated","Rotated problem")
 		.def(init<const problem::base &>())
 		.def(init<const problem::base &, Eigen::MatrixXd >())
 		.add_property("rotation_matrix",&get_rotation_matrix_from_eigen)
-		.add_property("derotate",&problem::rotated::derotate);
+		.def("derotate",&problem::rotated::derotate);
 		
 	// Normalized meta-problem
 	meta_problem_wrapper<problem::normalized>("normalized","Normalized problem")
@@ -433,8 +447,15 @@ BOOST_PYTHON_MODULE(_problem) {
 		.value("TCHEBYCHEFF", problem::decompose::TCHEBYCHEFF)
 		.value("BI", problem::decompose::BI);
 	meta_problem_wrapper<problem::decompose>("decompose","Decomposed problem")
-		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &> >())
-		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()));
+		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &, const bool> >())
+		.def("compute_decomposed_fitness", &compute_decomposed_fitness_wrapper, 
+		"Computes the fitness of the decomposed problem\n\n"
+		"  USAGE:: w = prob.compute_decomposed_fitness(fit,weight)\n"
+		"   - fit: multi-dimensional fitness\n"
+		"   - weight: decomposition weights")
+		.add_property("weights", make_function(&problem::decompose::get_weights, return_value_policy<copy_const_reference>()))
+		.add_property("ideal_point", &problem::decompose::get_ideal_point, &problem::decompose::set_ideal_point,"the (z) point used to compute tchebycheff and bi decompositions");
+
 
 	// Noisy meta-problem
 	// Exposing enums of problem::noisy
@@ -451,6 +472,13 @@ BOOST_PYTHON_MODULE(_problem) {
 	stochastic_problem_wrapper<problem::robust>("robust", "Robust problem")
 		.def(init<const problem::base &,unsigned int, const double, unsigned int>())
 		.add_property("rho", &problem::robust::get_rho);
+
+
+    // Quadrature encoding problem
+    problem_wrapper<problem::quadrature_encoding>("quadrature_encoding", "Quadrature encoding problem")
+        .def(init<const problem::base &, const std::vector<decision_vector::size_type> &>())
+        .add_property("transform2old", &problem::quadrature_encoding::transform2old)
+        .add_property("transform2new", &problem::quadrature_encoding::transform2new);
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)

@@ -68,6 +68,6 @@ class __PAGMO_VISIBLE griewank : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::griewank);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::griewank)
 
 #endif // PAGMO_PROBLEM_GRIEWANK_H

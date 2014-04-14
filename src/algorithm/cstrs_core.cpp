@@ -141,7 +141,7 @@ void cstrs_core::evolve(population &pop) const
 	// Main CORE loop
 	for(int k=0; k<m_gen; k++) {
 
-		if(k%m_repair_frequency) {
+		if(k%m_repair_frequency == 0) {
 			pop_infeasibles.clear();
 
 			// get the infeasible individuals
@@ -274,4 +274,4 @@ std::string cstrs_core::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cstrs_core);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cstrs_core)

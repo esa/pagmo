@@ -241,6 +241,6 @@ inline void load_construct_data(Archive &ar, pagmo::problem::python_base *prob, 
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::problem::python_base);
+BOOST_CLASS_EXPORT(pagmo::problem::python_base)
 
 #endif

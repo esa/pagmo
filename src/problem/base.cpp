@@ -72,7 +72,9 @@ base::base(int n, int ni, int nf, int nc, int nic, const double &c_tol): //TODO 
 	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
 	m_best_x(0),
 	m_best_f(0),
-	m_best_c(0)
+	m_best_c(0),
+	m_fevals(0),
+	m_cevals(0)
 {
 	if (c_tol < 0) {
 		pagmo_throw(value_error,"constraints tolerance must be non-negative");
@@ -116,7 +118,9 @@ base::base(int n, int ni, int nf, int nc, int nic, const std::vector<double> &c_
 	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
 	m_best_x(0),
 	m_best_f(0),
-	m_best_c(0)
+	m_best_c(0),
+	m_fevals(0),
+	m_cevals(0)
 {
 	if (c_tol.size() != static_cast<constraint_vector::size_type>(nc) ) {
 		pagmo_throw(value_error,"invalid constraints vector dimension");
@@ -167,7 +171,9 @@ base::base(const double &l_value, const double &u_value, int n, int ni, int nf, 
 	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
 	m_best_x(0),
 	m_best_f(0),
-	m_best_c(0)
+	m_best_c(0),
+	m_fevals(0),
+	m_cevals(0)
 {
 	if (c_tol < 0) {
 		pagmo_throw(value_error,"constraints tolerance must be non-negative");
@@ -216,7 +222,9 @@ base::base(const decision_vector &lb, const decision_vector &ub, int ni, int nf,
 	m_constraint_vector_cache(boost::numeric_cast<constraint_vector_cache_type::size_type>(cache_capacity)),
 	m_best_x(0),
 	m_best_f(0),
-	m_best_c(0)
+	m_best_c(0),
+	m_fevals(0),
+	m_cevals(0)
 {
 	if (c_tol < 0) {
 		pagmo_throw(value_error,"constraints tolerance must be non-negative");
@@ -431,6 +439,25 @@ void base::set_ub(const double &value)
 	normalise_bounds();
 }
 
+/// Return number of function evaluations.
+/**
+ * @return number of function evaluations.
+ */
+unsigned int base::get_fevals() const
+{
+	return m_fevals;
+}
+
+/// Return number of constraints function evaluations.
+/**
+ * @return number of constraints function evaluations.
+ */
+unsigned int base::get_cevals() const
+{
+	return m_cevals;
+}
+
+
 /// Return global dimension.
 /**
  * @return global dimension of the problem.
@@ -550,6 +577,8 @@ void base::objfun(fitness_vector &f, const decision_vector &x) const
 	if (x_it == m_decision_vector_cache_f.end()) {
 		// Fitness is not into memory. Calculate it.
 		objfun_impl(f,x);
+		// Increase function evaluation counter.
+		m_fevals++;
 		// Make sure that the implementation of objfun_impl() in the derived class did not fuck up the dimension of the fitness vector.
 		if (f.size() != m_f_dimension) {
 			pagmo_throw(value_error,"fitness dimension was changed inside objfun_impl()");
@@ -858,6 +887,7 @@ void base::compute_constraints(constraint_vector &c, const decision_vector &x) c
 	if (x_it == m_decision_vector_cache_c.end()) {
 		// Constraint vector is not into memory. Calculate it.
 		compute_constraints_impl(c,x);
+		m_cevals++;
 		// Make sure c was not fucked up in the implementation of constraints calculation.
 		if (c.size() != get_c_dimension()) {
 			pagmo_throw(value_error,"constraints dimension was changed inside compute_constraints_impl()");

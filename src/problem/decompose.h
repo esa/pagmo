@@ -69,10 +69,20 @@ class __PAGMO_VISIBLE decompose : public base_meta
 		 BI=2 ///< The Boundary Intersection method is used to perform the decomposition
 		};
 
-		decompose(const base & = zdt(1,2), method_type = WEIGHTED, const std::vector<double> & = std::vector<double>(), const std::vector<double> & = std::vector<double>());
+		decompose(const base & = zdt(1,2),
+				  method_type = WEIGHTED,
+				  const std::vector<double> & = std::vector<double>(),
+				  const std::vector<double> & = std::vector<double>(),
+				  const bool = false);
 		base_ptr clone() const;
 		std::string get_name() const;
 		const std::vector<double>& get_weights() const;
+		void compute_decomposed_fitness(fitness_vector &, const fitness_vector &) const;
+		void compute_decomposed_fitness(fitness_vector &, const fitness_vector &, const fitness_vector &) const;
+		void compute_original_fitness(fitness_vector &, const decision_vector &) const;
+		fitness_vector get_ideal_point() const;
+		void set_ideal_point(const fitness_vector &f);
+
 
 	protected:
 		std::string human_readable_extra() const;
@@ -86,10 +96,12 @@ class __PAGMO_VISIBLE decompose : public base_meta
 			ar & m_method;
 			ar & m_weights;
 			ar & m_z;
+			ar & const_cast<bool&>(m_adapt_ideal);
 		}
 		method_type m_method;
 		fitness_vector m_weights;
-		fitness_vector m_z;
+		mutable fitness_vector m_z;
+		const bool m_adapt_ideal;
 };
 
 }} //namespaces

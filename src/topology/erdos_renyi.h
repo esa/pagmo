@@ -75,6 +75,6 @@ class __PAGMO_VISIBLE erdos_renyi: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::erdos_renyi);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::erdos_renyi)
 
 #endif

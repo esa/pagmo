@@ -25,13 +25,13 @@
 #include <vector>
 #include <numeric>
 
-#include"../../types.h"
 #include "leg_s.h"
 #include "sc_state.h"
 #include "../astro_constants.h"
 #include "../core_functions/array3D_operations.h"
 #include "../core_functions/propagate_lagrangian.h"
 #include"../exceptions.h"
+#include"../../types.h"
 
 namespace kep_toolbox{ namespace sims_flanagan{
 

@@ -440,4 +440,4 @@ std::string mga_part::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_part);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_part)

@@ -27,6 +27,8 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/math/special_functions/round.hpp>
+
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -316,7 +318,7 @@ void nsga2::evolve(population &pop) const
 		// We completely cancel the population (NOTE: memory of all individuals and the notion of
 		// champion is thus destroyed)
 		pop.clear();
-		for (population::size_type i=0; i < NP; ++i) pop.push_back(popnew.get_individual(best_idx[i]).best_x);
+		for (population::size_type i=0; i < NP; ++i) pop.push_back(popnew.get_individual(best_idx[i]).cur_x);
 	} // end of main SGA loop
 }
 
@@ -344,4 +346,4 @@ std::string nsga2::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nsga2);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nsga2)

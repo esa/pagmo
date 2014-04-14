@@ -106,6 +106,6 @@ class __PAGMO_VISIBLE python_base: public base, public boost::python::wrapper<ba
 
 } }
 
-BOOST_CLASS_EXPORT(pagmo::algorithm::python_base);
+BOOST_CLASS_EXPORT(pagmo::algorithm::python_base)
 
 #endif

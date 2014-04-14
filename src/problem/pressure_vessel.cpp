@@ -111,4 +111,4 @@ void pressure_vessel::initialize_best(void)
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::pressure_vessel);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::pressure_vessel)

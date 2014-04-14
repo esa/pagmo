@@ -37,6 +37,7 @@
 #include "hv_algorithm/bf_approx.h"
 #include "hv_algorithm/bf_fpras.h"
 #include "hv_algorithm/hoy.h"
+#include "hv_algorithm/fpl.h"
 
 namespace pagmo { namespace util {
 
@@ -75,7 +76,7 @@ public:
 	std::vector<double> contributions(const fitness_vector &, const hv_algorithm::base_ptr) const;
 	std::vector<double> contributions(const fitness_vector &) const;
 
-	static unsigned long long get_expected_operations(const unsigned int n, const unsigned int d);
+	static double get_expected_operations(const unsigned int n, const unsigned int d);
 
 	void set_copy_points(const bool);
 	bool get_copy_points();
@@ -89,6 +90,7 @@ public:
 
 private:
 	hv_algorithm::base_ptr get_best_compute(const fitness_vector &) const;
+	hv_algorithm::base_ptr get_best_exclusive(const unsigned int, const fitness_vector &) const;
 	hv_algorithm::base_ptr get_best_contributions(const fitness_vector &) const;
 	void verify_after_construct() const;
 	void verify_before_compute(const fitness_vector &, const hv_algorithm::base_ptr) const;
@@ -110,6 +112,6 @@ private:
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hypervolume);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hypervolume)
 
 #endif

@@ -191,4 +191,4 @@ std::string sample_return::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::sample_return);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::sample_return)

@@ -274,4 +274,4 @@ std::string aco::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::aco);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::aco)

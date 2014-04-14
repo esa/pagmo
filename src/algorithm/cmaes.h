@@ -134,6 +134,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cmaes);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cmaes)
 
 #endif // PAGMO_ALGORITHM_CMAES_H

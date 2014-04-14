@@ -152,4 +152,4 @@ std::vector<population::individual_type> hv_best_s_policy::select(population &po
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::hv_best_s_policy);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::migration::hv_best_s_policy)

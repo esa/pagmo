@@ -144,6 +144,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_immune_system);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_immune_system)
 
 #endif // PAGMO_ALGORITHM_CSTRS_IMMUNE_SYSTEM_H

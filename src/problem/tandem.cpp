@@ -260,4 +260,4 @@ std::string tandem::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tandem);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tandem)

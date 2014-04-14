@@ -10,11 +10,12 @@ Population
    that is a list containing, per individual I, the number of individuals that dominate individual I.
    From an evolutionary point of view one can see the *population* as a set of individuals living in an environment (the :class:`problem`) which defines their fitness values
 
-   .. method:: __init__((PyGMO.problem)prob [, (int)n_individuals])
+   .. method:: __init__((PyGMO.problem)prob [, (int)n_individuals, (int)seed])
 
       Constructs a population containing n_individuals (default is an empty population) evaluated w.r.t. prob. 
       Each individual gets initialized at random with his chromosome in [:class:`problem.lb`, :class:`problem.ub`] and his velocity 
-      in [(:class:`problem.lb`-:class:`problem.ub`)/2, (:class:`problem.ub`- :class:`problem.lb`)/2]
+      in [(:class:`problem.lb`-:class:`problem.ub`)/2, (:class:`problem.ub`- :class:`problem.lb`)/2].
+      The initialization process of the population can be seeded by providing the argument `seed`.
 
       .. code-block:: python
 
@@ -22,6 +23,7 @@ Population
          prob = problem.schwefel(50)
          pop1 = population(prob) #empty population
          pop2 = population(prob,20) #population with 20 individuals
+         pop3 = population(prob,20,123) #population with 20 individuals intialized with seed=123
 
    .. method:: __init__((PyGMO.population)pop)
 

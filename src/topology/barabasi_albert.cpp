@@ -162,4 +162,4 @@ std::string barabasi_albert::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::barabasi_albert);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::barabasi_albert)

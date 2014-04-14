@@ -72,6 +72,6 @@ class __PAGMO_VISIBLE levy5 : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::levy5);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::levy5)
 
 #endif // PAGMO_PROBLEM_LEVY_H

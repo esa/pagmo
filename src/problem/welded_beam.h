@@ -66,6 +66,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::welded_beam);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::welded_beam)
 
 #endif

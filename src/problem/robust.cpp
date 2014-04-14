@@ -192,4 +192,4 @@ std::string robust::human_readable_extra() const
 }
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::robust);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::robust)

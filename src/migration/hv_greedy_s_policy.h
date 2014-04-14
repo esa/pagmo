@@ -69,6 +69,6 @@ private:
 
 } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_greedy_s_policy);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_greedy_s_policy)
 
 #endif

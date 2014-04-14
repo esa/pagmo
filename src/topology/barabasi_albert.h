@@ -83,6 +83,6 @@ class __PAGMO_VISIBLE barabasi_albert: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::barabasi_albert);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::barabasi_albert)
 
 #endif

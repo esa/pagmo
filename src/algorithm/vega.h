@@ -127,6 +127,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::vega);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::vega)
 
 #endif // PAGMO_ALGORITHM_VEGA_H

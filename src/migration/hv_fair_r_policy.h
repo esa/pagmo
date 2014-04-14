@@ -71,6 +71,6 @@ private:
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_fair_r_policy);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::hv_fair_r_policy)
 
 #endif

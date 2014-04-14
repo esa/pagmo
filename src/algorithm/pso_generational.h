@@ -99,6 +99,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pso_generational);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::pso_generational)
 
 #endif // PAGMO_ALGORITHM_PSO_GENERATIONAL_H

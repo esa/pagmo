@@ -79,6 +79,6 @@ class __PAGMO_VISIBLE nlopt_slsqp: public base_nlopt
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_slsqp);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_slsqp)
 
 #endif

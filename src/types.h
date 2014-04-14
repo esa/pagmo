@@ -114,7 +114,7 @@ namespace std
 		os << ']';
 		return os;
 	}
-
+	
 	/// Overload stream insertion operator for std::vector<unsigned long long int>.
 	inline ostream &operator<<(ostream &os, const vector<unsigned long long int> &v)
 	{

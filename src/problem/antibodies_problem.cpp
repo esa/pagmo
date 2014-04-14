@@ -233,4 +233,4 @@ std::vector<int> antibodies_problem::double_to_binary(const double &number, cons
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::antibodies_problem);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::antibodies_problem)

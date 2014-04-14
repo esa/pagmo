@@ -84,6 +84,6 @@ class __PAGMO_VISIBLE golomb_ruler: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::golomb_ruler);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::golomb_ruler)
 
 #endif

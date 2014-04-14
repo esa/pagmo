@@ -600,4 +600,4 @@ std::string de_1220::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::de_1220);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::de_1220)

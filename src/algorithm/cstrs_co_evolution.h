@@ -122,6 +122,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_co_evolution);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::cstrs_co_evolution)
 
 #endif // PAGMO_ALGORITHM_CSTRS_CO_EVOLUTION_H

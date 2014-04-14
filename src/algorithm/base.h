@@ -110,6 +110,7 @@ return base_ptr(new derived_algorithm(*this));
 
 		/// Resets the seed of the internal rngs using a user-provided seed
 		void reset_rngs(const unsigned int) const;
+
 	protected:
 		/// Indicates to the derived class whether to print stuff on screen
 		bool m_screen_output;
@@ -126,6 +127,9 @@ return base_ptr(new derived_algorithm(*this));
 			ar & m_urng; 
 			ar & m_screen_output;
 		}
+	protected:
+		/// A counter for the number of function evaluations
+		mutable unsigned int m_fevals;
 };
 
 std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
@@ -133,6 +137,6 @@ std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 }
 }
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::base);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::base)
 
 #endif

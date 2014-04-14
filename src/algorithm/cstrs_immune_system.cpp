@@ -540,4 +540,4 @@ std::string cstrs_immune_system::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cstrs_immune_system);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::cstrs_immune_system)

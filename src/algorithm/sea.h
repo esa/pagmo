@@ -73,6 +73,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sea);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sea)
 
 #endif // PAGMO_ALGORITHM_SEA_H

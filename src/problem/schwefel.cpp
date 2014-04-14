@@ -74,4 +74,4 @@ std::string schwefel::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::schwefel);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::schwefel)

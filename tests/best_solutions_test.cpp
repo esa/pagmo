@@ -44,7 +44,7 @@ const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
 	retval.push_back(kep_toolbox::planet_ss("earth").clone());
 	retval.push_back(kep_toolbox::planet_ss("earth").clone());
 	return retval;
-};
+}
 #endif
 
 //knapsack
@@ -55,7 +55,7 @@ static double c = 15;
 static const int default_sequence[5] = {3,2,2,1,5};
 //--------------------------------------------------------------------------------
 
-const double EPS = 1e-9;
+const double EPS = 1e-6;
 
 ///The idea of this unit test is to go through all pagmo::problems, initialize the best solution,
 ///retrieve the decision vector

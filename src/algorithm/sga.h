@@ -131,6 +131,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sga);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sga)
 
 #endif // PAGMO_ALGORITHM_SGA_H

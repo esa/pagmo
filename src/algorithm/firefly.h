@@ -85,6 +85,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::firefly);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::firefly)
 
 #endif // PAGMO_ALGORITHM_FIREFLY_H

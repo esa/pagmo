@@ -75,6 +75,6 @@ class __PAGMO_VISIBLE base_dtlz : public base_unc_mo
 
 }} //namespaces
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_dtlz);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_dtlz)
 
 #endif

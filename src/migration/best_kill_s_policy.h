@@ -62,6 +62,6 @@ class __PAGMO_VISIBLE best_kill_s_policy: public base_s_policy
 
 } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::migration::best_kill_s_policy);
+BOOST_CLASS_EXPORT_KEY(pagmo::migration::best_kill_s_policy)
 
 #endif

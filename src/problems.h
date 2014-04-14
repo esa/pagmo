@@ -71,12 +71,14 @@
 #include "problem/cstrs_self_adaptive.h"
 #include "problem/antibodies_problem.h"
 #include "problem/shifted.h"
+#include "problem/scaled.h"
 #include "problem/rotated.h"
 #include "problem/normalized.h"
 #include "problem/decompose.h"
 #include "problem/noisy.h"
 #include "problem/robust.h"
 #include "problem/con2uncon.h"
+#include "problem/quadrature_encoding.h"
 
 // GSL problems.
 #ifdef PAGMO_ENABLE_GSL

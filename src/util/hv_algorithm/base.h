@@ -218,6 +218,6 @@ private:
 
 } } }
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::util::hv_algorithm::base);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::util::hv_algorithm::base)
 
 #endif

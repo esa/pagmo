@@ -27,6 +27,8 @@
 #include <boost/thread/barrier.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/variate_generator.hpp>
 #include <cstddef>
 #include <iostream>
 #include <iterator>
@@ -592,17 +594,26 @@ void archipelago::evolve(int n)
 void archipelago::evolve_batch(int n, unsigned int b)
 {
 	join();
-	for(size_type p = 0; p < m_container.size()/b + 1; ++p) {
-		if(p == m_container.size()/b) { //for the last batch of islands decrease the barrier
-			reset_barrier(m_container.size() - p*b);
+	container_type::size_type arch_size = this->get_size();
+	// Variate generators
+	boost::uniform_int<int> pop_idx(0,arch_size-1);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
+	// Shuffle to not bias towards low-indexes
+	std::vector<population::size_type> shuffle(arch_size);
+	for(population::size_type i=0; i < shuffle.size(); ++i) shuffle[i] = i;
+	std::random_shuffle(shuffle.begin(), shuffle.end(), p_idx);
+	
+	for(size_type p = 0; p < arch_size/b + 1; ++p) {
+		if(p == arch_size/b) { //for the last batch of islands decrease the barrier
+			reset_barrier(arch_size - p*b);
 		} else {
 			reset_barrier(b);
 		}
-		for(size_type i=0; i<b && p*b+i < m_container.size(); ++i) {
-			m_container[p*b+i]->evolve(n);
+		for(size_type i=0; i<b && p*b+i < arch_size; ++i) {
+			m_container[shuffle[p*b+i]]->evolve(n);
 		}
-		for(size_type i=0; i<b && p*b+i < m_container.size(); ++i) {
-			m_container[p*b+i]->join();
+		for(size_type i=0; i<b && p*b+i < arch_size; ++i) {
+			m_container[shuffle[p*b+i]]->join();
 		}
 	}
 }

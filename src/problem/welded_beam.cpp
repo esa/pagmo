@@ -129,4 +129,4 @@ void welded_beam::initialize_best(void)
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::welded_beam);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::welded_beam)

@@ -62,11 +62,6 @@ class __PAGMO_VISIBLE hv4d : public base
 public:
 	double compute(std::vector<fitness_vector> &, const fitness_vector &) const;
 
-	double exclusive(const unsigned int, std::vector<fitness_vector> &, const fitness_vector &) const;
-	unsigned int least_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
-	unsigned int greatest_contributor(std::vector<fitness_vector> &, const fitness_vector &) const;
-	std::vector<double> contributions(std::vector<fitness_vector> &, const fitness_vector &) const;
-
 	void verify_before_compute(const std::vector<fitness_vector> &, const fitness_vector &) const;
 	base_ptr clone() const;
 	std::string get_name() const;
@@ -82,6 +77,6 @@ private:
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hv4d);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hv4d)
 
 #endif

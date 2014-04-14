@@ -175,4 +175,4 @@ std::string bf_fpras::get_name() const
 
 } } }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::bf_fpras);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hv_algorithm::bf_fpras)

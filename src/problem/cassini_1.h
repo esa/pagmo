@@ -80,6 +80,6 @@ class __PAGMO_VISIBLE cassini_1: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::cassini_1);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::cassini_1)
 
 #endif // CASSINI_1_H

@@ -61,4 +61,4 @@ std::string gsl_nm2::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_nm2);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::gsl_nm2)

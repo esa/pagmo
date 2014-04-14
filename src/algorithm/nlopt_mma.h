@@ -73,6 +73,6 @@ class __PAGMO_VISIBLE nlopt_mma: public base_nlopt
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_mma);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nlopt_mma)
 
 #endif

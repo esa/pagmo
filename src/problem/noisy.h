@@ -113,6 +113,6 @@ class __PAGMO_VISIBLE noisy : public base_stochastic
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::noisy);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::noisy)
 
 #endif // PAGMO_PROBLEM_NOISY_H

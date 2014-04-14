@@ -79,6 +79,6 @@ class __PAGMO_VISIBLE pol : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::pol);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::pol)
 
 #endif // PAGMO_PROBLEM_POL_H

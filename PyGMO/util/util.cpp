@@ -94,6 +94,7 @@ void expose_hv_algorithm()
 	algorithm_wrapper<util::hv_algorithm::hv2d>("hv2d","hv2d algorithm.");
 	algorithm_wrapper<util::hv_algorithm::hv3d>("hv3d","hv3d algorithm.");
 	algorithm_wrapper<util::hv_algorithm::hv4d>("hv4d","hv4d algorithm.");
+	algorithm_wrapper<util::hv_algorithm::fpl>("fpl","FPL algorithm.");
 	algorithm_wrapper<util::hv_algorithm::hoy>("hoy","HOY algorithm.");
 	class_<util::hv_algorithm::wfg, bases<util::hv_algorithm::base> >("wfg","WFG algorithm.", init<const unsigned int>());
 	class_<util::hv_algorithm::bf_approx, bases<util::hv_algorithm::base> >("bf_approx","Bringmann-Friedrich approximated algorithm.", 

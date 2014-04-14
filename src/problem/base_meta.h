@@ -41,7 +41,7 @@ namespace pagmo{ namespace problem {
  * The copy constructor is also implemented as to provide a deep copy of the object.
  *
  * NOTE: The original problem can also have the virtual function compare_fitness_impl implemented
- * the meta-problem will make use of it. The custom implementaion, in this case, is expected to work
+ * the meta-problem will make use of it. The custom implementation, in this case, is expected to work
  * for generic dimensions of the fitness vector as metaproblems may transform this dimension at will.
  *
  * @author Dario Izzo (dario,izzo@gmail.com)
@@ -76,6 +76,7 @@ class __PAGMO_VISIBLE base_meta : public base
 			ar & m_original_problem;
 		}
 	protected:
+		/// Smart pointer to the original problem instance
 		base_ptr m_original_problem;
 };
 

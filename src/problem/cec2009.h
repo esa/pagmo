@@ -104,6 +104,6 @@ class __PAGMO_VISIBLE cec2009 : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::cec2009);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::cec2009)
 
 #endif

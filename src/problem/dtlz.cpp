@@ -32,10 +32,10 @@
 
 static int __check__(int N)
 {
-        if (N > 7 || N < 1) {
-                pagmo_throw(value_error, "the problem id needs to be one of [1..7]");
-        }
-        return N;
+		if (N > 7 || N < 1) {
+				pagmo_throw(value_error, "the problem id needs to be one of [1..7]");
+		}
+		return N;
 }
 
 namespace pagmo { namespace problem {
@@ -48,13 +48,13 @@ static const double PI_HALF = boost::math::constants::pi<double>() / 2.0;
  * @param[in] k paramter defining integer dimension of the problem: k + fdim - 1
  * @param[in] fdim number of objectives
  * @param[in] alpha controls density of solutions (used only by DTLZ4)
- * 
+ *
  * @see problem::base constructors.
  */
 dtlz::dtlz(size_type id, size_type k, size_type fdim, const size_t alpha)
-    :base_dtlz(k + fdim - 1, fdim), 
-    m_problem_number(__check__(id)),
-    m_alpha(alpha)
+	:base_dtlz(k + fdim - 1, fdim),
+	m_problem_number(__check__(id)),
+	m_alpha(alpha)
 {
 	// Set bounds.
 	set_lb(0.0);
@@ -70,55 +70,55 @@ base_ptr dtlz::clone() const
 /// Convergence metric for a decision_vector (0 = converged to the optimal front)
 double dtlz::g_func(const decision_vector &x) const
 {
-    switch(m_problem_number)
-    {
-    case 1:
-    case 3:
-        return g13_func(x);
-    case 2:
-    case 4:
-    case 5:
-	return g245_func(x);
-    case 6:
-        return g6_func(x);
-    case 7:
-        return g7_func(x);
-    default:
-        pagmo_throw(value_error, "Error: There are only 7 test functions in this test suite!");
-    }   
-    return -1.0;
+	switch(m_problem_number)
+	{ // We start with the 6-7 cases as for absurd reasons behind my comprehension this is way more efficient
+	case 6:
+		return g6_func(x);
+	case 7:
+		return g7_func(x);
+	case 1:
+	case 3:
+		return g13_func(x);
+	case 2:
+	case 4:
+	case 5:
+		return g245_func(x);
+	default:
+		pagmo_throw(value_error, "Error: There are only 7 test functions in this test suite!");
+	}
+	return -1.0;
 }
 
 /// Implementation of the objective function.
 void dtlz::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
 
-    pagmo_assert(f.size() == get_f_dimension());
-    pagmo_assert(x.size() == get_dimension());
+	pagmo_assert(f.size() == get_f_dimension());
+	pagmo_assert(x.size() == get_dimension());
 
-    switch(m_problem_number)
-    {
-    case 1:
+	switch(m_problem_number)
+	{
+	case 1:
 	f1_objfun_impl(f,x);
-        break;
-    case 2:
-    case 3:
-        f23_objfun_impl(f,x);
-        break;
-    case 4:
-        f4_objfun_impl(f,x);
-        break;
-    case 5:
-    case 6:
-        f56_objfun_impl(f,x);
-        break;
-    case 7:
-        f7_objfun_impl(f,x);
-        break;
-    default:
-        pagmo_throw(value_error, "Error: There are only 7 test functions in this test suite!");
-        break;
-    }
+		break;
+	case 2:
+	case 3:
+		f23_objfun_impl(f,x);
+		break;
+	case 4:
+		f4_objfun_impl(f,x);
+		break;
+	case 5:
+	case 6:
+		f56_objfun_impl(f,x);
+		break;
+	case 7:
+		f7_objfun_impl(f,x);
+		break;
+	default:
+		pagmo_throw(value_error, "Error: There are only 7 test functions in this test suite!");
+		break;
+	}
 }
 
 /// Implementations of the different g-functions used
@@ -192,7 +192,7 @@ void dtlz::f1_objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 	// computing shape-functions
 	f[0] = 0.5 * (1.0 + g);
-	
+
 	for(problem::base::size_type i = 0; i < f.size() - 1; ++i) {
 		f[0] *= x[i];
 	}
@@ -217,7 +217,7 @@ void dtlz::f23_objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for(problem::base::size_type i = f.size() - 1; i < x.size(); ++i) {
 		x_M.push_back(x[i]);
 	}
-	
+
 	g = g_func(x_M);
 
 	// computing shape-functions
@@ -225,7 +225,7 @@ void dtlz::f23_objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for(problem::base::size_type i = 0; i < f.size() - 1; ++i) {
 		f[0] *= cos(x[i] * PI_HALF);
 	}
-	
+
 	for(problem::base::size_type i = 1; i < f.size() - 1; ++i) {
 		f[i] = (1.0 + g);
 		for(problem::base::size_type j = 0; j < f.size() - (i+1); ++j) {
@@ -247,7 +247,7 @@ void dtlz::f4_objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for(problem::base::size_type i = f.size() - 1; i < x.size(); ++i) {
 		x_M.push_back(x[i]);
 	}
-	
+
 	g = g_func(x_M);
 
 	// computing shape-functions
@@ -255,7 +255,7 @@ void dtlz::f4_objfun_impl(fitness_vector &f, const decision_vector &x) const
 	for(problem::base::size_type i = 0; i < f.size() - 1; ++i) {
 		f[0] *= cos(pow(x[i],m_alpha) * PI_HALF);
 	}
-	
+
 	for(problem::base::size_type i = 1; i < f.size() - 1; ++i) {
 		f[i] = (1.0 + g);
 		for(problem::base::size_type j = 0; j < f.size() - (i+1); ++j) {
@@ -332,12 +332,12 @@ void dtlz::f7_objfun_impl(fitness_vector &f, const decision_vector &x) const
 
 std::string dtlz::get_name() const
 {
-    std::string retval("DTLZ");
-    retval.append(boost::lexical_cast<std::string>(m_problem_number));
+	std::string retval("DTLZ");
+	retval.append(boost::lexical_cast<std::string>(m_problem_number));
 
-    return retval;
+	return retval;
 }
-    
+
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::dtlz);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::dtlz)

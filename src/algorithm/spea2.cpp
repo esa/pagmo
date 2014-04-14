@@ -587,4 +587,4 @@ void spea2::mutate(decision_vector& child, const pagmo::problem::base& prob) con
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::spea2);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::spea2)

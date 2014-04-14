@@ -97,6 +97,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sms_emoa);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::sms_emoa)
 
 #endif // PAGMO_ALGORITHM_SMS_EMOA_H

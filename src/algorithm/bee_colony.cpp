@@ -288,4 +288,4 @@ std::string bee_colony::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::bee_colony);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::bee_colony)

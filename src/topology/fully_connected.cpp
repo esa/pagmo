@@ -55,4 +55,4 @@ std::string fully_connected::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::fully_connected);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::topology::fully_connected)

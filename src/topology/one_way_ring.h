@@ -46,7 +46,7 @@ class __PAGMO_VISIBLE one_way_ring: public base
 	public:
 		one_way_ring();
 		base_ptr clone() const;
-		std::string get_name() const;;
+		std::string get_name() const;
 	protected:
 		void connect(const vertices_size_type &);
 	private:
@@ -66,6 +66,6 @@ class __PAGMO_VISIBLE one_way_ring: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::topology::one_way_ring);
+BOOST_CLASS_EXPORT_KEY(pagmo::topology::one_way_ring)
 
 #endif

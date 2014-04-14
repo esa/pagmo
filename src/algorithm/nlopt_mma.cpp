@@ -48,4 +48,4 @@ std::string nlopt_mma::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_mma);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_mma)

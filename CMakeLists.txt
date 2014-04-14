@@ -6,20 +6,15 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
 # Setup and include CMake modules.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 
+# We activate compiler dependent flags
 INCLUDE(CheckCXXCompilerFlag)
-
-# Initialise (empty) list of libraries to link against.
-SET(MANDATORY_LIBRARIES "")
-
-# Look for the math library and if found set it as mandatory
-FIND_LIBRARY(SYSTEM_M_LIBRARY NAMES m)
-IF(SYSTEM_M_LIBRARY)
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SYSTEM_M_LIBRARY})
-	MESSAGE(STATUS "m library found: ${SYSTEM_M_LIBRARY}")
-ENDIF(SYSTEM_M_LIBRARY)
-
-# Configuration for GCC.
-IF(CMAKE_COMPILER_IS_GNUCXX)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	CHECK_CXX_COMPILER_FLAG(-ftemplate-depth=256 CLANG_TEMPLATE_DEPTH)
+	IF(CLANG_TEMPLATE_DEPTH)
+		MESSAGE(STATUS "Enabling '-ftemplate-depth=256' compiler flag required since boost 1.54.")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
+	ENDIF(CLANG_TEMPLATE_DEPTH)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	CHECK_CXX_COMPILER_FLAG(-fmessage-length=0 GNUCXX_MESSAGE_LENGTH)
 	IF(GNUCXX_MESSAGE_LENGTH)
 		MESSAGE(STATUS "Enabling '-fmessage-length=0' compiler flag.")
@@ -41,10 +36,43 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
 	# Add to the base flags extra warnings. Also, additional flags to turn off some GCC warnings that in practice clutter the compilation output.
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wdisabled-optimization")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wnoexcept -Wdisabled-optimization")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
-ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  # using Intel C++
+	CHECK_CXX_COMPILER_FLAG(-mieee-fp INTEL_IEEE_COMPLIANT)
+	IF(INTEL_IEEE_COMPLIANT)
+			MESSAGE(STATUS "Enabling '-mieee-fp' compiler flag to get IEEE compliant code")
+			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mieee-fp")
+	ENDIF(INTEL_IEEE_COMPLIANT)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+  # using Visual Studio C++
+endif()
+
+CHECK_CXX_COMPILER_FLAG(-std=c++0x ALL_C0X)
+IF(ALL_C0X)
+	MESSAGE(STATUS "Enabling '-std=c++0x' compiler flag")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+ENDIF(ALL_C0X)
+
+CHECK_CXX_COMPILER_FLAG(-std=c++11 ALL_C11)
+IF(ALL_C11)
+	MESSAGE(STATUS "Enabling '-std=c++11' compiler flag")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ENDIF(ALL_C11)
+
+
+# Initialise (empty) list of libraries to link against.
+SET(MANDATORY_LIBRARIES "")
+
+# Look for the math library and if found set it as mandatory
+FIND_LIBRARY(SYSTEM_M_LIBRARY NAMES m)
+IF(SYSTEM_M_LIBRARY)
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SYSTEM_M_LIBRARY})
+	MESSAGE(STATUS "m library found: ${SYSTEM_M_LIBRARY}")
+ENDIF(SYSTEM_M_LIBRARY)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
@@ -55,7 +83,7 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # Use CMake's 2.6 new policy for library paths.
 IF(COMMAND CMAKE_POLICY)
-    CMAKE_POLICY(SET CMP0003 NEW)
+	CMAKE_POLICY(SET CMP0003 NEW)
 ENDIF(COMMAND CMAKE_POLICY)
 
 # Provides build options to CMake.
@@ -69,10 +97,24 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 # Build Option: when active the bindings to Python are compiled and linked (installation).
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
+IF(BUILD_PYGMO)
+	# Detect default Python version  
+	IF(NOT DEFINED PYGMO_PYTHON_VERSION)
+	       INCLUDE(FindPythonInterp)
+	       IF(NOT PYTHONINTERP_FOUND)
+	       	      MESSAGE(FATAL_ERROR "Unable to locate Python interpreter. Turn off BUILD_PYGMO please.")
+	       ELSE(NOT PYTHONINTERP_FOUND)
+	       	      MESSAGE(STATUS "Python version ${PYTHON_VERSION_STRING} found.")
+		      # Build Option: build with specific specific Python compatibility 
+		      SET(PYGMO_PYTHON_VERSION ${PYTHON_VERSION_STRING} CACHE STRING "Build PyGMO with specific Python compatibility.")
+	       ENDIF(NOT PYTHONINTERP_FOUND)
+	ENDIF(NOT DEFINED PYGMO_PYTHON_VERSION)
+ENDIF(BUILD_PYGMO)
+
 # Build Option: when active the GTOP database problems are built.
 OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)
 IF(ENABLE_GTOP_DATABASE)
-        ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
+		ADD_DEFINITIONS(-DPAGMO_ENABLE_KEP_TOOLBOX)
 ENDIF(ENABLE_GTOP_DATABASE)
 # Build Option: minimisers from the GNU scientific library (GSL).
 OPTION(ENABLE_GSL "Enable support for GSL minimisers (requires GSL >= 1.13)." OFF)
@@ -104,14 +146,19 @@ SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
 # Setting the boost libraries needed for PaGMO
 SET(REQUIRED_BOOST_LIBS system serialization thread)
 IF(BUILD_PYGMO)
-	SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
+	INCLUDE(PaGMOPythonSetup)
+	IF(PYGMO_PYTHON_VERSION LESS 3)
+		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
+	ELSE(PYGMO_PYTHON_VERSIO LESS 3)
+		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python3)
+	ENDIF(PYGMO_PYTHON_VERSION LESS 3)
 ENDIF(BUILD_PYGMO)
 IF(ENABLE_GTOP_DATABASE)
 	SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} date_time)
 ENDIF(ENABLE_GTOP_DATABASE)
 MESSAGE(STATUS "Required Boost libraries: ${REQUIRED_BOOST_LIBS}")
 
-FIND_PACKAGE(Boost 1.42.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
+FIND_PACKAGE(Boost 1.48.0 REQUIRED COMPONENTS "${REQUIRED_BOOST_LIBS}")
 MESSAGE(STATUS "Detected Boost version: ${Boost_VERSION}")
 # Include system Boost headers.
 MESSAGE(STATUS "Boost include dirs: ${Boost_INCLUDE_DIRS}")
@@ -151,12 +198,12 @@ ELSE(UNIX)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
 	ENDIF(MINGW)
 	IF(MSVC)
-	    #This flags are necessary for MSVC requires boost libs to be named in a stupid way. (i.e. without lib in front)
-        ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
+		#This flags are necessary for MSVC requires boost libs to be named in a stupid way. (i.e. without lib in front)
+		ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
 		#This flag is necesary for MSVC to access mathematical constants such as M_PI,...
 		ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
-        #This is necessary to add Additional Library Directories in the linker path of MSVC
-        link_directories(${Boost_LIBRARY_DIRS})
+		#This is necessary to add Additional Library Directories in the linker path of MSVC
+		link_directories(${Boost_LIBRARY_DIRS})
 	ENDIF(MSVC)
 ENDIF(UNIX)
 
@@ -273,7 +320,7 @@ IF(ENABLE_SNOPT)
 	ENDIF(NOT SNOPT_F2C_LIBRARY)
 	MESSAGE(STATUS "f2c library: ${SNOPT_F2C_LIBRARY}")
 
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_SNOPT_LIBRARY} ${SNOPT_SNPRINT_LIBRARY} ${SNOPT_F2C_LIBRARY})
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_SNOPT_LIBRARY} ${SNOPT_SNPRINT_LIBRARY} ${SNOPT_F2C_LIBRARY} -lgfortran)
 
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_SNOPT)
 ENDIF(ENABLE_SNOPT)
@@ -304,31 +351,34 @@ IF(ENABLE_IPOPT)
 		ENDIF(NOT DL_LIBRARY)
 
 		FIND_LIBRARY(COINHSL_LIBRARY NAMES coinhsl)
-		IF(COINHSL_LIBRARY)
-			MESSAGE(STATUS "COINHSL Library Found ... linking it in")
-			MESSAGE(STATUS "coin hsl library: ${COINHSL_LIBRARY}")
-			SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINHSL_LIBRARY})
-		ENDIF(COINHSL_LIBRARY)
 
 		FIND_LIBRARY(COINMETIS_LIBRARY NAMES coinmetis)
+
 		IF(COINMETIS_LIBRARY)
 			MESSAGE(STATUS "COINMETIS Library Found ... linking it in")
 			MESSAGE(STATUS "coin metis library: ${COINMETIS_LIBRARY}")
-			SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINMETIS_LIBRARY})
+			 SET(MANDATORY_LIBRARIES ${COINMETIS_LIBRARY} ${MANDATORY_LIBRARIES})
 		ENDIF(COINMETIS_LIBRARY)
+
+		FIND_LIBRARY(COINHSL_LIBRARY NAMES coinhsl)
+		IF(COINHSL_LIBRARY)
+			MESSAGE(STATUS "COINHSL Library Found ... linking it in")
+			MESSAGE(STATUS "coin hsl library: ${COINHSL_LIBRARY}")
+			SET(MANDATORY_LIBRARIES ${COINHSL_LIBRARY} ${MANDATORY_LIBRARIES})
+		ENDIF(COINHSL_LIBRARY)
 
 		FIND_LIBRARY(COINMUMPS_LIBRARY NAMES coinmumps)
 		IF(COINMUMPS_LIBRARY)
 			MESSAGE(STATUS "COINMUMPS Library Found ... linking it in")
 			MESSAGE(STATUS "coin mumps library: ${COINMUMPS_LIBRARY}")
-			SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${COINMUMPS_LIBRARY})
+			SET(MANDATORY_LIBRARIES ${COINMUMPS_LIBRARY} ${MANDATORY_LIBRARIES})
 		ENDIF(COINMUMPS_LIBRARY)
 
 		IF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
 			MESSAGE(STATUS "Linear Solver for IPOPT could not be detected. I tried with HSL and MUMPS. You need to link manually the library if necessary")
 		ENDIF(NOT COINHSL_LIBRARY AND NOT COINMUMPS_LIBRARY)
-		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${LAPACK_LIBRARIES} ${DL_LIBRARY})
-	
+		SET(MANDATORY_LIBRARIES ${IPOPT_LIBRARY} ${MANDATORY_LIBRARIES} ${LAPACK_LIBRARIES} ${DL_LIBRARY})
+
 	ELSE(UNIX)
 		IF(NOT WIN32)
 			MESSAGE(FATAL_ERROR "Sorry, at the moment pagmo can be built only on Unix and Win32 environments.")
@@ -343,7 +393,7 @@ IF(ENABLE_IPOPT)
 		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${IPOPT_LIBRARY} ${COIN_MUMPS_LIBRARY} ${COIN_BLAS_LIBRARY} ${COIN_LAPACK_LIBRARY} -lgfortran -lpthread)
 
 	ENDIF(UNIX)
-			
+
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_IPOPT)
 	INCLUDE_DIRECTORIES("${IPOPT_INCLUDE_DIR}")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_INIT} ${LAPACK_LINKER_FLAGS}")
@@ -356,18 +406,22 @@ ENDIF(ENABLE_IPOPT)
 # Add the directory for the PaGMO library.
 ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/src")
 
+# Add the directory for the PyGMO library.
 IF(BUILD_PYGMO)
-	INCLUDE(PaGMOPythonSetup)
 	ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/PyGMO")
 ENDIF(BUILD_PYGMO)
 
 # From now on all targets will use the static PaGMO library. Add the relevant flags.
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${STATIC_LIB_PAGMO_USE_FLAGS}")
 
+MESSAGE(STATUS "Build flags: " "${CMAKE_CXX_FLAGS}")
+MESSAGE(STATUS "Module linker flags: " "${CMAKE_MODULE_LINKER_FLAGS}")
+MESSAGE(STATUS "Shared linker flags: " "${CMAKE_SHARED_LINKER_FLAGS}")
+
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
-	TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})
+		TARGET_LINK_LIBRARIES(main ${MANDATORY_LIBRARIES} pagmo_static)
 ENDIF(BUILD_MAIN)
 
 IF(ENABLE_TESTS)

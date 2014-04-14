@@ -164,32 +164,37 @@ void hypervolume::verify_before_compute(const fitness_vector &r_point, hv_algori
  */
 hv_algorithm::base_ptr hypervolume::get_best_compute(const fitness_vector &r_point) const
 {
-	switch(r_point.size()) {
-		case 2:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
-			break;
-		case 3:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
-			break;
-		case 4:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv4d());
-			break;
-		default:
-			return hv_algorithm::base_ptr(new hv_algorithm::wfg());
+	unsigned int fdim = r_point.size();
+	unsigned int n = m_points.size();
+	if (fdim == 2) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
+	} else if (fdim == 3) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
+	} else if (fdim == 4) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv4d());
+	} else if (fdim == 5 && n < 80) {
+		return hv_algorithm::base_ptr(new hv_algorithm::fpl());
+	} else {
+		return hv_algorithm::base_ptr(new hv_algorithm::wfg());
 	}
+}
+
+hv_algorithm::base_ptr hypervolume::get_best_exclusive(const unsigned int p_idx, const fitness_vector &r_point) const
+{
+	(void)p_idx;
+	// Exclusive contribution and compute method share the same "best" set of algorithms.
+	return get_best_compute(r_point);
 }
 
 hv_algorithm::base_ptr hypervolume::get_best_contributions(const fitness_vector &r_point) const
 {
-	switch(r_point.size()) {
-		case 2:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
-			break;
-		case 3:
-			return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
-			break;
-		default:
-			return hv_algorithm::base_ptr(new hv_algorithm::wfg());
+	unsigned int fdim = r_point.size();
+	if (fdim == 2) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
+	} else if (fdim == 3) {
+		return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
+	} else {
+		return hv_algorithm::base_ptr(new hv_algorithm::wfg());
 	}
 }
 
@@ -273,7 +278,7 @@ double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_
  */
 double hypervolume::exclusive(const unsigned int p_idx, const fitness_vector &r_point) const
 {
-	return exclusive(p_idx, r_point, get_best_contributions(r_point));
+	return exclusive(p_idx, r_point, get_best_exclusive(p_idx, r_point));
 }
 
 /// Find the least contributing individual
@@ -412,16 +417,14 @@ std::vector<double> hypervolume::contributions(const fitness_vector &r_point) co
  *
  * @return expected number of operations for given n and d
  */
-unsigned long long hypervolume::get_expected_operations(const unsigned int n, const unsigned int d)
+double hypervolume::get_expected_operations(const unsigned int n, const unsigned int d)
 {
-	if (d == 2) {
-		return 2. * n * log(n);  // hv2d
-	} else if (d == 3) {
-		return 3. * n * log(n);  // hv3d
-	} else if (d == 3) {
-		return 4. * n * n;  // hv4d
+	if (d <= 3) {
+		return d * n * log(n);  // hv3d
+	} else if (d == 4) {
+		return 4.0 * n * n;  // hv4d
 	} else {
-		return pow(n, d/2);  // exponential complexity
+		return 0.0005 * d * pow(n, d * 0.5);  // exponential complexity
 	}
 }
 
@@ -473,4 +476,4 @@ hypervolume_ptr hypervolume::clone() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hypervolume);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::util::hypervolume)

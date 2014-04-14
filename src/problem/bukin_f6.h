@@ -76,6 +76,6 @@ class __PAGMO_VISIBLE bukin: public base
 
 }}
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::bukin);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::bukin)
 
 #endif

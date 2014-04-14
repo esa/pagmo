@@ -105,6 +105,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::antibodies_problem);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::antibodies_problem)
 
 #endif // PAGMO_PROBLEM_antibodies_problem_H

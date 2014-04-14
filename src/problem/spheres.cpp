@@ -402,4 +402,4 @@ std::string spheres::human_readable_extra() const
 } //namespace problem
 } //namespace pagmo
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::spheres);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::spheres)

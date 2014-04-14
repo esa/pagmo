@@ -235,6 +235,6 @@ inline void load_construct_data(Archive &ar, pagmo::problem::python_base_stochas
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::problem::python_base_stochastic);
+BOOST_CLASS_EXPORT(pagmo::problem::python_base_stochastic)
 
 #endif

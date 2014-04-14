@@ -221,4 +221,4 @@ std::string noisy::human_readable_extra() const
 }
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::noisy);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::noisy)

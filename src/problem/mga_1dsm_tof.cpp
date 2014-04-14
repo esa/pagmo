@@ -393,4 +393,4 @@ std::string mga_1dsm_tof::human_readable_extra() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_1dsm_tof);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::mga_1dsm_tof)

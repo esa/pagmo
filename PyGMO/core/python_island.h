@@ -174,6 +174,6 @@ inline void load_construct_data(Archive &, pagmo::python_island *isl, const unsi
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT(pagmo::python_island);
+BOOST_CLASS_EXPORT(pagmo::python_island)
 
 #endif

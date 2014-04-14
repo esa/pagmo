@@ -113,4 +113,4 @@ std::string normalized::human_readable_extra() const
 }
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::normalized);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::normalized)

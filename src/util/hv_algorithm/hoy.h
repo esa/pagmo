@@ -98,6 +98,6 @@ private:
 
 } } }
 
-BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hoy);
+BOOST_CLASS_EXPORT_KEY(pagmo::util::hv_algorithm::hoy)
 
 #endif

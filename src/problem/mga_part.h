@@ -117,5 +117,5 @@ class __PAGMO_VISIBLE mga_part: public base
 
 }} // namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_part);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_part)
 #endif // PAGMO_PROBLEM_MGA_PART_H

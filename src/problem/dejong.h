@@ -69,6 +69,6 @@ class __PAGMO_VISIBLE dejong : public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::dejong);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::dejong)
 
 #endif

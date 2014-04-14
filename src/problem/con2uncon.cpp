@@ -92,12 +92,20 @@ void con2uncon::objfun_impl(fitness_vector &f, const decision_vector &x) const
 		// update inequality constraints
 		for(problem::base::c_size_type j=number_of_eq_constraints; j<prob_c_dimension; j++) {
 			if(!m_original_problem->test_constraint(c,j)) {
-				c_func += std::abs(c.at(j)) - c_tol.at(j);
+					c_func += c.at(j) - c_tol.at(j);
 			}
 		}
 
 		std::fill(f.begin(),f.end(), 0.);
-		f[0] = c_func;
+
+		//checking overflow
+		if(c_func > boost::numeric::bounds<double>::highest()){
+			f[0] = boost::numeric::bounds<double>::highest(); 
+		}
+		else{
+			f[0] = c_func;
+		}
+
 		break;
 	}
 	}

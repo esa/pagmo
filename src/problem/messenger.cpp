@@ -79,4 +79,4 @@ std::string messenger::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::messenger);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::messenger)

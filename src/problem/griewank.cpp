@@ -74,4 +74,4 @@ std::string griewank::get_name() const
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::griewank);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::griewank)

@@ -48,4 +48,4 @@ std::string nlopt_cobyla::get_name() const
 
 }}
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_cobyla);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nlopt_cobyla)

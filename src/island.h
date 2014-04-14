@@ -133,6 +133,6 @@ inline void load_construct_data(Archive &ar, pagmo::island *isl, const unsigned 
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::island);
+BOOST_CLASS_EXPORT_KEY(pagmo::island)
 
 #endif

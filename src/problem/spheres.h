@@ -185,6 +185,5 @@ class __PAGMO_VISIBLE spheres: public base_stochastic
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::spheres);
-
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::spheres)
 #endif // PAGMO_SPHERES_H

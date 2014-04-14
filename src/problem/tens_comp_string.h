@@ -66,6 +66,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::tens_comp_string);
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::tens_comp_string)
 
 #endif

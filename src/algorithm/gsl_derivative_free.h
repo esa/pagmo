@@ -79,6 +79,6 @@ class __PAGMO_VISIBLE gsl_derivative_free: public base_gsl
 
 } }
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::gsl_derivative_free);
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::gsl_derivative_free)
 
 #endif

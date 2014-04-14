@@ -579,4 +579,4 @@ decision_vector sga_gray::decode(const std::vector<int> &chrom, const decision_v
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sga_gray);
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::sga_gray)

@@ -89,6 +89,6 @@ private:
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nsga2);
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nsga2)
 
 #endif // PAGMO_ALGORITHM_NSGA2_H
