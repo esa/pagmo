@@ -218,7 +218,7 @@ try {
  */
 
 
-std::string mga_1dsm_tof::pretty(const std::vector<double> &x) const {
+std::string mga_1dsm_tof::pretty(const std::vector<double> &x, bool extended_output) const {
   
 	double common_mu = m_seq[0]->get_mu_central_body();
 	// We set the std output format
@@ -247,16 +247,17 @@ std::string mga_1dsm_tof::pretty(const std::vector<double> &x) const {
 	s << "First Leg: " <<  m_seq[0]->get_name() << " to " << m_seq[1]->get_name() << std::endl; 
 	s << "Departure: " << t_P[0] << " (" << t_P[0].mjd2000() << " mjd2000)" << std::endl;
 	s << "Duration: " << T[0] << " days" << std::endl;
-	s << "VINF: " << x[3] / 1000 << " km/sec" << std::endl;
-	s << "DSM after " << x[4]*T[0] << " days" << std::endl;
 	double theta = 2*boost::math::constants::pi<double>()*x[1];
 	double phi = acos(2*x[2]-1)-boost::math::constants::pi<double>() / 2;
 	
 	kep_toolbox::array3D Vinf = { {x[3]*cos(phi)*cos(theta), x[3]*cos(phi)*sin(theta), x[3]*sin(phi)} };
 
-	kep_toolbox::array3D v0;
-	kep_toolbox::sum(v0, v_P[0], Vinf);
-	kep_toolbox::array3D r(r_P[0]), v(v0);
+	kep_toolbox::array3D v_dep, v_misc;
+	kep_toolbox::sum(v_dep, v_P[0], Vinf);
+	kep_toolbox::array3D r(r_P[0]), v(v_dep);
+
+	if(extended_output) s << "r_dep: " << r << "\nv_dep: " << v << std::endl;
+	s << "VINF_dep: " << x[3] << " m/sec" << std::endl;
 	kep_toolbox::propagate_lagrangian(r,v,x[4]*T[0]*ASTRO_DAY2SEC,common_mu);
 
 	// Lambert arc to reach seq[1]
@@ -265,7 +266,12 @@ std::string mga_1dsm_tof::pretty(const std::vector<double> &x) const {
 	kep_toolbox::array3D v_end_l = l.get_v2()[0];
 	kep_toolbox::array3D v_beg_l = l.get_v1()[0];
 
+	if(extended_output) s << "r_arr: " << r_P[1] << "\nv_arr: " << v_end_l << std::endl;
+	kep_toolbox::diff(v_misc, v_end_l,v_P[1]);
+	if(extended_output) s << "VINF_arr: " << kep_toolbox::norm(v_misc) << " m/sec" << std::endl;
+
 	// First DSM occuring at time nu1*T1
+	s << "DSM after " << x[4]*T[0] << " days" << std::endl;
 	kep_toolbox::diff(v, v_beg_l, v);
 	DV[0] = kep_toolbox::norm(v);
 	s << "DSM magnitude: " << DV[0] << " m/s"  << std::endl;
@@ -277,12 +283,17 @@ std::string mga_1dsm_tof::pretty(const std::vector<double> &x) const {
 		s << "Duration: " << T[i] << " days"  << std::endl;
 		s << "Fly-by epoch: " << t_P[i] << " (" << t_P[i].mjd2000() << " mjd2000) "  << std::endl;
 		s << "Fly-by radius: " << x[7+(i-1)*4] << " planetary radii" << std::endl;
-		s << "DSM after " << x[8+(i-1)*4]*T[i] << " days" << std::endl;
+
 		// Fly-by
 		kep_toolbox::fb_prop(v_out, v_end_l, v_P[i], x[7+(i-1)*4] * m_seq[i]->get_radius(), x[6+(i-1)*4], m_seq[i]->get_mu_self());
 		// s/c propagation before the DSM
 		r = r_P[i];
 		v = v_out;
+		if(extended_output) {
+			s << "r_dep: " << r_P[i] << "\nv_dep: " << v_out << std::endl;
+			kep_toolbox::diff(v_misc, v_out,v_P[i]);
+			s << "VINF_dep: "  << kep_toolbox::norm(v_misc) << " m/sec" << std::endl;
+		}
 		kep_toolbox::propagate_lagrangian(r,v,x[8+(i-1)*4]*T[i]*ASTRO_DAY2SEC,common_mu);
 
 		// Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
@@ -294,6 +305,12 @@ std::string mga_1dsm_tof::pretty(const std::vector<double> &x) const {
 		// DSM occuring at time nu2*T2
 		kep_toolbox::diff(v, v_beg_l, v);
 		DV[i] = kep_toolbox::norm(v);
+		if(extended_output) {
+			s << "r_arr: " << r_P[i+1] << "\nv_arr: " << v_end_l << std::endl;
+			kep_toolbox::diff(v_misc, v_end_l,v_P[i+1]);
+			s << "VINF_arr: "  << kep_toolbox::norm(v_misc) << " m/sec" << std::endl;
+		}
+		s << "DSM after " << x[8+(i-1)*4]*T[i] << " days" << std::endl;
 		s << "DSM magnitude: " << DV[i] << "m/s" << std::endl;
 	}
 	
