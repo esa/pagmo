@@ -460,7 +460,7 @@ class analysis:
     def func(self,x,prob,obj):
         return float(prob.objfun(x)[obj])
 
-    def get_local_extrema(self,prob,sample_size=0,method='Powell'):
+    def get_local_extrema0(self,prob,sample_size=0,method='Powell'):
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_local_extrema: sampling first is necessary")
@@ -499,8 +499,48 @@ class analysis:
             self.local_neval.append(tmp2)
             self.local_f.append(tmp3)
 
+    def get_local_extrema(self,prob,sample_size=0):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.get_local_extrema: sampling first is necessary")
+        try:
+            import numpy as np
+        except ImportError:
+            raise ImportError(
+                "analysis.get_local_extrema needs numpy to run. Is it installed?")
+        from numpy.random import randint
+        
+        if sample_size<=0 or sample_size>=self.npoints:
+            self.local_initial_points=range(self.npoints)
+            self.local_initial_npoints=self.npoints
+        else:
+            self.local_initial_npoints=sample_size
+            self.local_initial_points=[randint(self.npoints) for i in range(sample_size)] #avoid repetition?
+
+        self.local_extrema=[]
+        #self.local_neval=[]// pygmo doesn't return it
+        self.local_f=[]
+        for i in range(self.local_initial_npoints):
+            pop=population(prob)
+            pop.push_back(self.points[self.local_initial_points[i]])
+            isl=island(algo,pop)
+            isl.evolve(1)
+            isl.join()
+            self.local_extrema.append(isl.population.champion.x)
+            self.local_f.append(isl.population.champion.f)
+
+
+    def cluster_local_extrema(self):
+        from sklearn.cluster import DBSCAN
+        from numpy import array
+        A=[]
+        for i in range(self.npoints):
+            A.append(self.local_extrema[0][i]+self.local_f[0][i])
+        cluster=DBSCAN()
+        return cluster.fit_predict(A)
+
 #LEVELSET FEATURES
-    def lda(self,threshold=50):
+    def lda(self,threshold=50,tsp=0.1):
         if self.npoints==0:
             raise ValueError(
                 "analysis.lda: sampling first is necessary")
@@ -512,38 +552,94 @@ class analysis:
                 "analysis.lda needs numpy and scikit-learn to run. Are they installed?")
         from sklearn.lda import LDA
         from numpy import zeros
+        from numpy.random import random
         clf=LDA()
         mce=[]
         for i in range (self.f_dim):
-            y=zeros(self.npoints)
+            per=self.percentile(threshold)[i]
+            dataset=[[],[]]
+            y=[[],[]]
             for j in range (self.npoints):
-                if self.f[j][i]>self.percentile(threshold)[i]:
-                    y[j]=1
-            clf.fit(self.points,y)
-            mce.append(1-clf.score(self.points,y))
+                r=random()
+                if r<tsp:
+                    index=1
+                else:
+                    index=0
+                dataset[index].append(self.points[j])
+                if self.f[j][i]>per:
+                    y[index].append(1)
+                else:
+                    y[index].append(0)
+            clf.fit(dataset[0],y[0])
+            mce.append(1-clf.score(dataset[1],y[1]))
         return mce
 
-    def qda(self,threshold=50):
+    def qda(self,threshold=50,tsp=0.1):
         if self.npoints==0:
             raise ValueError(
-                "analysis.lda: sampling first is necessary")
+                "analysis.qda: sampling first is necessary")
         try:
             import numpy as np
             import sklearn as sk
         except ImportError:
             raise ImportError(
-                "analysis.lda needs numpy and scikit-learn to run. Are they installed?")
+                "analysis.qda needs numpy and scikit-learn to run. Are they installed?")
         from sklearn.qda import QDA
         from numpy import zeros
+        from numpy.random import random
         clf=QDA()
         mce=[]
         for i in range (self.f_dim):
-            y=zeros(self.npoints)
+            per=self.percentile(threshold)[i]
+            dataset=[[],[]]
+            y=[[],[]]
             for j in range (self.npoints):
-                if self.f[j][i]>self.percentile(threshold)[i]:
-                    y[j]=1
-            clf.fit(self.points,y)
-            mce.append(1-clf.score(self.points,y))
+                r=random()
+                if r<tsp:
+                    index=1
+                else:
+                    index=0
+                dataset[index].append(self.points[j])
+                if self.f[j][i]>per:
+                    y[index].append(1)
+                else:
+                    y[index].append(0)
+            clf.fit(dataset[0],y[0])
+            mce.append(1-clf.score(dataset[1],y[1]))
+        return mce
+
+    def knn(self,threshold=50,tsp=0.1):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.knn: sampling first is necessary")
+        try:
+            import numpy as np
+            import sklearn as sk
+        except ImportError:
+            raise ImportError(
+                "analysis.knn needs numpy and scikit-learn to run. Are they installed?")
+        from sklearn.neighbors import KNeighborsClassifier
+        from numpy import zeros
+        from numpy.random import random
+        clf=KNeighborsClassifier(weights='distance')
+        mce=[]
+        for i in range (self.f_dim):
+            per=self.percentile(threshold)[i]
+            dataset=[[],[]]
+            y=[[],[]]
+            for j in range (self.npoints):
+                r=random()
+                if r<tsp:
+                    index=1
+                else:
+                    index=0
+                dataset[index].append(self.points[j])
+                if self.f[j][i]>per:
+                    y[index].append(1)
+                else:
+                    y[index].append(0)
+            clf.fit(dataset[0],y[0])
+            mce.append(1-clf.score(dataset[1],y[1]))
         return mce
 
 #CONSTRAINTS

@@ -34,7 +34,7 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 #include "../../src/util/hypervolume.h"
-#include"../../src/util/discrepancy.h"
+#include "../../src/util/discrepancy.h"
 #include "../../src/util/race_pop.h"
 #include "../../src/util/race_algo.h"
 #include "../utils.h"
@@ -54,6 +54,16 @@ class __PAGMO_VISIBLE py_simplex
 		std::vector<double> operator ()(unsigned int n) {return m_original_class(n);}
 	private:
 		pagmo::util::discrepancy::simplex m_original_class;
+};
+
+class __PAGMO_VISIBLE py_sobol
+{
+	public:
+		py_sobol(unsigned int dim, unsigned int count) : m_original_class(dim,count) {}
+		std::vector<double> operator ()() {return m_original_class();}
+		std::vector<double> operator ()(unsigned int n) {return m_original_class(n);}
+	private:
+		pagmo::util::discrepancy::sobol m_original_class;
 };
 
 class __PAGMO_VISIBLE py_halton
@@ -183,6 +193,12 @@ static inline boost::python::tuple race_algo_run_return_tuple(
 BOOST_PYTHON_MODULE(_util) {
 
 	common_module_init();
+
+	typedef std::vector<double> (discrepancy::py_sobol::*my_first_overload_s)() ;
+	typedef std::vector<double> (discrepancy::py_sobol::*my_second_overload_s)(unsigned int) ;
+	class_<discrepancy::py_sobol>("sobol", init<unsigned int , unsigned int>())
+		.def("next", my_first_overload_s(&discrepancy::py_sobol::operator()))
+		.def("next", my_second_overload_s(&discrepancy::py_sobol::operator()));
 
 	typedef std::vector<double> (discrepancy::py_simplex::*my_first_overload)() ;
 	typedef std::vector<double> (discrepancy::py_simplex::*my_second_overload)(unsigned int) ;
