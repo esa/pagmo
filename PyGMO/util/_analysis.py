@@ -520,6 +520,7 @@ class analysis:
         self.local_extrema=[]
         #self.local_neval=[]// pygmo doesn't return it
         self.local_f=[]
+        algo=algorithm.gsl_bfgs2()
         for i in range(self.local_initial_npoints):
             pop=population(prob)
             pop.push_back(self.points[self.local_initial_points[i]])

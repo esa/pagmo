@@ -5,8 +5,8 @@ from numpy import *
 import scipy as sp
 
 anal=analysis()
-prob=problem.rastrigin(5)
-anal.sample(prob,10000)
+prob=problem.dejong(5)
+anal.sample(prob,10)
 # # print anal.lda()
 # # print anal.qda()
 # # print anal.knn()
