@@ -509,6 +509,7 @@ class analysis:
             raise ImportError(
                 "analysis.get_local_extrema needs numpy to run. Is it installed?")
         from numpy.random import randint
+        from time import time
         
         if sample_size<=0 or sample_size>=self.npoints:
             self.local_initial_points=range(self.npoints)
@@ -519,28 +520,108 @@ class analysis:
 
         self.local_extrema=[]
         #self.local_neval=[]// pygmo doesn't return it
+        self.local_search_time=[]
         self.local_f=[]
         algo=algorithm.gsl_bfgs2()
+        if self.f_dim==1:
+            decomposition=prob
+        else:
+            decomposition=problem.decompose(prob)
         for i in range(self.local_initial_npoints):
-            pop=population(prob)
+            pop=population(decomposition)
             pop.push_back(self.points[self.local_initial_points[i]])
             isl=island(algo,pop)
+            start=time()
             isl.evolve(1)
             isl.join()
+            finish=time()
+            self.local_search_time.append((finish-start)*1000)
             self.local_extrema.append(isl.population.champion.x)
-            self.local_f.append(isl.population.champion.f)
+            self.local_f.append(isl.population.champion.f[0])
 
+    def cluster_local_extrema(self,k=0,variance_ratio=0.95,single_cluster_tolerance=0.0001):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis_cluster_local_extrema: sampling first is necessary")
+        if self.local_initial_npoints==0:
+            raise ValueError(
+                "analysis.cluster_local_extrema: getting local extrema first is necessary")
+        try:
+            import numpy as np
+            import scipy as sp
+            import sklearn as sk
+        except ImportError:
+            raise ImportError(
+                "analysis.cluster_local_extrema needs numpy,scipy and sklearn to run. Are they installed?")
+        from sklearn.cluster import KMeans
 
-    def cluster_local_extrema(self):
-        from sklearn.cluster import DBSCAN
-        from numpy import array
-        A=[]
-        for i in range(self.npoints):
-            A.append(self.local_extrema[0][i]+self.local_f[0][i])
-        cluster=DBSCAN()
-        return cluster.fit_predict(A)
+        dataset=np.zeros([self.local_initial_npoints,self.dim+1])#normalized dataset
 
-#LEVELSET FEATURES
+        range_f=np.ptp(self.f)
+        mean_f=np.mean(self.f)
+
+        if range_f<single_cluster_tolerance:
+            raise ValueError(
+                "analysis_cluster_local_extrema: the results appear to be constant")
+        for i in range(self.local_initial_npoints):
+            for j in range(self.dim):
+                dataset[i][j]=(self.local_extrema[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
+            dataset[i][self.dim]=(self.local_f[i]-mean_f)/range_f
+
+        if k!=0:#cluster to given number of clusters
+            clust=KMeans(k)
+
+            #storage of output
+            self.local_cluster=list(clust.fit_predict(dataset))
+            self.local_nclusters=1
+            self.local_cluster_size=0
+            for i in range(self.local_initial_npoints):
+                self.local_cluster_size[self.local_cluster[i]]+=1
+            self.local_cluster_size=list(self.local_cluster_size)
+
+        else:#find out number of clusters
+            clust=KMeans(1)
+            total_distances=clust.fit_transform(dataset)
+            total_center=clust.cluster_centers_[0]
+            if max(total_distances)<single_cluster_tolerance:#single cluster scenario
+                #storage of output
+                self.local_cluster=list(clust.predict(dataset))
+                self.local_nclusters=1
+                self.local_cluster_size=[0]
+                for i in range(self.local_initial_npoints):
+                    self.local_cluster_size[self.local_cluster[i]]+=1
+                self.local_cluster_size=list(self.local_cluster_size)
+            else:
+                k=2#determination of the number of clusters
+                var_tot=sum([x**2 for x in total_distances])/(self.local_initial_npoints-1)
+                var_ratio=0
+                while var_ratio<=variance_ratio:
+                    clust=KMeans(k)
+                    y=clust.fit_predict(dataset)
+                    cluster_size=np.zeros(k)
+                    var_exp=0
+                    for i in range(self.local_initial_npoints):
+                        cluster_size[y[i]]+=1
+                    for i in range(k):
+                        distance=np.linalg.norm(clust.cluster_centers_[i]-total_center)
+                        var_exp+=cluster_size[i]*distance**2
+                    var_exp/=self.local_initial_npoints-1
+                    var_ratio=var_exp/var_tot
+                    k+=1
+                #storage of output
+                self.local_cluster=list(y)
+                self.local_nclusters=k-1
+                self.local_cluster_size=cluster_size
+        self.local_cluster_x_centers=[]
+        self.local_cluster_f_centers=[]
+        for i in range(self.local_nclusters):
+            self.local_cluster_x_centers.append(clust.cluster_centers_[i][:self.dim])
+            self.local_cluster_f_centers.append(clust.cluster_centers_[i][self.dim]*range_f+mean_f)
+            for j in range(self.dim):
+                self.local_cluster_x_centers[i][j]*=(self.ub[j]-self.lb[j])
+                self.local_cluster_x_centers[i][j]+=0.5*(self.ub[j]+self.lb[j])
+
+#LEVELSET FEATURES (quite bad unless improved)
     def lda(self,threshold=50,tsp=0.1):
         if self.npoints==0:
             raise ValueError(
@@ -609,7 +690,44 @@ class analysis:
             mce.append(1-clf.score(dataset[1],y[1]))
         return mce
 
-    def knn(self,threshold=50,tsp=0.1):
+    def kfdac(self,threshold=50,tsp=0.1):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.kfdac: sampling first is necessary")
+        try:
+            import numpy as np
+            import mlpy
+        except ImportError:
+            raise ImportError(
+                "analysis.kfdac needs numpy and mlpy to run. Are they installed?")
+        from mlpy import KFDAC, KernelGaussian
+        from numpy import zeros
+        from numpy.random import random
+        K=KernelGaussian()
+        clf=KFDAC(kernel=K)
+        mce=[]
+        for i in range (self.f_dim):
+            per=self.percentile(threshold)[i]
+            dataset=[[],[]]
+            y=[[],[]]
+            for j in range (self.npoints):
+                r=random()
+                if r<tsp:
+                    index=1
+                else:
+                    index=0
+                dataset[index].append(self.points[j])
+                if self.f[j][i]>per:
+                    y[index].append(1)
+                else:
+                    y[index].append(0)
+            clf.learn(dataset[0],y[0])
+            y_pred=clf.pred(dataset[1])
+            score=(y_pred ==y[1])
+            mce.append(1-np.mean(score))
+        return mce
+
+    def knn(self,threshold=50,tsp=0.1): #highly unuseful at the moment
         if self.npoints==0:
             raise ValueError(
                 "analysis.knn: sampling first is necessary")
@@ -642,6 +760,172 @@ class analysis:
             clf.fit(dataset[0],y[0])
             mce.append(1-clf.score(dataset[1],y[1]))
         return mce
+
+#LEVELSET FEATURES WITH DAC, IMPROVED BUT IN PRINCIPLE WORSE THAN SVM
+    def dac(self,threshold=50,classifier='k',k_test=10):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.dac: sampling first is necessary")
+        if classifier!='l' and classifier!= 'q' and classifier!='k':
+            raise ValueError(
+                "analysis.dac: choose a proper value for classifier ('l','q','k')")
+        if threshold<=0 or threshold>=100:
+            raise ValueError(
+                "analysis.dac: threshold needs to be a value ]0,100[")
+        try:
+            import numpy as np
+            import sklearn as sk
+            import mlpy
+        except ImportError:
+            raise ImportError(
+                "analysis.svm needs numpy, mlpy and scikit-learn to run. Are they installed?")
+        from sklearn.cross_validation import StratifiedKFold, cross_val_score
+        from sklearn.lda import LDA
+        from sklearn.qda import QDA
+        from sklearn.metrics import accuracy_score
+        from mlpy import KFDAC, KernelGaussian
+
+        if classifier=='l':
+            clf=LDA()
+        elif classifier=='q':
+            clf=QDA()
+        else:
+            clf=KFDAC(kernel=KernelGaussian())
+        per=self.percentile(threshold)
+        
+        dataset=[] #normalization of data
+        for i in range(self.npoints):
+            dataset.append(np.zeros(self.dim))
+            for j in range(self.dim):
+                dataset[i][j]=(self.points[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
+
+        mce=[]
+        for obj in range(self.f_dim):
+            y=np.zeros(self.npoints) #classification of data
+            for i in range(self.npoints):
+                if self.f[i][obj]>per[obj]:
+                    y[i]=1
+
+            if classifier=='k':
+                iterator=StratifiedKFold(y,k_test)
+                i=0
+                mce.append([])
+                for train_index,test_index in iterator:
+                    Xtrain=[]
+                    Xtest=[]
+                    ytrain=[]
+                    ytest=[]
+                    for i in train_index:
+                        Xtrain.append(dataset[i])
+                        ytrain.append(y[i])
+                    for i in test_index:
+                        Xtest.append(dataset[i])
+                        ytest.append(y[i])
+                    clf.learn(Xtrain,ytrain)
+                    mce[obj].append(1-accuracy_score(clf.pred(Xtest),ytest))
+            else:
+                test_score=cross_val_score(estimator=clf,X=dataset,y=y,scoring=None,cv=StratifiedKFold(y,k_test))
+                mce.append(list(np.ones(k_test)-test_score))
+
+        return mce #mce[n_obj][k_test]
+
+    def dac_p_values(self,threshold=50,k_test=10):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.dac_p_values: sampling first is necessary")
+        try:
+            import scipy as sp
+            import numpy as np
+        except ImportError:
+            raise ImportError(
+                "analysis.dac_p_values needs scipy and numpy to run. Is it installed?")
+        linear=self.dac(threshold=threshold, classifier='l', k_test=k_test)
+        quadratic=self.dac(threshold=threshold, classifier='q', k_test=k_test)
+        nonlinear=self.dac(threshold=threshold, classifier='k', k_test=k_test)
+        l_q=[]
+        q_n=[]
+        l_n=[]
+        for i in range(self.f_dim):
+            l_q.append(sp.stats.mannwhitneyu(linear[i],quadratic[i])[1])
+            l_n.append(sp.stats.mannwhitneyu(linear[i],nonlinear[i])[1])
+            q_n.append(sp.stats.mannwhitneyu(quadratic[i],nonlinear[i])[1])
+        return (list(np.mean(linear,1)),list(np.mean(quadratic,1)),list(np.mean(nonlinear,1)),l_q,l_n,q_n)
+
+#LEVELSET FEATURES WITH SVM (USE THESE)
+    def svm(self,threshold=50,kernel='rbf',k_tune=3,k_test=10):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.svm: sampling first is necessary")
+        if kernel!='linear' and kernel!= 'quadratic' and kernel!='rbf':
+            raise ValueError(
+                "analysis.svm: choose a proper value for kernel ('linear','quadratic','rbf')")
+        if threshold<=0 or threshold>=100:
+            raise ValueError(
+                "analysis.svm: threshold needs to be a value ]0,100[")
+        try:
+            import numpy as np
+            import sklearn as sk
+        except ImportError:
+            raise ImportError(
+                "analysis.svm needs numpy and scikit-learn to run. Are they installed?")
+        from sklearn.cross_validation import StratifiedKFold, cross_val_score
+        from sklearn.svm import SVC
+        from sklearn.grid_search import GridSearchCV
+        from sklearn.preprocessing import StandardScaler
+        if kernel=='quadratic':
+            kernel='poly'
+        c_range=2.**np.arange(-5,16)
+        if kernel=='linear':
+            param_grid=dict(C=c_range)
+        else:
+            g_range=2.**np.arange(-15,4)
+            param_grid=dict(gamma=g_range,C=c_range)
+        per=self.percentile(threshold)
+        
+        dataset=[] #normalization of data
+        for i in range(self.npoints):
+            dataset.append(np.zeros(self.dim))
+            for j in range(self.dim):
+                dataset[i][j]=(self.points[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
+
+        mce=[]
+        for obj in range(self.f_dim):
+            y=np.zeros(self.npoints) #classification of data
+            for i in range(self.npoints):
+                if self.f[i][obj]>per[obj]:
+                    y[i]=1
+
+            #grid search
+            grid=GridSearchCV(estimator=SVC(kernel=kernel,degree=2),param_grid=param_grid,cv=StratifiedKFold(y,k_tune))
+            grid.fit(dataset,y)
+            #print grid.best_estimator_
+            test_score=cross_val_score(estimator=grid.best_estimator_,X=dataset,y=y,scoring=None,cv=StratifiedKFold(y,k_test))
+            mce.append(list(np.ones(k_test)-test_score))
+
+        return mce #mce[n_obj][k_test]
+
+    def svm_p_values(self,threshold=50,k_tune=3,k_test=10):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.svm_p_values: sampling first is necessary")
+        try:
+            import scipy as sp
+            import numpy as np
+        except ImportError:
+            raise ImportError(
+                "analysis.svm_p_values needs scipy and numpy to run. Is it installed?")
+        linear=self.svm(threshold=threshold, kernel='linear',k_tune=k_tune, k_test=k_test)
+        quadratic=self.svm(threshold=threshold, kernel='quadratic',k_tune=k_tune, k_test=k_test)
+        nonlinear=self.svm(threshold=threshold, kernel='rbf',k_tune=k_tune, k_test=k_test)
+        l_q=[]
+        q_n=[]
+        l_n=[]
+        for i in range(self.f_dim):
+            l_q.append(sp.stats.mannwhitneyu(linear[i],quadratic[i])[1])
+            l_n.append(sp.stats.mannwhitneyu(linear[i],nonlinear[i])[1])
+            q_n.append(sp.stats.mannwhitneyu(quadratic[i],nonlinear[i])[1])
+        return (list(np.mean(linear,1)),list(np.mean(quadratic,1)),list(np.mean(nonlinear,1)),l_q,l_n,q_n)
+
 
 #CONSTRAINTS
     def compute_constraints(self,prob):
@@ -687,26 +971,25 @@ class analysis:
                         ec_f[i]=0
             return ec_f
 
-
     def print_report(self,prob): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        print "---------------------------------------------------------------------\n"
+        print "-----------------------------------------------------------------------------------------------------\n"
         print "PROBLEM PROPERTIES \n"
-        print "---------------------------------------------------------------------\n"
+        print "-----------------------------------------------------------------------------------------------------\n"
         print "Dimension :                             ",self.dim," \n"
         print "     continuous :                       ",self.cont_dim," \n"
         print "     integer :                          ",self.int_dim," \n"
         print "Number of objectives :                  ",self.f_dim," \n"
         print "Number of constraints :                 ",self.c_dim," \n"
         print "     of which inequality constraints :  ",self.ic_dim," \n"
-        print "Bounds : \n"
+        print "Variable bounds : \n"
         for i in range(self.dim):
             print "     variable",i,":                         ","[",self.lb[i],",",self.ub[i],"]\n"
-        #print "Box constraints hypervolume :           ",self.box_hv()," \n"
-        print "---------------------------------------------------------------------\n"
+        print "Box constraints hypervolume :           ",self.box_hv()," \n"
+        print "-----------------------------------------------------------------------------------------------------\n"
         print "F-DISTRIBUTION FEATURES (",self.f_dim," OBJECTIVES )\n"
-        print "---------------------------------------------------------------------\n"
+        print "-----------------------------------------------------------------------------------------------------\n"
         print "Number of points sampled :              ",self.npoints," \n \n"
-        print "Range :                                 ",list(self.ptp())," \n"
+        print "Range of objective function:            ",list(self.ptp())," \n"
         print "Mean value :                            ",list(self.mean())," \n"
         print "Variance :                              ",list(self.var())," \n"
         print "Percentiles :"
@@ -719,27 +1002,43 @@ class analysis:
         print "   100 :                                ",list(self.percentile(100))," \n"
         print "Skew :                                  ",list(self.skew())," \n"
         print "Kurtosis :                              ",list(self.kurtosis())," \n"
-        print "---------------------------------------------------------------------\n"
+        print "-----------------------------------------------------------------------------------------------------\n"
         print "META-MODEL FEATURES \n"
-        print "---------------------------------------------------------------------\n"
+        print "-----------------------------------------------------------------------------------------------------\n"
         print "Linear regression R2 :                  ",self.lin_reg()[1]," \n"
-        print "Linear regression with interaction R2 : ",self.lin_reg_inter()[1]," \n"
+        if self.dim>=2:
+            print "Linear regression with interaction R2 : ",self.lin_reg_inter()[1]," \n"
         print "Quadratic regression R2 :               ",self.poly_reg()[1]," \n"
-        print "---------------------------------------------------------------------\n"
-        print "LEVELSET FEATURES \n"
-        print "---------------------------------------------------------------------\n"
-        print "LDA Misclassification error : \n"
-        print "     Percentile 10 :                    ",self.lda(10)," \n"
-        print "     Percentile 25 :                    ",self.lda(25)," \n"
-        print "     Percentile 50 :                    ",self.lda(50)," \n"
-        print "QDA Misclassification error : \n"
-        print "     Percentile 10 :                    ",self.qda(10)," \n"
-        print "     Percentile 25 :                    ",self.qda(25)," \n"
-        print "     Percentile 50 :                    ",self.qda(50)," \n"
-        print "---------------------------------------------------------------------\n"
+        print "-----------------------------------------------------------------------------------------------------\n"
+        # print "LEVELSET FEATURES \n"
+        # print "-----------------------------------------------------------------------------------------------------\n"
+        # print "LDA Misclassification error : \n"
+        # print "     Percentile 10 :                    ",self.lda(10)," \n"
+        # print "     Percentile 25 :                    ",self.lda(25)," \n"
+        # print "     Percentile 50 :                    ",self.lda(50)," \n"
+        # print "QDA Misclassification error : \n"
+        # print "     Percentile 10 :                    ",self.qda(10)," \n"
+        # print "     Percentile 25 :                    ",self.qda(25)," \n"
+        # print "     Percentile 50 :                    ",self.qda(50)," \n"
+        print "-----------------------------------------------------------------------------------------------------\n"
         print "PROBABILITY OF LINEARITY AND CONVEXITY\n"
-        print "---------------------------------------------------------------------\n"
+        print "-----------------------------------------------------------------------------------------------------\n"
         p=self.p_lin_conv(prob)
         print "Probability of linearity :              ",p[0]," \n"
         print "Probability of convexity :              ",p[1]," \n"
         print "Mean deviation from linearity :         ",p[2]," \n"
+        print "-----------------------------------------------------------------------------------------------------\n"
+        print "LOCAL SEARCH\n"
+        print "-----------------------------------------------------------------------------------------------------\n"
+        self.get_local_extrema(prob)
+        self.cluster_local_extrema()
+        print "Local searches performed :              ",self.local_initial_npoints," \n"
+        print "Number of clusters identified :         ",self.local_nclusters," \n"
+        print "Cluster properties : \n"
+        for i in range(self.local_nclusters):
+            print "     Cluster n.:                        ",i+1," \n"
+            print "         Size:                          ",self.local_cluster_size[i]," \n"
+            print "         Mean objective value :         ",self.local_cluster_f_centers[i]," \n"
+            print "         Cluster center :               ",self.local_cluster_x_centers[i]," \n"
+
+
