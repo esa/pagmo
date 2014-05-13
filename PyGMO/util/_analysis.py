@@ -1,10 +1,9 @@
-
 from PyGMO import *
 
 class analysis:
     "This class will contain blahblah"
 
-    def __init__(self):
+    def __init__(self,prob):
             self.npoints=0
             self.points=[]
             self.f=[]
@@ -12,17 +11,17 @@ class analysis:
             self.grad_points=[]
             self.grad=[]
             self.c=[]
+            self.prob=prob
 
-
-    def sample(self, prob, npoints, method='sobol', first=1):
+    def sample(self, npoints, method='sobol', first=1):
         self.points=[]
         self.f=[]
         self.npoints=npoints
-        self.lb=list(prob.lb)
-        self.ub=list(prob.ub)
+        self.lb=list(self.prob.lb)
+        self.ub=list(self.prob.ub)
 
         self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = \
-        prob.dimension, prob.dimension - prob.i_dimension, prob.i_dimension, prob.c_dimension, prob. ic_dimension, prob.f_dimension
+        self.prob.dimension, self.prob.dimension - self.prob.i_dimension, self.prob.i_dimension, self.prob.c_dimension, self.prob. ic_dimension, self.prob.f_dimension
 
         # if self.c_dim > 0:
         #     raise ValueError(
@@ -46,7 +45,7 @@ class analysis:
                 if j>=self.cont_dim:
                     temp[j]=round(temp[j],0) #round if necessary
             self.points.append(temp)
-            self.f.append(list(prob.objfun(temp)))
+            self.f.append(list(self.prob.objfun(temp)))
 
 #f-DISTRIBUTION FEATURES
    
@@ -135,7 +134,7 @@ class analysis:
         return hv
 
 #DEGREE OF LINEARITY AND CONVEXITY
-    def p_lin_conv(self,prob,n_pairs=0,threshold=10**(-10),maximization=False):
+    def p_lin_conv(self,n_pairs=0,threshold=10**(-10),maximization=False):
         if self.npoints==0:
             raise ValueError(
                 "analysis.p_lin_conv: sampling first is necessary")
@@ -160,7 +159,7 @@ class analysis:
             r=random()
             x=r*array(self.points[i1])+(1-r)*array(self.points[i2])
             f_lin=r*array(self.f[i1])+(1-r)*array(self.f[i2])
-            f_real=array(prob.objfun(x))
+            f_real=array(self.prob.objfun(x))
             delta=f_lin-f_real
             mean_dev+=abs(delta)
             if maximization:
@@ -173,6 +172,7 @@ class analysis:
         p_lin/=n_pairs
         p_conv/=n_pairs
         mean_dev/=n_pairs
+        self.lin_conv_npairs=n_pairs
         return (list(p_lin),list(p_conv),list(mean_dev))
 
 #META-MODEL FEATURES
@@ -310,13 +310,13 @@ class analysis:
                 "analysis.f_correlation needs numpy to run. Is it installed?")
         from numpy import corrcoef
         M=corrcoef(self.f, rowvar=0)
-        return (M, np.linalg.eigh(M)[0], list(np.transpose(np.linalg.eigh(M)[1])))
+        return (M.tolist(), np.linalg.eigh(M)[0].tolist(), np.transpose(np.linalg.eigh(M)[1]).tolist())
     
     #enhance to perform pca...!?
 
 #CURVATURE
 #problem: tolerance needs to be relative to the magnitude of the result
-    def get_gradient(self,prob,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.0001):
+    def get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001):
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_gradient: sampling first is necessary")
@@ -337,14 +337,14 @@ class analysis:
         self.grad=[]
         self.grad_sparsity=np.zeros(self.f_dim)
         for i in self.grad_points:
-            self.grad.append(self.richardson_gradient(x=self.points[i],prob=prob,h=h,grad_tol=grad_tol))
+            self.grad.append(self.richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol))
             for j in range(self.f_dim):
                 for k in range(self.dim):
                     if abs(self.grad[i][j][k])<=zero_tol:
                         self.grad_sparsity[j]+=1.
         self.grad_sparsity/=(self.grad_npoints*self.dim*self.f_dim)
 
-    def richardson_gradient(self,x,prob,h,grad_tol,tmax=15):
+    def richardson_gradient(self,x,h,grad_tol,tmax=15):
         from numpy import array, zeros, amax
         d=[[zeros([self.f_dim,self.dim])],[]]
         hh=2*h
@@ -357,7 +357,7 @@ class analysis:
                 xd=list(x)
                 xu[i]+=hh
                 xd[i]-=hh
-                tmp=(array(prob.objfun(xu))-array(prob.objfun(xd)))/(2*hh)
+                tmp=(array(self.prob.objfun(xu))-array(self.prob.objfun(xd)))/(2*hh)
                 
                 for j in range(self.f_dim):
                     d[t%2][0][j][i]=tmp[j]
@@ -374,7 +374,7 @@ class analysis:
         return list(d[(t+1)%2][t-1])
 
 
-    def get_hessian(self,prob,sample_size=0,h=0.01,hess_tol=0.000001,zero_tol=0.0001):
+    def get_hessian(self,sample_size=0,h=0.01,hess_tol=0.000001):
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_hessian: sampling first is necessary")
@@ -395,9 +395,9 @@ class analysis:
 
         self.hess=[]
         for i in self.hess_points:
-            self.hess.append(self.richardson_hessian(x=self.points[i],prob=prob,h=h,hess_tol=hess_tol))
+            self.hess.append(self.richardson_hessian(x=self.points[i],h=h,hess_tol=hess_tol))
 
-    def richardson_hessian(self,x,prob,h,hess_tol,tmax=15):
+    def richardson_hessian(self,x,h,hess_tol,tmax=15):
         from numpy import array, zeros, amax
         from itertools import combinations_with_replacement
         ind=list(combinations_with_replacement(range(self.dim),2))
@@ -420,7 +420,7 @@ class analysis:
                     xu[ind[i][0]]+=hh
                     xd[ind[i][0]]-=hh
 
-                    tmp=(array(prob.objfun(xu))-2*array(prob.objfun(x))+array(prob.objfun(xd)))/(hh**2)
+                    tmp=(array(self.prob.objfun(xu))-2*array(self.prob.objfun(x))+array(self.prob.objfun(xd)))/(hh**2)
 
                 else:
                     xuu[ind[i][0]]+=hh
@@ -432,7 +432,7 @@ class analysis:
                     xdu[ind[i][0]]-=hh
                     xdu[ind[i][1]]+=hh
 
-                    tmp=(array(prob.objfun(xuu))-array(prob.objfun(xud))-array(prob.objfun(xdu))+array(prob.objfun(xdd)))/(4*hh*hh)
+                    tmp=(array(self.prob.objfun(xuu))-array(self.prob.objfun(xud))-array(self.prob.objfun(xdu))+array(self.prob.objfun(xdd)))/(4*hh*hh)
 
                 for j in range(self.f_dim):
                     d[t%2][0][j][i]=tmp[j]
@@ -456,11 +456,30 @@ class analysis:
 
         return hessian
 
-#LOCAL SEARCH -> minimization assumed, single objective assumed
-    def func(self,x,prob,obj):
-        return float(prob.objfun(x)[obj])
+    def plot_gradient_sparsity(self,zero_tol=0.000001):
+        if self.grad_npoints==0:
+            raise ValueError(
+                "analysis.plot_gradient_sparsity: sampling and getting gradient first is necessary")
+        try:
+            from matplotlib.pylab import spy,show
+            from numpy import mean,asarray
+        except ImportError:
+            raise ImportError(
+                "analysis.plot_gradient_sparsity needs matplotlib and numpy to run. Are they installed?")
 
-    def get_local_extrema0(self,prob,sample_size=0,method='Powell'):
+        average_gradient=mean(abs(asarray(self.grad)),0)
+        for i in range(self.f_dim):
+            for j in range(self.dim):
+                if average_gradient[i][j]<=zero_tol:
+                    average_gradient[i][j]=0
+        plot=spy(average_gradient)
+        show(plot)
+
+#LOCAL SEARCH -> minimization assumed, single objective assumed
+    def func(self,x,obj):
+        return float(self.prob.objfun(x)[obj])
+
+    def get_local_extrema0(self,sample_size=0,method='Powell'):
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_local_extrema: sampling first is necessary")
@@ -491,7 +510,7 @@ class analysis:
             tmp2=[]
             tmp3=[]
             for i in self.local_initial_points:
-                res=minimize(self.func,self.points[i],(prob,j),method)
+                res=minimize(self.func,self.points[i],(j,),method)
                 tmp1.append(list(res.x))
                 tmp2.append(res.nfev)
                 tmp3.append(res.fun)
@@ -499,7 +518,7 @@ class analysis:
             self.local_neval.append(tmp2)
             self.local_f.append(tmp3)
 
-    def get_local_extrema(self,prob,sample_size=0):
+    def get_local_extrema(self,sample_size=0):
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_local_extrema: sampling first is necessary")
@@ -524,9 +543,9 @@ class analysis:
         self.local_f=[]
         algo=algorithm.gsl_bfgs2()
         if self.f_dim==1:
-            decomposition=prob
+            decomposition=self.prob
         else:
-            decomposition=problem.decompose(prob)
+            decomposition=problem.decompose(self.prob)
         for i in range(self.local_initial_npoints):
             pop=population(decomposition)
             pop.push_back(self.points[self.local_initial_points[i]])
@@ -572,12 +591,12 @@ class analysis:
             clust=KMeans(k)
 
             #storage of output
-            self.local_cluster=list(clust.fit_predict(dataset))
-            self.local_nclusters=1
-            self.local_cluster_size=0
+            local_cluster=list(clust.fit_predict(dataset))
+            self.local_nclusters=k
+            cluster_size=np.zeros(k)
             for i in range(self.local_initial_npoints):
-                self.local_cluster_size[self.local_cluster[i]]+=1
-            self.local_cluster_size=list(self.local_cluster_size)
+                cluster_size[local_cluster[i]]+=1
+            cluster_size=list(cluster_size)
 
         else:#find out number of clusters
             clust=KMeans(1)
@@ -585,12 +604,12 @@ class analysis:
             total_center=clust.cluster_centers_[0]
             if max(total_distances)<single_cluster_tolerance:#single cluster scenario
                 #storage of output
-                self.local_cluster=list(clust.predict(dataset))
+                local_cluster=list(clust.predict(dataset))
                 self.local_nclusters=1
-                self.local_cluster_size=[0]
+                cluster_size=[0]
                 for i in range(self.local_initial_npoints):
-                    self.local_cluster_size[self.local_cluster[i]]+=1
-                self.local_cluster_size=list(self.local_cluster_size)
+                    cluster_size[local_cluster[i]]+=1
+                cluster_size=list(cluster_size)
             else:
                 k=2#determination of the number of clusters
                 var_tot=sum([x**2 for x in total_distances])/(self.local_initial_npoints-1)
@@ -609,17 +628,28 @@ class analysis:
                     var_ratio=var_exp/var_tot
                     k+=1
                 #storage of output
-                self.local_cluster=list(y)
+                local_cluster=list(y)
                 self.local_nclusters=k-1
-                self.local_cluster_size=cluster_size
+        #more storage and reordering so clusters are ordered best to worst
+        cluster_value=[clust.cluster_centers_[i][self.dim] for i in range(self.local_nclusters)]
+        order=[x for (y,x) in sorted(zip(cluster_value,range(self.local_nclusters)))]
+
         self.local_cluster_x_centers=[]
         self.local_cluster_f_centers=[]
+        self.local_cluster=[]
+        self.local_cluster_size=[]
         for i in range(self.local_nclusters):
-            self.local_cluster_x_centers.append(clust.cluster_centers_[i][:self.dim])
-            self.local_cluster_f_centers.append(clust.cluster_centers_[i][self.dim]*range_f+mean_f)
+            self.local_cluster_size.append(cluster_size[order[i]])
+            self.local_cluster_x_centers.append(clust.cluster_centers_[order[i]][:self.dim])
+            self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim]*range_f+mean_f)
             for j in range(self.dim):
                 self.local_cluster_x_centers[i][j]*=(self.ub[j]-self.lb[j])
                 self.local_cluster_x_centers[i][j]+=0.5*(self.ub[j]+self.lb[j])
+        for i in range(self.local_initial_npoints):
+            for j in range(self.local_nclusters):
+                if local_cluster[i]==order[j]:
+                    self.local_cluster.append(j)
+                    break
 
 #LEVELSET FEATURES (quite bad unless improved)
     def lda(self,threshold=50,tsp=0.1):
@@ -851,7 +881,7 @@ class analysis:
             q_n.append(sp.stats.mannwhitneyu(quadratic[i],nonlinear[i])[1])
         return (list(np.mean(linear,1)),list(np.mean(quadratic,1)),list(np.mean(nonlinear,1)),l_q,l_n,q_n)
 
-#LEVELSET FEATURES WITH SVM (USE THESE)
+#LEVELSET FEATURES WITH SVM (PREFERABLY USE THESE...?)
     def svm(self,threshold=50,kernel='rbf',k_tune=3,k_test=10):
         if self.npoints==0:
             raise ValueError(
@@ -928,14 +958,14 @@ class analysis:
 
 
 #CONSTRAINTS
-    def compute_constraints(self,prob):
+    def compute_constraints(self):
         if self.npoints==0:
             raise ValueError(
                 "analysis.compute_constraints: sampling first is necessary")
         self.c=[]
         if self.c_dim!=0:
             for i in range(self.npoints):
-                self.c.append(list(prob.compute_constraints(self.points[i])))
+                self.c.append(list(self.prob.compute_constraints(self.points[i])))
 
     def ic_effectiveness(self):
         if self.npoints==0:
@@ -971,74 +1001,121 @@ class analysis:
                         ec_f[i]=0
             return ec_f
 
-    def print_report(self,prob): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        print "-----------------------------------------------------------------------------------------------------\n"
+    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[],p_dac=[]): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        import numpy as np
+        self.sample(sample)
+        print "--------------------------------------------------------------------------------\n"
         print "PROBLEM PROPERTIES \n"
-        print "-----------------------------------------------------------------------------------------------------\n"
+        print "--------------------------------------------------------------------------------\n"
         print "Dimension :                             ",self.dim," \n"
-        print "     continuous :                       ",self.cont_dim," \n"
-        print "     integer :                          ",self.int_dim," \n"
+        print "     of which integer :                 ",self.int_dim," \n"
         print "Number of objectives :                  ",self.f_dim," \n"
         print "Number of constraints :                 ",self.c_dim," \n"
         print "     of which inequality constraints :  ",self.ic_dim," \n"
         print "Variable bounds : \n"
         for i in range(self.dim):
-            print "     variable",i,":                         ","[",self.lb[i],",",self.ub[i],"]\n"
+            print "     variable",i+1,":                       ","[",self.lb[i],",",self.ub[i],"]\n"
         print "Box constraints hypervolume :           ",self.box_hv()," \n"
-        print "-----------------------------------------------------------------------------------------------------\n"
+        print "--------------------------------------------------------------------------------\n"
         print "F-DISTRIBUTION FEATURES (",self.f_dim," OBJECTIVES )\n"
-        print "-----------------------------------------------------------------------------------------------------\n"
-        print "Number of points sampled :              ",self.npoints," \n \n"
-        print "Range of objective function:            ",list(self.ptp())," \n"
+        print "--------------------------------------------------------------------------------\n"
+        print "Number of points sampled :              ",self.npoints," \n"
+        print "Range of objective function :           ",list(self.ptp())," \n"
         print "Mean value :                            ",list(self.mean())," \n"
         print "Variance :                              ",list(self.var())," \n"
-        print "Percentiles :"
-        print "     0 :                                ",list(self.percentile(0))," \n"
-        print "    10 :                                ",list(self.percentile(10))," \n"
-        print "    25 :                                ",list(self.percentile(25))," \n"
-        print "    50 :                                ",list(self.percentile(50))," \n"
-        print "    75 :                                ",list(self.percentile(75))," \n"
-        print "    90 :                                ",list(self.percentile(90))," \n"
-        print "   100 :                                ",list(self.percentile(100))," \n"
+        if len(p_f)>0:
+            print "Percentiles : \n"
+            for i in p_f:
+                if i<10:
+                    print "     ",i,":                               ",list(self.percentile(i))," \n"
+                elif i==100:
+                    print "     ",i,":                             ",list(self.percentile(i))," \n"
+                else:
+                    print "     ",i,":                              ",list(self.percentile(i))," \n"  
         print "Skew :                                  ",list(self.skew())," \n"
         print "Kurtosis :                              ",list(self.kurtosis())," \n"
-        print "-----------------------------------------------------------------------------------------------------\n"
+        print "--------------------------------------------------------------------------------\n"
         print "META-MODEL FEATURES \n"
-        print "-----------------------------------------------------------------------------------------------------\n"
+        print "--------------------------------------------------------------------------------\n"
         print "Linear regression R2 :                  ",self.lin_reg()[1]," \n"
         if self.dim>=2:
             print "Linear regression with interaction R2 : ",self.lin_reg_inter()[1]," \n"
         print "Quadratic regression R2 :               ",self.poly_reg()[1]," \n"
-        print "-----------------------------------------------------------------------------------------------------\n"
-        # print "LEVELSET FEATURES \n"
-        # print "-----------------------------------------------------------------------------------------------------\n"
-        # print "LDA Misclassification error : \n"
-        # print "     Percentile 10 :                    ",self.lda(10)," \n"
-        # print "     Percentile 25 :                    ",self.lda(25)," \n"
-        # print "     Percentile 50 :                    ",self.lda(50)," \n"
-        # print "QDA Misclassification error : \n"
-        # print "     Percentile 10 :                    ",self.qda(10)," \n"
-        # print "     Percentile 25 :                    ",self.qda(25)," \n"
-        # print "     Percentile 50 :                    ",self.qda(50)," \n"
-        print "-----------------------------------------------------------------------------------------------------\n"
+        if len(p_svm)>0:
+            print "--------------------------------------------------------------------------------\n"
+            print "LEVELSET FEATURES : SVM\n"
+            print "--------------------------------------------------------------------------------\n"
+            for i in p_svm:
+                svm_results=self.svm_p_values(threshold=i)
+                print "Percentile",i,":\n"
+                print "     Mean Misclassification Errors :\n"
+                print "         Linear Kernel :                ",svm_results[0]," \n"
+                print "         Quadratic Kernel :             ",svm_results[1]," \n"
+                print "         Non-Linear Kernel (RBF):       ",svm_results[2]," \n"
+                print "     P-Values : \n"
+                print "         Linear/Quadratic :             ",svm_results[3]," \n"
+                print "         Linear/Nonlinear :             ",svm_results[4]," \n"
+                print "         Quadratic/Nonlinear :          ",svm_results[5]," \n"
+        if len(p_dac)>0:
+            print "--------------------------------------------------------------------------------\n"
+            print "LEVELSET FEATURES : DAC\n"
+            print "--------------------------------------------------------------------------------\n"
+            for i in p_dac:
+                dac_results=self.dac_p_values(threshold=i)
+                print "Percentile",i,":\n"
+                print "     Mean Misclassification Errors :\n"
+                print "         LDA :                          ",svm_results[0]," \n"
+                print "         QDA :                          ",svm_results[1]," \n"
+                print "         KFDA (RBF Kernel):             ",svm_results[2]," \n"
+                print "     P-Values : \n"
+                print "         Linear/Quadratic :             ",svm_results[3]," \n"
+                print "         Linear/Nonlinear :             ",svm_results[4]," \n"
+                print "         Quadratic/Nonlinear :          ",svm_results[5]," \n"
+        print "--------------------------------------------------------------------------------\n"
         print "PROBABILITY OF LINEARITY AND CONVEXITY\n"
-        print "-----------------------------------------------------------------------------------------------------\n"
-        p=self.p_lin_conv(prob)
+        print "--------------------------------------------------------------------------------\n"
+        p=self.p_lin_conv()
+        print "Number of pairs of points used :        ",self.lin_conv_npairs," \n"
         print "Probability of linearity :              ",p[0]," \n"
         print "Probability of convexity :              ",p[1]," \n"
         print "Mean deviation from linearity :         ",p[2]," \n"
-        print "-----------------------------------------------------------------------------------------------------\n"
+        print "--------------------------------------------------------------------------------\n"
         print "LOCAL SEARCH\n"
-        print "-----------------------------------------------------------------------------------------------------\n"
-        self.get_local_extrema(prob)
+        print "--------------------------------------------------------------------------------\n"
+        self.get_local_extrema()
         self.cluster_local_extrema()
         print "Local searches performed :              ",self.local_initial_npoints," \n"
+        print "Quartiles of CPU time per search [ms]:  ",round(np.percentile(self.local_search_time,0),3),"/",round(np.percentile(self.local_search_time,25),3),"/",round(np.percentile(self.local_search_time,50),3),"/",round(np.percentile(self.local_search_time,75),3),"/",round(np.percentile(self.local_search_time,100),3)," \n"
         print "Number of clusters identified :         ",self.local_nclusters," \n"
-        print "Cluster properties : \n"
-        for i in range(self.local_nclusters):
+        print "Cluster properties (max. best 5 clusters): \n"
+        for i in range(min((self.local_nclusters,5))):
             print "     Cluster n.:                        ",i+1," \n"
-            print "         Size:                          ",self.local_cluster_size[i]," \n"
+            print "         Size:                          ",self.local_cluster_size[i],", ",100*self.local_cluster_size[i]/self.local_initial_npoints,"% \n"
             print "         Mean objective value :         ",self.local_cluster_f_centers[i]," \n"
             print "         Cluster center :               ",self.local_cluster_x_centers[i]," \n"
-
-
+        print "--------------------------------------------------------------------------------\n"
+        print "CURVATURE : GRADIENT/JACOBIAN \n"
+        print "--------------------------------------------------------------------------------\n"
+        self.get_gradient()
+        print "Number of points evaluated :            ",self.grad_npoints," \n"
+        print "Sparsity (per objective):               ",self.grad_sparsity," \n"
+        print "--------------------------------------------------------------------------------\n"
+        print "CURVATURE : HESSIAN \n"
+        print "--------------------------------------------------------------------------------\n"
+        self.get_hessian()
+        print "Number of points evaluated :            ",self.hess_npoints," \n"
+        
+        if self.f_dim>1:
+            print "--------------------------------------------------------------------------------\n"
+            print "OBJECTIVE CORRELATION \n"
+            print "--------------------------------------------------------------------------------\n"
+            obj_corr=self.f_correlation()
+            print "Objective correlation matrix :          ",obj_corr[0][0]," \n"
+            for i in range(1,self.f_dim):
+                print "                                        ",obj_corr[0][i]," \n"
+            print "Eigenvalues :                           ",obj_corr[1]," \n"
+            print "Eigenvectors :                          ",obj_corr[2][0]," \n"
+            for i in range(1,self.f_dim):
+                print "                                        ",obj_corr[2][i]," \n"
+        #PLOTS 
+            self.plot_gradient_sparsity()

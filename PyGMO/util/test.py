@@ -5,9 +5,6 @@ from numpy import *
 import scipy as sp
 import numpy as np
 
-anal=analysis()
-prob=problem.schwefel(1)
-anal.sample(prob,500)
-anal.get_local_extrema(prob)
-anal.cluster_local_extrema()
-anal.print_report(prob)
+prob=problem.kur(2)
+anal=analysis(prob)
+anal.print_report()
