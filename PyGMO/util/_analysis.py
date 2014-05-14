@@ -121,6 +121,68 @@ class analysis:
         from numpy import percentile
         return percentile(self.f,p,0)
 
+    def plot_f_distr(self):
+        try:
+            from scipy.stats import gaussian_kde
+            from matplotlib.pyplot import plot,draw,title,show,legend
+        except ImportError:
+            raise ImportError(
+                "analysis.plot_f_distr needs scipy and matplotlib to run. Are they installed?")
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.plot_f_distr: sampling first is necessary")
+        plots=[]
+        for i in range(self.f_dim):
+            tmp=[]
+            for j in range(self.npoints):
+                tmp.append(self.f[j][i])
+            x=sorted(tmp)
+            kde=gaussian_kde(x)
+            y=kde(x)
+            plots.append(plot(x,y,label='objective '+str(i+1)))
+        title('F-Distributions')
+        legend()
+        show(plots)
+
+    def n_peaks_f(self,nf=0):
+        try:
+            from numpy import array,zeros
+            from scipy.stats import gaussian_kde
+            from matplotlib.pyplot import plot,draw,title,show,legend
+        except ImportError:
+            raise ImportError(
+                "analysis.n_peaks_f needs scipy, numpy and matplotlib to run. Are they installed?")
+        if self.npoints==0:
+            raise ValueError(
+                "analysis.n_peaks_f: sampling first is necessary")
+        if nf==0:
+            nf=self.npoints-1
+        elif nf<3:
+            raise ValueError(
+                "analysis.n_peaks_f: value of nf too small")
+        npeaks=[]
+        for i in range(self.f_dim):
+            npeaks.append(0)
+            f=[a[i] for a in self.f]
+            kde=gaussian_kde(f)
+            df=self.ptp()[i]/nf
+            x=[min(f)]
+            for j in range(0,nf):
+                x.append(x[j]+df)
+            y=kde(x)
+            minidx=[0]
+            k=1
+            for (a,b,c) in zip(y[0:nf-1],y[1:nf],y[2:nf+1]):
+                if a>b<c:
+                    minidx.append(k)
+                k+=1
+            minidx.append(nf+1)
+            mode_mass=[kde.integrate_box_1d(x[minidx[j]],x[minidx[j+1]-1]) for j in range(len(minidx)-1)]
+            for mode in mode_mass:
+                if mode>0.01:
+                    npeaks[i]+=1
+        return npeaks
+
     #ADD MORE FUNCTIONS IF NECESSARY
 
 #BOX CONSTRAINT HYPERVOLUME COMPUTATION
@@ -461,18 +523,18 @@ class analysis:
             raise ValueError(
                 "analysis.plot_gradient_sparsity: sampling and getting gradient first is necessary")
         try:
-            from matplotlib.pylab import spy,show
+            from matplotlib.pylab import spy,show,title,grid,xlabel,ylabel,axis
             from numpy import mean,asarray
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_sparsity needs matplotlib and numpy to run. Are they installed?")
 
         average_gradient=mean(abs(asarray(self.grad)),0)
-        for i in range(self.f_dim):
-            for j in range(self.dim):
-                if average_gradient[i][j]<=zero_tol:
-                    average_gradient[i][j]=0
-        plot=spy(average_gradient)
+        title('Gradient/Jacobian Sparsity \n')
+        grid(True)
+        xlabel('dimension')
+        ylabel('objective')
+        plot=spy(average_gradient,precision=zero_tol)
         show(plot)
 
 #LOCAL SEARCH -> minimization assumed, single objective assumed
@@ -971,11 +1033,11 @@ class analysis:
         if self.npoints==0:
             raise ValueError(
                 "analysis.constraint_feasibility: sampling first is necessary")
+        ic_ef=[]
         if self.ic_dim!=0:
             if len(self.c)==0:
                 raise ValueError(
                     "analysis.constraint_feasibility: compute constraints first")
-            ic_ef=[]
             for i in range(self.ic_dim):
                 ic_ef.append(0)
             dp=1./self.npoints
@@ -989,19 +1051,19 @@ class analysis:
         if self.npoints==0:
             raise ValueError(
                 "analysis.constraint_feasibility: sampling first is necessary")
+        ec_f=[]
         if self.ic_dim-self.c_dim!=0:
             if len(self.c)==0:
                 raise ValueError(
                     "analysis.constraint_feasibility: compute constraints first")
-            ec_f=[]
             for i in range(self.c_dim-self.ic_dim):
-                ec_f.append(1)
+                ec_f.append(False)
                 for j in range(self.npoints):
                     if self.c[j][i]==0 or (self.c[j][i]>0 and self.c[0][i]<0) or (self.c[0][i]>0 and self.c[j][i]<0):
-                        ec_f[i]=0
+                        ec_f[i]=True
             return ec_f
 
-    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[],p_dac=[]): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[50],p_dac=[]): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         import numpy as np
         self.sample(sample)
         print "--------------------------------------------------------------------------------\n"
@@ -1034,6 +1096,7 @@ class analysis:
                     print "     ",i,":                              ",list(self.percentile(i))," \n"  
         print "Skew :                                  ",list(self.skew())," \n"
         print "Kurtosis :                              ",list(self.kurtosis())," \n"
+        print "Number of peaks of f-distribution :     ",self.n_peaks_f()," \n"
         print "--------------------------------------------------------------------------------\n"
         print "META-MODEL FEATURES \n"
         print "--------------------------------------------------------------------------------\n"
@@ -1064,13 +1127,13 @@ class analysis:
                 dac_results=self.dac_p_values(threshold=i)
                 print "Percentile",i,":\n"
                 print "     Mean Misclassification Errors :\n"
-                print "         LDA :                          ",svm_results[0]," \n"
-                print "         QDA :                          ",svm_results[1]," \n"
-                print "         KFDA (RBF Kernel):             ",svm_results[2]," \n"
+                print "         LDA :                          ",dac_results[0]," \n"
+                print "         QDA :                          ",dac_results[1]," \n"
+                print "         KFDA (RBF Kernel):             ",dac_results[2]," \n"
                 print "     P-Values : \n"
-                print "         Linear/Quadratic :             ",svm_results[3]," \n"
-                print "         Linear/Nonlinear :             ",svm_results[4]," \n"
-                print "         Quadratic/Nonlinear :          ",svm_results[5]," \n"
+                print "         Linear/Quadratic :             ",dac_results[3]," \n"
+                print "         Linear/Nonlinear :             ",dac_results[4]," \n"
+                print "         Quadratic/Nonlinear :          ",dac_results[5]," \n"
         print "--------------------------------------------------------------------------------\n"
         print "PROBABILITY OF LINEARITY AND CONVEXITY\n"
         print "--------------------------------------------------------------------------------\n"
@@ -1079,20 +1142,21 @@ class analysis:
         print "Probability of linearity :              ",p[0]," \n"
         print "Probability of convexity :              ",p[1]," \n"
         print "Mean deviation from linearity :         ",p[2]," \n"
-        print "--------------------------------------------------------------------------------\n"
-        print "LOCAL SEARCH\n"
-        print "--------------------------------------------------------------------------------\n"
-        self.get_local_extrema()
-        self.cluster_local_extrema()
-        print "Local searches performed :              ",self.local_initial_npoints," \n"
-        print "Quartiles of CPU time per search [ms]:  ",round(np.percentile(self.local_search_time,0),3),"/",round(np.percentile(self.local_search_time,25),3),"/",round(np.percentile(self.local_search_time,50),3),"/",round(np.percentile(self.local_search_time,75),3),"/",round(np.percentile(self.local_search_time,100),3)," \n"
-        print "Number of clusters identified :         ",self.local_nclusters," \n"
-        print "Cluster properties (max. best 5 clusters): \n"
-        for i in range(min((self.local_nclusters,5))):
-            print "     Cluster n.:                        ",i+1," \n"
-            print "         Size:                          ",self.local_cluster_size[i],", ",100*self.local_cluster_size[i]/self.local_initial_npoints,"% \n"
-            print "         Mean objective value :         ",self.local_cluster_f_centers[i]," \n"
-            print "         Cluster center :               ",self.local_cluster_x_centers[i]," \n"
+        if self.c_dim==0:
+            print "--------------------------------------------------------------------------------\n"
+            print "LOCAL SEARCH\n"
+            print "--------------------------------------------------------------------------------\n"
+            self.get_local_extrema()
+            self.cluster_local_extrema()
+            print "Local searches performed :              ",self.local_initial_npoints," \n"
+            print "Quartiles of CPU time per search [ms]:  ",round(np.percentile(self.local_search_time,0),3),"/",round(np.percentile(self.local_search_time,25),3),"/",round(np.percentile(self.local_search_time,50),3),"/",round(np.percentile(self.local_search_time,75),3),"/",round(np.percentile(self.local_search_time,100),3)," \n"
+            print "Number of clusters identified :         ",self.local_nclusters," \n"
+            print "Cluster properties (max. best 5 clusters): \n"
+            for i in range(min((self.local_nclusters,5))):
+                print "     Cluster n.:                        ",i+1," \n"
+                print "         Size:                          ",self.local_cluster_size[i],", ",100*self.local_cluster_size[i]/self.local_initial_npoints,"% \n"
+                print "         Mean objective value :         ",self.local_cluster_f_centers[i]," \n"
+                print "         Cluster center :               ",self.local_cluster_x_centers[i]," \n"
         print "--------------------------------------------------------------------------------\n"
         print "CURVATURE : GRADIENT/JACOBIAN \n"
         print "--------------------------------------------------------------------------------\n"
@@ -1117,5 +1181,21 @@ class analysis:
             print "Eigenvectors :                          ",obj_corr[2][0]," \n"
             for i in range(1,self.f_dim):
                 print "                                        ",obj_corr[2][i]," \n"
+        if self.c_dim>0:
+            print "--------------------------------------------------------------------------------\n"
+            print "CONSTRAINT EFFECTIVENESS/FEASIBILITY \n"
+            print "--------------------------------------------------------------------------------\n"
+            self.compute_constraints()
+            ic_ef=self.ic_effectiveness()
+            ec_f=self.ec_feasibility()
+            if self.c_dim!=self.ic_dim:
+                print "     Equality constraint      |      Feasibility   \n"
+            for i in range(self.c_dim-self.ic_dim):
+                print "            ",i+1,"                        ",ec_f[i],"       \n"
+            if self.ic_dim>0:
+                print "    Inequality constraint     |     Effectiveness   \n"
+            for i in range(self.ic_dim):
+                print "            ",self.c_dim-self.ic_dim+i+1,"                       ",100*round(ic_ef[i],4),"%      \n"
         #PLOTS 
-            self.plot_gradient_sparsity()
+        self.plot_f_distr()
+        self.plot_gradient_sparsity()
