@@ -8,4 +8,4 @@ import matplotlib.pyplot as plt
 
 prob=problem.kur(3)
 anal=analysis(prob)
-anal.print_report(100)
+anal.print_report(1000)

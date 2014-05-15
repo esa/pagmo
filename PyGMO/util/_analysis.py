@@ -366,18 +366,99 @@ class analysis:
             raise ValueError(
                 "analysis.f_correlation: this test makes no sense for single-objective optimisation")
         try:
-            import numpy as np
+            from numpy import corrcoef,transpose,dot
+            from numpy.linalg import eigh
         except ImportError:
             raise ImportError(
                 "analysis.f_correlation needs numpy to run. Is it installed?")
-        from numpy import corrcoef
         M=corrcoef(self.f, rowvar=0)
-        return (M.tolist(), np.linalg.eigh(M)[0].tolist(), np.transpose(np.linalg.eigh(M)[1]).tolist())
+        e=eigh(dot(M,transpose(M)))
+        return (M.tolist(), e[0].tolist(), transpose(e[1]).tolist())
     
-    #enhance to perform pca...!?
+    def perform_f_pca(self,obj_corr=None,tc=0.95,tabs=0.1):
+        try:
+            from numpy import asarray,corrcoef,transpose,dot,argmax,argmin
+            from numpy.linalg import eigh
+            from itertools import combinations
+        except ImportError:
+            raise ImportError(
+                "analysis.perform_f_pca needs numpy to run. Is it installed?")
+        if obj_corr==None:
+            obj_corr=self.f_correlation()
+        M=obj_corr[0]
+        eigenvals=obj_corr[1]
+        eigenvects=obj_corr[2]
+        #eigenvalue elimination of redundant objectives
+        contributions=(asarray(eigenvals)/sum(eigenvals)).tolist()
+        l=len(eigenvals)
+        eig_order=[y for (x,y) in sorted(zip(contributions,range(l)),reverse=True)]
+        cumulative_contribution=0
+        keep=[]
+        first=True
+        for i in eig_order:
+            index_p,index_n=argmax(eigenvects[i]),argmin(eigenvects[i])
+            p,n=eigenvects[i][index_p],eigenvects[i][index_n]
+            if first:
+                first=False
+                if p>0:
+                    if all([k!=index_p for k in keep]):
+                        keep.append(index_p)
+                    if n<0:
+                        if all([k!=index_n for k in keep]):
+                            keep.append(index_n)
+                else:
+                    keep=range(l)
+                    break
+            elif contributions[i]<tabs:
+                if abs(p)>abs(n):
+                    if all([k!=index_p for k in keep]):
+                        keep.append(index_p)
+                else:
+                    if all([k!=index_n for k in keep]):
+                        keep.append(index_n)
+            else:
+                if n>=0:
+                    if all([k!=index_p for k in keep]):
+                        keep.append(index_p)
+                elif p<=0:
+                    keep=range(l)
+                    break
+                else:
+                    if abs(n)>=p>=0.9*abs(n):
+                        if all([k!=index_p for k in keep]):
+                            keep.append(index_p)
+                        if all([k!=index_n for k in keep]):    
+                            keep.append(index_n)
+                    elif p<0.9*abs(n):
+                        if all([k!=index_n for k in keep]):
+                            keep.append(index_n)
+                    else:
+                        if abs(n)>=0.8*p:
+                            if all([k!=index_p for k in keep]):
+                                keep.append(index_p)
+                        if all([k!=index_n for k in keep]):    
+                                keep.append(index_n)
+                        else:
+                            if all([k!=index_p for k in keep]):
+                                keep.append(index_p)
+
+            cumulative_contribution+=contributions[i]
+            if cumulative_contribution>=tc or len(keep)==l:
+                break
+        #correlation elimination of redundant objectives
+        if len(keep)>2: 
+            c=list(combinations(keep,2))
+            for i in range(len(c)):
+                if all([x*y>0 for x,y in zip(M[c[i][0]],M[c[i][1]])]) and any([k==c[i][1] for k in keep]) and any([k==c[i][0] for k in keep]):
+                    if keep.index(c[i][0])<keep.index(c[i][1]):
+                        keep.remove(c[i][1])
+                    else:
+                        keep.remove(c[i][0])
+
+        return sorted(keep)
 
 #CURVATURE
-#problem: tolerance needs to be relative to the magnitude of the result
+#possible problem: tolerance needs to be relative to the magnitude of the result
     def get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001):
         if self.npoints==0:
             raise ValueError(
@@ -1063,7 +1144,7 @@ class analysis:
                         ec_f[i]=True
             return ec_f
 
-    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[50],p_dac=[]): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[],p_dac=[],local_search=False): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         import numpy as np
         self.sample(sample)
         print "--------------------------------------------------------------------------------\n"
@@ -1142,7 +1223,7 @@ class analysis:
         print "Probability of linearity :              ",p[0]," \n"
         print "Probability of convexity :              ",p[1]," \n"
         print "Mean deviation from linearity :         ",p[2]," \n"
-        if self.c_dim==0:
+        if self.c_dim==0 and local_search:
             print "--------------------------------------------------------------------------------\n"
             print "LOCAL SEARCH\n"
             print "--------------------------------------------------------------------------------\n"
@@ -1174,13 +1255,16 @@ class analysis:
             print "OBJECTIVE CORRELATION \n"
             print "--------------------------------------------------------------------------------\n"
             obj_corr=self.f_correlation()
+            critical_obj=self.perform_f_pca(obj_corr)
             print "Objective correlation matrix :          ",obj_corr[0][0]," \n"
             for i in range(1,self.f_dim):
                 print "                                        ",obj_corr[0][i]," \n"
-            print "Eigenvalues :                           ",obj_corr[1]," \n"
+            print "Eigenvalues (squared) :                 ",obj_corr[1]," \n"
+            print "Eigenvalue relative contribution (%) :  ",[100*round(i,4) for i in (np.asarray(obj_corr[1])/sum(obj_corr[1])).tolist()]," \n"
             print "Eigenvectors :                          ",obj_corr[2][0]," \n"
             for i in range(1,self.f_dim):
                 print "                                        ",obj_corr[2][i]," \n"
+            print "Critical objectives from first PCA :    ",[int(i) for i in (np.ones(len(critical_obj))+np.asarray(critical_obj)).tolist()]," \n"
         if self.c_dim>0:
             print "--------------------------------------------------------------------------------\n"
             print "CONSTRAINT EFFECTIVENESS/FEASIBILITY \n"
