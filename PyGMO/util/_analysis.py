@@ -453,7 +453,6 @@ class analysis:
                         keep.remove(c[i][1])
                     else:
                         keep.remove(c[i][0])
-
         return sorted(keep)
 
 #CURVATURE
@@ -603,7 +602,7 @@ class analysis:
             raise ValueError(
                 "analysis.plot_gradient_sparsity: sampling and getting gradient first is necessary")
         try:
-            from matplotlib.pylab import spy,show,title,grid,xlabel,ylabel,axis
+            from matplotlib.pylab import spy,show,title,grid,xlabel,ylabel,xticks,yticks,draw
             from numpy import mean,asarray
         except ImportError:
             raise ImportError(
@@ -615,6 +614,12 @@ class analysis:
         xlabel('dimension')
         ylabel('objective')
         plot=spy(average_gradient,precision=zero_tol)
+        xlocs=xticks()[0]
+        ylocs=yticks()[0]
+        xlabels=['']+[str(i) for i in range(1,self.dim+1)]+['']
+        ylabels=['']+[str(i) for i in range(1,self.f_dim+1)]+['']
+        xticks(xlocs,[x.format(xlocs[i]) for i,x in enumerate(xlabels)])
+        yticks(ylocs,[y.format(ylocs[i]) for i,y in enumerate(ylabels)])
         show(plot)
 
     def plot_gradient_pcp(self,mode='x',scaled=True):
