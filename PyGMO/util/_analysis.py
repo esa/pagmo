@@ -4,14 +4,14 @@ class analysis:
     "This class will contain blahblah"
 
     def __init__(self,prob):
-            self.npoints=0
-            self.points=[]
-            self.f=[]
-            self.grad_npoints=0
-            self.grad_points=[]
-            self.grad=[]
-            self.c=[]
-            self.prob=prob
+        self.npoints=0
+        self.points=[]
+        self.f=[]
+        self.grad_npoints=0
+        self.grad_points=[]
+        self.grad=[]
+        self.c=[]
+        self.prob=prob
 
     def sample(self, npoints, method='sobol', first=1):
         self.points=[]
@@ -148,7 +148,6 @@ class analysis:
         try:
             from numpy import array,zeros
             from scipy.stats import gaussian_kde
-            from matplotlib.pyplot import plot,draw,title,show,legend
         except ImportError:
             raise ImportError(
                 "analysis.n_peaks_f needs scipy, numpy and matplotlib to run. Are they installed?")
@@ -616,6 +615,75 @@ class analysis:
         xlabel('dimension')
         ylabel('objective')
         plot=spy(average_gradient,precision=zero_tol)
+        show(plot)
+
+    def plot_gradient_pcp(self,mode='x',scaled=True):
+        if self.grad_npoints==0:
+            raise ValueError(
+                "analysis.plot_gradient_pcp: sampling and getting gradient first is necessary")
+        if mode!='x' and mode!='f':
+            raise ValueError(
+                "analysis.plot_gradient_pcp: choose a valid value for mode ('x' or 'f')")
+        if mode=='x' and self.dim==1:
+            raise ValueError(
+                "analysis.plot_gradient_pcp: mode 'x' makes no sense for univariate problems")
+        if mode=='f' and self.f_dim==1:
+            raise ValueError(
+                "analysis.plot_gradient_pcp: mode 'f' makes no sense for single-objective problems")
+        try:
+            from pandas.tools.plotting import parallel_coordinates as pc
+            from pandas import DataFrame as df
+            from matplotlib.pyplot import show,title,grid,ylabel,xlabel
+            from numpy import asarray,transpose
+        except ImportError:
+            raise ImportError(
+                "analysis.plot_gradient_sparsity needs pandas, numpy and matplotlib to run. Are they installed?")
+        gradient=[]
+        if scaled:
+            ranges=self.ptp()
+        if mode=='x':
+            aux=0
+            rowlabel=True
+        else:
+            aux=1
+            rowlabel=False
+        for i in range(self.grad_npoints):
+            if rowlabel:
+                tmp=[]
+            else:
+                tmp=[['x'+str(x+1) for x in range(self.dim)]]
+            for j in range(self.f_dim):
+                if rowlabel:
+                    tmp.append(['objective '+str(j+1)])
+                else:
+                    tmp.append([])
+                if scaled:
+                    for k in range(self.dim):
+                        tmp[j+aux].append(self.grad[i][j][k]*(self.ub[k]-self.lb[k])/ranges[j])
+                else:
+                    tmp[j+aux].extend(self.grad[i][j])
+            if rowlabel:
+                gradient.extend(tmp)
+            else:
+                tmp2=[]
+                for ii in range(self.dim):
+                    tmp2.append([])
+                    for jj in range(self.f_dim+1):
+                        tmp2[ii].append(tmp[jj][ii])
+                gradient.extend(tmp2)
+        gradient=df(gradient)
+        title('Gradient PCP \n')
+        grid(True)
+        if scaled:
+            scalelabel=' (scaled)'
+        else:
+            scalelabel=""
+        ylabel('Derivative value'+scalelabel)
+        if rowlabel:
+            xlabel('Dimension')
+        else:
+            xlabel('Objective')
+        plot=pc(gradient,0)
         show(plot)
 
 #LOCAL SEARCH -> minimization assumed, single objective assumed
@@ -1283,3 +1351,7 @@ class analysis:
         #PLOTS 
         self.plot_f_distr()
         self.plot_gradient_sparsity()
+        if self.dim>1:
+            self.plot_gradient_pcp('x')
+        if self.f_dim>1:
+            self.plot_gradient_pcp('f')

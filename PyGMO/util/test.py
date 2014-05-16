@@ -6,6 +6,6 @@ import scipy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 
-prob=problem.kur(3)
+prob=problem.dtlz(3,5)
 anal=analysis(prob)
-anal.print_report(1000)
+anal.print_report(100)
