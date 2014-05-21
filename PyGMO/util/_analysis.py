@@ -3,7 +3,7 @@ from PyGMO import *
 class analysis:
     "This class will contain blahblah"
 
-    def __init__(self,prob):
+    def __init__(self,input_object):
         self.npoints=0
         self.points=[]
         self.f=[]
@@ -11,7 +11,20 @@ class analysis:
         self.grad_points=[]
         self.grad=[]
         self.c=[]
-        self.prob=prob
+        self.local_nclusters=0
+        self.local_initial_npoints=0
+
+        object_type=str(type(input_object))
+        if object_type=="<class 'PyGMO.core._core.population'>":
+            self.prob=input_object.problem
+            self.pop=input_object
+        elif object_type[:21]=="<class 'PyGMO.problem":
+            self.prob=input_object
+            self.pop=[]
+        else:
+            raise ValueError(
+             "analysis: input either a problem or a population object to initialise the class")
+
 
     def sample(self, npoints, method='sobol', first=1):
         self.points=[]
@@ -26,26 +39,48 @@ class analysis:
         # if self.c_dim > 0:
         #     raise ValueError(
         #      "analysis.sample: this analyzer is not yet suitable for constrained optimisation")
-        if self.npoints == 0:
+        if self.npoints <= 0:
             raise ValueError(
              "analysis.sample: at least one point needs to be sampled")
 
-        if method=='sobol':
-            sampler=util.sobol(self.dim,first)
-        elif method=='lhs':
-            sampler=util.lhs(self.dim,npoints)
+        if method=='pop':
+            poplength=len(self.pop)
+            if poplength==0:
+                raise ValueError(
+                    "analysis.sample: method 'pop' specified but population object inexistant or void")
+            elif poplength<npoints:
+                raise ValueError(
+                    "analysis.sample: it is not possible to sample more points than there are in the population via 'pop'")
+            elif poplength==npoints:
+                self.points=[list(self.pop[i].cur_x) for i in range(poplength)]
+                self.f=[list(self.pop[i].cur_f) for i in range(poplength)]
+            else:
+                idx=range(poplength)
+                try:
+                    from numpy.random import randint
+                except ImportError:
+                    raise ImportError(
+                        "analysis.sample needs numpy to run when sampling partially a population. Is it installed?")
+                for i in range(poplength,poplength-npoints,-1):
+                    r=idx.pop(randint(i))
+                    self.points.append(list(self.pop[r].cur_x))
+                    self.f.append(list(self.pop[r].cur_f))
         else:
-            raise ValueError(
-                "analysis.sample: method specified is not valid. choose 'sobol' or 'lhs'")
-
-        for i in range(npoints):
-            temp=list(sampler.next()) #sample in the unit hypercube
-            for j in range(self.dim):
-                temp[j]=temp[j]*self.ub[j]+(1-temp[j])*self.lb[j] #resize
-                if j>=self.cont_dim:
-                    temp[j]=round(temp[j],0) #round if necessary
-            self.points.append(temp)
-            self.f.append(list(self.prob.objfun(temp)))
+            if method=='sobol':
+                sampler=util.sobol(self.dim,first)
+            elif method=='lhs':
+                sampler=util.lhs(self.dim,npoints)
+            else:
+                raise ValueError(
+                    "analysis.sample: method specified is not valid. choose 'sobol', 'lhs' or 'pop'")
+            for i in range(npoints):
+                temp=list(sampler.next()) #sample in the unit hypercube
+                for j in range(self.dim):
+                    temp[j]=temp[j]*self.ub[j]+(1-temp[j])*self.lb[j] #resize
+                    if j>=self.cont_dim:
+                        temp[j]=round(temp[j],0) #round if necessary
+                self.points.append(temp)
+                self.f.append(list(self.prob.objfun(temp)))
 
 #f-DISTRIBUTION FEATURES
    
@@ -371,7 +406,7 @@ class analysis:
             raise ImportError(
                 "analysis.f_correlation needs numpy to run. Is it installed?")
         M=corrcoef(self.f, rowvar=0)
-        e=eigh(dot(M,transpose(M)))
+        e=eigh(M)
         return (M.tolist(), e[0].tolist(), transpose(e[1]).tolist())
     
     def perform_f_pca(self,obj_corr=None,tc=0.95,tabs=0.1):
@@ -408,7 +443,7 @@ class analysis:
                 else:
                     keep=range(l)
                     break
-            elif contributions[i]<tabs:
+            elif eigenvals[i]<tabs:
                 if abs(p)>abs(n):
                     if all([k!=index_p for k in keep]):
                         keep.append(index_p)
@@ -435,7 +470,7 @@ class analysis:
                         if abs(n)>=0.8*p:
                             if all([k!=index_p for k in keep]):
                                 keep.append(index_p)
-                        if all([k!=index_n for k in keep]):    
+                            if all([k!=index_n for k in keep]):    
                                 keep.append(index_n)
                         else:
                             if all([k!=index_p for k in keep]):
@@ -454,6 +489,7 @@ class analysis:
                     else:
                         keep.remove(c[i][0])
         return sorted(keep)
+      
 
 #CURVATURE
 #possible problem: tolerance needs to be relative to the magnitude of the result
@@ -462,11 +498,11 @@ class analysis:
             raise ValueError(
                 "analysis.get_gradient: sampling first is necessary")
         try:
-            import numpy as np
+            from numpy.random import randint
+            from numpy import nanmean, asarray
         except ImportError:
             raise ImportError(
                 "analysis.get_gradient needs numpy to run. Is it installed?")
-        from numpy.random import randint
         
         if sample_size<=0 or sample_size>=self.npoints:
             self.grad_points=range(self.npoints)
@@ -476,14 +512,15 @@ class analysis:
             self.grad_points=[randint(self.npoints) for i in range(sample_size)] #avoid repetition?
 
         self.grad=[]
-        self.grad_sparsity=np.zeros(self.f_dim)
+        self.grad_sparsity=0
         for i in self.grad_points:
             self.grad.append(self.richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol))
-            for j in range(self.f_dim):
-                for k in range(self.dim):
-                    if abs(self.grad[i][j][k])<=zero_tol:
-                        self.grad_sparsity[j]+=1.
-        self.grad_sparsity/=(self.grad_npoints*self.dim*self.f_dim)
+        self.average_abs_gradient=nanmean(abs(asarray(self.grad)),0)
+        for i in range(self.f_dim):
+            for j in range(self.dim):
+                if abs(self.average_abs_gradient[i][j])<=zero_tol:
+                    self.grad_sparsity+=1.
+        self.grad_sparsity/=(self.dim*self.f_dim)
 
     def richardson_gradient(self,x,h,grad_tol,tmax=15):
         from numpy import array, zeros, amax
@@ -597,29 +634,32 @@ class analysis:
 
         return hessian
 
-    def plot_gradient_sparsity(self,zero_tol=0.000001):
+    def plot_gradient_sparsity(self,zero_tol=0.0001):
         if self.grad_npoints==0:
             raise ValueError(
                 "analysis.plot_gradient_sparsity: sampling and getting gradient first is necessary")
         try:
             from matplotlib.pylab import spy,show,title,grid,xlabel,ylabel,xticks,yticks,draw
-            from numpy import mean,asarray
+            from numpy import nanmean,asarray
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_sparsity needs matplotlib and numpy to run. Are they installed?")
 
-        average_gradient=mean(abs(asarray(self.grad)),0)
-        title('Gradient/Jacobian Sparsity \n')
+        
+        title('Gradient/Jacobian Sparsity ('+str(100*round(self.grad_sparsity,4))+'% sparse) \n \n')
         grid(True)
         xlabel('dimension')
         ylabel('objective')
-        plot=spy(average_gradient,precision=zero_tol)
-        xlocs=xticks()[0]
-        ylocs=yticks()[0]
-        xlabels=['']+[str(i) for i in range(1,self.dim+1)]+['']
-        ylabels=['']+[str(i) for i in range(1,self.f_dim+1)]+['']
-        xticks(xlocs,[x.format(xlocs[i]) for i,x in enumerate(xlabels)])
-        yticks(ylocs,[y.format(ylocs[i]) for i,y in enumerate(ylabels)])
+        plot=spy(self.average_abs_gradient,precision=zero_tol,markersize=20)
+        try:
+            xlocs=range(self.dim)
+            ylocs=range(self.f_dim)
+            xlabels=[str(i) for i in range(1,self.dim+1)]
+            ylabels=[str(i) for i in range(1,self.f_dim+1)]
+            xticks(xlocs,[x.format(xlocs[i]) for i,x in enumerate(xlabels)])
+            yticks(ylocs,[y.format(ylocs[i]) for i,y in enumerate(ylabels)])
+        except IndexError, ValueError:
+            pass
         show(plot)
 
     def plot_gradient_pcp(self,mode='x',scaled=True):
@@ -642,7 +682,7 @@ class analysis:
             from numpy import asarray,transpose
         except ImportError:
             raise ImportError(
-                "analysis.plot_gradient_sparsity needs pandas, numpy and matplotlib to run. Are they installed?")
+                "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
         gradient=[]
         if scaled:
             ranges=self.ptp()
@@ -677,12 +717,13 @@ class analysis:
                         tmp2[ii].append(tmp[jj][ii])
                 gradient.extend(tmp2)
         gradient=df(gradient)
+
         title('Gradient PCP \n')
         grid(True)
         if scaled:
             scalelabel=' (scaled)'
         else:
-            scalelabel=""
+            scalelabel=''
         ylabel('Derivative value'+scalelabel)
         if rowlabel:
             xlabel('Dimension')
@@ -692,7 +733,9 @@ class analysis:
         show(plot)
 
 #LOCAL SEARCH -> minimization assumed, single objective assumed
+
     def func(self,x,obj):
+
         return float(self.prob.objfun(x)[obj])
 
     def get_local_extrema0(self,sample_size=0,method='Powell'):
@@ -734,7 +777,7 @@ class analysis:
             self.local_neval.append(tmp2)
             self.local_f.append(tmp3)
 
-    def get_local_extrema(self,sample_size=0):
+    def get_local_extrema(self,sample_size=0):#ADD METHOD CHOICE
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_local_extrema: sampling first is necessary")
@@ -757,7 +800,7 @@ class analysis:
         #self.local_neval=[]// pygmo doesn't return it
         self.local_search_time=[]
         self.local_f=[]
-        algo=algorithm.gsl_bfgs2()
+        algo=algorithm.gsl_fr()
         if self.f_dim==1:
             decomposition=self.prob
         else:
@@ -774,7 +817,7 @@ class analysis:
             self.local_extrema.append(isl.population.champion.x)
             self.local_f.append(isl.population.champion.f[0])
 
-    def cluster_local_extrema(self,k=0,variance_ratio=0.95,single_cluster_tolerance=0.0001):
+    def cluster_local_extrema(self,k=0,variance_ratio=0.99,single_cluster_tolerance=0.0001):
         if self.npoints==0:
             raise ValueError(
                 "analysis_cluster_local_extrema: sampling first is necessary")
@@ -792,7 +835,7 @@ class analysis:
 
         dataset=np.zeros([self.local_initial_npoints,self.dim+1])#normalized dataset
 
-        range_f=np.ptp(self.f)
+        range_f=np.mean(np.ptp(self.f,0))
         mean_f=np.mean(self.f)
 
         if range_f<single_cluster_tolerance:
@@ -818,7 +861,8 @@ class analysis:
             clust=KMeans(1)
             total_distances=clust.fit_transform(dataset)
             total_center=clust.cluster_centers_[0]
-            if max(total_distances)<single_cluster_tolerance:#single cluster scenario
+            total_radius=max(total_distances)
+            if total_radius<single_cluster_tolerance:#single cluster scenario
                 #storage of output
                 local_cluster=list(clust.predict(dataset))
                 self.local_nclusters=1
@@ -827,8 +871,8 @@ class analysis:
                     cluster_size[local_cluster[i]]+=1
                 cluster_size=list(cluster_size)
             else:
-                k=2#determination of the number of clusters
-                var_tot=sum([x**2 for x in total_distances])/(self.local_initial_npoints-1)
+                k=2 #multiple cluster scenario
+                var_tot=sum([x**2 for x in total_distances])
                 var_ratio=0
                 while var_ratio<=variance_ratio:
                     clust=KMeans(k)
@@ -840,12 +884,12 @@ class analysis:
                     for i in range(k):
                         distance=np.linalg.norm(clust.cluster_centers_[i]-total_center)
                         var_exp+=cluster_size[i]*distance**2
-                    var_exp/=self.local_initial_npoints-1
                     var_ratio=var_exp/var_tot
                     k+=1
                 #storage of output
                 local_cluster=list(y)
                 self.local_nclusters=k-1
+
         #more storage and reordering so clusters are ordered best to worst
         cluster_value=[clust.cluster_centers_[i][self.dim] for i in range(self.local_nclusters)]
         order=[x for (y,x) in sorted(zip(cluster_value,range(self.local_nclusters)))]
@@ -866,6 +910,57 @@ class analysis:
                 if local_cluster[i]==order[j]:
                     self.local_cluster.append(j)
                     break
+
+        #calculate cluster radius and center
+        self.local_cluster_rx=[0 for i in range(self.local_nclusters)]
+        f=[[] for i in range(self.local_nclusters)]
+        for i in range(self.local_initial_npoints):
+            c=self.local_cluster[i]
+            if self.local_cluster_size[c]==1:
+                f[c].append(0)
+            else:
+                rx=np.linalg.norm(np.asarray(self.local_extrema[i])-np.asarray(self.local_cluster_x_centers[c]))
+                f[c].append(self.local_f[i])
+                if rx>self.local_cluster_rx[c]:
+                    self.local_cluster_rx[c]=rx
+        self.local_cluster_df=[np.ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
+
+    def plot_local_cluster_pcp(self,together=True):
+        if self.local_nclusters==0:
+            raise ValueError(
+                "analysis.plot_local_cluster_pcp: sampling, getting local extrema and clustering them first is necessary")
+        if self.dim==1:
+            raise ValueError(
+                "analysis.plot_local_cluster_pcp: this makes no sense for univariate problems")
+        try:
+            from pandas.tools.plotting import parallel_coordinates as pc
+            from pandas import DataFrame as df
+            from matplotlib.pyplot import show,title,grid,ylabel,xlabel,legend,plot,subplot
+            from numpy import asarray,transpose
+        except ImportError:
+            raise ImportError(
+                "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
+        if together:
+            n=1
+            dataset=[[[self.local_cluster[i]]+\
+            [(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)]\
+            for i in range(self.local_initial_npoints)]]
+            dataset[0].sort()
+            separatelabel=['' for i in range(self.local_nclusters)]
+        else:
+            n=self.local_nclusters
+            dataset=[[] for i in range(self.local_nclusters)]
+            for i in range(self.local_initial_npoints):
+                dataset[self.local_cluster[i]].append([self.local_cluster[i]]+[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)])
+            separatelabel=[str(i) for i in range(self.local_nclusters)]
+        for i in range(n):
+            dataframe=df(dataset[i])
+            title('Local Extrema Clusters PCP'+separatelabel[i]+' \n')
+            grid(True)
+            xlabel('Dimension')
+            plot=pc(dataframe,0)
+            show(plot)
+
 
 #LEVELSET FEATURES (quite bad unless improved)
     def lda(self,threshold=50,tsp=0.1):
@@ -1217,7 +1312,7 @@ class analysis:
                         ec_f[i]=True
             return ec_f
 
-    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[],p_dac=[],local_search=False): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[],p_dac=[],local_search=True): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         import numpy as np
         self.sample(sample)
         print "--------------------------------------------------------------------------------\n"
@@ -1308,15 +1403,17 @@ class analysis:
             print "Cluster properties (max. best 5 clusters): \n"
             for i in range(min((self.local_nclusters,5))):
                 print "     Cluster n.:                        ",i+1," \n"
-                print "         Size:                          ",self.local_cluster_size[i],", ",100*self.local_cluster_size[i]/self.local_initial_npoints,"% \n"
+                print "         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"% \n"
                 print "         Mean objective value :         ",self.local_cluster_f_centers[i]," \n"
                 print "         Cluster center :               ",self.local_cluster_x_centers[i]," \n"
+                print "         Cluster diameter in F :        ",self.local_cluster_df[i]," \n"
+                print "         Cluster radius in X :          ",self.local_cluster_rx[i]," \n"
         print "--------------------------------------------------------------------------------\n"
         print "CURVATURE : GRADIENT/JACOBIAN \n"
         print "--------------------------------------------------------------------------------\n"
         self.get_gradient()
         print "Number of points evaluated :            ",self.grad_npoints," \n"
-        print "Sparsity (per objective):               ",self.grad_sparsity," \n"
+        print "Gradient sparsity :                     ",100*round(self.grad_sparsity,4),"% \n"
         print "--------------------------------------------------------------------------------\n"
         print "CURVATURE : HESSIAN \n"
         print "--------------------------------------------------------------------------------\n"
@@ -1333,7 +1430,7 @@ class analysis:
             for i in range(1,self.f_dim):
                 print "                                        ",obj_corr[0][i]," \n"
             print "Eigenvalues (squared) :                 ",obj_corr[1]," \n"
-            print "Eigenvalue relative contribution (%) :  ",[100*round(i,4) for i in (np.asarray(obj_corr[1])/sum(obj_corr[1])).tolist()]," \n"
+            print "Eigenvalue relative contribution :      ",[str(100*round(i,4))+'%' for i in (np.asarray(obj_corr[1])/sum(obj_corr[1])).tolist()]," \n"
             print "Eigenvectors :                          ",obj_corr[2][0]," \n"
             for i in range(1,self.f_dim):
                 print "                                        ",obj_corr[2][i]," \n"

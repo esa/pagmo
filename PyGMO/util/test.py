@@ -6,6 +6,10 @@ import scipy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 
-prob=problem.dtlz(3,5)
+prob=problem.himmelblau()
 anal=analysis(prob)
-anal.print_report(100)
+anal.sample(1000)
+anal.get_local_extrema()
+anal.cluster_local_extrema()
+anal.plot_local_cluster_pcp(together=True)
+anal.plot_local_cluster_pcp(together=False)
