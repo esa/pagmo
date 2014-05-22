@@ -61,7 +61,7 @@ class analysis:
                 except ImportError:
                     raise ImportError(
                         "analysis.sample needs numpy to run when sampling partially a population. Is it installed?")
-                for i in range(poplength,poplength-npoints,-1):
+                for i in range(poplength,poplength-npoints,-1):  
                     r=idx.pop(randint(i))
                     self.points.append(list(self.pop[r].cur_x))
                     self.f.append(list(self.pop[r].cur_f))
@@ -777,10 +777,16 @@ class analysis:
             self.local_neval.append(tmp2)
             self.local_f.append(tmp3)
 
-    def get_local_extrema(self,sample_size=0):#ADD METHOD CHOICE
+    def get_local_extrema(self,sample_size=0,algo=algorithm.gsl_fr()):#ADD METHOD CHOICE
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_local_extrema: sampling first is necessary")
+
+        algo_type=str(type(algo))
+        if algo_type[:23]!="<class 'PyGMO.algorithm":
+            raise ValueError(
+                "analysis.get_local_extrema: input a valid pygmo algorithm")
+
         try:
             import numpy as np
         except ImportError:
@@ -800,7 +806,7 @@ class analysis:
         #self.local_neval=[]// pygmo doesn't return it
         self.local_search_time=[]
         self.local_f=[]
-        algo=algorithm.gsl_fr()
+
         if self.f_dim==1:
             decomposition=self.prob
         else:
@@ -817,7 +823,7 @@ class analysis:
             self.local_extrema.append(isl.population.champion.x)
             self.local_f.append(isl.population.champion.f[0])
 
-    def cluster_local_extrema(self,k=0,variance_ratio=0.99,single_cluster_tolerance=0.0001):
+    def cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.005): #SINGLE CLUSTER TOLERANCE TOO BIG DUE TO F FEATURE -> FIX THIS!!!!
         if self.npoints==0:
             raise ValueError(
                 "analysis_cluster_local_extrema: sampling first is necessary")
@@ -845,7 +851,6 @@ class analysis:
             for j in range(self.dim):
                 dataset[i][j]=(self.local_extrema[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
             dataset[i][self.dim]=(self.local_f[i]-mean_f)/range_f
-
         if k!=0:#cluster to given number of clusters
             clust=KMeans(k)
 
@@ -942,7 +947,7 @@ class analysis:
                 "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
         if together:
             n=1
-            dataset=[[[self.local_cluster[i]]+\
+            dataset=[[[self.local_cluster[i]+1]+\
             [(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)]\
             for i in range(self.local_initial_npoints)]]
             dataset[0].sort()
@@ -951,16 +956,74 @@ class analysis:
             n=self.local_nclusters
             dataset=[[] for i in range(self.local_nclusters)]
             for i in range(self.local_initial_npoints):
-                dataset[self.local_cluster[i]].append([self.local_cluster[i]]+[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)])
+                dataset[self.local_cluster[i]].append([self.local_cluster[i]+1]+[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)])
             separatelabel=[str(i) for i in range(self.local_nclusters)]
         for i in range(n):
             dataframe=df(dataset[i])
-            title('Local Extrema Clusters PCP'+separatelabel[i]+' \n')
+            title('Local extrema clusters PCP'+separatelabel[i]+' \n')
             grid(True)
             xlabel('Dimension')
             plot=pc(dataframe,0)
             show(plot)
 
+    def plot_local_cluster_scatter(self,dimensions=[]):
+        if self.local_nclusters==0:
+            raise ValueError(
+                "analysis.plot_local_cluster_scatter: sampling, getting local extrema and clustering them first is necessary")
+        if len(dimensions)==0:
+            dimensions=range(self.dim)
+        if len(dimensions)>3:
+            raise ValueError(
+                "analysis.plot_local_cluster_scatter: choose a maximum of 3 dimensions to plot")
+        try:
+            from matplotlib.pyplot import show,title,grid,legend,axes,figure
+            from mpl_toolkits.mplot3d import Axes3D
+            from matplotlib.cm import Set1
+            from numpy import asarray,linspace
+        except ImportError:
+            raise ImportError(
+                "analysis.plot_local_cluster_scatter needs numpy and matplotlib to run. Are they installed?")
+        
+        dataset=asarray([[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_initial_npoints)])
+        centers=[[(self.local_cluster_x_centers[i][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_nclusters)]
+        colors=Set1(linspace(0,1,self.local_nclusters))
+        if len(dimensions)==1:
+            ax=axes()
+            ax.scatter(dataset,[0 for i in range(self.local_initial_npoints)], c=[colors[i] for i in self.local_cluster])
+            ax.set_xlim(0,1)
+            ax.set_ylim(-0.1,0.1)
+            ax.set_yticklabels([])
+            ax.set_xlabel('x'+str(dimensions[0]+1))
+            grid(True)
+            for i in range(self.local_nclusters):
+                ax.scatter(centers[i][0],0.005,marker='^',color=colors[i],s=100)
+                ax.text(centers[i][0],0.01,'cluster '+str(i+1),horizontalalignment='center',verticalalignment='bottom',color=colors[i],rotation='vertical',size=12,backgroundcolor='w')
+        elif len(dimensions)==2:
+            ax=axes()
+            ax.scatter(dataset[:,0],dataset[:,1],c=[colors[i] for i in self.local_cluster])
+            ax.set_xlim(0,1)
+            ax.set_ylim(0,1)
+            ax.set_xlabel('x'+str(dimensions[0]+1))
+            ax.set_ylabel('x'+str(dimensions[1]+1))
+            grid(True)
+            for i in range(self.local_nclusters):
+                ax.scatter(centers[i][0],centers[i][1],marker='^',color=colors[i],s=100)
+                ax.text(centers[i][0]+.02,centers[i][1],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
+        else:
+            fig=figure()
+            ax=Axes3D(fig)
+            ax.scatter(dataset[:,0],dataset[:,1],dataset[:,2],c=[colors[i] for i in self.local_cluster])
+            ax.set_xlim(0,1)
+            ax.set_ylim(0,1)
+            ax.set_zlim(0,1)
+            ax.set_xlabel('x'+str(dimensions[0]+1))
+            ax.set_ylabel('x'+str(dimensions[1]+1))
+            ax.set_zlabel('x'+str(dimensions[2]+1))
+            for i in range(self.local_nclusters):
+                ax.scatter(centers[i][0],centers[i][1],centers[i][2],marker='^',color=colors[i],s=100)
+                ax.text(centers[i][0],centers[i][1]+0.02,centers[i][2],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
+        title('Local extrema clusters scatter plot')
+        show()
 
 #LEVELSET FEATURES (quite bad unless improved)
     def lda(self,threshold=50,tsp=0.1):
@@ -1312,7 +1375,7 @@ class analysis:
                         ec_f[i]=True
             return ec_f
 
-    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[],p_dac=[],local_search=True): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[],p_dac=[],local_search=True,gradient=True,hessian=False): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         import numpy as np
         self.sample(sample)
         print "--------------------------------------------------------------------------------\n"
@@ -1408,18 +1471,20 @@ class analysis:
                 print "         Cluster center :               ",self.local_cluster_x_centers[i]," \n"
                 print "         Cluster diameter in F :        ",self.local_cluster_df[i]," \n"
                 print "         Cluster radius in X :          ",self.local_cluster_rx[i]," \n"
-        print "--------------------------------------------------------------------------------\n"
-        print "CURVATURE : GRADIENT/JACOBIAN \n"
-        print "--------------------------------------------------------------------------------\n"
-        self.get_gradient()
-        print "Number of points evaluated :            ",self.grad_npoints," \n"
-        print "Gradient sparsity :                     ",100*round(self.grad_sparsity,4),"% \n"
-        print "--------------------------------------------------------------------------------\n"
-        print "CURVATURE : HESSIAN \n"
-        print "--------------------------------------------------------------------------------\n"
-        self.get_hessian()
-        print "Number of points evaluated :            ",self.hess_npoints," \n"
-        
+        if gradient:
+            print "--------------------------------------------------------------------------------\n"
+            print "CURVATURE : GRADIENT/JACOBIAN \n"
+            print "--------------------------------------------------------------------------------\n"
+            self.get_gradient()
+            print "Number of points evaluated :            ",self.grad_npoints," \n"
+            print "Gradient sparsity :                     ",100*round(self.grad_sparsity,4),"% \n"
+        if hessian:
+            print "--------------------------------------------------------------------------------\n"
+            print "CURVATURE : HESSIAN \n"
+            print "--------------------------------------------------------------------------------\n"
+            self.get_hessian()
+            print "Number of points evaluated :            ",self.hess_npoints," \n"
+            
         if self.f_dim>1:
             print "--------------------------------------------------------------------------------\n"
             print "OBJECTIVE CORRELATION \n"
@@ -1452,8 +1517,14 @@ class analysis:
                 print "            ",self.c_dim-self.ic_dim+i+1,"                       ",100*round(ic_ef[i],4),"%      \n"
         #PLOTS 
         self.plot_f_distr()
-        self.plot_gradient_sparsity()
-        if self.dim>1:
-            self.plot_gradient_pcp('x')
-        if self.f_dim>1:
-            self.plot_gradient_pcp('f')
+        if gradient:
+            self.plot_gradient_sparsity()
+            if self.dim>1:
+                self.plot_gradient_pcp('x')
+            if self.f_dim>1:
+                self.plot_gradient_pcp('f')
+        if self.c_dim==0 and local_search:
+            self.plot_local_cluster_pcp(True)
+            self.plot_local_cluster_pcp(False)
+            if self.dim<=3:
+                self.plot_local_cluster_scatter()
