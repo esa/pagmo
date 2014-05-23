@@ -777,7 +777,8 @@ class analysis:
             self.local_neval.append(tmp2)
             self.local_f.append(tmp3)
 
-    def get_local_extrema(self,sample_size=0,algo=algorithm.gsl_fr()):#ADD METHOD CHOICE
+    def get_local_extrema(self,sample_size=0,algo=algorithm.gsl_fr(),par=True,decomposition_method='tchebycheff',weights='uniform',z=[],warning=True):
+    #maybe cool to add con2un meta problem when handling constraint optimisation
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_local_extrema: sampling first is necessary")
@@ -810,20 +811,47 @@ class analysis:
         if self.f_dim==1:
             decomposition=self.prob
         else:
-            decomposition=problem.decompose(self.prob)
+            if weights=='uniform':
+                weightvector=[1./self.f_dim for i in range(self.f_dim)]
+            elif weights=='random':
+                weightvector=[]
+            else:
+                weightvector=weights
+
+            decomposition=problem.decompose(self.prob,method=decomposition_method, weights=weightvector,z=z)
+            if warning:
+                if decomposition_method=='tchebycheff' or decomposition_method=='bi':
+                    if z==[]:
+                        z=[0 for i in self.f_dim]
+                    additional_message=' and '+str(z)+' ideal reference point!'
+                else:
+                    additional_message='!'
+                print 'WARNING: get_local_extrema is decomposing multi-objective problem by means of ',decomposition_method,' method, with ',str(weights),'weight vector',additional_message
+        if par:
+            archi=archipelago()
         for i in range(self.local_initial_npoints):
             pop=population(decomposition)
             pop.push_back(self.points[self.local_initial_points[i]])
             isl=island(algo,pop)
+            if par:
+                archi.push_back(isl)
+            else:
+                isl.evolve(1)
+                self.local_search_time.append(isl.get_evolution_time())
+                self.local_extrema.append(isl.population.champion.x)
+                self.local_f.append(isl.population.champion.f[0])
+        if par:
             start=time()
-            isl.evolve(1)
-            isl.join()
+            archi.evolve(1)
+            archi.join()
             finish=time()
-            self.local_search_time.append((finish-start)*1000)
-            self.local_extrema.append(isl.population.champion.x)
-            self.local_f.append(isl.population.champion.f[0])
+            for i in archi:
+                self.local_search_time.append(i.get_evolution_time())
+                self.local_extrema.append(i.population.champion.x)
+                self.local_f.append(i.population.champion.f[0])
 
-    def cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.005): #SINGLE CLUSTER TOLERANCE TOO BIG DUE TO F FEATURE -> FIX THIS!!!!
+
+    def cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.0001,kmax=0): #SINGLE CLUSTER TOLERANCE TOO BIG DUE TO F FEATURE -> FIX THIS!!!!
         if self.npoints==0:
             raise ValueError(
                 "analysis_cluster_local_extrema: sampling first is necessary")
@@ -843,6 +871,9 @@ class analysis:
 
         range_f=np.mean(np.ptp(self.f,0))
         mean_f=np.mean(self.f)
+
+        if kmax==0:
+            kmax=self.local_initial_npoints
 
         if range_f<single_cluster_tolerance:
             raise ValueError(
@@ -867,7 +898,7 @@ class analysis:
             total_distances=clust.fit_transform(dataset)
             total_center=clust.cluster_centers_[0]
             total_radius=max(total_distances)
-            if total_radius<single_cluster_tolerance:#single cluster scenario
+            if total_radius<single_cluster_tolerance*(self.dim+1):#single cluster scenario
                 #storage of output
                 local_cluster=list(clust.predict(dataset))
                 self.local_nclusters=1
@@ -879,7 +910,7 @@ class analysis:
                 k=2 #multiple cluster scenario
                 var_tot=sum([x**2 for x in total_distances])
                 var_ratio=0
-                while var_ratio<=variance_ratio:
+                while var_ratio<=variance_ratio and k<=kmax:
                     clust=KMeans(k)
                     y=clust.fit_predict(dataset)
                     cluster_size=np.zeros(k)
@@ -957,7 +988,7 @@ class analysis:
             dataset=[[] for i in range(self.local_nclusters)]
             for i in range(self.local_initial_npoints):
                 dataset[self.local_cluster[i]].append([self.local_cluster[i]+1]+[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)])
-            separatelabel=[str(i) for i in range(self.local_nclusters)]
+            separatelabel=[': cluster '+str(i+1) for i in range(self.local_nclusters)]
         for i in range(n):
             dataframe=df(dataset[i])
             title('Local extrema clusters PCP'+separatelabel[i]+' \n')
@@ -1389,7 +1420,7 @@ class analysis:
         print "Variable bounds : \n"
         for i in range(self.dim):
             print "     variable",i+1,":                       ","[",self.lb[i],",",self.ub[i],"]\n"
-        print "Box constraints hypervolume :           ",self.box_hv()," \n"
+        # print "Box constraints hypervolume :           ",self.box_hv()," \n"
         print "--------------------------------------------------------------------------------\n"
         print "F-DISTRIBUTION FEATURES (",self.f_dim," OBJECTIVES )\n"
         print "--------------------------------------------------------------------------------\n"
@@ -1525,6 +1556,6 @@ class analysis:
                 self.plot_gradient_pcp('f')
         if self.c_dim==0 and local_search:
             self.plot_local_cluster_pcp(True)
-            self.plot_local_cluster_pcp(False)
+            #self.plot_local_cluster_pcp(False)
             if self.dim<=3:
                 self.plot_local_cluster_scatter()
