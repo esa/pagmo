@@ -15,7 +15,6 @@ class analysis:
         self.local_initial_npoints=0
 
         object_type=str(type(input_object))
-        print object_type
         if object_type=="<class 'PyGMO.core._core.population'>":
             self.prob=input_object.problem
             self.pop=input_object
@@ -23,6 +22,7 @@ class analysis:
             self.prob=input_object
             self.pop=[]
         else:
+            ##this stuff is commented out because it will spoil charging from a custom problem otherwise
             # raise ValueError(
             #  "analysis: input either a problem or a population object to initialise the class")
             self.prob=input_object

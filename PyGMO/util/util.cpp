@@ -66,6 +66,16 @@ class __PAGMO_VISIBLE py_sobol
 		pagmo::util::discrepancy::sobol m_original_class;
 };
 
+class __PAGMO_VISIBLE py_lhs
+{
+	public:
+		py_lhs(unsigned int dim, unsigned int count) : m_original_class(dim,count) {}
+		std::vector<double> operator ()() {return m_original_class();}
+		std::vector<double> operator ()(unsigned int n) {return m_original_class(n);}
+	private:
+		pagmo::util::discrepancy::lhs m_original_class;
+};
+
 class __PAGMO_VISIBLE py_halton
 {
 	public:
@@ -193,6 +203,12 @@ static inline boost::python::tuple race_algo_run_return_tuple(
 BOOST_PYTHON_MODULE(_util) {
 
 	common_module_init();
+
+	typedef std::vector<double> (discrepancy::py_lhs::*my_first_overload_l)() ;
+	typedef std::vector<double> (discrepancy::py_lhs::*my_second_overload_l)(unsigned int) ;
+	class_<discrepancy::py_lhs>("lhs", init<unsigned int , unsigned int>())
+		.def("next", my_first_overload_l(&discrepancy::py_lhs::operator()))
+		.def("next", my_second_overload_l(&discrepancy::py_lhs::operator()));
 
 	typedef std::vector<double> (discrepancy::py_sobol::*my_first_overload_s)() ;
 	typedef std::vector<double> (discrepancy::py_sobol::*my_second_overload_s)(unsigned int) ;

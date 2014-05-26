@@ -14,7 +14,7 @@ class my_problem(base):
       super(my_problem,self).__init__(dim,i_dim)
 
       #then we set the problem bounds (in this case equal for all components)
-      self.set_bounds(-5,5)
+      self.set_bounds(0,1)
 
       #we define some additional 'private' data members (not really necessary in
       #this case, but ... hey this is a tutorial)

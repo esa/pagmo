@@ -14468,7 +14468,134 @@ void sobol::i8_sobol ( unsigned int dim_num, long long int *seed, double quasi[ 
 
 //****************************************************************************80
 
+unsigned int *lhs::perm_uniform ( unsigned int n)
+//****************************************************************************80
+//
+//  Purpose:
+//
+//    PERM_UNIFORM selects a random permutation of N objects.
+//
+//  Licensing:
+//
+//    This code is distributed under the GNU LGPL license. 
+//
+//  Modified:
+//
+//    31 October 2008
+//
+//  Author:
+//
+//    John Burkardt
+//
+//  Reference:
+//
+//    Albert Nijenhuis, Herbert Wilf,
+//    Combinatorial Algorithms,
+//    Academic Press, 1978, second edition,
+//    ISBN 0-12-519260-6.
+//
+//  Parameters:
+//
+//    Input, int N, the number of objects to be permuted.
+//
+//    Output, int PERM_UNIFORM[N], a permutation of (BASE, BASE+1, ..., BASE+N-1).
+//
+{
+  unsigned int i;
+  unsigned int j;
+  unsigned int k;
+  unsigned int *p;
+  double r;
 
+  p = new unsigned int[n];
+ 
+  for ( i = 0; i < n; i++ )
+  {
+    p[i] = i;
+  }
+
+  rng_double rng;
+
+  for ( i = 0; i < n; i++ )
+  {
+  	r=rng();
+    j = i+ ( unsigned int ) ( r * (double) (n-i));
+    k    = p[i];
+    p[i] = p[j];
+    p[j] = k;
+  }
+  return p;
+}
+
+//****************************************************************************80
+
+std::vector<double> lhs::latin_random ( unsigned int dim_num, unsigned int point_num)
+
+//****************************************************************************80
+//
+//  Purpose:
+//
+//    LATIN_RANDOM returns points in a Latin Random square.
+//
+//  Discussion:
+//
+//    In each spatial dimension, there will be exactly one
+//    point whose coordinate value lies between consecutive
+//    values in the list:
+//
+//      ( 0, 1, 2, ..., point_num ) / point_num
+//
+//  Licensing:
+//
+//    This code is distributed under the GNU LGPL license. 
+//
+//  Modified:
+//
+//    08 April 2003
+//
+//  Author:
+//
+//    John Burkardt
+//
+//  Parameters:
+//
+//    Input, int DIM_NUM, the spatial dimension.
+//
+//    Input, int POINT_NUM, the number of points.
+//
+//    Output, double X[DIM_NUM,POINT_NUM], the points.
+//
+{
+  unsigned int i;
+  unsigned int j;
+  unsigned int k;
+  unsigned int *perm;
+  double r;
+  std::vector<double> x(dim_num*point_num,0.0);
+//
+//  For spatial dimension I, 
+//    pick a random permutation of 1 to POINT_NUM,
+//    force the corresponding I-th components of X to lie in the
+//    interval ( PERM[J]-1, PERM[J] ) / POINT_NUM.
+//
+  rng_double rng;
+  k = 0;
+  for ( i = 0; i < dim_num; i++ )
+  {
+    perm= perm_uniform ( point_num );
+
+    for ( j = 0; j < point_num; j++ )
+    {
+      r=rng();
+      x[k] = ( ( ( double ) perm[j] ) + r ) / ( ( double ) point_num );
+      k = k + 1;
+    }
+    delete [] perm;
+  }
+  return x;
+}
+//****************************************************************************80
+//****************************************************************************80
 
 /// Constructor
 /**
@@ -14662,6 +14789,59 @@ std::vector<double> sobol::operator()(unsigned int n) {
 	std::vector<double> retval(m_dim,0.0);
 	i8_sobol(m_dim, &seed, &retval[0]);
 	m_count= (unsigned short int) seed;
+	return retval;
+}
+
+
+/// Constructor
+/**
+ * @param[in] dim dimension of the hypercube
+ * @param[in] number of points to sample
+*/
+lhs::lhs(unsigned int dim, unsigned int count) :  base(dim, count), m_initialised(false), m_set(), m_next(0) {
+	}
+/// Clone method.
+base_ptr lhs::clone() const
+{
+	return base_ptr(new lhs(*this));
+}
+/// Operator ()
+/**
+ * Returns the next point in the sequence
+ *
+ * @return an std::vector<double> containing the next point
+ */
+std::vector<double> lhs::operator()() {
+	std::vector<double> retval(m_dim,0.0);
+	if (!m_initialised){
+		m_set=latin_random(m_dim,m_count);
+		m_initialised=true;
+		m_next=0;
+	}
+	for (size_t i=0;i<m_dim;i++){
+		retval[i]=m_set[i+m_next*m_dim];
+	}
+	m_next++;
+	return retval;
+}
+/// Operator (unsigned int n)
+/**
+ * Returns the n-th point in the sequence
+ *
+ * @param[in] n the point along the sequence to be returned
+ * @return an std::vector<double> containing the n-th point
+ */
+std::vector<double> lhs::operator()(unsigned int n) {
+	std::vector<double> retval(m_dim,0.0);
+	m_next = n;
+	if (!m_initialised){
+		m_set=latin_random(m_dim,m_count);
+		m_initialised=true;
+	}
+	for (size_t i=0;i<m_dim;i++){
+		retval[i]=m_set[i+m_next*m_dim];
+	}
+	m_next++;
 	return retval;
 }
 }}} //namespaces
