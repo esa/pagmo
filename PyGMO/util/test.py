@@ -13,9 +13,8 @@ import matplotlib.pyplot as plt
 # anal.cluster_local_extrema()
 # anal.plot_local_cluster_scatter()
 
-prob=problem.kur(5)
+prob=my_problem()
 anal=analysis(prob)
-anal.sample(100)
-anal.get_local_extrema(decomposition_method='bi',weights=[0.3,0.7],z=[0.1,0.1])
+anal.print_report()
 # anal.plot_local_cluster_scatter()
 #anal.print_report(1000)

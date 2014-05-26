@@ -15,6 +15,7 @@ class analysis:
         self.local_initial_npoints=0
 
         object_type=str(type(input_object))
+        print object_type
         if object_type=="<class 'PyGMO.core._core.population'>":
             self.prob=input_object.problem
             self.pop=input_object
@@ -22,8 +23,10 @@ class analysis:
             self.prob=input_object
             self.pop=[]
         else:
-            raise ValueError(
-             "analysis: input either a problem or a population object to initialise the class")
+            # raise ValueError(
+            #  "analysis: input either a problem or a population object to initialise the class")
+            self.prob=input_object
+            self.pop=[]
 
 
     def sample(self, npoints, method='sobol', first=1):
@@ -234,6 +237,9 @@ class analysis:
         if self.npoints==0:
             raise ValueError(
                 "analysis.p_lin_conv: sampling first is necessary")
+        if self.cont_dim==0:
+            raise ValueError(
+                "analysis.p_lin_conv: this test makes no sense for purely integer problems")
         if n_pairs==0:
             n_pairs=self.npoints
         try:
@@ -254,7 +260,13 @@ class analysis:
                 i2=randint(self.npoints)
             r=random()
             x=r*array(self.points[i1])+(1-r)*array(self.points[i2])
-            f_lin=r*array(self.f[i1])+(1-r)*array(self.f[i2])
+
+            if self.cont_dim!=self.dim:
+                x[self.cont_dim:]=self.points[i1][self.cont_dim:]
+                f_lin=r*array(self.f[i1])+(1-r)*array(self.prob.objfun(self.points[i2][:self.cont_dim]+self.points[i1][self.cont_dim:]))
+            else:
+                f_lin=r*array(self.f[i1])+(1-r)*array(self.f[i2])
+
             f_real=array(self.prob.objfun(x))
             delta=f_lin-f_real
             mean_dev+=abs(delta)
@@ -517,20 +529,20 @@ class analysis:
             self.grad.append(self.richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol))
         self.average_abs_gradient=nanmean(abs(asarray(self.grad)),0)
         for i in range(self.f_dim):
-            for j in range(self.dim):
+            for j in range(self.cont_dim):
                 if abs(self.average_abs_gradient[i][j])<=zero_tol:
                     self.grad_sparsity+=1.
-        self.grad_sparsity/=(self.dim*self.f_dim)
+        self.grad_sparsity/=(self.cont_dim*self.f_dim)
 
     def richardson_gradient(self,x,h,grad_tol,tmax=15):
         from numpy import array, zeros, amax
-        d=[[zeros([self.f_dim,self.dim])],[]]
+        d=[[zeros([self.f_dim,self.cont_dim])],[]]
         hh=2*h
         err=1
         t=0
         while (err>grad_tol and t<tmax):
             hh/=2
-            for i in range(self.dim):
+            for i in range(self.cont_dim):
                 xu=list(x)
                 xd=list(x)
                 xu[i]+=hh
@@ -546,10 +558,10 @@ class analysis:
             if t>0:
                 err=amax(abs(d[t%2][t]-d[(t+1)%2][t-1]))
 
-            d[(t+1)%2].extend([zeros([self.f_dim,self.dim]),zeros([self.f_dim,self.dim])])
+            d[(t+1)%2].extend([zeros([self.f_dim,self.cont_dim]),zeros([self.f_dim,self.cont_dim])])
             t+=1
 
-        return list(d[(t+1)%2][t-1])
+        return d[(t+1)%2][t-1].tolist()
 
 
     def get_hessian(self,sample_size=0,h=0.01,hess_tol=0.000001):
@@ -578,7 +590,7 @@ class analysis:
     def richardson_hessian(self,x,h,hess_tol,tmax=15):
         from numpy import array, zeros, amax
         from itertools import combinations_with_replacement
-        ind=list(combinations_with_replacement(range(self.dim),2))
+        ind=list(combinations_with_replacement(range(self.cont_dim),2))
         n_ind=len(ind)
         d=[[zeros([self.f_dim,n_ind])],[]]
         hh=2*h
@@ -626,11 +638,11 @@ class analysis:
 
         hessian=[]
         for i in range(self.f_dim):
-            mat=zeros([self.dim,self.dim])
+            mat=zeros([self.cont_dim,self.cont_dim])
             for j in range(n_ind):
                 mat[ind[j][0]][ind[j][1]]=d[(t+1)%2][t-1][i][j]
                 mat[ind[j][1]][ind[j][0]]=d[(t+1)%2][t-1][i][j]
-            hessian.append(mat)
+            hessian.append(mat.tolist())
 
         return hessian
 
@@ -652,9 +664,9 @@ class analysis:
         ylabel('objective')
         plot=spy(self.average_abs_gradient,precision=zero_tol,markersize=20)
         try:
-            xlocs=range(self.dim)
+            xlocs=range(self.cont_dim)
             ylocs=range(self.f_dim)
-            xlabels=[str(i) for i in range(1,self.dim+1)]
+            xlabels=[str(i) for i in range(1,self.cont_dim+1)]
             ylabels=[str(i) for i in range(1,self.f_dim+1)]
             xticks(xlocs,[x.format(xlocs[i]) for i,x in enumerate(xlabels)])
             yticks(ylocs,[y.format(ylocs[i]) for i,y in enumerate(ylabels)])
@@ -669,7 +681,7 @@ class analysis:
         if mode!='x' and mode!='f':
             raise ValueError(
                 "analysis.plot_gradient_pcp: choose a valid value for mode ('x' or 'f')")
-        if mode=='x' and self.dim==1:
+        if mode=='x' and self.cont_dim==1:
             raise ValueError(
                 "analysis.plot_gradient_pcp: mode 'x' makes no sense for univariate problems")
         if mode=='f' and self.f_dim==1:
@@ -696,14 +708,14 @@ class analysis:
             if rowlabel:
                 tmp=[]
             else:
-                tmp=[['x'+str(x+1) for x in range(self.dim)]]
+                tmp=[['x'+str(x+1) for x in range(self.cont_dim)]]
             for j in range(self.f_dim):
                 if rowlabel:
                     tmp.append(['objective '+str(j+1)])
                 else:
                     tmp.append([])
                 if scaled:
-                    for k in range(self.dim):
+                    for k in range(self.cont_dim):
                         tmp[j+aux].append(self.grad[i][j][k]*(self.ub[k]-self.lb[k])/ranges[j])
                 else:
                     tmp[j+aux].extend(self.grad[i][j])
@@ -711,7 +723,7 @@ class analysis:
                 gradient.extend(tmp)
             else:
                 tmp2=[]
-                for ii in range(self.dim):
+                for ii in range(self.cont_dim):
                     tmp2.append([])
                     for jj in range(self.f_dim+1):
                         tmp2[ii].append(tmp[jj][ii])
@@ -822,7 +834,7 @@ class analysis:
             if warning:
                 if decomposition_method=='tchebycheff' or decomposition_method=='bi':
                     if z==[]:
-                        z=[0 for i in self.f_dim]
+                        z=[0 for i in range(self.f_dim)]
                     additional_message=' and '+str(z)+' ideal reference point!'
                 else:
                     additional_message='!'

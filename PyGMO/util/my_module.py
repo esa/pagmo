@@ -8,13 +8,13 @@ class my_problem(base):
    dim problem dimension
    """
 
-   def __init__(self, dim = 2):
+   def __init__(self,dim=5,i_dim=2):
       #First we call the constructor of the base class telling
       #essentially to PyGMO what kind of problem to expect (1 objective, 0 contraints etc.)
-      super(my_problem,self).__init__(dim)
+      super(my_problem,self).__init__(dim,i_dim)
 
       #then we set the problem bounds (in this case equal for all components)
-      self.set_bounds(-2,2)
+      self.set_bounds(-5,5)
 
       #we define some additional 'private' data members (not really necessary in
       #this case, but ... hey this is a tutorial)
@@ -25,7 +25,7 @@ class my_problem(base):
    def _objfun_impl(self,x):
       f=0
       for i in range(self.__dim):
-         f+=(i-2)*x[i]
+         f+=(i+1)*x[i]
          #note that we return a tuple with one element only. In PyGMO the objective functions
          #return tuples so that multi-objective optimization is also possible.
       s=(f,)
