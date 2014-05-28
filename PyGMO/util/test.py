@@ -12,10 +12,8 @@ import matplotlib.pyplot as plt
 # anal.get_local_extrema()
 # anal.cluster_local_extrema()
 # anal.plot_local_cluster_scatter()
-
-prob=my_problem(1,0)
-anal=analysis(prob)
-anal.sample(10,'lhs')
-print anal.points
+from start import analysis
+a=analysis()
+a.start()
 # anal.plot_local_cluster_scatter()
 #anal.print_report(1000)

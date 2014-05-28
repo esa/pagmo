@@ -22,7 +22,7 @@ class analysis:
             self.prob=input_object
             self.pop=[]
         else:
-            ##this stuff is commented out because it will spoil charging from a custom problem otherwise
+            ##this is commented out because it will spoil charging from a custom problem otherwise
             # raise ValueError(
             #  "analysis: input either a problem or a population object to initialise the class")
             self.prob=input_object
