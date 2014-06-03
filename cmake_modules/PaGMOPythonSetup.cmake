@@ -20,11 +20,11 @@
 # Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+
 # Only automate if finder mode is on.
 IF(PYGMO_PYTHON_FINDER)
 	# Only unset and refind if PYGMO_PYTHON_VARIABLE changed.
 	IF(NOT ${PYGMO_PYTHON_VERSION_CACHED} STREQUAL ${PYGMO_PYTHON_VERSION})
-
 		# Unset vars from cache
 		UNSET(PYTHONINTERP_FOUND CACHE)
 		UNSET(PYTHON_EXECUTABLE CACHE)
