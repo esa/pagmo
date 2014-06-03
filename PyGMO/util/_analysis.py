@@ -1418,9 +1418,14 @@ class analysis:
                         ec_f[i]=True
             return ec_f
 
-    def print_report(self,sample=100,p_f=[0,10,25,50,75,90,100],p_svm=[],p_dac=[],local_search=True,gradient=True,hessian=False): #UNFINISHED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    def print_report(self,b1=True,sample=100,p_f=[0,10,25,50,75,90,100],b2=True,p_svm=[],p_dac=[],local_search=True,\
+    gradient=True,hessian=False,b3=True,b41=True,b42=True,b43=True,b51=True,b52=True,b60=True,b63=True,b64=True,b65=True,b66=False,\
+    b711=True,b712=True,b713=True,i1=0,s3=0,s42=0,s43=0,s51=50,s52=50,s53=10,s54=3,s55=10,s6=0,i61=0,s61=0.95,s62=1,s63=[],i66=0,s661='random',s662='0'):
         import numpy as np
-        self.sample(sample)
+        if b1 and i1==0:
+            self.sample(sample,'sobol')
+        if b1 and i1==1:
+            self.sample(sample,'lhs')
         print "--------------------------------------------------------------------------------\n"
         print "PROBLEM PROPERTIES \n"
         print "--------------------------------------------------------------------------------\n"
@@ -1452,19 +1457,27 @@ class analysis:
         print "Skew :                                  ",list(self.skew())," \n"
         print "Kurtosis :                              ",list(self.kurtosis())," \n"
         print "Number of peaks of f-distribution :     ",self.n_peaks_f()," \n"
-        print "--------------------------------------------------------------------------------\n"
-        print "META-MODEL FEATURES \n"
-        print "--------------------------------------------------------------------------------\n"
-        print "Linear regression R2 :                  ",self.lin_reg()[1]," \n"
-        if self.dim>=2:
-            print "Linear regression with interaction R2 : ",self.lin_reg_inter()[1]," \n"
-        print "Quadratic regression R2 :               ",self.poly_reg()[1]," \n"
-        if len(p_svm)>0:
+        if b41 or b42 or b43:
+            print "--------------------------------------------------------------------------------\n"
+            print "META-MODEL FEATURES \n"
+            print "--------------------------------------------------------------------------------\n"
+        if b41:
+            print "Linear regression R2 :                  ",self.lin_reg()[1]," \n"
+        if b42 and self.dim>=2 and len(s42)>0:
+            for i in s42:
+                print "Lin. regression with interaction (",i,") R2 :",self.lin_reg_inter(interaction_order=i)[1]," \n"
+        if b43 and len(s43)>0:
+            for i in s43:
+                if i==2:
+                    print "Quadratic regression R2 :               ",self.poly_reg(regression_degree=i)[1]," \n"
+                else:
+                    print "Polynomial regression degree", i ,"R2 : ",self.poly_reg(regression_degree=i)[1]," \n"
+        if b51 and len(p_svm)>0:
             print "--------------------------------------------------------------------------------\n"
             print "LEVELSET FEATURES : SVM\n"
             print "--------------------------------------------------------------------------------\n"
             for i in p_svm:
-                svm_results=self.svm_p_values(threshold=i)
+                svm_results=self.svm_p_values(threshold=i,k_test=s53,k_tune=s54)
                 print "Percentile",i,":\n"
                 print "     Mean Misclassification Errors :\n"
                 print "         Linear Kernel :                ",svm_results[0]," \n"
@@ -1474,12 +1487,12 @@ class analysis:
                 print "         Linear/Quadratic :             ",svm_results[3]," \n"
                 print "         Linear/Nonlinear :             ",svm_results[4]," \n"
                 print "         Quadratic/Nonlinear :          ",svm_results[5]," \n"
-        if len(p_dac)>0:
+        if b52 and len(p_dac)>0:
             print "--------------------------------------------------------------------------------\n"
             print "LEVELSET FEATURES : DAC\n"
             print "--------------------------------------------------------------------------------\n"
             for i in p_dac:
-                dac_results=self.dac_p_values(threshold=i)
+                dac_results=self.dac_p_values(threshold=i,k_test=s55)
                 print "Percentile",i,":\n"
                 print "     Mean Misclassification Errors :\n"
                 print "         LDA :                          ",dac_results[0]," \n"
@@ -1489,31 +1502,40 @@ class analysis:
                 print "         Linear/Quadratic :             ",dac_results[3]," \n"
                 print "         Linear/Nonlinear :             ",dac_results[4]," \n"
                 print "         Quadratic/Nonlinear :          ",dac_results[5]," \n"
-        print "--------------------------------------------------------------------------------\n"
-        print "PROBABILITY OF LINEARITY AND CONVEXITY\n"
-        print "--------------------------------------------------------------------------------\n"
-        p=self.p_lin_conv()
-        print "Number of pairs of points used :        ",self.lin_conv_npairs," \n"
-        print "Probability of linearity :              ",p[0]," \n"
-        print "Probability of convexity :              ",p[1]," \n"
-        print "Mean deviation from linearity :         ",p[2]," \n"
-        if self.c_dim==0 and local_search:
+        if b3:
+            print "--------------------------------------------------------------------------------\n"
+            print "PROBABILITY OF LINEARITY AND CONVEXITY\n"
+            print "--------------------------------------------------------------------------------\n"
+            p=self.p_lin_conv(s3)
+            print "Number of pairs of points used :        ",self.lin_conv_npairs," \n"
+            print "Probability of linearity :              ",p[0]," \n"
+            print "Probability of convexity :              ",p[1]," \n"
+            print "Mean deviation from linearity :         ",p[2]," \n"
+        if self.c_dim==0 and local_search and s6>0:
             print "--------------------------------------------------------------------------------\n"
             print "LOCAL SEARCH\n"
             print "--------------------------------------------------------------------------------\n"
-            self.get_local_extrema()
-            self.cluster_local_extrema()
+            if b66:
+                self.get_local_extrema(sample_size=s6,algo=ls_algo,decomposition_method=i66,weights=s661,z=s662)
+            else:
+                self.get_local_extrema(sample_size=s6,decomposition_method=i66,weights=s661,z=s662)
+            if b60:
+                if i61==0:
+                    self.cluster_local_extrema(variance_ratio=s61,k=0)
+                else:
+                    self.cluster_local_extrema(variance_ratio=0,k=s62)
             print "Local searches performed :              ",self.local_initial_npoints," \n"
             print "Quartiles of CPU time per search [ms]:  ",round(np.percentile(self.local_search_time,0),3),"/",round(np.percentile(self.local_search_time,25),3),"/",round(np.percentile(self.local_search_time,50),3),"/",round(np.percentile(self.local_search_time,75),3),"/",round(np.percentile(self.local_search_time,100),3)," \n"
-            print "Number of clusters identified :         ",self.local_nclusters," \n"
-            print "Cluster properties (max. best 5 clusters): \n"
-            for i in range(min((self.local_nclusters,5))):
-                print "     Cluster n.:                        ",i+1," \n"
-                print "         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"% \n"
-                print "         Mean objective value :         ",self.local_cluster_f_centers[i]," \n"
-                print "         Cluster center :               ",self.local_cluster_x_centers[i]," \n"
-                print "         Cluster diameter in F :        ",self.local_cluster_df[i]," \n"
-                print "         Cluster radius in X :          ",self.local_cluster_rx[i]," \n"
+            if b60:
+                print "Number of clusters identified :         ",self.local_nclusters," \n"
+                print "Cluster properties (max. best 5 clusters): \n"
+                for i in range(min((self.local_nclusters,5))):
+                    print "     Cluster n.:                        ",i+1," \n"
+                    print "         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"% \n"
+                    print "         Mean objective value :         ",self.local_cluster_f_centers[i]," \n"
+                    print "         Cluster center :               ",self.local_cluster_x_centers[i]," \n"
+                    print "         Cluster diameter in F :        ",self.local_cluster_df[i]," \n"
+                    print "         Cluster radius in X :          ",self.local_cluster_rx[i]," \n"
         if gradient:
             print "--------------------------------------------------------------------------------\n"
             print "CURVATURE : GRADIENT/JACOBIAN \n"
@@ -1559,15 +1581,724 @@ class analysis:
             for i in range(self.ic_dim):
                 print "            ",self.c_dim-self.ic_dim+i+1,"                       ",100*round(ic_ef[i],4),"%      \n"
         #PLOTS 
-        self.plot_f_distr()
+        if b2:
+            self.plot_f_distr()
         if gradient:
-            self.plot_gradient_sparsity()
-            if self.dim>1:
+            if b711:
+                self.plot_gradient_sparsity()
+            if self.dim>1 and b712:
                 self.plot_gradient_pcp('x')
-            if self.f_dim>1:
+            if self.f_dim>1 and b713:
                 self.plot_gradient_pcp('f')
         if self.c_dim==0 and local_search:
-            self.plot_local_cluster_pcp(True)
-            #self.plot_local_cluster_pcp(False)
-            if self.dim<=3:
+            if b64:
+                self.plot_local_cluster_pcp(True)
+            if b65:
+                self.plot_local_cluster_pcp(False)
+            if b63:
                 self.plot_local_cluster_scatter()
+
+    def start(self):
+        import Tkinter as tk 
+        from Tkinter import Tk, Frame, Checkbutton, Label, Entry, Radiobutton, Button
+        from Tkinter import IntVar,BooleanVar, StringVar, BOTH
+
+
+        class parameters(Frame):
+  
+            def __init__(self, parent):
+                Frame.__init__(self, parent)   
+                 
+                self.parent = parent        
+                self.initUI()
+                
+            def initUI(self):
+              
+                self.parent.title("ANALYSIS")
+
+                self.pack(fill=BOTH, expand=1)
+
+                self.b1=BooleanVar()#sample
+                self.s1=StringVar()#number of points
+                self.i1=IntVar()#sobol/lhs
+
+                self.b2=BooleanVar()#plot f-distributions
+                self.s2=StringVar()#percentiles
+
+                self.b3=BooleanVar()#perform lin_conv test
+                self.s3=StringVar()#number of pairs
+
+                self.b41=BooleanVar()#linear reg
+                self.b42=BooleanVar()#linear reg w/ interaction
+                self.s42=StringVar()#order of interaction
+                self.b43=BooleanVar()#poly reg
+                self.s43=StringVar()#degree of regression
+
+                self.b51=BooleanVar()#SVM
+                self.s51=StringVar()#threshold svm
+                self.b52=BooleanVar()#DAC
+                self.s52=StringVar()#threshold dac
+                self.s53=StringVar()#ktest svn
+                self.s54=StringVar()#ktune svn
+                self.s55=StringVar()#ktest dac
+
+                self.b6=BooleanVar()#perform local search
+                self.s6=StringVar()#number of initial points
+                self.b60=BooleanVar()#cluster results
+                self.i61=IntVar()#var_ratio/k
+                self.s61=StringVar()#var_ratio
+                self.s62=StringVar()#k
+                self.b63=BooleanVar()#scatter plot
+                self.s63=StringVar()#scatter plot dimensions
+                self.b64=BooleanVar()#PCP together
+                self.b65=BooleanVar()#PCP separate
+                self.b66=BooleanVar()#adv/use custom algo
+                self.i66=IntVar()#adv/decomposition method
+                self.s661=StringVar()#adv/decomposition weights
+                self.s662=StringVar()#adv/z
+
+                self.b71=BooleanVar()#get gradient
+                self.b72=BooleanVar()#get hessian
+                self.b711=BooleanVar()#gradient sparsity plot
+                self.b712=BooleanVar()#gradient pcpx
+                self.b713=BooleanVar()#gradient pcpf
+
+
+
+                #SAMPLING
+
+                self.l1=Label(self, text="SAMPLING")
+                self.l1.grid(row=0,sticky='W')
+
+                self.cb1 = Checkbutton(self, text="Sample",
+                    variable=self.b1,command=self.add1)
+                self.cb1.grid(row=1,column=0,sticky='W')
+
+                self.l11=Label(self, text="N. points:",state=tk.DISABLED)
+                self.l11.grid(row=1,column=0, sticky='E')
+
+                self.e1=Entry(self,textvariable=self.s1,width=5, justify=tk.CENTER,state=tk.DISABLED)
+                self.e1.insert(0,'1000')
+                self.e1.grid(row=1,column=1,sticky='W')
+
+
+                self.r11=Radiobutton(self, text='sobol',variable=self.i1, value=0,state=tk.DISABLED)
+                self.r11.grid(row=1,column=1,sticky='e')
+
+                self.r12=Radiobutton(self, text='lhs',variable=self.i1, value=1,state=tk.DISABLED)
+                self.r12.grid(row=1,column=2,sticky='w')
+
+                #F-DISTRIBUTION
+
+                self.l2=Label(self,text='F-DISTRIBUTION FEATURES')
+                self.l2.grid(row=2,sticky='W')
+
+                self.cb2 = Checkbutton(self, text="Plot f-distributions",
+                    variable=self.b2)
+                self.cb2.grid(row=3,column=0,sticky='W')
+
+                self.l2=Label(self, text="Show percentiles:")
+                self.l2.grid(row=3,column=1,sticky='E')
+
+                self.e2=Entry(self,textvariable=self.s2,width=15, justify=tk.CENTER)
+                self.e2.insert(0,'0,5,10,25,50,100')
+                self.e2.grid(row=3,column=2,sticky='w')
+
+                #DEGREE OF LINEARITY AND CONVEXITY
+
+                self.l3=Label(self,text='LINEARITY AND CONVEXITY')
+                self.l3.grid(row=4,sticky='W')
+
+                self.cb3 = Checkbutton(self, text="Perform test",
+                    variable=self.b3,command=self.add3)
+                self.cb3.grid(row=5,column=0,sticky='W')
+
+                self.l3=Label(self, text="Number of pairs:",state=tk.DISABLED)
+                self.l3.grid(row=5,column=1,sticky='E')
+
+                self.e3=Entry(self,textvariable=self.s3,width=5,state=tk.DISABLED, justify=tk.CENTER)
+                self.e3.grid(row=5,column=2,sticky='w')
+
+                #META-MODEL FEATURES
+
+                self.l4=Label(self,text='META-MODEL FEATURES')
+                self.l4.grid(row=6,sticky='W')
+
+                self.cb41 = Checkbutton(self, text="Linear regression",
+                    variable=self.b41)
+                self.cb41.grid(row=7,column=0,sticky='W')
+
+                self.cb42 = Checkbutton(self, text="Linear w/ interaction",
+                    variable=self.b42,command=self.add42)
+                self.cb42.grid(row=8,column=0,sticky='W')
+
+                self.l42=Label(self, text="Order(s) of interaction:",state=tk.DISABLED)
+                self.l42.grid(row=8,column=1,sticky='E')
+
+                self.e42=Entry(self,textvariable=self.s42,width=5,state=tk.DISABLED, justify=tk.CENTER)
+                self.e42.insert(0,'2')
+                self.e42.grid(row=8,column=2,sticky='w')
+
+                self.cb43 = Checkbutton(self, text="Polynomial regression",
+                    variable=self.b43,command=self.add43)
+                self.cb43.grid(row=9,column=0,sticky='W')
+
+                self.l43=Label(self, text="Degree(s) of regression:",state=tk.DISABLED)
+                self.l43.grid(row=9,column=1,sticky='E')
+
+                self.e43=Entry(self,textvariable=self.s43,width=5,state=tk.DISABLED, justify=tk.CENTER)
+                self.e43.insert(0,'2')
+                self.e43.grid(row=9,column=2,sticky='w')
+ 
+
+                #MULTI-MODALITY
+
+                self.l5=Label(self, text="LEVELSET FEATURES / MMI")
+                self.l5.grid(row=10,sticky='W')
+
+                self.cb51 = Checkbutton(self, text="SVM",
+                    variable=self.b51,command=self.add51)
+                self.cb51.grid(row=11,column=0,sticky='W')
+
+                self.l51=Label(self, text="Threshold(s):",state=tk.DISABLED)
+                self.l51.grid(row=11,column=0,sticky='E')
+
+                self.e51=Entry(self,textvariable=self.s51,state=tk.DISABLED,width=10, justify=tk.CENTER)
+                self.e51.grid(row=11,column=1,sticky='w')
+
+                self.cb52 = Checkbutton(self, text="DAC",
+                    variable=self.b52,command=self.add52)
+                self.cb52.grid(row=12,column=0,sticky='W')
+
+                self.l52=Label(self, text="Threshold(s):",state=tk.DISABLED)
+                self.l52.grid(row=12,column=0,sticky='E')
+
+                self.e52=Entry(self,textvariable=self.s52,state=tk.DISABLED,width=10, justify=tk.CENTER)
+                self.e52.grid(row=12,column=1,sticky='w')
+
+                self.l53=Label(self, text="K_test:",state=tk.DISABLED)
+                self.l53.grid(row=11,column=1,sticky='E')
+
+                self.e53=Entry(self,textvariable=self.s53,state=tk.DISABLED,width=5, justify=tk.CENTER)
+                self.e53.grid(row=11,column=2,sticky='w')
+
+                self.l54=Label(self, text="K_tune:",state=tk.DISABLED)
+                self.l54.grid(row=11,column=2,sticky='E')
+
+                self.e54=Entry(self,textvariable=self.s54,state=tk.DISABLED,width=5, justify=tk.CENTER)
+                self.e54.grid(row=11,column=3,sticky='w')
+
+                self.l55=Label(self, text="K_test:",state=tk.DISABLED)
+                self.l55.grid(row=12,column=1,sticky='E')
+
+                self.e55=Entry(self,textvariable=self.s55,state=tk.DISABLED,width=5, justify=tk.CENTER)
+                self.e55.grid(row=12,column=2,sticky='w')
+
+                #LOCAL SEARCH
+                
+                self.l6=Label(self, text="LOCAL SEARCH")
+                self.l6.grid(row=13,sticky='W')
+
+                self.cb6 = Checkbutton(self, text="Perform local search",
+                    variable=self.b6,command=self.add6)
+                self.cb6.grid(row=14,column=0,sticky='W')
+
+                self.l60=Label(self, text="N. initial points:",state=tk.DISABLED)
+                self.l60.grid(row=14, column=1,sticky='e')
+
+                self.e6=Entry(self,textvariable=self.s6,state=tk.DISABLED,width=5, justify=tk.CENTER)
+                self.e6.grid(row=14,column=2,sticky='w')
+
+                self.cb60 = Checkbutton(self, text="Cluster results",
+                    variable=self.b60,command=self.add61,state=tk.DISABLED)
+                self.cb60.grid(row=15,column=0,sticky='W')
+
+                self.r61=Radiobutton(self, text="Fix variance ratio:",state=tk.DISABLED,variable=self.i61,value=0,command=self.add62)
+                self.r61.grid(row=15,column=1,sticky='w')
+
+                self.e61=Entry(self,textvariable=self.s61,state=tk.DISABLED,width=5, justify=tk.CENTER)
+                self.e61.grid(row=15,column=2,sticky='w')
+
+                self.r62=Radiobutton(self, text="Fix number of clusters:",state=tk.DISABLED,variable=self.i61,value=1,command=self.add62)
+                self.r62.grid(row=16,column=1,sticky='w')
+
+                self.e62=Entry(self,textvariable=self.s62,state=tk.DISABLED,width=5, justify=tk.CENTER)
+                self.e62.grid(row=16,column=2,sticky='w')
+
+                self.cb63 = Checkbutton(self, text="Scatter plot",
+                    variable=self.b63,command=self.add63,state=tk.DISABLED)
+                self.cb63.grid(row=16,column=3,sticky='W')
+
+                self.l63=Label(self, text="Dim(s):",state=tk.DISABLED)
+                self.l63.grid(row=16,column=3,sticky='E')
+
+                self.e63=Entry(self,textvariable=self.s54,state=tk.DISABLED,width=13, justify=tk.CENTER)
+                self.e63.grid(row=16,column=4,sticky='w')
+
+                self.cb64 = Checkbutton(self, text="Plot PCP (together)",
+                    variable=self.b64,state=tk.DISABLED)
+                self.cb64.grid(row=14,column=3,sticky='W')
+
+                self.cb65 = Checkbutton(self, text="Plot PCP (per cluster)",
+                    variable=self.b65,state=tk.DISABLED)
+                self.cb65.grid(row=15,column=3,sticky='W')
+
+                self.b660 = Button(self, text='Advanced search options',state=tk.DISABLED, command=self.add660)
+                self.b660.grid(row=16,column=0,sticky='w')
+
+                self.cb66 = Checkbutton(self, text='Use algorithm ls_algo')
+
+                self.l66=Label(self, text="Decomp.:")
+
+                self.r661=Radiobutton(self, text="Tchebycheff",variable=self.i66,value=0,command=self.add66x)               
+                self.r662=Radiobutton(self, text="Bi",variable=self.i66,value=1,command=self.add66x)
+                self.r663=Radiobutton(self, text="Weighted",variable=self.i66,value=2,command=self.add66x)
+
+                self.l661=Label(self,text='   weights:')
+                self.e661=Entry(self,textvariable=self.s661,width=10,justify=tk.CENTER)
+                self.e661.insert(0,'random')
+                self.l662=Label(self,text='  Z:')
+                self.e662=Entry(self,textvariable=self.s662,width=10,justify=tk.CENTER)
+                self.e662.insert(0,'0')
+
+
+                #CURVATURE
+
+                self.l7=Label(self, text="CURVATURE")
+                self.l7.grid(row=18,sticky='W')
+
+                self.l71=Label(self, text="  -Gradient")
+                self.l71.grid(row=19, sticky='W')
+
+                self.cb71 = Checkbutton(self, text="Get gradient",
+                    variable=self.b71,command=self.add71)
+                self.cb71.grid(row=20,column=0,sticky='W')
+
+                self.l711 = Label(self,text='Plots:', state=tk.DISABLED)
+                self.l711.grid(row=20,column=0,sticky='e')
+
+                self.cb711 = Checkbutton(self, text="Sparsity",
+                    variable=self.b711, state=tk.DISABLED)
+                self.cb711.grid(row=20,column=1,sticky='W')
+
+                self.cb712 = Checkbutton(self, text="PCP in X",
+                    variable=self.b712, state=tk.DISABLED)
+                self.cb712.grid(row=20,column=1,sticky='e')
+
+
+                self.cb713 = Checkbutton(self, text="PCP in F",
+                    variable=self.b713, state=tk.DISABLED)
+                self.cb713.grid(row=20,column=2,sticky='W')
+
+                self.l72=Label(self, text="  -Hessian")
+                self.l72.grid(row=21, sticky='W')
+
+                self.cb72 = Checkbutton(self, text="Get hessian",
+                    variable=self.b72)
+                self.cb72.grid(row=22,column=0,sticky='NW')
+
+                #GO
+                self.go=Button(self,text='< GO >',width=10,height=2,bg='green',activebackground='green',command=self.go)
+                self.go.grid(row=22,column=4,sticky='sw')
+
+            def add1(self):
+                if self.b1.get()==True:
+                    self.l11.configure(state=tk.NORMAL)
+                    self.e1.configure(state=tk.NORMAL)
+                    self.r11.configure(state=tk.NORMAL)
+                    self.r12.configure(state=tk.NORMAL)
+
+                else:
+                    self.l11.configure(state=tk.DISABLED)
+                    self.e1.configure(state=tk.DISABLED)
+                    self.r11.configure(state=tk.DISABLED)
+                    self.r12.configure(state=tk.DISABLED)
+
+            def add3(self):
+                if self.b3.get()==True:
+                    self.l3.configure(state=tk.NORMAL)
+                    self.e3.configure(state=tk.NORMAL)
+                    self.e3.insert(0,'X')
+
+                else:
+                    self.l3.configure(state=tk.DISABLED)
+                    self.e3.delete(0,5000)
+                    self.e3.configure(state=tk.DISABLED)
+
+            def add42(self):
+                if self.b42.get()==True:
+                    self.l42.configure(state=tk.NORMAL)
+                    self.e42.configure(state=tk.NORMAL)
+                    self.e42.insert(0,'2')
+
+                else:
+                    self.l42.configure(state=tk.DISABLED)
+                    self.e42.delete(0,5000)
+                    self.e42.configure(state=tk.DISABLED)
+
+
+            def add43(self):
+                if self.b43.get()==True:
+                    self.l43.configure(state=tk.NORMAL)
+                    self.e43.configure(state=tk.NORMAL)
+                    self.e43.insert(0,'2')
+
+                else:
+                    self.l43.configure(state=tk.DISABLED)
+                    self.e43.delete(0,5000)
+                    self.e43.configure(state=tk.DISABLED)
+
+            def add51(self):
+                if self.b51.get()==True:
+                    self.l51.configure(state=tk.NORMAL)
+                    self.e51.configure(state=tk.NORMAL)
+                    self.e51.insert(0,'50')
+                    self.l53.configure(state=tk.NORMAL)
+                    self.e53.configure(state=tk.NORMAL)
+                    self.e53.insert(0,'10')
+                    self.l54.configure(state=tk.NORMAL)
+                    self.e54.configure(state=tk.NORMAL)
+                    self.e54.insert(0,'3')
+                else:
+                    self.l51.configure(state=tk.DISABLED)
+                    self.e51.delete(0,5000)
+                    self.e51.configure(state=tk.DISABLED)
+                    self.l53.configure(state=tk.DISABLED)
+                    self.e53.delete(0,5000)
+                    self.e53.configure(state=tk.DISABLED)
+                    self.l54.configure(state=tk.DISABLED)
+                    self.e54.delete(0,5000)                    
+                    self.e54.configure(state=tk.DISABLED)
+
+
+            def add52(self):
+                if self.b52.get()==True:
+                    self.l52.configure(state=tk.NORMAL)
+                    self.e52.configure(state=tk.NORMAL)
+                    self.e52.insert(0,'50')
+                    self.l55.configure(state=tk.NORMAL)
+                    self.e55.configure(state=tk.NORMAL)
+                    self.e55.insert(0,'10')
+                else:
+                    self.l52.configure(state=tk.DISABLED)
+                    self.e52.delete(0,5000)
+                    self.e52.configure(state=tk.DISABLED)
+                    self.l55.configure(state=tk.DISABLED)
+                    self.e55.delete(0,5000)
+                    self.e55.configure(state=tk.DISABLED)
+
+            def add6(self):
+                if self.b6.get()==True:
+                    self.r61.configure(state=tk.NORMAL)
+                    self.r61.select()
+                    self.r62.configure(state=tk.NORMAL)
+                    self.e61.configure(state=tk.NORMAL)
+                    self.e61.insert(0,'0.95')
+                    self.cb60.configure(state=tk.NORMAL)
+                    self.cb60.select()
+                    self.e62.delete(0,5000)
+                    self.e62.configure(state=tk.DISABLED)
+                    self.cb63.configure(state=tk.NORMAL)
+                    self.cb63.deselect()
+                    self.l63.configure(state=tk.DISABLED)
+                    self.e63.delete(0,5000)
+                    self.e63.configure(state=tk.DISABLED)
+                    self.cb64.configure(state=tk.NORMAL)
+                    self.cb65.configure(state=tk.NORMAL)
+                    self.cb64.deselect()
+                    self.cb65.deselect()
+                    self.l60.configure(state=tk.NORMAL)
+                    self.e6.configure(state=tk.NORMAL)
+                    self.e6.insert(0,'X')
+                    self.b660.configure(state=tk.NORMAL)
+
+                    self.cb66.pack()
+                    self.b660.configure(text='Advanced search options', command=self.add660)
+                    self.b660.grid(row=16,column=0,sticky='w')
+                    self.l66.pack()
+                    self.r661.pack()
+                    self.r662.pack()
+                    self.r663.pack()
+                    self.l661.pack()
+                    self.e661.pack()
+                    self.l662.pack()
+                    self.e662.pack()
+                    self.r661.select()
+                    self.cb66.deselect()
+                    self.e661.delete(0,5000)
+                    self.e661.insert(0,'random')
+                    self.l662.configure(state=tk.NORMAL)
+                    self.e662.configure(state=tk.NORMAL)
+                    self.e662.delete(0,5000)
+                    self.e662.insert(0,'0')
+                else:
+                    self.r61.configure(state=tk.DISABLED)
+                    self.r62.configure(state=tk.DISABLED)
+                    self.e61.delete(0,5000)
+                    self.e61.configure(state=tk.DISABLED)
+                    self.cb60.deselect()
+                    self.cb60.configure(state=tk.DISABLED)
+                    self.e62.delete(0,5000)
+                    self.e62.configure(state=tk.DISABLED)
+                    self.cb63.deselect()
+                    self.cb63.configure(state=tk.DISABLED)
+                    self.l63.configure(state=tk.DISABLED)
+                    self.e63.delete(0,5000)
+                    self.e63.configure(state=tk.DISABLED)
+                    self.cb64.deselect()
+                    self.cb65.deselect()
+                    self.cb64.configure(state=tk.DISABLED)
+                    self.cb65.configure(state=tk.DISABLED)
+                    self.l60.configure(state=tk.DISABLED)
+                    self.e6.delete(0,5000)
+                    self.e6.configure(state=tk.DISABLED)
+                    self.b660.configure(state=tk.DISABLED)
+
+                    self.cb66.pack()
+                    self.b660.configure(text='Advanced search options', command=self.add660)
+                    self.b660.grid(row=16,column=0,sticky='w')
+                    self.l66.pack()
+                    self.r661.pack()
+                    self.r662.pack()
+                    self.r663.pack()
+                    self.l661.pack()
+                    self.e661.pack()
+                    self.l662.pack()
+                    self.e662.pack()
+                    self.r661.select()
+                    self.cb66.deselect()
+                    self.e661.delete(0,5000)
+                    self.e661.insert(0,'random')
+                    self.l662.configure(state=tk.NORMAL)
+                    self.e662.configure(state=tk.NORMAL)
+                    self.e662.delete(0,5000)
+                    self.e662.insert(0,'0')
+
+            def add61(self):
+                if self.b60.get()==True:                
+                    self.r61.configure(state=tk.NORMAL)
+                    self.r61.select()
+                    self.r62.configure(state=tk.NORMAL)
+                    self.e61.configure(state=tk.NORMAL)
+                    self.e61.insert(0,'0.95')
+                    self.e62.configure(state=tk.DISABLED)
+                    self.cb63.configure(state=tk.NORMAL)
+                    self.cb63.deselect()
+                    self.l63.configure(state=tk.DISABLED)
+                    self.e63.delete(0,5000)
+                    self.e63.configure(state=tk.DISABLED)
+                    self.cb64.configure(state=tk.NORMAL)
+                    self.cb65.configure(state=tk.NORMAL)
+                    self.cb64.deselect()
+                    self.cb65.deselect()
+                else:
+                    self.r61.configure(state=tk.DISABLED)
+                    self.e61.delete(0,5000)
+                    self.e61.configure(state=tk.DISABLED)
+                    self.r62.configure(state=tk.DISABLED)
+                    self.e62.delete(0,5000)
+                    self.e62.configure(state=tk.DISABLED)
+                    self.cb63.configure(state=tk.DISABLED)
+                    self.cb63.deselect()
+                    self.l63.configure(state=tk.DISABLED)
+                    self.e63.delete(0,5000)
+                    self.e63.configure(state=tk.DISABLED)
+                    self.cb64.deselect()
+                    self.cb65.deselect()
+                    self.cb64.configure(state=tk.DISABLED)
+                    self.cb65.configure(state=tk.DISABLED)
+
+            def add62(self):
+                if self.i61.get()==0:
+                    self.e61.configure(state=tk.NORMAL)
+                    if self.e61.get()=='':
+                        self.e61.insert(0,'0.95')
+                    self.e62.delete(0,500)
+                    self.e62.configure(state=tk.DISABLED)
+                else:
+                    self.e62.configure(state=tk.NORMAL)
+                    if self.e62.get()=='':
+                        self.e62.insert(0,'10')
+                    self.e61.delete(0,500)
+                    self.e61.configure(state=tk.DISABLED)
+
+            def add63(self):
+                if self.b63.get()==True:
+                    self.l63.configure(state=tk.NORMAL)
+                    self.e63.delete(0,500)
+                    self.e63.configure(state=tk.NORMAL)
+                else:
+                    self.l63.configure(state=tk.DISABLED)
+                    self.e63.delete(0,500)
+                    self.e63.configure(state=tk.DISABLED)
+
+            def add660(self):
+                self.l66.grid(row=17,column=1,sticky='w')
+                self.r661.grid(row=17,column=1,sticky='e')
+                self.r662.grid(row=17,column=2,sticky='w')
+                self.r663.grid(row=17,column=2,sticky='e')
+                self.cb66.grid(row=17,column=0,sticky='w')
+                self.b660.configure(text='   Basic search options    ',command=self.add660b)
+                self.b660.grid(row=16,column=0,sticky='w')
+                self.l661.grid(row=17,column=3,sticky='w')
+                self.e661.grid(row=17,column=3,sticky='e')
+                self.l662.grid(row=17,column=4,sticky='w')
+                self.e662.grid(row=17,column=4,sticky='e')
+
+            def add660b(self):
+                self.cb66.pack()
+                self.b660.configure(text='Advanced search options', command=self.add660)
+                self.b660.grid(row=16,column=0,sticky='w')
+                self.l66.pack()
+                self.r661.pack()
+                self.r662.pack()
+                self.r663.pack()
+                self.l661.pack()
+                self.e661.pack()
+                self.l662.pack()
+                self.e662.pack()
+                self.r661.select()
+                self.cb66.deselect()
+                self.e661.delete(0,5000)
+                self.e661.insert(0,'random')
+                self.l662.configure(state=tk.NORMAL)
+                self.e662.configure(state=tk.NORMAL)
+                self.e662.delete(0,5000)
+                self.e662.insert(0,'0')
+
+            def add66x(self):
+                if self.i66.get()==2:
+                    self.l662.configure(state=tk.DISABLED)
+                    self.e662.configure(state=tk.DISABLED)
+                else:
+                    self.l662.configure(state=tk.NORMAL)
+                    self.e662.configure(state=tk.NORMAL)
+
+            def add71(self):
+                if self.b71.get()==True:
+                    self.l711.configure(state=tk.NORMAL)
+                    self.cb711.configure(state=tk.NORMAL)
+                    self.cb712.configure(state=tk.NORMAL)
+                    self.cb713.configure(state=tk.NORMAL)
+                    self.cb711.deselect()
+                    self.cb712.deselect()
+                    self.cb713.deselect()
+                else:
+                    self.l711.configure(state=tk.DISABLED)
+                    self.cb711.configure(state=tk.DISABLED)
+                    self.cb712.configure(state=tk.DISABLED)
+                    self.cb713.configure(state=tk.DISABLED)
+                    self.cb711.deselect()
+                    self.cb712.deselect()
+                    self.cb713.deselect()
+
+            def go(self):
+                root.destroy()
+
+        root = Tk()
+        root.geometry("750x500")
+        app = parameters(root)
+        root.mainloop()
+
+        b1=app.b1.get()
+
+        if b1:
+            s1=int(app.s1.get())
+            i1=app.i1.get()
+        else:
+            s1=0
+            i1=0
+
+        b2=app.b2.get()
+        s2=app.s2.get()
+        if len(s2)>0:
+            s2=[float(i) for i in s2[:].split(',')]
+        else:
+            s2=[]
+
+        b3=app.b3.get()
+        if b3:
+            s3=app.s3.get()
+            if s3=='X':
+                s3=self.npoints
+            else:
+                s3=int(s3)
+        else:
+            s3=0
+
+        b41=app.b41.get()
+        b42=app.b42.get()
+        s42=app.s42.get()
+        if b42 and len(s42)>0:
+            s42=[int(i) for i in s42[:].split(',')]
+        b43=app.b43.get()
+        s43=app.s43.get()
+        if b43 and len(s43)>0:
+            s43=[int(i) for i in s43[:].split(',')]
+
+        b51=app.b51.get()
+        s51=app.s51.get()
+        if b51 and len(s51)>0:
+            s51=[float(i) for i in s51[:].split(',')]
+            s53=int(app.s53.get())
+            s54=int(app.s54.get())
+        else:
+            s51=[]
+            s53=app.s53.get()
+            s54=app.s54.get()
+        b52=app.b52.get()
+        s52=app.s52.get()
+        if b52 and len(s52)>0:
+            s52=[float(i) for i in s52[:].split(',')]
+            s55=int(app.s55.get())
+        else:
+            s52=[]
+            s55=app.s55.get()
+        b6=app.b6.get()
+        s6=app.s6.get()
+        i66=app.i66.get()
+        if i66==0:
+            i66='tchebycheff'
+        elif i66==1:
+            i66=='bi'
+        else:
+            i66=='weighted'
+        s661=app.s661.get()
+        s662=app.s662.get()
+        if b6:
+            if s661!='random' and s661!='uniform' and len(s661)>0:
+                s661=[float(i) for i in s661[:].split(',')]
+            if s662=='0':
+                s662=[0 for i in range(self.dim)]
+            elif len(s662)>0:
+                s662=[float(i) for i in s662[:].split(',')]
+            if s6=='X':
+                s6=self.npoints
+            else:
+                s6=int(s6)
+        b60=app.b60.get()
+        i61=app.i61.get()
+        s61=app.s61.get()
+        s62=app.s62.get()
+        b63=app.b63.get()
+        s63=app.s63.get()
+        b64=app.b64.get()
+        b65=app.b65.get()
+        b66=app.b66.get()
+        if b60:
+            if i61==0:
+                s61=float(s61)
+            else:
+                s62=int(s62)
+            s63=[int(i) for i in s63[:].split(',')]
+        b71=app.b71.get()
+        b72=app.b72.get()
+        b711=app.b711.get()
+        b712=app.b712.get()
+        b713=app.b713.get()
+
+        self.print_report(b1=b1,sample=s1,p_f=s2,b2=b2,p_svm=s51,p_dac=s52,local_search=b6,\
+        gradient=b71,hessian=b72,b3=b3,b41=b41,b42=b42,b43=b43,b51=b51,b52=b52,b60=b60,b63=b63,b64=b64,b65=b65,b66=b66,\
+        b711=b711,b712=b712,b713=b713,i1=i1,s3=s3,s42=s42,s43=s43,s51=s51,s52=s52,s53=s53,s54=s54,s55=s55,s6=s6,\
+        i61=i61,s61=s61,s62=s62,s63=s63,i66=i66,s661=s661,s662=s662)
+
