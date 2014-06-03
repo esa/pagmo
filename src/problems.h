@@ -108,6 +108,7 @@
         #include "problem/mga_incipit.h"
 		#include "problem/mga_incipit_cstrs.h"
         #include "problem/mga_part.h"
+		#include "problem/mga_target_event.h"
 #endif
 
 #endif
