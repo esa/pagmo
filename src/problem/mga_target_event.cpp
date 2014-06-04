@@ -88,27 +88,41 @@ void mga_target_event::objfun_impl(fitness_vector &f, const decision_vector &x) 
 	//2 - We compute the epochs and ephemerides of the planetary encounters
 	kep_toolbox::epoch t0 = kep_toolbox::epoch(m_t_end.mjd2000() - x[0]);	//epoch of departure
 	double tof = (x[0] - tw);												//in days
+//std::cout << "tof: " << tof << std::endl;
 	kep_toolbox::epoch t1 = kep_toolbox::epoch(t0.mjd2000() + tof);			//epoch
 
 	kep_toolbox::array3D r0,v0,r1,v1,v_inf_vett,v0_sc;
 	m_start->get_eph(t0,r0,v0);
 	m_end->get_eph(t1,r1,v1);
+//std::cout << "r0: " << r0 << std::endl;
+//std::cout << "v0: " << v0 << std::endl;
+//std::cout << "r1: " << r1 << std::endl;
+//std::cout << "v1: " << v1 << std::endl;
 
 	//3 - We compute the absolute velocity at departure
 	double theta = 2*M_PI*x[3];
-	double phi = acos(2. * x[4]-1.) - M_PI / 2;
+	double phi = acos(2. * x[4]-1.) - M_PI / 2.;
 	v_inf_vett[0] = x[2]*cos(phi)*cos(theta);
 	v_inf_vett[1] = x[2]*cos(phi)*sin(theta);
 	v_inf_vett[2] = x[2]*sin(phi);
 	kep_toolbox::sum(v0_sc,v0,v_inf_vett);
 
+//std::cout << "v_inf_vett: " << v_inf_vett << std::endl;
+//std::cout << "v_sc: " << v0_sc << std::endl;
+//std::cout << "tof: " << tof << std::endl;
+//std::cout << "x[5]: " << x[5] << std::endl;
+//std::cout << "x: " << x << std::endl;
+
 	//4 - And we propagate up to the DSM positon to then solve a Lambert problem
-	kep_toolbox::propagate_lagrangian(r0,v0,tof*x[5]*ASTRO_DAY2SEC, ASTRO_MU_SUN);
+	kep_toolbox::propagate_lagrangian(r0,v0_sc,tof*x[5]*ASTRO_DAY2SEC, ASTRO_MU_SUN);
 	kep_toolbox::lambert_problem l(r0,r1,tof*(1-x[5])*ASTRO_DAY2SEC,ASTRO_MU_SUN, false,0);
+
+//std::cout << "r0: " << r0 << std::endl;
+//std::cout << "v0: " << v0_sc << std::endl;
 
 	double DV1 = x[2];
 	kep_toolbox::array3D dv2,dv3;
-	kep_toolbox::diff(dv2,l.get_v1()[0],v0);
+	kep_toolbox::diff(dv2,v0_sc,l.get_v1()[0]);
 	double DV2 = kep_toolbox::norm(dv2);
 	kep_toolbox::diff (dv3,v1,l.get_v2()[0]);
 	double DV3 = kep_toolbox::norm(dv3);
@@ -116,6 +130,9 @@ void mga_target_event::objfun_impl(fitness_vector &f, const decision_vector &x) 
 		DV1 = std::max(0.,DV1-6000.);
 	}
 	f[0] = DV1+DV2+DV3;
+//	std::cout << "DV1: " << DV1 << std::endl;
+//	std::cout << "DV2: " << DV2 << std::endl;
+//	std::cout << "DV3: " << DV3 << std::endl;
 }
 
 std::string mga_target_event::get_name() const
