@@ -6,6 +6,7 @@ import scipy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 
-prob=problem.himmelblau()
-anal=analysis(prob)
+prob=problem.kur(3)
+pop=population(prob,100)
+anal=analysis(pop)
 anal.start()

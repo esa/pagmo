@@ -1,9 +1,33 @@
 from PyGMO import *
 
 class analysis:
-    "This class will contain blahblah"
+    """
+    This class contains the tools necessary for exploratory analysis of the
+    search and fitness space of a given problem. Several tests can be conducted
+    on a low-discrepancy sample of the search space or on an existing population.
+    The aim is to gain insight into the problem properties and to aid algorithm
+    selection.
+    """
 
-    def __init__(self,input_object):
+    def __init__(self,input_object,npoints=0,method='sobol',first=1):
+        """
+        Constructor of the analysis class from a problem or population object. Also calls
+        analysis.sample when npoints>0 or by default when a population object is input.\n
+        USAGE: analysis(input_object=prob [, npoints=1000, method='sobol', first=1])\n
+        *input_object: problem or population object used to initialise the analysis.
+        *npoints: number of points of the search space to sample. If a population is input,
+        a random subset of its individuals of size npoints will be sampled (defaults to the
+        whole population). If a problem is input, a set of size npoints will be selected
+        using the specified method. In this case, no sampling is considered by default.
+        *method: method used to sample the normalized search space. Used only when input_object
+        is a problem. Options are:
+                *'sobol': sampling based on sobol low-discrepancy sequence. Default option.
+                *'lhs': latin hypersquare sampling.
+                *'montecarlo': Monte Carlo (random) sampling.
+        *first: used only when sampling with 'sobol'. Index of the first element of the sequence
+        that will be included in the sample. Defaults to 1. If set to 0, point (0,0,...,0) will
+        also be sampled.
+        """
         self.npoints=0
         self.points=[]
         self.f=[]
@@ -13,28 +37,58 @@ class analysis:
         self.c=[]
         self.local_nclusters=0
         self.local_initial_npoints=0
+        self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = (0,0,0,0,0,0)
+        self.fignum=0
 
-        object_type=str(type(input_object))
-        if object_type=="<class 'PyGMO.core._core.population'>":
+        if isinstance(input_object,population):
             self.prob=input_object.problem
             self.pop=input_object
-        elif object_type[:21]=="<class 'PyGMO.problem":
+            if npoints==0:
+                self.sample(len(self.pop),'pop')
+            else:
+                self.sample(npoints,'pop')
+        elif isinstance(input_object,problem._base):
             self.prob=input_object
             self.pop=[]
+            if npoints>0:
+                self.sample(npoints,method,first)
         else:
-            ##this is commented out because it will spoil charging from a custom problem otherwise
-            # raise ValueError(
-            #  "analysis: input either a problem or a population object to initialise the class")
-            self.prob=input_object
-            self.pop=[]
+            raise ValueError(
+             "analysis: input either a problem or a population object to initialise the class")
 
 
     def sample(self, npoints, method='sobol', first=1):
+        """
+        Routine used to sample the search space.\n
+        USAGE: analysis.sample(npoints=1000 [, method='sobol',first=1])\n
+        *npoints: number of points of the search space to sample.
+        *method: method used to sample the normalized search space. Options are:
+                *'sobol': sampling based on sobol low-discrepancy sequence. Default option.
+                *'lhs': latin hypersquare sampling.
+                *'montecarlo': Monte Carlo (random) sampling.
+                *'pop': sampling by selection of random individuals from a population. Can only
+                be used when a population object has ben input to the constructor.
+        *first: used only when sampling with 'sobol'. Index of the first element of the sequence
+        that will be included in the sample. Defaults to 1. If set to 0, point (0,0,...,0) will
+        also be sampled.\n
+        The following parameters are stored as attributes:
+        *analysis.npoints: number of points sampled.
+        *analysis.points[number of points sampled][search dimension]: chromosome of points sampled.
+        *analysis.f[number of points sampled][fitness dimension]: fitness vector of points sampled.
+        *analysis.ub[search dimension]: upper bounds of search space.
+        *analysis.lb[search dimension]: lower bounds of search space.
+        *analysis.dim: search dimension, number of variables in search space
+        *analysis.cont_dim: number of continuous variables in search space
+        *analysis.int_dim: number of integer variables in search space
+        *analysis.c_dim: number of constraints
+        *analysis.ic_dim: number of inequality constraints
+        *analysis.f_dim: fitness dimension, number of objectives
+        """
         self.points=[]
         self.f=[]
         self.npoints=npoints
         self.lb=list(self.prob.lb)
-        self.ub=list(self.prob.ub)
+        self.ub=list(self.prob.ub)  
 
         self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = \
         self.prob.dimension, self.prob.dimension - self.prob.i_dimension, self.prob.i_dimension, self.prob.c_dimension, self.prob. ic_dimension, self.prob.f_dimension
@@ -68,6 +122,21 @@ class analysis:
                     r=idx.pop(randint(i))
                     self.points.append(list(self.pop[r].cur_x))
                     self.f.append(list(self.pop[r].cur_f))
+        elif method=='montecarlo':
+            try:
+                from numpy.random import random
+            except ImportError:
+                raise ImportError(
+                    "analysis.sample needs numpy to run when sampling with montecarlo method. Is it installed?")
+            for i in range(npoints):
+                self.points.append([])
+                for j in range(self.dim):
+                    r=random()
+                    r=(r*self.ub[j]+(1-r)*self.lb[j])
+                    if j>=self.cont_dim:
+                        r=round(r,0)
+                    self.points[i].append(r)
+                self.f.append(list(self.prob.objfun(self.points[i])))
         else:
             if method=='sobol':
                 sampler=util.sobol(self.dim,first)
@@ -75,7 +144,7 @@ class analysis:
                 sampler=util.lhs(self.dim,npoints)
             else:
                 raise ValueError(
-                    "analysis.sample: method specified is not valid. choose 'sobol', 'lhs' or 'pop'")
+                    "analysis.sample: method specified is not valid. choose 'sobol', 'lhs', 'montecarlo' or 'pop'")
             for i in range(npoints):
                 temp=list(sampler.next()) #sample in the unit hypercube
                 for j in range(self.dim):
@@ -87,7 +156,11 @@ class analysis:
 
 #f-DISTRIBUTION FEATURES
    
-    def skew(self):
+    def _skew(self):
+        """
+        Returns the skew of the f-distributions in the form of a list [fitness dimension].\n
+        USAGE: analysis.skew()
+        """
         try:
             import scipy as sp
         except ImportError:
@@ -97,9 +170,13 @@ class analysis:
             raise ValueError(
                 "analysis.skew: sampling first is necessary")
         from scipy.stats import skew
-        return skew(self.f)
+        return skew(self.f).tolist()
 
-    def kurtosis(self):
+    def _kurtosis(self):
+        """
+        Returns the kurtosis of the f-distributions in the form of a list [fitness dimension].\n
+        USAGE: analysis.kurtosis()
+        """
         try:
             import scipy as sp
         except ImportError:
@@ -109,9 +186,13 @@ class analysis:
             raise ValueError(
                 "analysis.kurtosis: sampling first is necessary")
         from scipy.stats import kurtosis
-        return kurtosis(self.f)
+        return kurtosis(self.f).tolist()
 
-    def mean(self):
+    def _mean(self):
+        """
+        Returns the mean values of the f-distributions in the form of a list [fitness dimension].\n
+        USAGE: analysis.mean()
+        """
         try:
             import numpy as np
         except ImportError:
@@ -121,9 +202,13 @@ class analysis:
             raise ValueError(
                 "analysis.mean: sampling first is necessary")
         from numpy import mean
-        return mean(self.f,0)
+        return mean(self.f,0).tolist()
 
-    def var(self):
+    def _var(self):
+        """
+        Returns the variances of the f-distributions in the form of a list [fitness dimension].\n
+        USAGE: analysis.var()
+        """
         try:
             import numpy as np
         except ImportError:
@@ -133,9 +218,13 @@ class analysis:
             raise ValueError(
                 "analysis.var: sampling first is necessary")
         from numpy import var
-        return var(self.f,0)
+        return var(self.f,0).tolist()
 
-    def ptp(self):
+    def _ptp(self):
+        """
+        Returns the peak-to-peak range of the f-distributions in the form of a list [fitness dimension].\n
+        USAGE: analysis.ptp()
+        """
         try:
             import numpy as np
         except ImportError:
@@ -145,9 +234,14 @@ class analysis:
             raise ValueError(
                 "analysis.ptp: sampling first is necessary")
         from numpy import ptp
-        return ptp(self.f,0)
+        return ptp(self.f,0).tolist()
 
-    def percentile(self,p):
+    def _percentile(self,p):
+        """
+        Returns the percentile(s) of the f-distributions specified in p in the form of a list [length p][fitness dimension].\n
+        USAGE: analysis.percentile(p=[0,10,25,50,75,100])
+        *p: percentile(s) to return. Can be a single float or a list.
+        """
         try:
             import numpy as np
         except ImportError:
@@ -157,19 +251,29 @@ class analysis:
             raise ValueError(
                 "analysis.percentile: sampling first is necessary")
         from numpy import percentile
-        return percentile(self.f,p,0)
+        try:
+            return [percentile(self.f,i,0).tolist() for i in p]
+        except TypeError:
+            return percentile(self.f,p,0).tolist()
 
-    def plot_f_distr(self):
+    def plot_f_distr(self,save_fig=False):
+        """
+        Routine that plots the f-distributions in terms of density of probability
+        of a fitness value in the sample considered.\n
+        USAGE: analysis.plot_f_distr([save_fig=False])
+        *save_fig: if True, figures generated with this plot will be saved to a directory.
+        If False, they will be shown on screen. Defaults to False.
+        """
         try:
             from scipy.stats import gaussian_kde
-            from matplotlib.pyplot import plot,draw,title,show,legend
+            from matplotlib.pyplot import plot,draw,title,show,legend,axes
         except ImportError:
             raise ImportError(
                 "analysis.plot_f_distr needs scipy and matplotlib to run. Are they installed?")
         if self.npoints==0:
             raise ValueError(
                 "analysis.plot_f_distr: sampling first is necessary")
-        plots=[]
+        ax=axes()
         for i in range(self.f_dim):
             tmp=[]
             for j in range(self.npoints):
@@ -177,12 +281,25 @@ class analysis:
             x=sorted(tmp)
             kde=gaussian_kde(x)
             y=kde(x)
-            plots.append(plot(x,y,label='objective '+str(i+1)))
+            ax.plot(x,y,label='objective '+str(i+1))
         title('F-Distributions')
         legend()
-        show(plots)
+        f=ax.get_figure()
+        if save_fig:
+            import os
+            if not os.path.exists('./temp_analysis_figures/'):
+                os.makedirs('./temp_analysis_figures/')
+            f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
+            self.fignum+=1
+        else:
+            show(f)
 
-    def n_peaks_f(self,nf=0):
+    def _n_peaks_f(self,nf=0):
+        """
+        Returns the number of peaks of the f-distributions in the form of a list [fitness dimension].\n
+        USAGE: analysis.n_peaks_f([nf=100])
+        *nf: discretisation of the f-distributions used to find their peaks. Defaults to npoints-1.
+        """
         try:
             from numpy import array,zeros
             from scipy.stats import gaussian_kde
@@ -202,7 +319,7 @@ class analysis:
             npeaks.append(0)
             f=[a[i] for a in self.f]
             kde=gaussian_kde(f)
-            df=self.ptp()[i]/nf
+            df=self._ptp()[i]/nf
             x=[min(f)]
             for j in range(0,nf):
                 x.append(x[j]+df)
@@ -223,7 +340,10 @@ class analysis:
     #ADD MORE FUNCTIONS IF NECESSARY
 
 #BOX CONSTRAINT HYPERVOLUME COMPUTATION
-    def box_hv(self):
+    def _box_hv(self):
+        """
+        Returns the hypervolume defined by the box constraints imposed on the search variables.
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.box_hv: sampling first is necessary")
@@ -233,7 +353,25 @@ class analysis:
         return hv
 
 #DEGREE OF LINEARITY AND CONVEXITY
-    def p_lin_conv(self,n_pairs=0,threshold=10**(-10),maximization=False):
+    def _p_lin_conv(self,n_pairs=0,threshold=10**(-10)):
+        """
+        Tests the probability of linearity and convexity and the mean deviation from linearity of
+        the f-distributions obtained. A pair of points (X1,F1),(X2,F2) from the sample is selected
+        per test and a random convex combination of them is taken (Xconv,Fconv). For each objective,
+        if F(Xconv)=Fconv within tolerance, the function is considered linear there. Otherwise, if
+        F(Xconv)<Fconv, the function is considered convex. |F(Xconv)-Fconv| is the linear deviation.
+        The average of all tests performed gives the overall result.\n
+        NOTE: integer variables values are fixed during each of the tests and linearity or convexity
+        is evaluated as regards the continuous part of the chromosome.\n
+        USAGE: analysis.p_lin_conv([n_pairs=100,threshold=10**(-10)])
+        *n_pairs: number of pairs of points used in the test.
+        *threshold: tolerance considered to rate the function as linear or convex between two points.\n
+        Returns a tuple of length 3 containing:
+        *p_lin[fitness dimension]: probability of convexity [0,1].
+        *p_conv[fitness dimension]: probability of linearity [0,1].
+        *mean_dev[fitness dimension]: mean deviation from linearity as defined above.
+
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.p_lin_conv: sampling first is necessary")
@@ -270,8 +408,7 @@ class analysis:
             f_real=array(self.prob.objfun(x))
             delta=f_lin-f_real
             mean_dev+=abs(delta)
-            if maximization:
-                delta*=-1
+
             for j in range(self.f_dim):
                 if abs(delta[j])<threshold:
                     p_lin[j]+=1
@@ -284,7 +421,14 @@ class analysis:
         return (list(p_lin),list(p_conv),list(mean_dev))
 
 #META-MODEL FEATURES
-    def lin_reg(self):
+    def _lin_reg(self):
+        """
+        Performs a linear regression on the sampled dataset, per objective.\n
+        USAGE: analysis.lin_reg()\n
+        Returns: tuple (w,r2)
+        *w[fitness dimension][search dimension+1]: coefficients of the regression model.
+        *r2[fitness dimension]: r square coefficient(s).
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.lin_reg: sampling first is necessary")
@@ -297,8 +441,8 @@ class analysis:
         from numpy.linalg import lstsq
         A=[]
         w=[]
-        sst=self.var()*self.npoints
-        m=self.mean()
+        sst=self._var()*self.npoints
+        m=self._mean()
         ssr=np.zeros(self.f_dim)
         for i in range(self.npoints):
             A.append(self.points[i]+[1])
@@ -316,7 +460,16 @@ class analysis:
         return (w,r2)
 
 
-    def lin_reg_inter(self,interaction_order=2):
+    def _lin_reg_inter(self,interaction_order=2):
+        """
+        Performs a linear regression with interaction products on the sampled dataset, per objective.\n
+        USAGE: analysis.lin_reg_inter([interaction_order=2])
+        *interaction_order: order of interaction [2, search dimension]. Defaults to 2.\n
+        Returns: tuple (w,r2)
+        *w[fitness dimension][number of products+search dimension+1]: coefficients of the regression model,
+        ordered as follows: highest order first, lexicographical.
+        *r2[fitness dimension]: r square coefficient(s).
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.lin_reg_corr: sampling first is necessary")
@@ -337,8 +490,8 @@ class analysis:
         for i in range(interaction_order,1,-1):
             inter=inter+list(combinations(range(self.dim),i))
         n_inter=len(inter)
-        sst=self.var()*self.npoints
-        m=self.mean()
+        sst=self._var()*self.npoints
+        m=self._mean()
         ssr=np.zeros(self.f_dim)
         for i in range(self.npoints):
             c=[]
@@ -361,10 +514,22 @@ class analysis:
         r2=list(ssr/sst)
         return (w,r2)
 
-    def poly_reg(self,regression_degree=2):
+    def _poly_reg(self,regression_degree=2):
+        """
+        Performs a polynomial regression on the sampled dataset, per objective.\n
+        USAGE: analysis.poly_reg([regression_degree=2])
+        *regression_degree: degree of regression >=2. Defaults to 2.\n
+        Returns: tuple (w,r2)
+        *w[fitness dimension][number of coefficients]: coefficients of the regression model,
+        ordered as follows: highest order first, lexicographical.
+        *r2[fitness dimension]: r square coefficient(s).
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.lin_reg_corr: sampling first is necessary")
+        if regression_degree<2:
+            raise ValueError(
+                "analysis.lin_reg_corr: regression_degree needs to be >=2")
         try:
             import numpy as np
         except ImportError:
@@ -379,8 +544,8 @@ class analysis:
         for i in range(regression_degree,1,-1):
             coef=coef+list(combinations_with_replacement(range(self.dim),i))
         n_coef=len(coef)
-        sst=self.var()*self.npoints
-        m=self.mean()
+        sst=self._var()*self.npoints
+        m=self._mean()
         ssr=np.zeros(self.f_dim)
         for i in range(self.npoints):
             c=[]
@@ -404,7 +569,16 @@ class analysis:
         return (w,r2)
 
 #OBJECTIVE REDUNDANCY
-    def f_correlation(self):
+    def _f_correlation(self):
+        """
+        Calculates the objective correlation matrix and its eigenvalues
+        and eigenvectors. Only for multiobjective problems.\n
+        USAGE: analysis.f_correlation()\n
+        Returns: tuple (M,eval,evect)
+        *M[search dimension][search dimension]: correlation matrix
+        *eval[search dimension]: its eigenvalues
+        *evect[search dimension][search dimension]: its eigenvectors
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.f_correlation: sampling first is necessary")
@@ -421,7 +595,26 @@ class analysis:
         e=eigh(M)
         return (M.tolist(), e[0].tolist(), transpose(e[1]).tolist())
     
-    def perform_f_pca(self,obj_corr=None,tc=0.95,tabs=0.1):
+    def _perform_f_pca(self,obj_corr=None,tc=0.95,tabs=0.1):
+        """
+        Performs first Objective Reduction using Principal Component Analysis on
+        the objective correlation matrix as defined in the reference and returns
+        a list of the relevant objectives according to this procedure. Only for
+        multiobjective problems.\n
+        REF: Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through
+        Dimensionality Reduction for Certain Large-Dimensional Multi-Objective
+        Optimization Problems, KanGAL Report No. 2005011, IIT Kanpur, 2005.\n
+        USAGE: analysis.perform_f_pca([obj_corr=None, tc=0.95, tabs=0.1])
+        *obj_corr: objective correlation matrix, its eigenvalues and eigenvectors, in the
+        form of the output of analysis.f_correlation. This parameter is added for reusability
+        (if None, these will be calculated). Defaults to None.
+        *tc: threshold cut. When the cumulative contribution of the eigenvalues absolute value
+        equals this fraction of its maximum value, the reduction algorithm stops. A higher
+        threshold cut means less reduction (see reference).
+        *tabs: absolute tolerance. A Principal Component is treated differently if the
+        absolute value of its corresponding eigenvalue is lower than this value (see
+        reference).
+        """
         try:
             from numpy import asarray,corrcoef,transpose,dot,argmax,argmin
             from numpy.linalg import eigh
@@ -430,12 +623,12 @@ class analysis:
             raise ImportError(
                 "analysis.perform_f_pca needs numpy to run. Is it installed?")
         if obj_corr==None:
-            obj_corr=self.f_correlation()
+            obj_corr=self._f_correlation()
         M=obj_corr[0]
         eigenvals=obj_corr[1]
         eigenvects=obj_corr[2]
         #eigenvalue elimination of redundant objectives
-        contributions=(asarray(eigenvals)/sum(eigenvals)).tolist()
+        contributions=(asarray(abs(eigenvals))/sum(abs(eigenvals))).tolist()
         l=len(eigenvals)
         eig_order=[y for (x,y) in sorted(zip(contributions,range(l)),reverse=True)]
         cumulative_contribution=0
@@ -455,7 +648,7 @@ class analysis:
                 else:
                     keep=range(l)
                     break
-            elif eigenvals[i]<tabs:
+            elif abs(eigenvals[i])<tabs:
                 if abs(p)>abs(n):
                     if all([k!=index_p for k in keep]):
                         keep.append(index_p)
@@ -505,7 +698,26 @@ class analysis:
 
 #CURVATURE
 #possible problem: tolerance needs to be relative to the magnitude of the result
-    def get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001):
+    def _get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001):
+        """
+        Routine that selects points from the sample and calculates the Jacobian
+        matrix in them by calling richardson_gradient. Also computes its sparsity.\n
+        NOTE: all integer variables are ignored for this test.\n
+        USAGE: analysis.get_gradient([sample_size=100, h=0.01, grad_tol=0.000001, zero_tol=0.000001])
+        *sample_size: number of points from sample to calculate gradient at. If set
+        to 0, all points will be used. Defaults to 0.
+        *zero_tol: sparsity tolerance. For a position of the jacobian matrix to be
+        considered a zero, its mean absolute value has to be <=zero_tol.
+        The rest of parameters are passed to richardson_gradient.\n
+        The following information is stored as attributes:
+        *analysis.grad_npoints: number of points where jacobian is computed.
+        *analysis.grad_points[grad_npoints]: indexes of these points in sample list.
+        *analysis.grad[grad_npoints][fitness dimension][continuous search dimension]:
+        jacobian matrixes computed.
+        *analysis.average_abs_gradient[fitness dimension][continuous search dimension]:
+        mean absolute value of jacobian matrixes computed.
+        *analysis.grad_sparsity: fraction of zeroes in jacobian matrix.
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_gradient: sampling first is necessary")
@@ -526,7 +738,7 @@ class analysis:
         self.grad=[]
         self.grad_sparsity=0
         for i in self.grad_points:
-            self.grad.append(self.richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol))
+            self.grad.append(self._richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol))
         self.average_abs_gradient=nanmean(abs(asarray(self.grad)),0)
         for i in range(self.f_dim):
             for j in range(self.cont_dim):
@@ -534,7 +746,20 @@ class analysis:
                     self.grad_sparsity+=1.
         self.grad_sparsity/=(self.cont_dim*self.f_dim)
 
-    def richardson_gradient(self,x,h,grad_tol,tmax=15):
+    def _richardson_gradient(self,x,h,grad_tol,tmax=15):
+        """
+        Evaluates jacobian matrix in point x of the search space by means of Richardson
+        Extrapolation.\n
+        NOTE: all integer variables are ignored for this test.\n
+        USAGE: analysis.richardson_gradient(x=(a point's chromosome), h=0.01, grad_tol=0.000001 [, tmax=15])
+        *x: list or tuple containing the chromosome of a point in the search space, where
+        the Jacobian Matrix will be evaluated.
+        *h: initial dx taken for evaluation of derivatives.
+        *grad_tol: tolerance for convergence.
+        *tmax: maximum of iterations. Defaults to 15.\n
+        Returns jacobian matrix at point x as a list [fitness dimension][continuous search
+        dimension]
+        """
         from numpy import array, zeros, amax
         d=[[zeros([self.f_dim,self.cont_dim])],[]]
         hh=2*h
@@ -564,7 +789,21 @@ class analysis:
         return d[(t+1)%2][t-1].tolist()
 
 
-    def get_hessian(self,sample_size=0,h=0.01,hess_tol=0.000001):
+    def _get_hessian(self,sample_size=0,h=0.01,hess_tol=0.000001):
+        """
+        Routine that selects points from the sample and calculates the Hessian
+        3rd-order tensor in them by calling richardson_hessian.\n
+        NOTE: all integer variables are ignored for this test.\n
+        USAGE: analysis.get_hessian([sample_size=100, h=0.01, hess_tol=0.000001])
+        *sample_size: number of points from sample to calculate hessian at. If set
+        to 0, all points will be used. Defaults to 0.
+        The rest of parameters are passed to richardson_hessian.\n
+        The following information is saved as attributes:
+        *analysis.hess_npoints: number of points where hessian is computed.
+        *analysis.hess_points[hess_npoints]: indexes of these points in sample list.
+        *analysis.hess[hess_npoints][fitness dimension][continuous search dimension]
+        [continuous search dimension]: hessian 3rd-order tensors computed.
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_hessian: sampling first is necessary")
@@ -585,9 +824,22 @@ class analysis:
 
         self.hess=[]
         for i in self.hess_points:
-            self.hess.append(self.richardson_hessian(x=self.points[i],h=h,hess_tol=hess_tol))
+            self.hess.append(self._richardson_hessian(x=self.points[i],h=h,hess_tol=hess_tol))
 
-    def richardson_hessian(self,x,h,hess_tol,tmax=15):
+    def _richardson_hessian(self,x,h,hess_tol,tmax=15):
+        """
+        Evaluates hessian 3rd-order tensor in point x of the search space by means of
+        Richardson Extrapolation.\n
+        NOTE: all integer variables are ignored for this test.\n
+        USAGE: analysis.richardson_hessian(x=(a point's chromosome), h=0.01, hess_tol=0.000001 [, tmax=15])
+        *x: list or tuple containing the chromosome of a point in the search space, where
+        the Hessian 3rd-order tensor will be evaluated.
+        *h: initial dx taken for evaluation of derivatives.
+        *hess_tol: tolerance for convergence.
+        *tmax: maximum of iterations. Defaults to 15.\n
+        Returns hessian tensor at point x as a list [fitness dimension][continuous search
+        dimension][continuous search dimension].
+        """
         from numpy import array, zeros, amax
         from itertools import combinations_with_replacement
         ind=list(combinations_with_replacement(range(self.cont_dim),2))
@@ -646,7 +898,15 @@ class analysis:
 
         return hessian
 
-    def plot_gradient_sparsity(self,zero_tol=0.0001):
+    def plot_gradient_sparsity(self,zero_tol=0.0001,save_fig=False):
+        """
+        Plots sparsity of jacobian matrix. A position is considered a zero if its mean
+        absolute value is lower than tolerance.\n
+        USAGE: analysis.plot_gradient_sparsity([zero_tol=0.0001,save_fig=False])
+        *zero_tol: tolerance.
+        *save_fig: if True, figures generated with this plot will be saved to a directory.
+        If False, they will be shown on screen. Defaults to False.
+        """
         if self.grad_npoints==0:
             raise ValueError(
                 "analysis.plot_gradient_sparsity: sampling and getting gradient first is necessary")
@@ -672,9 +932,31 @@ class analysis:
             yticks(ylocs,[y.format(ylocs[i]) for i,y in enumerate(ylabels)])
         except IndexError, ValueError:
             pass
-        show(plot)
+        f=plot.get_figure()
+        if save_fig:
+            import os
+            if not os.path.exists('./temp_analysis_figures/'):
+                os.makedirs('./temp_analysis_figures/')
+            f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
+            self.fignum+=1
+        else:
+            show(f)
 
-    def plot_gradient_pcp(self,mode='x',scaled=True):
+
+    def plot_gradient_pcp(self,mode='x',scaled=True,save_fig=False):
+        """
+        Generates Parallel Coordinate Plot of Gradient.\n
+        USAGE: analysis.plot_gradient_pcp([mode='x', scaled=True, save_fig=False])
+        *mode: 2 options are available:
+                *'x': parallel axes are search variables, colors are objectives.
+                Not suitable for univariate problems.
+                *'f': parallel axes are objectives, colors are search variables.
+                Not suitable for single-objective problems.
+        *scaled: if True, dFi/dXj will be scaled with peak-to-peak value of objective
+        Fi divided by search-space width in variable Xj.
+        *save_fig: if True, figures generated with this plot will be saved to a directory.
+        If False, they will be shown on screen. Defaults to False.
+        """
         if self.grad_npoints==0:
             raise ValueError(
                 "analysis.plot_gradient_pcp: sampling and getting gradient first is necessary")
@@ -697,7 +979,7 @@ class analysis:
                 "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
         gradient=[]
         if scaled:
-            ranges=self.ptp()
+            ranges=self._ptp()
         if mode=='x':
             aux=0
             rowlabel=True
@@ -742,15 +1024,23 @@ class analysis:
         else:
             xlabel('Objective')
         plot=pc(gradient,0)
-        show(plot)
+        f=plot.get_figure()
+        if save_fig:
+            import os
+            if not os.path.exists('./temp_analysis_figures/'):
+                os.makedirs('./temp_analysis_figures/')
+            f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
+            self.fignum+=1
+        else:
+            show(f)
 
 #LOCAL SEARCH -> minimization assumed, single objective assumed
 
-    def func(self,x,obj):
+    def _func(self,x,obj):#NOT IN USE
 
         return float(self.prob.objfun(x)[obj])
 
-    def get_local_extrema0(self,sample_size=0,method='Powell'):
+    def _get_local_extrema0(self,sample_size=0,method='Powell'):#NOT IN USE
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_local_extrema: sampling first is necessary")
@@ -781,7 +1071,7 @@ class analysis:
             tmp2=[]
             tmp3=[]
             for i in self.local_initial_points:
-                res=minimize(self.func,self.points[i],(j,),method)
+                res=minimize(self._func,self.points[i],(j,),method)
                 tmp1.append(list(res.x))
                 tmp2.append(res.nfev)
                 tmp3.append(res.fun)
@@ -789,17 +1079,45 @@ class analysis:
             self.local_neval.append(tmp2)
             self.local_f.append(tmp3)
 
-    def get_local_extrema(self,sample_size=0,algo=algorithm.gsl_fr(),par=True,decomposition_method='tchebycheff',weights='uniform',z=[],warning=True):
+    def _get_local_extrema(self,sample_size=0,algo=algorithm.gsl_fr(),par=True,decomposition_method='tchebycheff',weights='uniform',z=[],warning=True):
     #maybe cool to add con2un meta problem when handling constraint optimisation
+        """
+        Selects points from the sample and launches local searches using them as initial points.
+        USAGE: analysis.get_local_extrema([sample_size=0, algo=algorithm.gsl_fr(), par=True, decomposition_method='tchebycheff', weights='uniform', z=[], warning=True)
+        *sample_size: number of initial points to launch local searches from. If set to 0, all
+        points in sample are used. Defaults to 0.
+        *algo: algorithm object used in searches. For purposes it should be a local
+        optimisation algorithm. Defaults to algorithm.gsl_fr().
+        *par: if True, an unconnected archipelago will be used for possible parallelization.
+        *decomposition_method: method used by problem.decompose in the case of multi-objective
+        problems. Options are: 'tchebycheff', 'weighted', 'bi' (boundary intersection).
+        Defaults to 'tchebycheff'.
+        *weights: weight vector used by problem.decompose in the case of multi-objective
+        problems. Options are: 'uniform', 'random' or any vector of length [fitness dimension]
+        whose components sum to one. Defaults to 'uniform'.
+        *z: ideal reference point used by 'tchebycheff' and 'bi' methods. If set to [] (empty
+        vector), point (0,0,...,0) is used. Defaults to [].
+        *warning: if True, a warning showing the decomposition method and parameters will be shown
+        on screen when applying this test to a multi-objective problem.\n
+        The following parameters are stored as attributes:
+        *analysis.local_initial_npoints: number of initial points used for local searches (number
+        of searches performed).
+        *analysis.local_initial_points[number of searches]: index of each initial point in the
+        list of sampled points. If the whole sample is used, the list is sorted.
+        *analysis.local_search_time[number of searches]: time elapsed in each local search
+        (miliseconds).
+        *analysis.local_extrema [number of searches][search space dimension]: resulting point of
+        each of the local searches.
+        *analysis.local_f [number of searches]: fitness value of each resulting point (after
+        fitness decomposition in multi-objective problems).\n
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis.get_local_extrema: sampling first is necessary")
 
-        algo_type=str(type(algo))
-        if algo_type[:23]!="<class 'PyGMO.algorithm":
+        if not isinstance(algo,PyGMO.algorithm._algorithm._base):
             raise ValueError(
                 "analysis.get_local_extrema: input a valid pygmo algorithm")
-
         try:
             import numpy as np
         except ImportError:
@@ -863,7 +1181,34 @@ class analysis:
                 self.local_f.append(i.population.champion.f[0])
 
 
-    def cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.0001,kmax=0): #SINGLE CLUSTER TOLERANCE TOO BIG DUE TO F FEATURE -> FIX THIS!!!!
+    def _cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.0001,kmax=0):
+        """
+        Clusters the results of a set of local searches and orders the clusters ascendently
+        as regards fitness value of its centroid (after fitness decomposition in the case of
+        multi-objective problems).\n
+        USAGE: analysis.cluster_local_extrema([variance_ratio=0.95, k=0, single_cluster_tolerance=0.0001, kmax=0])
+        *variance_ratio: target fraction of variance explained by the cluster centroids
+        when not clustering to a fixed number of clusters.
+        *k: number of clusters when clustering to fixed number of clusters. If k=0, the
+        clustering will be performed for increasing value of k until the explained variance
+        ratio is achieved. Defaults to 0.
+        *single_cluster_tolerance: if the radius of a single cluster is lower than this value
+        times the search space dimension, k will be set to 1 when not clustering to a fixed
+        number of clusters. Defaults to 0.0001.
+        *kmax: maximum number of clusters admissible. If set to 0, the limit is the number
+        of local searches performed. Defaults to 0.\n
+        The following parameters are stored as attributes:
+        *analysis.local_nclusters: number of clusters obtained.
+        *analysis.local_cluster[number of searches]: cluster to which each point belongs.
+        *analysis.local_cluster_size[number of clusters]: size of each cluster.
+        *analysis.local_cluster_rx[number of clusters]: radius of each cluster in the search space.
+        *analysis.local_cluster_df[number of clusters]: range of fitness value in the cluster (after
+        decomposition in the case of multi-objective problems).
+        *analysis.local_cluster_x_centers[number of clusters]: projection of the cluster centroid
+        on the search space.
+        *analysis.local_cluster_f_centers[number of clusters]: projection of the cluster centroid
+        on the fitness value axis (after decomposition in the case of multi-objective problems).
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis_cluster_local_extrema: sampling first is necessary")
@@ -973,7 +1318,18 @@ class analysis:
                     self.local_cluster_rx[c]=rx
         self.local_cluster_df=[np.ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
 
-    def plot_local_cluster_pcp(self,together=True):
+    def plot_local_cluster_pcp(self,together=True,save_fig=False):
+        """
+        Generates a Parallel Coordinate Plot of the clusters obtained for the local
+        search results. The parallel axes represent the chromosome of the initial
+        points of each local search and the colors are the clusters to which its local
+        search resulting points belong.\n
+        USAGE: analysis.plot_local_cluster_pcp([together=True, save_fig=False])
+        *together: if True, a single plot will be generated. If False, each cluster
+        will be presented in a separate plot. Defaults to True.
+        *save_fig: if True, figures generated with this plot will be saved to a directory.
+        If False, they will be shown on screen. Defaults to False.
+        """
         if self.local_nclusters==0:
             raise ValueError(
                 "analysis.plot_local_cluster_pcp: sampling, getting local extrema and clustering them first is necessary")
@@ -1001,15 +1357,34 @@ class analysis:
             for i in range(self.local_initial_npoints):
                 dataset[self.local_cluster[i]].append([self.local_cluster[i]+1]+[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)])
             separatelabel=[': cluster '+str(i+1) for i in range(self.local_nclusters)]
+        flist=[]
         for i in range(n):
             dataframe=df(dataset[i])
             title('Local extrema clusters PCP'+separatelabel[i]+' \n')
             grid(True)
             xlabel('Dimension')
             plot=pc(dataframe,0)
-            show(plot)
-
-    def plot_local_cluster_scatter(self,dimensions=[]):
+            f=plot.get_figure()
+            if save_fig:
+                import os
+                if not os.path.exists('./temp_analysis_figures/'):
+                    os.makedirs('./temp_analysis_figures/')
+                f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
+                self.fignum+=1
+            else:
+                show(f)
+    
+    def plot_local_cluster_scatter(self,dimensions=[],save_fig=False):
+        """
+        Generates a Scatter Plot of the clusters obtained for the local search results
+        in the dimensions specified (up to 3). Centroids are also shown.\n
+        USAGE: analysis.plot_local_cluster_scatter([dimensions=[1,2], save_fig=False])
+        *dimensions: list of up to 3 dimensions in the search space that will be shown
+        in the scatter plot. If set to [], the whole search space will be taken. An
+        error will be raised when trying to plot more than 3 dimensions.
+        *save_fig: if True, figures generated with this plot will be saved to a directory.
+        If False, they will be shown on screen. Defaults to False.
+        """
         if self.local_nclusters==0:
             raise ValueError(
                 "analysis.plot_local_cluster_scatter: sampling, getting local extrema and clustering them first is necessary")
@@ -1066,10 +1441,18 @@ class analysis:
                 ax.scatter(centers[i][0],centers[i][1],centers[i][2],marker='^',color=colors[i],s=100)
                 ax.text(centers[i][0],centers[i][1]+0.02,centers[i][2],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
         title('Local extrema clusters scatter plot')
-        show()
+        f=ax.get_figure()
+        if save_fig:
+            import os
+            if not os.path.exists('./temp_analysis_figures/'):
+                os.makedirs('./temp_analysis_figures/')
+            f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
+            self.fignum+=1
+        else:
+            show(f)
 
-#LEVELSET FEATURES (quite bad unless improved)
-    def lda(self,threshold=50,tsp=0.1):
+#LEVELSET FEATURES NOT IN USE AT ALL(quite bad unless improved)
+    def _lda(self,threshold=50,tsp=0.1):
         if self.npoints==0:
             raise ValueError(
                 "analysis.lda: sampling first is necessary")
@@ -1085,7 +1468,7 @@ class analysis:
         clf=LDA()
         mce=[]
         for i in range (self.f_dim):
-            per=self.percentile(threshold)[i]
+            per=self._percentile(threshold)[i]
             dataset=[[],[]]
             y=[[],[]]
             for j in range (self.npoints):
@@ -1103,7 +1486,7 @@ class analysis:
             mce.append(1-clf.score(dataset[1],y[1]))
         return mce
 
-    def qda(self,threshold=50,tsp=0.1):
+    def _qda(self,threshold=50,tsp=0.1):
         if self.npoints==0:
             raise ValueError(
                 "analysis.qda: sampling first is necessary")
@@ -1119,7 +1502,7 @@ class analysis:
         clf=QDA()
         mce=[]
         for i in range (self.f_dim):
-            per=self.percentile(threshold)[i]
+            per=self._percentile(threshold)[i]
             dataset=[[],[]]
             y=[[],[]]
             for j in range (self.npoints):
@@ -1137,7 +1520,7 @@ class analysis:
             mce.append(1-clf.score(dataset[1],y[1]))
         return mce
 
-    def kfdac(self,threshold=50,tsp=0.1):
+    def _kfdac(self,threshold=50,tsp=0.1):
         if self.npoints==0:
             raise ValueError(
                 "analysis.kfdac: sampling first is necessary")
@@ -1154,7 +1537,7 @@ class analysis:
         clf=KFDAC(kernel=K)
         mce=[]
         for i in range (self.f_dim):
-            per=self.percentile(threshold)[i]
+            per=self._percentile(threshold)[i]
             dataset=[[],[]]
             y=[[],[]]
             for j in range (self.npoints):
@@ -1174,7 +1557,7 @@ class analysis:
             mce.append(1-np.mean(score))
         return mce
 
-    def knn(self,threshold=50,tsp=0.1): #highly unuseful at the moment
+    def _knn(self,threshold=50,tsp=0.1): #highly unuseful at the moment
         if self.npoints==0:
             raise ValueError(
                 "analysis.knn: sampling first is necessary")
@@ -1190,7 +1573,7 @@ class analysis:
         clf=KNeighborsClassifier(weights='distance')
         mce=[]
         for i in range (self.f_dim):
-            per=self.percentile(threshold)[i]
+            per=self._percentile(threshold)[i]
             dataset=[[],[]]
             y=[[],[]]
             for j in range (self.npoints):
@@ -1209,7 +1592,7 @@ class analysis:
         return mce
 
 #LEVELSET FEATURES WITH DAC, IMPROVED BUT IN PRINCIPLE WORSE THAN SVM
-    def dac(self,threshold=50,classifier='k',k_test=10):
+    def _dac(self,threshold=50,classifier='k',k_test=10):
         if self.npoints==0:
             raise ValueError(
                 "analysis.dac: sampling first is necessary")
@@ -1238,7 +1621,7 @@ class analysis:
             clf=QDA()
         else:
             clf=KFDAC(kernel=KernelGaussian())
-        per=self.percentile(threshold)
+        per=self._percentile(threshold)
         
         dataset=[] #normalization of data
         for i in range(self.npoints):
@@ -1276,7 +1659,7 @@ class analysis:
 
         return mce #mce[n_obj][k_test]
 
-    def dac_p_values(self,threshold=50,k_test=10):
+    def _dac_p_values(self,threshold=50,k_test=10):
         if self.npoints==0:
             raise ValueError(
                 "analysis.dac_p_values: sampling first is necessary")
@@ -1286,9 +1669,9 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis.dac_p_values needs scipy and numpy to run. Is it installed?")
-        linear=self.dac(threshold=threshold, classifier='l', k_test=k_test)
-        quadratic=self.dac(threshold=threshold, classifier='q', k_test=k_test)
-        nonlinear=self.dac(threshold=threshold, classifier='k', k_test=k_test)
+        linear=self._dac(threshold=threshold, classifier='l', k_test=k_test)
+        quadratic=self._dac(threshold=threshold, classifier='q', k_test=k_test)
+        nonlinear=self._dac(threshold=threshold, classifier='k', k_test=k_test)
         l_q=[]
         q_n=[]
         l_n=[]
@@ -1299,7 +1682,7 @@ class analysis:
         return (list(np.mean(linear,1)),list(np.mean(quadratic,1)),list(np.mean(nonlinear,1)),l_q,l_n,q_n)
 
 #LEVELSET FEATURES WITH SVM (PREFERABLY USE THESE...?)
-    def svm(self,threshold=50,kernel='rbf',k_tune=3,k_test=10):
+    def _svm(self,threshold=50,kernel='rbf',k_tune=3,k_test=10):
         if self.npoints==0:
             raise ValueError(
                 "analysis.svm: sampling first is necessary")
@@ -1327,7 +1710,7 @@ class analysis:
         else:
             g_range=2.**np.arange(-15,4)
             param_grid=dict(gamma=g_range,C=c_range)
-        per=self.percentile(threshold)
+        per=self._percentile(threshold)
         
         dataset=[] #normalization of data
         for i in range(self.npoints):
@@ -1351,7 +1734,7 @@ class analysis:
 
         return mce #mce[n_obj][k_test]
 
-    def svm_p_values(self,threshold=50,k_tune=3,k_test=10):
+    def _svm_p_values(self,threshold=50,k_tune=3,k_test=10):
         if self.npoints==0:
             raise ValueError(
                 "analysis.svm_p_values: sampling first is necessary")
@@ -1361,9 +1744,9 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis.svm_p_values needs scipy and numpy to run. Is it installed?")
-        linear=self.svm(threshold=threshold, kernel='linear',k_tune=k_tune, k_test=k_test)
-        quadratic=self.svm(threshold=threshold, kernel='quadratic',k_tune=k_tune, k_test=k_test)
-        nonlinear=self.svm(threshold=threshold, kernel='rbf',k_tune=k_tune, k_test=k_test)
+        linear=self._svm(threshold=threshold, kernel='linear',k_tune=k_tune, k_test=k_test)
+        quadratic=self._svm(threshold=threshold, kernel='quadratic',k_tune=k_tune, k_test=k_test)
+        nonlinear=self._svm(threshold=threshold, kernel='rbf',k_tune=k_tune, k_test=k_test)
         l_q=[]
         q_n=[]
         l_n=[]
@@ -1375,7 +1758,7 @@ class analysis:
 
 
 #CONSTRAINTS
-    def compute_constraints(self):
+    def _compute_constraints(self):
         if self.npoints==0:
             raise ValueError(
                 "analysis.compute_constraints: sampling first is necessary")
@@ -1384,7 +1767,7 @@ class analysis:
             for i in range(self.npoints):
                 self.c.append(list(self.prob.compute_constraints(self.points[i])))
 
-    def ic_effectiveness(self):
+    def _ic_effectiveness(self):
         if self.npoints==0:
             raise ValueError(
                 "analysis.constraint_feasibility: sampling first is necessary")
@@ -1402,7 +1785,7 @@ class analysis:
                         ic_ef[j]+=dp
             return ic_ef
 
-    def ec_feasibility(self):
+    def _ec_feasibility(self):
         if self.npoints==0:
             raise ValueError(
                 "analysis.constraint_feasibility: sampling first is necessary")
@@ -1418,66 +1801,75 @@ class analysis:
                         ec_f[i]=True
             return ec_f
 
-    def print_report(self,b1=True,sample=100,p_f=[0,10,25,50,75,90,100],b2=True,p_svm=[],p_dac=[],local_search=True,\
+    #PRESENTATION OF RESULTS
+
+    def _print_report(self,b1=True,sample=100,p_f=[0,10,25,50,75,90,100],b2=True,b20=True,p_svm=[],p_dac=[],local_search=True,\
     gradient=True,hessian=False,b3=True,b41=True,b42=True,b43=True,b51=True,b52=True,b60=True,b63=True,b64=True,b65=True,b66=False,\
-    b711=True,b712=True,b713=True,i1=0,s3=0,s42=0,s43=0,s51=50,s52=50,s53=10,s54=3,s55=10,s6=0,i61=0,s61=0.95,s62=1,s63=[],i66=0,s661='random',s662='0'):
+    b711=True,b712=True,b713=True,i1=0,s3=0,s42=0,s43=0,s51=50,s52=50,s53=10,s54=3,s55=10,s6=0,i61=0,s61=0.95,s62=1,s63=[],i66=0,s661='random',s662='0',save=False,pca=False):
         import numpy as np
+        import Tkinter as tk
+        from ttk import Notebook, Frame
+        import matplotlib
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+        from PIL import Image, ImageTk
+        import os
         if b1 and i1==0:
             self.sample(sample,'sobol')
         if b1 and i1==1:
             self.sample(sample,'lhs')
-        print "--------------------------------------------------------------------------------\n"
-        print "PROBLEM PROPERTIES \n"
-        print "--------------------------------------------------------------------------------\n"
-        print "Dimension :                             ",self.dim," \n"
-        print "     of which integer :                 ",self.int_dim," \n"
-        print "Number of objectives :                  ",self.f_dim," \n"
-        print "Number of constraints :                 ",self.c_dim," \n"
-        print "     of which inequality constraints :  ",self.ic_dim," \n"
-        print "Variable bounds : \n"
-        for i in range(self.dim):
-            print "     variable",i+1,":                       ","[",self.lb[i],",",self.ub[i],"]\n"
-        # print "Box constraints hypervolume :           ",self.box_hv()," \n"
-        print "--------------------------------------------------------------------------------\n"
-        print "F-DISTRIBUTION FEATURES (",self.f_dim," OBJECTIVES )\n"
-        print "--------------------------------------------------------------------------------\n"
-        print "Number of points sampled :              ",self.npoints," \n"
-        print "Range of objective function :           ",list(self.ptp())," \n"
-        print "Mean value :                            ",list(self.mean())," \n"
-        print "Variance :                              ",list(self.var())," \n"
-        if len(p_f)>0:
-            print "Percentiles : \n"
-            for i in p_f:
-                if i<10:
-                    print "     ",i,":                               ",list(self.percentile(i))," \n"
-                elif i==100:
-                    print "     ",i,":                             ",list(self.percentile(i))," \n"
-                else:
-                    print "     ",i,":                              ",list(self.percentile(i))," \n"  
-        print "Skew :                                  ",list(self.skew())," \n"
-        print "Kurtosis :                              ",list(self.kurtosis())," \n"
-        print "Number of peaks of f-distribution :     ",self.n_peaks_f()," \n"
+        if b20:
+            print "--------------------------------------------------------------------------------\n"
+            print "PROBLEM PROPERTIES \n"
+            print "--------------------------------------------------------------------------------\n"
+            print "Dimension :                             ",self.dim," \n"
+            print "     of which integer :                 ",self.int_dim," \n"
+            print "Number of objectives :                  ",self.f_dim," \n"
+            print "Number of constraints :                 ",self.c_dim," \n"
+            print "     of which inequality constraints :  ",self.ic_dim," \n"
+            print "Variable bounds : \n"
+            for i in range(self.dim):
+                print "     variable",i+1,":                       ","[",self.lb[i],",",self.ub[i],"]\n"
+            # print "Box constraints hypervolume :           ",self._box_hv()," \n"
+            print "--------------------------------------------------------------------------------\n"
+            print "F-DISTRIBUTION FEATURES (",self.f_dim," OBJECTIVES )\n"
+            print "--------------------------------------------------------------------------------\n"
+            print "Number of points sampled :              ",self.npoints," \n"
+            print "Range of objective function :           ",list(self._ptp())," \n"
+            print "Mean value :                            ",list(self._mean())," \n"
+            print "Variance :                              ",list(self._var())," \n"
+            if len(p_f)>0:
+                print "Percentiles : \n"
+                for i in p_f:
+                    if i<10:
+                        print "     ",i,":                               ",list(self._percentile(i))," \n"
+                    elif i==100:
+                        print "     ",i,":                             ",list(self._percentile(i))," \n"
+                    else:
+                        print "     ",i,":                              ",list(self._percentile(i))," \n"  
+            print "Skew :                                  ",list(self._skew())," \n"
+            print "Kurtosis :                              ",list(self._kurtosis())," \n"
+            print "Number of peaks of f-distribution :     ",self._n_peaks_f()," \n"
         if b41 or b42 or b43:
             print "--------------------------------------------------------------------------------\n"
             print "META-MODEL FEATURES \n"
             print "--------------------------------------------------------------------------------\n"
         if b41:
-            print "Linear regression R2 :                  ",self.lin_reg()[1]," \n"
+            print "Linear regression R2 :                  ",self._lin_reg()[1]," \n"
         if b42 and self.dim>=2 and len(s42)>0:
             for i in s42:
-                print "Lin. regression with interaction (",i,") R2 :",self.lin_reg_inter(interaction_order=i)[1]," \n"
+                print "Lin. regression with interaction (",i,") R2 :",self._lin_reg_inter(interaction_order=i)[1]," \n"
         if b43 and len(s43)>0:
             for i in s43:
                 if i==2:
-                    print "Quadratic regression R2 :               ",self.poly_reg(regression_degree=i)[1]," \n"
+                    print "Quadratic regression R2 :               ",self._poly_reg(regression_degree=i)[1]," \n"
                 else:
-                    print "Polynomial regression degree", i ,"R2 : ",self.poly_reg(regression_degree=i)[1]," \n"
+                    print "Polynomial regression degree", i ,"R2 : ",self._poly_reg(regression_degree=i)[1]," \n"
         if b51 and len(p_svm)>0:
             print "--------------------------------------------------------------------------------\n"
             print "LEVELSET FEATURES : SVM\n"
             print "--------------------------------------------------------------------------------\n"
             for i in p_svm:
-                svm_results=self.svm_p_values(threshold=i,k_test=s53,k_tune=s54)
+                svm_results=self._svm_p_values(threshold=i,k_test=s53,k_tune=s54)
                 print "Percentile",i,":\n"
                 print "     Mean Misclassification Errors :\n"
                 print "         Linear Kernel :                ",svm_results[0]," \n"
@@ -1492,7 +1884,7 @@ class analysis:
             print "LEVELSET FEATURES : DAC\n"
             print "--------------------------------------------------------------------------------\n"
             for i in p_dac:
-                dac_results=self.dac_p_values(threshold=i,k_test=s55)
+                dac_results=self._dac_p_values(threshold=i,k_test=s55)
                 print "Percentile",i,":\n"
                 print "     Mean Misclassification Errors :\n"
                 print "         LDA :                          ",dac_results[0]," \n"
@@ -1506,24 +1898,24 @@ class analysis:
             print "--------------------------------------------------------------------------------\n"
             print "PROBABILITY OF LINEARITY AND CONVEXITY\n"
             print "--------------------------------------------------------------------------------\n"
-            p=self.p_lin_conv(s3)
+            p=self._p_lin_conv(s3)
             print "Number of pairs of points used :        ",self.lin_conv_npairs," \n"
             print "Probability of linearity :              ",p[0]," \n"
             print "Probability of convexity :              ",p[1]," \n"
             print "Mean deviation from linearity :         ",p[2]," \n"
-        if self.c_dim==0 and local_search and s6>0:
+        if self.c_dim==0 and local_search:
             print "--------------------------------------------------------------------------------\n"
             print "LOCAL SEARCH\n"
             print "--------------------------------------------------------------------------------\n"
             if b66:
-                self.get_local_extrema(sample_size=s6,algo=ls_algo,decomposition_method=i66,weights=s661,z=s662)
+                self._get_local_extrema(sample_size=s6,algo=ls_algo,decomposition_method=i66,weights=s661,z=s662)
             else:
-                self.get_local_extrema(sample_size=s6,decomposition_method=i66,weights=s661,z=s662)
+                self._get_local_extrema(sample_size=s6,decomposition_method=i66,weights=s661,z=s662)
             if b60:
                 if i61==0:
-                    self.cluster_local_extrema(variance_ratio=s61,k=0)
+                    self._cluster_local_extrema(variance_ratio=s61,k=0)
                 else:
-                    self.cluster_local_extrema(variance_ratio=0,k=s62)
+                    self._cluster_local_extrema(variance_ratio=0,k=s62)
             print "Local searches performed :              ",self.local_initial_npoints," \n"
             print "Quartiles of CPU time per search [ms]:  ",round(np.percentile(self.local_search_time,0),3),"/",round(np.percentile(self.local_search_time,25),3),"/",round(np.percentile(self.local_search_time,50),3),"/",round(np.percentile(self.local_search_time,75),3),"/",round(np.percentile(self.local_search_time,100),3)," \n"
             if b60:
@@ -1540,22 +1932,22 @@ class analysis:
             print "--------------------------------------------------------------------------------\n"
             print "CURVATURE : GRADIENT/JACOBIAN \n"
             print "--------------------------------------------------------------------------------\n"
-            self.get_gradient()
+            self._get_gradient()
             print "Number of points evaluated :            ",self.grad_npoints," \n"
             print "Gradient sparsity :                     ",100*round(self.grad_sparsity,4),"% \n"
         if hessian:
             print "--------------------------------------------------------------------------------\n"
             print "CURVATURE : HESSIAN \n"
             print "--------------------------------------------------------------------------------\n"
-            self.get_hessian()
+            self._get_hessian()
             print "Number of points evaluated :            ",self.hess_npoints," \n"
             
-        if self.f_dim>1:
+        if self.f_dim>1 and pca:
             print "--------------------------------------------------------------------------------\n"
             print "OBJECTIVE CORRELATION \n"
             print "--------------------------------------------------------------------------------\n"
-            obj_corr=self.f_correlation()
-            critical_obj=self.perform_f_pca(obj_corr)
+            obj_corr=self._f_correlation()
+            critical_obj=self._perform_f_pca(obj_corr)
             print "Objective correlation matrix :          ",obj_corr[0][0]," \n"
             for i in range(1,self.f_dim):
                 print "                                        ",obj_corr[0][i]," \n"
@@ -1569,9 +1961,9 @@ class analysis:
             print "--------------------------------------------------------------------------------\n"
             print "CONSTRAINT EFFECTIVENESS/FEASIBILITY \n"
             print "--------------------------------------------------------------------------------\n"
-            self.compute_constraints()
-            ic_ef=self.ic_effectiveness()
-            ec_f=self.ec_feasibility()
+            self._compute_constraints()
+            ic_ef=self._ic_effectiveness()
+            ec_f=self._ec_feasibility()
             if self.c_dim!=self.ic_dim:
                 print "     Equality constraint      |      Feasibility   \n"
             for i in range(self.c_dim-self.ic_dim):
@@ -1580,26 +1972,55 @@ class analysis:
                 print "    Inequality constraint     |     Effectiveness   \n"
             for i in range(self.ic_dim):
                 print "            ",self.c_dim-self.ic_dim+i+1,"                       ",100*round(ic_ef[i],4),"%      \n"
-        #PLOTS 
+        #PLOTS
+        old_fignum=self.fignum
         if b2:
-            self.plot_f_distr()
+            self.plot_f_distr(save_fig=save)
+
         if gradient:
             if b711:
-                self.plot_gradient_sparsity()
+                self.plot_gradient_sparsity(save_fig=save)
+
             if self.dim>1 and b712:
-                self.plot_gradient_pcp('x')
+                self.plot_gradient_pcp('x',save_fig=save)
+
             if self.f_dim>1 and b713:
-                self.plot_gradient_pcp('f')
+                self.plot_gradient_pcp('f',save_fig=save)
+
         if self.c_dim==0 and local_search:
             if b64:
-                self.plot_local_cluster_pcp(True)
+                self.plot_local_cluster_pcp(together=True,save_fig=save)
+
             if b65:
-                self.plot_local_cluster_pcp(False)
+                self.plot_local_cluster_pcp(together=False,save_fig=save)
+
             if b63:
-                self.plot_local_cluster_scatter()
+                self.plot_local_cluster_scatter(save_fig=save)
+
+        # #show plots in only window - DOESN'T WORK
+        # if self.fignum>old_fignum:
+        #     root=tk.Toplevel()
+        #     root.title("PLOTS")
+        #     n=Notebook(root)
+        #     canvas=[]
+        #     images=[]
+        #     labels=[]
+        #     ii=-1
+        #     for i in range(old_fignum,self.fignum):
+        #         canvas.append(tk.Canvas())
+        #         images.append(ImageTk.PhotoImage(Image.open('./temp_analysis_figures/figure_'+str(i)+'.png')))
+        #         ii+=1
+        #         print canvas
+        #         print images
+        #         print ii
+        #         canvas[ii].create_image(0,0,image=images[ii])
+        #         # labels[ii].grid(row=0,column=0)
+        #         n.add(canvas[ii],text='plot '+str(ii+1))
+        #     n.pack()
+        #     root.mainloop()
 
     def start(self):
-        import Tkinter as tk 
+        import Tkinter as tk
         from Tkinter import Tk, Frame, Checkbutton, Label, Entry, Radiobutton, Button
         from Tkinter import IntVar,BooleanVar, StringVar, BOTH
 
@@ -1624,6 +2045,7 @@ class analysis:
 
                 self.b2=BooleanVar()#plot f-distributions
                 self.s2=StringVar()#percentiles
+                self.b20=BooleanVar()#print basic problem info
 
                 self.b3=BooleanVar()#perform lin_conv test
                 self.s3=StringVar()#number of pairs
@@ -1662,6 +2084,8 @@ class analysis:
                 self.b711=BooleanVar()#gradient sparsity plot
                 self.b712=BooleanVar()#gradient pcpx
                 self.b713=BooleanVar()#gradient pcpf
+
+                self.b8=BooleanVar()#objective pca
 
 
 
@@ -1703,6 +2127,10 @@ class analysis:
                 self.e2=Entry(self,textvariable=self.s2,width=15, justify=tk.CENTER)
                 self.e2.insert(0,'0,5,10,25,50,100')
                 self.e2.grid(row=3,column=2,sticky='w')
+
+                self.cb20 = Checkbutton(self, text="Print basic info.",
+                    variable=self.b20)
+                self.cb20.grid(row=3,column=3,sticky='W')
 
                 #DEGREE OF LINEARITY AND CONVEXITY
 
@@ -1832,7 +2260,7 @@ class analysis:
                 self.l63=Label(self, text="Dim(s):",state=tk.DISABLED)
                 self.l63.grid(row=16,column=3,sticky='E')
 
-                self.e63=Entry(self,textvariable=self.s54,state=tk.DISABLED,width=13, justify=tk.CENTER)
+                self.e63=Entry(self,textvariable=self.s63,state=tk.DISABLED,width=13, justify=tk.CENTER)
                 self.e63.grid(row=16,column=4,sticky='w')
 
                 self.cb64 = Checkbutton(self, text="Plot PCP (together)",
@@ -1897,9 +2325,17 @@ class analysis:
                     variable=self.b72)
                 self.cb72.grid(row=22,column=0,sticky='NW')
 
+                #OBJCORR
+                self.l8=Label(self, text="OBJECTIVE CORRELATION")
+                self.l8.grid(row=23,sticky='W')
+
+                self.cb8 = Checkbutton(self, text="Perform objective \ncorrelation PCA test",
+                    variable=self.b8)
+                self.cb8.grid(row=24,column=0,sticky='W')
+
                 #GO
                 self.go=Button(self,text='< GO >',width=10,height=2,bg='green',activebackground='green',command=self.go)
-                self.go.grid(row=22,column=4,sticky='sw')
+                self.go.grid(row=24,column=4,sticky='se')
 
             def add1(self):
                 if self.b1.get()==True:
@@ -2196,7 +2632,7 @@ class analysis:
                 root.destroy()
 
         root = Tk()
-        root.geometry("750x500")
+        root.geometry("750x550")
         app = parameters(root)
         root.mainloop()
 
@@ -2210,6 +2646,7 @@ class analysis:
             i1=0
 
         b2=app.b2.get()
+        b20=app.b20.get()
         s2=app.s2.get()
         if len(s2)>0:
             s2=[float(i) for i in s2[:].split(',')]
@@ -2269,7 +2706,7 @@ class analysis:
             if s661!='random' and s661!='uniform' and len(s661)>0:
                 s661=[float(i) for i in s661[:].split(',')]
             if s662=='0':
-                s662=[0 for i in range(self.dim)]
+                s662=[]
             elif len(s662)>0:
                 s662=[float(i) for i in s662[:].split(',')]
             if s6=='X':
@@ -2290,15 +2727,16 @@ class analysis:
                 s61=float(s61)
             else:
                 s62=int(s62)
-            s63=[int(i) for i in s63[:].split(',')]
+            if b63 and len(s63)>0:
+                s63=[int(i) for i in s63[:].split(',')]
         b71=app.b71.get()
         b72=app.b72.get()
         b711=app.b711.get()
         b712=app.b712.get()
         b713=app.b713.get()
+        b8=app.b8.get()
 
-        self.print_report(b1=b1,sample=s1,p_f=s2,b2=b2,p_svm=s51,p_dac=s52,local_search=b6,\
+        self._print_report(b1=b1,sample=s1,p_f=s2,b2=b2,b20=b20,p_svm=s51,p_dac=s52,local_search=b6,\
         gradient=b71,hessian=b72,b3=b3,b41=b41,b42=b42,b43=b43,b51=b51,b52=b52,b60=b60,b63=b63,b64=b64,b65=b65,b66=b66,\
         b711=b711,b712=b712,b713=b713,i1=i1,s3=s3,s42=s42,s43=s43,s51=s51,s52=s52,s53=s53,s54=s54,s55=s55,s6=s6,\
-        i61=i61,s61=s61,s62=s62,s63=s63,i66=i66,s661=s661,s662=s662)
-
+        i61=i61,s61=s61,s62=s62,s63=s63,i66=i66,s661=s661,s662=s662,save=False,pca=b8)

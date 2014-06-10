@@ -16,3 +16,4 @@ implementation or on technical details on how we designed for efficiency thanks 
    problems
    hypervolume
    racing
+   analysis
