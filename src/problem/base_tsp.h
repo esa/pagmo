@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2013 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2014 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -22,15 +22,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_BASE_ACO_H
-#define PAGMO_PROBLEM_BASE_ACO_H
+#ifndef PAGMO_PROBLEM_BASE_TSP_H
+#define PAGMO_PROBLEM_BASE_TSP_H
 
 #include "base.h"
 #include <vector>
 
 namespace pagmo{ namespace problem {
 
-/// Base ACO.
+/// Base TSP.
 /**
  *
  * All integer optimization problems must extend this class in order to be solved by Ant Colony Optimization.
@@ -41,15 +41,14 @@ namespace pagmo{ namespace problem {
  * For example in the algorithm::aco it makes the ant prefer clever steps. In fact the probability for a particular step to be chosen
  * is proportional to the the product between the m_eta value of that step (heuristic information) and the amount of pheromone left
  * by previous ants on that step.
- * 
  *
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @author Florin Schimbinschi (florinsch@gmail.com)
  */
 
-class __PAGMO_VISIBLE base_aco : public base
+class __PAGMO_VISIBLE base_tsp : public base
 {
 	public:
-		base_aco(int, int = 0, int = 0);
+		base_tsp(int, int = 0, int = 0);
 
 		/**
 		 * Checks if a partial solution x is feasible. x.size() may be less than problem length.
@@ -74,9 +73,9 @@ class __PAGMO_VISIBLE base_aco : public base
 		 * The heuristic information matrix
 		 */
 		std::vector<std::vector<std::vector<fitness_vector> > > m_eta;
-		
+
 		/**
-		 * Allocate memory for the heuristic information matrix. That must be 
+		 * Allocate memory for the heuristic information matrix. That must be
 		 * called at the begining of each set_heuristic_information_matrix() implementation
 		 */
 		void create_heuristic_information_matrix();
@@ -84,4 +83,4 @@ class __PAGMO_VISIBLE base_aco : public base
 
 }} //namespaces
 
-#endif // PAGMO_PROBLEM_BASE_ACO_H
+#endif // PAGMO_PROBLEM_BASE_TSP_H

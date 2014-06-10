@@ -28,7 +28,7 @@
 // Header including all problems implemented in PaGMO.
 
 #include "problem/base.h"
-#include "problem/base_aco.h"
+#include "problem/base_tsp.h"
 #include "problem/base_stochastic.h"
 #include "problem/base_dtlz.h"
 #include "problem/base_unc_mo.h"

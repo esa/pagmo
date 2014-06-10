@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2013 The PaGMO development team,                     *
+ *   Copyright (C) 2004-2014 The PaGMO development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://apps.sourceforge.net/mediawiki/pagmo                             *
  *   http://apps.sourceforge.net/mediawiki/pagmo/index.php?title=Developers  *
@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "base_aco.h"
+#include "base_tsp.h"
 
 namespace pagmo { namespace problem {
 	
@@ -31,11 +31,11 @@ namespace pagmo { namespace problem {
 	 * @param[in] nc global constraints dimension
 	 * @param[in] nic inequality constraints dimension
 	 */
-	base_aco::base_aco(int n, int nc, int nic):base(n,n,1,nc,nic,0.){
+	base_tsp::base_tsp(int n, int nc, int nic):base(n,n,1,nc,nic,0.){
 	}
 
 //the default behaviour is to set to 1 all the values corresponding to values inside the bounds and 0 elsewhere
-void base_aco::set_heuristic_information_matrix() {
+void base_tsp::set_heuristic_information_matrix() {
 	//allocates the memory for eta.
 	create_heuristic_information_matrix();  //that MUST be called at the begining of each set_heuristic_information_matrix implementation!
 
@@ -54,11 +54,11 @@ void base_aco::set_heuristic_information_matrix() {
 	}
 }
 
-const std::vector<std::vector<std::vector<fitness_vector> > > &base_aco::get_heuristic_information_matrix() const {
+const std::vector<std::vector<std::vector<fitness_vector> > > &base_tsp::get_heuristic_information_matrix() const {
 	return m_eta;
 }
 
-void base_aco::create_heuristic_information_matrix() {
+void base_tsp::create_heuristic_information_matrix() {
 	double max_size = 0;
 	for(problem::base::size_type i = 0; i < get_i_dimension(); ++i) {
 		if(max_size < (get_ub()[i] - get_lb()[i])) {
@@ -74,9 +74,7 @@ void base_aco::create_heuristic_information_matrix() {
 	m_eta = eta;
 }
 
-
-
-bool base_aco::check_partial_feasibility(const decision_vector &x) const{
+bool base_tsp::check_partial_feasibility(const decision_vector &x) const{
 	(void)x; //to avoid the  unused parameter ‘x’ warning by compiler
 	return true;
 }

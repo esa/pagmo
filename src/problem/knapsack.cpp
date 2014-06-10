@@ -46,7 +46,7 @@ static const double knapsack_default_max_weight = 100;
  * - weights: [10,40,30,50,20]
  * - max_weight: 100
  */
-knapsack::knapsack():base_aco(boost::numeric_cast<int>(5),1,1),
+knapsack::knapsack():base_tsp(boost::numeric_cast<int>(5),1,1),
 	m_values(knapsack_default_values,knapsack_default_values + 5),
 	m_weights(knapsack_default_weights,knapsack_default_weights + 5),
 	m_max_weight(knapsack_default_max_weight)
@@ -65,7 +65,7 @@ knapsack::knapsack():base_aco(boost::numeric_cast<int>(5),1,1),
  * @param[in] max_weight maximum weight.
  */
 knapsack::knapsack(const std::vector<double> &values, const std::vector<double> &weights, const double &max_weight):
-	base_aco(boost::numeric_cast<int>(values.size()),1,1),
+	base_tsp(boost::numeric_cast<int>(values.size()),1,1),
 	m_values(values),m_weights(weights),m_max_weight(max_weight)
 {
 	verify_init();

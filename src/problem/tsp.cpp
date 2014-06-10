@@ -54,7 +54,7 @@ static const double default_weights[5][5] = {
  * - city 4: (-3,0)
  * - city 5: (0,-4)
  */
-tsp::tsp():base_aco(5,1,0)
+tsp::tsp():base_tsp(5,1,0)
 {
 	m_weights.resize(5);
 	for (int i = 0; i < 5; ++i) {
@@ -75,19 +75,19 @@ tsp::tsp():base_aco(5,1,0)
  * @param[in] weights matrix of distances between cities.
  */
 tsp::tsp(const std::vector<std::vector<double> > &weights):
-	base_aco(boost::numeric_cast<int>(weights[0].size()),1,0), m_weights(weights) {
+	base_tsp(boost::numeric_cast<int>(weights[0].size()),1,0), m_weights(weights) {
 	
 	//Check weights matrix
-	for(problem::base_aco::size_type i = 0; i < m_weights.size(); ++i) {
+	for(problem::base_tsp::size_type i = 0; i < m_weights.size(); ++i) {
 		if (m_weights[i].size() != m_weights.size()) {
 			pagmo_throw(value_error,"Weights matrix must be a square matrix!");		
 		}
 		if(m_weights[i][i] != 0) {
 			pagmo_throw(value_error,"Weights matrix must have 0's on the diagonal!");
 		}
-		for (problem::base_aco::size_type j = 0; j < m_weights[i].size(); ++j) {
+		for (problem::base_tsp::size_type j = 0; j < m_weights[i].size(); ++j) {
 			if(m_weights[i][j] != m_weights[j][i]) {
-				pagmo_throw(value_error,"Weights matrix must be a simmetric matrix!");	
+				pagmo_throw(value_error,"Weights matrix must be a symmetric matrix!");	
 			}
 		}
 	}

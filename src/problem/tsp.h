@@ -33,7 +33,8 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "base_aco.h"
+#include "base_tsp.h"
+
 
 namespace pagmo { namespace problem {
 
@@ -47,9 +48,12 @@ namespace pagmo { namespace problem {
  *
  * Given a list of cities and their pairwise distances, the task is to find a shortest possible tour that visits each city exactly once.
  *
- * TSP can be modeled as a graph, such that cities are the graph's vertices, paths are the graph's edges, and a path's distance is the edge's length. A TSP tour becomes a Hamiltonian cycle, and the optimal TSP tour is the shortest Hamiltonian cycle.
+ * TSP can be modeled as a graph, such that cities are the graph's vertices, paths are the graph's edges, and a path's distance is the edge's length. 
+ * A TSP tour becomes a Hamiltonian cycle, and the optimal TSP tour is the shortest Hamiltonian cycle.
  *
- * In PaGMO's terminology, this problem has global and integer dimensions equal to N (number of vertices of the graph), fitness dimension equal to 1 (cost of the path), global and inequality constraints dimensions equal to 1 (to check whether the solution is valid). A valid decision vector is a permutation of the edges. The optmial solution minimize the cost of the path S(x)
+ * In PaGMO's terminology, this problem has global and integer dimensions equal to N (number of vertices of the graph), 
+ * fitness dimension equal to 1 (cost of the path), global and inequality constraints dimensions equal to 1 (to check whether the solution is valid). 
+ * A valid decision vector is a permutation of the edges. The optmial solution minimize the cost of the path S(x)
  * 
  * \f[
  * 	\textnormal{minimize:} S(x) = w_{x_n,1} + \sum_{i=1}{n} w_{x_i, x_{i+1}} 
@@ -59,7 +63,7 @@ namespace pagmo { namespace problem {
  *
  * @author Andrea Mambrini (andrea.mambrini@gmail.com)
  */
-class __PAGMO_VISIBLE tsp: public base_aco
+class __PAGMO_VISIBLE tsp: public base_tsp
 {
 	public:
 		tsp();

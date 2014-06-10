@@ -29,13 +29,6 @@
 #include <boost/numeric/conversion/cast.hpp>
 
 #include "aco.h"
-#include "../exceptions.h"
-#include "../population.h"
-#include "../problem/base_aco.h"
-#include "../types.h"
-
-
-
 
 namespace pagmo { namespace algorithm {
 
@@ -72,7 +65,7 @@ base_ptr aco::clone() const
 void aco::evolve(population &pop) const
 {
 	// Let's store some useful variables.
-	const problem::base_aco &prob = dynamic_cast<const problem::base_aco &>(pop.problem());
+	const problem::base_tsp &prob = dynamic_cast<const problem::base_tsp &>(pop.problem());
 	const problem::base::size_type prob_i_dimension = prob.get_i_dimension();
 	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
 	const population::size_type NP =  pop.size();
@@ -173,7 +166,7 @@ void aco::evolve(population &pop) const
  * write a fComonents boolean vector where fComponents[i] is true if X[xSize] =  "ith possible value for the component xSize" make
  * the vector X feasible (according to the first xSize+1 components)
  */
-void aco::feasible_components(std::vector<bool> &fComponents, const pagmo::problem::base_aco &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub) {
+void aco::feasible_components(std::vector<bool> &fComponents, const pagmo::problem::base_tsp &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub) {
 	decision_vector tmpX(xSize+1,0);
 	for(pagmo::problem::base::size_type i = 0; i < xSize; ++i) {
 		tmpX[i] = X[i];

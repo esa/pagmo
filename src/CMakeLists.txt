@@ -51,7 +51,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_greedy_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_aco.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_dtlz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_unc_mo.cpp
