@@ -136,11 +136,11 @@ void cstrs_co_evolution::evolve(population &pop) const
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_NEQ_EQ:
 	{
-		pop_2_dim = 2;
+		pop_2_dim = 4;
 		break;
 	}
 	case algorithm::cstrs_co_evolution::SPLIT_CONSTRAINTS:
-		pop_2_dim = prob.get_c_dimension();
+		pop_2_dim = 2*prob.get_c_dimension();
 		break;
 	default: 
 		pagmo_throw(value_error,"The constraints co-evolutionary method is not valid.");
@@ -191,6 +191,9 @@ void cstrs_co_evolution::evolve(population &pop) const
 
 			// creating the POPULATION 1 instance based on the
 			// updated prob 1
+
+			// prob_1 is a BASE_META???? THE CLONE OF prob_1 IN POP_1 IS AT THE LEVEL OF
+			// THE BASE CLASS AND NOT AT THE LEVEL OF THE BASE_META, NO?!?
 			population pop_1(prob_1,0);
 
 			// initialize P1 chromosomes. The fitnesses related to problem 1 are computed
@@ -277,7 +280,7 @@ void cstrs_co_evolution::evolve(population &pop) const
 		}
 	}
 
-	// store the best fitness population in the final pop
+	// find the best fitness population in the final pop
 	population::size_type best_idx = 0;
 	for(population::size_type j=1; j<pop_2_size; j++) {
 		if(pop_2_f[j][0] < pop_2_f[best_idx][0]) { 
@@ -286,9 +289,12 @@ void cstrs_co_evolution::evolve(population &pop) const
 	}
 
 	// store the final population in the main population
+	// can't avoid to recompute the vectors here, otherwise we
+	// clone the problem stored in the population with the
+	// pop = operator!
 	pop.clear();
 	for(population::size_type i=0; i<pop_1_size; i++) {
-		pop = pop_1_vector.at(best_idx);
+		pop.push_back(pop_1_vector.at(best_idx).get_individual(i).cur_x);
 	}
 }
 
