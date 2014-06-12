@@ -1,0 +1,19 @@
+===============================================================================
+                                   ANALYSIS                                    
+===============================================================================
+-------------------------------------------------------------------------------
+PROBLEM PROPERTIES :
+-------------------------------------------------------------------------------
+Problem name: <class 'my_module.my_problem'>
+	Global dimension:			10
+	Integer dimension:			2
+	Fitness dimension:			1
+	Constraints dimension:			0
+	Inequality constraints dimension:	0
+	Lower bounds: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	Upper bounds: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+	Constraints tolerance: []
+
+	 Problem dimension: 10
+-------------------------------------------------------------------------------
+SAMPLED [10] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS

@@ -6,7 +6,8 @@ import scipy as sp
 import numpy as np
 import matplotlib.pyplot as plt
 
-prob=problem.kur(3)
-pop=population(prob,100)
-anal=analysis(pop)
-anal.start()
+prob=problem.cec2006(1)
+anal=analysis(prob,1000,output_to_file=False,first=0)
+anal._compute_constraints()
+
+print anal._c_lin()
