@@ -177,8 +177,7 @@ bool knapsack::check_partial_feasibility(const decision_vector &x) const {
 }
 
 
-std::string knapsack::get_name() const
-{
+std::string knapsack::get_name() const {
 	return "Knapsack";
 }
 

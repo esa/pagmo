@@ -27,6 +27,9 @@
 
 #include "base.h"
 #include <vector>
+// Boost
+#include <boost/graph/adjacency_list.hpp> // for customizable graphs
+#include <boost/graph/directed_graph.hpp> // A subclass to provide reasonable arguments to adjacency_list for a typical directed graph
 
 namespace pagmo{ namespace problem {
 
@@ -45,11 +48,20 @@ namespace pagmo{ namespace problem {
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
 
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS> Graph;
+//typedef boost::adjacency_matrix<boost::directedS> Graph;
+
 class __PAGMO_VISIBLE base_tsp : public base
 {
 	public:
-		base_tsp(int, int = 0, int = 0);
-
+		base_tsp(size_type, size_type = 0, size_type = 0);
+                
+                /**
+                 * Constructor exposed to python for getting a [[1,2], [2,3] ..]
+                 * list of lists from the tsplib.py
+                 */
+                base_tsp(const std::vector<std::vector<double> >&);
+                
 		/**
 		 * Checks if a partial solution x is feasible. x.size() may be less than problem length.
 		 * @returns true if there is at least one solution having x as a prefix that is feasible. False otherwise
@@ -60,7 +72,8 @@ class __PAGMO_VISIBLE base_tsp : public base
 		 * Gets the heuristic information matrix
 		 * @returns const reference to m_eta: the heuristic information matrix
 		 */
-		const std::vector<std::vector<std::vector<fitness_vector> > > &get_heuristic_information_matrix() const;
+		//const Graph &get_heuristic_information_matrix() const;
+                const std::vector<std::vector<std::vector<fitness_vector> > > &get_heuristic_information_matrix() const;
 
 	protected:
 		/**
@@ -70,9 +83,10 @@ class __PAGMO_VISIBLE base_tsp : public base
 		virtual void set_heuristic_information_matrix();
 
 		/**
-		 * The heuristic information matrix
+		 * The boost graph
 		 */
-		std::vector<std::vector<std::vector<fitness_vector> > > m_eta;
+                std::vector<std::vector<std::vector<fitness_vector> > > m_eta;
+		//Graph m_eta;
 
 		/**
 		 * Allocate memory for the heuristic information matrix. That must be

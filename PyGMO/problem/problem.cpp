@@ -364,9 +364,44 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const std::string &>())
 		.def("pretty", &problem::string_match::pretty);
 
-	// Traveling salesman problem
-	problem_wrapper<problem::tsp>("tsp","Traveling salesman problem")
+	// Travelling salesman problem
+	problem_wrapper<problem::tsp>("tsp","Travelling salesman problem")
 		.def(init<const std::vector<std::vector<double> > &>());
+		
+	// TSP base class
+//	class_<problem::python_base_tsp, boost::noncopyable, bases<problem::base> >("_base_tsp", init<const std::vector<std::vector<double> > &>())
+//		.def("__repr__", &problem::base::human_readable)
+//		// Dimensions.
+//		.add_property("dimension", &problem::base::get_dimension, "Global dimension.")
+//		.add_property("f_dimension", &problem::base::get_f_dimension, "Fitness dimension.")
+//		.add_property("i_dimension", &problem::base::get_i_dimension, "Integer dimension.")
+//		.add_property("c_dimension", &problem::base::get_c_dimension, "Global constraints dimension.")
+//		.add_property("ic_dimension", &problem::base::get_ic_dimension, "Inequality constraints dimension.")
+//		// Constraints tolerance.
+//		.add_property("c_tol", make_function(&problem::base::get_c_tol,return_value_policy<copy_const_reference>()), "Tolerance used in constraints analysis.")
+//		// Bounds.
+//		.add_property("lb",make_function(&problem::base::get_lb,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_lb), "Lower bounds.")
+//		.add_property("ub",make_function(&problem::base::get_ub,return_value_policy<copy_const_reference>()), bounds_setter(&problem::base::set_ub), "Upper bounds.")
+//		.def("set_bounds",bounds_setter_value(&problem::base::set_bounds),"Set all bounds to the input values.")
+//		.def("set_bounds",bounds_setter_vectors(&problem::base::set_bounds),"Set bounds to the input vectors.")
+//		.add_property("diameter",&problem::base::get_diameter, "Problem's diameter.")
+//		// Useful operators.
+//		.def(self == self)
+//		.def(self != self)
+//		.def("is_compatible",&problem::base::is_compatible,"Check compatibility with other problem.")
+//		// Comparisons.
+//		.def("compare_x",&problem::base::compare_x,"Compare decision vectors.")
+//		.def("verify_x",&problem::base::verify_x,"Check if decision vector is compatible with problem.")
+//		.def("compare_fc",&problem::base::compare_fc,"Simultaneous fitness-constraint comparison.")
+//		// Constraints.
+//		.def("compare_constraints",&problem::base::compare_constraints,"Compare constraint vectors.")
+//		.def("compute_constraints",return_constraints(&problem::base::compute_constraints),"Compute and return constraint vector.")
+//		.def("test_constraint",&problem::base::test_constraint,"Determine feasibility of the i-th constraint.")
+//		.def("feasibility_x",&problem::base::feasibility_x,"Determine feasibility of decision vector.")
+//		.def("feasibility_c",&problem::base::feasibility_c,"Determine feasibility of constraint vector.")
+//		// Fitness.
+//		.def("objfun",return_fitness(&problem::base::objfun),"Compute and return fitness vector.")
+//		.def("compare_fitness",&problem::base::compare_fitness,"Compare fitness vectors.");
 
 	// SCH
 	problem_wrapper<problem::sch>("sch","Shaffer's study problem.");
@@ -474,11 +509,11 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("rho", &problem::robust::get_rho);
 
 
-    // Quadrature encoding problem
-    problem_wrapper<problem::quadrature_encoding>("quadrature_encoding", "Quadrature encoding problem")
-        .def(init<const problem::base &, const std::vector<decision_vector::size_type> &>())
-        .add_property("transform2old", &problem::quadrature_encoding::transform2old)
-        .add_property("transform2new", &problem::quadrature_encoding::transform2new);
+        // Quadrature encoding problem
+        problem_wrapper<problem::quadrature_encoding>("quadrature_encoding", "Quadrature encoding problem")
+                .def(init<const problem::base &, const std::vector<decision_vector::size_type> &>())
+                .add_property("transform2old", &problem::quadrature_encoding::transform2old)
+                .add_property("transform2new", &problem::quadrature_encoding::transform2new);
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)

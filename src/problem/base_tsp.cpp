@@ -25,14 +25,15 @@
 #include "base_tsp.h"
 
 namespace pagmo { namespace problem {
-	
 	/**
 	 * @param[in] n integer dimension of the problem.
 	 * @param[in] nc global constraints dimension
 	 * @param[in] nic inequality constraints dimension
 	 */
-	base_tsp::base_tsp(int n, int nc, int nic):base(n,n,1,nc,nic,0.){
-	}
+	base_tsp::base_tsp(size_type n, size_type nc, size_type nic):base(n, n, 1, nc, nic, 0.){ }
+        
+        base_tsp::base_tsp(const std::vector<std::vector<double> >&):base_tsp(0, 0, 0){
+        }
 
 //the default behaviour is to set to 1 all the values corresponding to values inside the bounds and 0 elsewhere
 void base_tsp::set_heuristic_information_matrix() {

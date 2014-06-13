@@ -105,7 +105,8 @@ void aco::evolve(population &pop) const
 	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
 	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
 	std::vector<std::vector<std::vector<fitness_vector> > > T(prob_i_dimension, tempC); //pheromone trail matrix 
-	std::vector<std::vector<std::vector<fitness_vector> > > eta = prob.get_heuristic_information_matrix(); //heuristic information matrix 
+	std::vector<std::vector<std::vector<fitness_vector> > > eta = prob.get_heuristic_information_matrix(); //heuristic information matrix
+        //pagmo::problem::Graph eta = prob.get_heuristic_information_matrix(); // Boost graph object
 
 	// Copy the solutions and their fitness
 	for ( population::size_type i = 0; i<NP; i++ ) {

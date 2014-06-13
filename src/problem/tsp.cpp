@@ -71,7 +71,6 @@ tsp::tsp():base_tsp(5,1,0)
 /// Constructor from vectors and maximum weight.
 /**
  * Initialize weights of the edges (city distances) from the matrix.
- *
  * @param[in] weights matrix of distances between cities.
  */
 tsp::tsp(const std::vector<std::vector<double> > &weights):
@@ -119,7 +118,7 @@ void tsp::set_heuristic_information_matrix() {
  */
 bool tsp::check_partial_feasibility(const decision_vector &x) const{
 	if (x.size() > get_i_dimension()) {
-		pagmo_throw(value_error,"Invalid chromosome length for partial feasibility check.");
+		pagmo_throw(value_error, "Invalid chromosome length for partial feasibility check.");
 	}
 
 	m_tmpDecisionVector = x;
@@ -128,7 +127,6 @@ bool tsp::check_partial_feasibility(const decision_vector &x) const{
 	return 	std::unique(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end()) == m_tmpDecisionVector.end();
 
 }
- 
 
 /// Clone method.
 base_ptr tsp::clone() const
