@@ -15,7 +15,8 @@ class analysis:
         """
         Constructor of the analysis class from a problem or population object. Also calls
         analysis.sample when npoints>0 or by default when a population object is input.\n
-        USAGE: analysis(input_object=prob [, npoints=1000, method='sobol', first=1])\n
+        USAGE:
+        analysis(input_object=prob [, npoints=1000, method='sobol', first=1])\n
         *input_object: problem or population object used to initialise the analysis.
         *npoints: number of points of the search space to sample. If a population is input,
         a random subset of its individuals of size npoints will be sampled. Option 'all' will
@@ -39,16 +40,19 @@ class analysis:
         self.npoints=0
         self.points=[]
         self.f=[]
+        self.f_offset=[]
+        self.f_span=[]
         self.grad_npoints=0
         self.grad_points=[]
         self.grad=[]
         self.c=[]
+        self.c_span=[]
         self.local_nclusters=0
         self.local_initial_npoints=0
         self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = (0,0,0,0,0,0)
         self.fignum=1
         self.lin_conv_npairs=0
-        self.c_lin_conv_npairs=0
+        self.c_lin_npairs=0
         self.dir=None
 
         if isinstance(input_object,population):
@@ -82,7 +86,7 @@ class analysis:
             print ("                                   ANALYSIS                                    ",file=output)
             print ("===============================================================================",file=output)
             print ("-------------------------------------------------------------------------------",file=output)
-            print ("PROBLEM PROPERTIES :",file=output)
+            print ("PROBLEM PROPERTIES",file=output)
             print ("-------------------------------------------------------------------------------",file=output)
             print (self.prob,file=output)
             if self.npoints>0:
@@ -91,7 +95,7 @@ class analysis:
             output.close()
 
     #BLOCKS
-    def f_distribution(self,percentile=[1,5,10,25],plot=True,round_to=3):
+    def f_distribution(self,percentile=[5,10,25,50,75],plot1=True,plot2=True,round_to=3):
         """
         This function gives the user information about the f-distribution of their search-space
         sample. All properties are shown per objective. Distribution properties are computed on
@@ -99,10 +103,12 @@ class analysis:
         USAGE:
         analysis.f_distribution([percentile=[0,25,50,75,100],show_plot=True,save_plot=False,scale=True,round_to=4])
         *percentile: percentiles to show. Number or iterable. Defaults to [].
-        *show_plot: if True, the f-distribution plot will be generated and shown on screen or
-        saved. Defaults to True.
-        *round_to: precision of the results printed to screen. Defaults to 3.\n
-        Prints to screen:
+        *plot1: if True, the f-distribution plot will be generated and shown on screen or saved.
+        *plot2: if True, the x-PCP plot will be generated and shown on screen or saved, using as
+        interval limits the same percentiles demanded via argument percentile.
+        Defaults to True.
+        *round_to: precision of the results printed. Defaults to 3.\n
+        Prints to screen or file:
         *Fitness magnitude: minimum, maximum and peak-to-peak absolute values per objective.
         *Fitness distribution parameters (computed on scaled dataset):
             *Mean
@@ -139,7 +145,8 @@ class analysis:
             print ("     Percentiles :",file=output)
         if isinstance(percentile,(int,float)):
             percentile=[percentile]
-        for (j,k) in zip(percentile,self._percentile(percentile)):
+        percentile_values=self._percentile(percentile)
+        for (j,k) in zip(percentile,percentile_values):
             if j<10:
                 print ("          ",j,":                          ",[round(i,round_to) for i in k],file=output)
             elif j==100:
@@ -151,24 +158,26 @@ class analysis:
         print ("Number of peaks of f-distribution :     ",self._n_peaks_f(),file=output)
         if output!=None:
             output.close()
-        if plot:
+        if plot1:
             self.plot_f_distr()
+        if plot2 and percentile!=[]:
+            self.plot_x_pcp(percentile,percentile_values)
 
     def f_linearity_convexity(self,n_pairs=0,tolerance=10**(-10),round_to=3):
         """
         This function gives the user information about the linearity and convexity of the fitness
         function(s). See analysis._p_lin_conv for a more thorough description of these tests. All
         properties are shown per objective.\n
-        NOTE: integer variables values are fixed during each of the tests and linearity or convexity
+        NOTE: integer variable values are fixed during each of the tests and linearity or convexity
         is evaluated as regards the continuous part of the chromosome.\n
         USAGE:
-        analysis.f_linearity_convexity([n_pairs=1000,tolerance=10**(-8),scale=True,round_to=4])
+        analysis.f_linearity_convexity([n_pairs=1000,tolerance=10**(-8),round_to=4])
         *n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
         of points as points there are in the sample. Defaults to 0.
-        *threshold: tolerance considered to rate the function as linear or convex between two points.
+        *tolerance: tolerance considered to rate the function as linear or convex between two points.
         Defaults to 10**(-10).
-        *round_to: precision of the results printed to screen. Defaults to 3.\n
-        Prints to screen:
+        *round_to: precision of the results printed. Defaults to 3.\n
+        Prints to screen or file:
         *Number of pairs of points used in test
         *Probability of linearity [0,1].
         *Probability of convexity [0,1].
@@ -190,12 +199,59 @@ class analysis:
         if output!=None:
             output.close()
 
-    def c_linearity(self,n_pairs=0,tolerance=10**(-10),round_to=3):
-        pass
+    def test_constraints(self,n_pairs=0,tolerance=10**(-10),round_to=3):
+        """
+        This function gives the user information about the constraints of the problem.\n
+        USAGE:
+        analysis.test_constraints([n_pairs=1000,tolerance=10**(-8),round_to=4])
+        *n_pairs: number of pairs of points used to test probability of linearity. If set to 0,
+        it will use as many pairs of points as points there are in the sample. Defaults to 0.
+        *tolerance: tolerance considered to rate the constraint as linear between two points.
+        Defaults to 10**(-10)
+        *round_to: precision of the results printed. Defaults to 3.\n
+        Prints to screen or file, for each of the constraints:
+        *Constraint number.
+        *Type of constraint: [==] or [<=]
+        *Effectiveness ([<=] constraints): fraction of the sample that violates the constraint
+        considered [0,1].
+        *Feasibility ([==] constraints): prints [NO] if all points in the sample present
+        violation in the same sense (positive or negative), and [YES] if both positive and
+        negative violation exist, or if there is a point with zero violation in the sample.
+        *Probability of linearity [0,1]. See analysis._c_lin for more information on this test.\n
+        NOTE: integer variable values are fixed during the linearity test and linearity is
+        evaluated as regards the continuous part of the chromosome.
+        """
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+        print ("-------------------------------------------------------------------------------",file=output)
+        print ("CONSTRAINTS",file=output)
+        print ("-------------------------------------------------------------------------------",file=output)
+        if self.c_dim==0:
+            print ("This is an unconstrained problem.")
+        else:
+            word=['[NO]','[YES]']
+            ef=self._ec_feasibility()+self._ic_effectiveness()
+            lin=self._c_lin(n_pairs,tolerance)
+            print ("Pairs of points used (linearity test) : ",[self.c_lin_npairs],file=output)
+            for c in range(self.c_dim-self.ic_dim):
+                print ("Constraint n. "+str(c+1)+" :",file=output)
+                print ("     Type :                             ","[==]",file=output)
+                print ("     Feasible :                         ",word[int(ef[c])],file=output)
+                print ("     Probability of linearity :         ",[lin[c]],file=output)
+            for c in range(self.c_dim-self.ic_dim,self.c_dim):
+                print ("Constraint n. "+str(c+1)+" :",file=output)
+                print ("     Type :                             ","[<=]",file=output)
+                print ("     Effectiveness :                    ",[round(ef[c],round_to)],file=output)
+                print ("     Probability of linearity :         ",[round(lin[c],round_to)],file=output)
 
+
+    #SAMPLING
     def sample(self, npoints, method='sobol', first=1):
         """
-        Routine used to sample the search space.\n
+        Routine used to sample the search space. Will sample in x, f and c and scale the datasets.\n
         USAGE: analysis.sample(npoints=1000 [, method='sobol',first=1])\n
         *npoints: number of points of the search space to sample.
         *method: method used to sample the normalized search space. Options are:
@@ -301,7 +357,9 @@ class analysis:
             if self.f_span[i]==0:
                 raise ValueError(
                     "analysis.sample: your fitness function number "+str(i+1)+" appears to be constant. Please remove it.")
+        self._compute_constraints()
         self._scale_sample()
+
 
         if self.dir!=None:
             output=open(self.dir+'/log.txt','r+')
@@ -312,7 +370,8 @@ class analysis:
 
     def _scale_sample(self):
         """
-        Scales the sample in x and f after sampling, so all values are [0,1].
+        Scales the sample in x and f after sampling, so all values are [0,1]. If constraints
+        have been computed, it also scales c to [-k,1-k] for k in [0,1].
         """
         for i in range(self.npoints):
             for j in range(self.dim):
@@ -321,6 +380,8 @@ class analysis:
             for j in range(self.f_dim):
                 self.f[i][j]-=self.f_offset[j]
                 self.f[i][j]/=self.f_span[j]
+            for j in range(self.c_dim):
+                self.c[i][j]/=self.c_span[j]
 
 #f-DISTRIBUTION FEATURES
    
@@ -453,7 +514,7 @@ class analysis:
         """
         try:
             from scipy.stats import gaussian_kde
-            from matplotlib.pyplot import plot,draw,title,show,legend,axes
+            from matplotlib.pyplot import plot,draw,title,show,legend,axes,cla,clf
         except ImportError:
             raise ImportError(
                 "analysis.plot_f_distr needs scipy and matplotlib to run. Are they installed?")
@@ -474,13 +535,92 @@ class analysis:
         f=ax.get_figure()
         if self.dir==None:
             show(f)
+            cla()
+            clf()
         else:
             f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
             print ('*F-distribution plot : <figure_'+str(self.fignum)+'.png>',file=output)
-            self.fignum+=100
+            self.fignum+=1
+            cla()
+            clf()
 
+    def plot_x_pcp(self,percentile=[],percentile_values=[]):
+        """
+        Routine that creates parallel coordinate plots of the chromosome of all
+        points in the sample classified in ranges defined by the list of percentiles
+        input. A plot per objective will be generated.\n
+        USAGE: analysis.plot_x_pcp(percentile=[5,10,25,50,75] [,percentile_values=[0.06,0.08,0.3,0.52,0.8]])
+        *percentile: the percentile or list of percentiles that will serve as limits
+        to the intervals in which the f-values are classified.
+        *percentile_values: the f-values corresponding to the aforementioned percentiles.
+        This argument is added for reusability, if set to [], they will be calculated.
+        Defaults to [].\n
+        NOTE: the plot will be shown on screen or saved to file depending on the
+        option that was selected when instantiating the analysis class.\n
+        """
+        try:
+            from pandas.tools.plotting import parallel_coordinates as pc
+            from pandas import DataFrame as df
+            from matplotlib.pyplot import show,title,grid,ylabel,xlabel,legend,cla,clf
+            from numpy import asarray,transpose
+        except ImportError:
+            raise ImportError(
+                "analysis.plot_x_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
+        if isinstance(percentile,(int,float)):
+            percentile=[percentile]
+        if len(percentile)==0:
+            raise ValueError(
+                "analysis.plot_x_pcp: introduce at least one percentile to group data")
+        else:
+            if isinstance(percentile_values,(int,float)):
+                percentile_values=[percentile_values]
+            if len(percentile_values)==0 or len(percentile_values)!=len(percentile):
+                percentile_values=self._percentile(percentile)
+            percentile=sorted(percentile)
+            percentile_values=sorted(percentile_values)
+            while percentile[0]<=0:
+                percentile=percentile[1:]
+                percentile_values=percentile_values[1:]
+            while percentile[-1]>=100:
+                percentile=percentile[:-1]
+                percentile_values=percentile_values[:-1]
+            labels=[str(a)+"-"+str(b) for a,b in zip([0]+percentile,percentile+[100])]
+            for obj in range(self.f_dim):
+                dataset=[]
+                for i in range(self.npoints):
+                    dataset.append([])
+                    if self.f[i][obj]>=percentile_values[-1][obj]:
+                        dataset[i].append(labels[-1])
+                    else:
+                        for j in range(len(percentile)):
+                            if self.f[i][obj]<percentile_values[j][obj]:
+                                dataset[i].append(labels[j])
+                                break
+                    dataset[i].extend(self.points[i])
+
+                dataset=df(sorted(dataset,key=lambda row: float(row[0].split('-')[0])))
+                #dataset=df(dataset)
+                title('X-PCP : objective '+str(obj+1)+'\n')
+                grid(True)
+                xlabel('Dimension')
+                ylabel('Chromosome (scaled)')
+                plot=0
+                plot=pc(dataset,0)
+                f=plot.get_figure()
+                if self.dir==None:
+                    show(f)
+                    cla()
+                    clf()
+                else:
+                    f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
+                    output=open(self.dir+'/log.txt','r+')
+                    output.seek(0,2)
+                    print ('*X-PCP plot obj.'+str(obj+1)+' :    <figure_'+str(self.fignum)+'.png>',file=output)
+                    self.fignum+=1
+                    cla()
+                    clf()
 
     def _n_peaks_f(self,nf=0):
         """
@@ -557,8 +697,8 @@ class analysis:
         *threshold: tolerance considered to rate the function as linear or convex between two points.
         Defaults to 10**(-10).\n
         Returns a tuple of length 3 containing:
-        *p_lin[fitness dimension]: probability of convexity [0,1].
-        *p_conv[fitness dimension]: probability of linearity [0,1].
+        *p_lin[fitness dimension]: probability of linearity [0,1].
+        *p_conv[fitness dimension]: probability of convexity [0,1].
         *mean_dev[fitness dimension]: mean deviation from linearity as defined above (scaled with
         corresponding fitness scaling factor).
         """
@@ -707,7 +847,7 @@ class analysis:
         r2=list(ssr/sst)
         return (w,r2)
 
-    def _poly_reg(self,regression_degree=2):
+    def _poly_reg(self,regression_degree=2):    
         """
         Performs a polynomial regression on the sampled dataset, per objective.\n
         USAGE: analysis._poly_reg([regression_degree=2])
@@ -1960,29 +2100,31 @@ class analysis:
 
 #CONSTRAINTS
     def _c_lin(self,n_pairs=0,threshold=10**(-10)):
-        # """
-        # Tests the probability of linearity and convexity and the mean deviation from linearity of
-        # the f-distributions obtained. A pair of points (X1,F1),(X2,F2) from the sample is selected
-        # per test and a random convex combination of them is taken (Xconv,Fconv). For each objective,
-        # if F(Xconv)=Fconv within tolerance, the function is considered linear there. Otherwise, if
-        # F(Xconv)<Fconv, the function is considered convex. |F(Xconv)-Fconv| is the linear deviation.
-        # The average of all tests performed gives the overall result.\n
-        # NOTE: integer variables values are fixed during each of the tests and linearity or convexity
-        # is evaluated as regards the continuous part of the chromosome.\n
-        # USAGE: analysis._p_lin_conv([n_pairs=100,threshold=10**(-10)])
-        # *n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
-        # of points as points there are in the sample. Defaults to 0.
-        # *threshold: tolerance considered to rate the function as linear or convex between two points.
-        # Defaults to 10**(-10).\n
-        # Returns a tuple of length 3 containing:
-        # *p_lin[fitness dimension]: probability of convexity [0,1].
-        # *p_conv[fitness dimension]: probability of linearity [0,1].
-        # *mean_dev[fitness dimension]: mean deviation from linearity as defined above.
-
-        # """
-        if self.npoints==0 or len(self.c)==0:
+        """
+        Tests the probability of linearity  of the constraint violation distributions obtained. A
+        pair of points (X1,C1),(X2,C2) from the sample is selected per test and a random convex
+        combination of them is taken (Xconv,Fconv). For each constraint, if C(Xconv)=Cconv within
+        tolerance, the constraint is considered linear there. The average of all tests performed
+        gives the overall result.\n
+        NOTE: integer variable values are fixed during each of the tests and linearity
+        is evaluated as regards the continuous part of the chromosome.\n
+        USAGE: analysis._c_lin([n_pairs=100,threshold=10**(-10)])
+        *n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
+        of points as points there are in the sample. Defaults to 0.
+        *threshold: tolerance considered to rate the constraint as linear between two points.
+        Defaults to 10**(-10).\n
+        Returns:
+        *p_lin[fitness dimension]: probability of linearity [0,1].
+        """
+        if self.npoints==0:
             raise ValueError(
-                "analysis._c_lin: sampling and computing constraints first is necessary")
+                "analysis._c_lin: sampling first is necessary")
+        if self.c_dim==0:
+            raise ValueError(
+                "analysis._c_lin: this test makes no sense for unconstrained optimisation")
+        if len(self.c)==0:
+            raise ValueError(
+                "analysis._c_lin: computing constraints first is necessary")
         if self.cont_dim==0:
             raise ValueError(
                 "analysis._c_lin: this test makes no sense for purely integer problems")
@@ -1990,14 +2132,14 @@ class analysis:
             n_pairs=self.npoints
         try:
             from numpy.random import random,randint
-            from numpy import array, multiply,zeros
+            from numpy import array, multiply,zeros,divide
         except ImportError:
             raise ImportError(
                 "analysis._c_lin needs numpy to run. Is it installed?")
 
         p_lin=zeros(self.c_dim)
         # p_conv=np.zeros(self.c_dim)
-        mean_dev=zeros(self.c_dim)
+        #mean_dev=zeros(self.c_dim)
         for i in range(n_pairs):
             i1=randint(self.npoints)
             i2=randint(self.npoints)
@@ -2007,15 +2149,18 @@ class analysis:
             x=r*array(self.points[i1])+(1-r)*array(self.points[i2])
 
             if self.cont_dim!=self.dim:
-                pass
+                x[self.cont_dim:]=self.points[i1][self.cont_dim:]
+                x=multiply(array(x),array(self.ub)-array(self.lb))+array(self.lb)
+                x2=multiply(array(self.points[i2][:self.cont_dim]+self.points[i1][self.cont_dim:]),array(self.ub)-array(self.lb))+array(self.lb)
+                c2=divide(self.prob.compute_constraints(x2),self.c_span)
+                c_lin=r*array(self.c[i1])+(1-r)*array(c2)
             else:
+                x=multiply(array(x),array(self.ub)-array(self.lb))+array(self.lb)  
                 c_lin=r*array(self.c[i1])+(1-r)*array(self.c[i2])
 
-            x=multiply(array(x),array(self.ub)-array(self.lb))+array(self.lb)  
-            c_real=array(self.prob.compute_constraints(x))
-
+            c_real=divide(self.prob.compute_constraints(x),self.c_span)
+            #c_real=self.prob.compute_constraints(x)
             delta=c_lin-c_real
-
             #mean_dev+=abs(delta)
 
             for j in range(self.c_dim):
@@ -2025,28 +2170,37 @@ class analysis:
                 #     p_conv[j]+=1
         p_lin/=n_pairs
         # p_conv/=n_pairs
-        mean_dev/=n_pairs
+        #mean_dev/=n_pairs
         self.c_lin_npairs=n_pairs
         return (list(p_lin)
             #,list(p_conv),
             #list(mean_dev)
             )
 
-    def _compute_constraints(self):
+    def _compute_constraints(self):#NEVER CALL AFTER SCALING!!! (sample calls it default)
         if self.npoints==0:
             raise ValueError(
                 "analysis._compute_constraints: sampling first is necessary")
         try:
             from numpy.random import random,randint
-            from numpy import array, multiply
+            from numpy import array, multiply, ptp,amax,amin
         except ImportError:
             raise ImportError(
                 "analysis._compute_constraints needs numpy to run. Is it installed?")
         self.c=[]
+        self.c_span=[]
         if self.c_dim!=0:
             for i in range(self.npoints):
-                x=multiply(array(self.points[i]),array(self.ub)-array(self.lb))+array(self.lb)
-                self.c.append(list(self.prob.compute_constraints(x)))
+                #x=multiply(array(self.points[i]),array(self.ub)-array(self.lb))+array(self.lb)
+                #self.c.append(list(self.prob.compute_constraints(x)))
+                self.c.append(list(self.prob.compute_constraints(self.points[i])))
+
+            temp0=ptp(self.c,0).tolist()
+            temp1=amax(self.c,0).tolist()
+            temp2=abs(amin(self.c,0)).tolist()
+            self.c_span=[max(j,k,l) for j,k,l in zip(temp0,temp1,temp2)]
+
+
 
     def _ic_effectiveness(self):
         if self.npoints==0:
@@ -2064,7 +2218,7 @@ class analysis:
                 for j in range(-self.ic_dim,0):
                     if self.c[i][j]>=0:
                         ic_ef[j]+=dp
-            return ic_ef
+        return ic_ef
 
     def _ec_feasibility(self):
         if self.npoints==0:
@@ -2080,7 +2234,7 @@ class analysis:
                 for j in range(self.npoints):
                     if self.c[j][i]==0 or (self.c[j][i]>0 and self.c[0][i]<0) or (self.c[0][i]>0 and self.c[j][i]<0):
                         ec_f[i]=True
-            return ec_f
+        return ec_f
 
     #PRESENTATION OF RESULTS
 

@@ -2,17 +2,17 @@
                                    ANALYSIS                                    
 ===============================================================================
 -------------------------------------------------------------------------------
-PROBLEM PROPERTIES :
+PROBLEM PROPERTIES
 -------------------------------------------------------------------------------
-Problem name: De Jong
-	Global dimension:			10
+Problem name: CEC2006 - g5
+	Global dimension:			4
 	Integer dimension:			0
 	Fitness dimension:			1
-	Constraints dimension:			0
-	Inequality constraints dimension:	0
-	Lower bounds: [-5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001]
-	Upper bounds: [5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001]
-	Constraints tolerance: []
+	Constraints dimension:			5
+	Inequality constraints dimension:	2
+	Lower bounds: [0, 0, -0.55000000000000004, -0.55000000000000004]
+	Upper bounds: [1200, 1200, 0.55000000000000004, 0.55000000000000004]
+	Constraints tolerance: [0.0001, 0.0001, 0.0001, 0, 0]
 
 -------------------------------------------------------------------------------
 SAMPLED [1000] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
@@ -20,25 +20,51 @@ SAMPLED [1000] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
 F-DISTRIBUTION FEATURES 
 --------------------------------------------------------------------------------
 Fitness magnitude :
-     Min :                               [0.0]
-     Max :                               [179.823]
-     Peak-to-peak (scale factor) :       [179.823]
+     Min :                               [179.447]
+     Max :                               [8766.151]
+     Peak-to-peak (scale factor) :       [8586.704]
 Fitness distribution :
-     Mean :                              [87.186]
-     Standard deviation :                [24.191]
+     Mean :                              [0.412]
+     Standard deviation :                [0.21]
      Percentiles :
-           1 :                           [36.128]
-           5 :                           [48.545]
-           10 :                          [55.895]
-           25 :                          [69.888]
-     Skew :                              [0.097]
-     Kurtosis :                          [-0.031]
+           5 :                           [0.091]
+           10 :                          [0.14]
+           25 :                          [0.246]
+           50 :                          [0.4]
+           75 :                          [0.563]
+     Skew :                              [0.268]
+     Kurtosis :                          [-0.594]
 Number of peaks of f-distribution :      [1]
 *F-distribution plot : <figure_1.png>
+*X-PCP plot obj.1 :    <figure_2.png>
 -------------------------------------------------------------------------------
 PROBABILITY OF LINEARITY AND CONVEXITY
 -------------------------------------------------------------------------------
 Number of pairs of points used :         [1000]
 Probability of linearity :               [0.0]
 Probability of convexity :               [1.0]
-Mean deviation from linearity :          [50.755]
+Mean deviation from linearity :          [0.014]
+-------------------------------------------------------------------------------
+CONSTRAINTS
+-------------------------------------------------------------------------------
+Pairs of points used (linearity test) :  [1000]
+Constraint n. 1 :
+     Type :                              [==]
+     Feasible :                          [YES]
+     Probability of linearity :          [0.0]
+Constraint n. 2 :
+     Type :                              [==]
+     Feasible :                          [YES]
+     Probability of linearity :          [0.0]
+Constraint n. 3 :
+     Type :                              [==]
+     Feasible :                          [YES]
+     Probability of linearity :          [0.0]
+Constraint n. 4 :
+     Type :                              [<=]
+     Effectiveness :                     [0.125]
+     Probability of linearity :          [1.0]
+Constraint n. 5 :
+     Type :                              [<=]
+     Effectiveness :                     [0.129]
+     Probability of linearity :          [1.0]
