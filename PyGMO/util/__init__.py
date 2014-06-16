@@ -2,6 +2,7 @@
 from PyGMO.util._util import *
 from PyGMO.util._util.hv_algorithm import hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy, fpl
 from PyGMO.core._core import population
+from PyGMO.util._analysis import *
 
 __all__ = ['hypervolume', 'hv_algorithm']
 

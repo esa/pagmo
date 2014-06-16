@@ -250,9 +250,7 @@ class analysis:
                 print ("     Probability of linearity :         ",[round(lin[c],round_to)],file=output)
 
     def meta_model(self,):
-        print "--------------------------------------------------------------------------------\n"
-        print "META-MODEL FEATURES \n"
-        print "--------------------------------------------------------------------------------\n"
+        pass
 
 
 
