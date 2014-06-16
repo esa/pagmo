@@ -43,7 +43,7 @@ PROBABILITY OF LINEARITY AND CONVEXITY
 Number of pairs of points used :         [1000]
 Probability of linearity :               [0.0]
 Probability of convexity :               [1.0]
-Mean deviation from linearity :          [0.014]
+Mean deviation from linearity :          [0.015]
 -------------------------------------------------------------------------------
 CONSTRAINTS
 -------------------------------------------------------------------------------
