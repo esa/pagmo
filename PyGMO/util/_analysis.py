@@ -1,5 +1,6 @@
 from __future__ import print_function
 from PyGMO import *
+import PyGMO
 
 
 class analysis:
@@ -28,6 +29,7 @@ class analysis:
                 * 'halton': sampling based on halton low-discrepancy sequence. Dim <10.
                 * 'lhs': latin hypersquare sampling.
                 * 'montecarlo': Monte Carlo (random) sampling.
+
         * first: used only when sampling with 'sobol', 'faure' or 'halton'. Index of the first element
         of the sequence that will be included in the sample. Defaults to 1. Set to >1 to skip. If set
         to 0 with 'sobol' method, point (0,0,...,0) will also be sampled.
@@ -212,7 +214,6 @@ class analysis:
         *round_to: precision of the results printed. Defaults to 3.\n
         Prints to screen or file, for each of the constraints:
         *Constraint number.
-        *Type of constraint: [==] or [<=]
         *Effectiveness ([<=] constraints): fraction of the sample that violates the constraint
         considered [0,1].
         *Feasibility ([==] constraints): prints [NO] if all points in the sample present
@@ -231,7 +232,7 @@ class analysis:
         print ("CONSTRAINTS",file=output)
         print ("-------------------------------------------------------------------------------",file=output)
         if self.c_dim==0:
-            print ("This is an unconstrained problem.")
+            print ("This is an unconstrained problem.",file=output)
         else:
             word=['[NO]','[YES]']
             ef=self._ec_feasibility()+self._ic_effectiveness()
@@ -248,11 +249,197 @@ class analysis:
                 print ("     Effectiveness :                    ",[round(ef[c],round_to)],file=output)
                 print ("     Probability of linearity :         ",[round(lin[c],round_to)],file=output)
 
-    def meta_model(self,):
-        pass
+    def f_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
 
+        if isinstance(degree,int):
+            degree=[degree]
+        if len(degree)>0:
+            if isinstance(interaction,bool):
+                interaction=[interaction]*len(degree)
+            if isinstance(pred,bool):
+                pred=[pred]*len(degree)
+            if len(degree)!=len(interaction) or len(degree)!=len(pred):
+                raise ValueError(
+                        "analysis.f_regression: format of arguments is incorrect")
 
+            print ("-------------------------------------------------------------------------------",file=output)
+            print ("F-REGRESSION",file=output)
+            print ("-------------------------------------------------------------------------------",file=output)
+            properties=[]
+            for deg,inter,predi in zip(degree,interaction,pred):
+                properties.append(self._regression_properties(degree=deg,interaction=interaction,mode='f',pred=predi,tolerance=tol,w=None))
+            for f in range(self.f_dim):
+                print ("OBJECTIVE "+str(f+1)+" :",file=output)
+                spaces=[7,17,9,9,11,9,11]
+                print ("DEGREE".center(spaces[0]),"F*".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
+                for deg,inter,prop in zip(degree,interaction,properties):
+                    if inter:
+                        print((str(deg)+'(i)').center(spaces[0]),end=' ',file=output)
+                    else:
+                        print(str(deg).center(spaces[0]),end=' ',file=output)
+                    for i,s in zip(prop[f],spaces[1:]):
+                        if i==None:
+                            print("X".center(s),end=' ',file=output)
+                        else:
+                            string=str(i).split('e')
+                            if len(string)>1:
+                                print((str(round(float(string[0]),round_to))+'e'+string[1]).center(s),end=' ',file=output)
+                            else:
+                                print(str(round(i,round_to)).center(s),end=' ',file=output)
+                    print(file=output)
 
+    def c_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+
+        if isinstance(degree,int):
+            degree=[degree]
+        if len(degree)>0:
+            if isinstance(interaction,bool):
+                interaction=[interaction]*len(degree)
+            if isinstance(pred,bool):
+                pred=[pred]*len(degree)
+            if len(degree)!=len(interaction) or len(degree)!=len(pred):
+                raise ValueError(
+                        "analysis.c_regression: format of arguments is incorrect")
+
+            print ("-------------------------------------------------------------------------------",file=output)
+            print ("C-REGRESSION",file=output)
+            print ("-------------------------------------------------------------------------------",file=output)
+            if self.c_dim==0:
+                print ("This is an unconstrained problem.",file=output)
+            else:
+                properties=[]
+                for deg,inter,predi in zip(degree,interaction,pred):
+                    properties.append(self._regression_properties(degree=deg,interaction=interaction,mode='c',pred=predi,tolerance=tol,w=None))
+                for c in range(self.c_dim):
+                    if c<self.c_dim-self.ic_dim:
+                        print ("CONSTRAINT h_"+str(c+1)+" :",file=output)
+                    else:
+                        print ("CONSTRAINT g_"+str(c-self.c_dim+self.ic_dim+1)+" :",file=output)
+                    spaces=[7,17,9,9,11,9,11]
+                    print ("DEGREE".center(spaces[0]),"F*".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
+                    for deg,inter,prop in zip(degree,interaction,properties):
+                        if inter:
+                            print((str(deg)+'(i)').center(spaces[0]),end=' ',file=output)
+                        else:
+                            print(str(deg).center(spaces[0]),end=' ',file=output)
+                        for i,s in zip(prop[c],spaces[1:]):
+                            if i==None:
+                                print("X".center(s),end=' ',file=output)
+                            else:
+                                string=str(i).split('e')
+                                if len(string)>1:
+                                    print((str(round(float(string[0]),round_to))+'e'+string[1]).center(s),end=' ',file=output)
+                                else:
+                                    print(str(round(i,round_to)).center(s),end=' ',file=output)
+                        print(file=output)
+
+    def c_feasibility(self,tol=10**(-8),round_to=3):
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+        print ("-------------------------------------------------------------------------------",file=output)
+        print ("C-FEASIBILITY",file=output)
+        print ("-------------------------------------------------------------------------------",file=output)
+        if self.c_dim==0:
+            print ("This is an unconstrained problem.",file=output)
+        else:
+            results=self._c_effectiveness(tol)
+            for c in range(self.c_dim-self.ic_dim):
+                print ("Constraint h_"+str(c+1)+" :",file=output)
+                print ("     Effectiveness >=0 :                ",[round(1-results[c][0]+results[c][1],round_to)],file=output)
+                print ("     Effectiveness <=0 :                ",[round(results[c][0],round_to)],file=output)
+                print ("     Number of feasible points found :  ",[int(results[c][1]*self.npoints)],file=output)
+            for c in range(-self.ic_dim,0):
+                print ("Constraint g_"+str(c+self.ic_dim+1)+" : ",file=output)
+                print ("     Effectiveness >0 :                 ",[round(1-results[c][0],round_to)],file=output)
+                print ("     Number of feasible points found :  ",[int(results[c][0]*self.npoints)],file=output)  
+
+    def c_linearity(self,npairs=0,tol=10**(-10),round_to=3):
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+        print ("-------------------------------------------------------------------------------",file=output)
+        print ("C-LINEARITY",file=output)
+        print ("-------------------------------------------------------------------------------",file=output)
+        if self.c_dim==0:
+            print ("This is an unconstrained problem.",file=output)
+        else:
+            results=self._c_lin(npairs,tol)
+            print(" "*5,"CONSTRAINT".center(25),"PROBABILITY OF LINEARITY".center(25),file=output)
+            for c in range(self.c_dim-self.ic_dim):
+                print (" "*5,("h_"+str(c+1)).center(25),str([round(results[c],round_to)]).center(25),file=output)
+            for c in range(-self.ic_dim,0):
+                print (" "*5,("g_"+str(self.c_dim-self.ic_dim+c)).center(25),str([round(results[c],round_to)]).center(25),file=output)
+
+    def f_correlation(self,round_to=3):
+        from numpy import asarray,ones
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+        if self.f_dim==1:
+            print ("This is a single-objective problem.",file=output)
+        else:
+            print ("--------------------------------------------------------------------------------",file=output)
+            print ("OBJECTIVE CORRELATION ",file=output)
+            print ("--------------------------------------------------------------------------------",file=output)
+            obj_corr=self._f_correlation()
+            critical_obj=self._perform_f_pca(obj_corr)
+            print ("Critical objectives from first PCA :    ",[int(i+1) for i in critical_obj],file=output)
+
+            print ("Eigenvalues".center(12),"Relative contribution".center(23),"Eigenvectors".center(45),file=output)
+            total_ev=sum(obj_corr[1])
+            for i in range(self.f_dim):
+                print (str(round(obj_corr[1][i],round_to)).center(12),(str(round(100*obj_corr[1][i],round_to))+'%').center(23),str([round(val,round_to) for val in obj_corr[2][i]]).center(45),file=output)
+            print ("Objective correlation matrix :          ",file=output)
+            for i in range(self.f_dim):
+                print ("     [",end='',file=output)
+                for j in obj_corr[0][i]:
+                    print(str(round(j,round_to)).center(8),end='',file=output)
+                print("]",file=output)
+
+    def multimodality(self,cluster=True,clusters_to_show=10, sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],variance_ratio=0.95,k=0,round_to=3):
+            from numpy import percentile        
+            if self.dir==None:
+                output=None
+            else:
+                output=open(self.dir+'/log.txt','r+')
+                output.seek(0,2)
+            string='LOCAL SEARCH'
+            print ("--------------------------------------------------------------------------------",file=output)
+            print ("MULTI-MODALITY : "+string,file=output)
+            print ("--------------------------------------------------------------------------------",file=output)
+            self._get_local_extrema(sample_size,algo,decomposition_method,weights,z)
+            if cluster:
+                self._cluster_local_extrema(variance_ratio,k)
+            print ("Local searches performed :              ",self.local_initial_npoints,file=output)
+            print ("Quartiles of CPU time per search [ms]:  ",round(percentile(self.local_search_time,0),round_to),"/",round(percentile(self.local_search_time,25),round_to),"/",round(percentile(self.local_search_time,50),round_to),"/",round(percentile(self.local_search_time,75),round_to),"/",round(percentile(self.local_search_time,100),round_to),file=output)
+            if cluster:
+                print ("Number of clusters identified :         ",self.local_nclusters,file=output)
+                print ("Cluster properties (max. best "+str(clusters_to_show)+" clusters) :",file=output)
+                for i in range(min((self.local_nclusters,clusters_to_show))):
+                    print ("     Cluster n.:                        ",i+1)
+                    print ("         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"%",file=output)
+                    print ("         Mean objective value :         ",round(self.local_cluster_f_centers[i],round_to),file=output)
+                    print ("         Cluster center :               ",[round(x,round_to) for x in self.local_cluster_x_centers[i]],file=output)
+                    print ("         Cluster diameter in F :        ",round(self.local_cluster_df[i],round_to),file=output)
+                    print ("         Cluster radius in X :          ",round(self.local_cluster_rx[i],round_to),file=output)
+                    print ("         Radius of attraction :         ",round(self.local_cluster_rx0[i],round_to),file=output)
 
     #SAMPLING
     def sample(self, npoints, method='sobol', first=1):
@@ -871,15 +1058,15 @@ class analysis:
         """
         if self.npoints==0:
             raise ValueError(
-                "analysis._lin_reg_corr: sampling first is necessary")
+                "analysis._poly_reg: sampling first is necessary")
         if regression_degree<2:
             raise ValueError(
-                "analysis._lin_reg_corr: regression_degree needs to be >=2")
+                "analysis._poly_reg: regression_degree needs to be >=2")
         try:
             import numpy as np
         except ImportError:
             raise ImportError(
-                "analysis._lin_reg_corr needs numpy to run. Is it installed?")
+                "analysis._poly_reg needs numpy to run. Is it installed?")
         from numpy import array
         from numpy.linalg import lstsq
         from itertools import combinations_with_replacement
@@ -912,6 +1099,158 @@ class analysis:
                 ssr[i]+=(np.dot(temp,A[j])-m[i])**2
         r2=list(ssr/sst)
         return (w,r2)
+
+    def _regression_coefficients(self,degree,interaction=False,mode='f',A=None):    
+        """
+        Performs a polynomial regression on the sampled dataset.\n
+        USAGE: analysis._regression_coefficients(degree=2 [, interaction=True, mode='f'])
+        *regression_degree: degree of polynomial regression.
+        *interaction: if True, interaction products of first order will be added. These
+        are all terms of order regression_degree+1 that involve at least 2 variables.
+        Defaults to false.
+        *mode: 'f' to perform the regression on the fitness values dataset, 'c' to
+        do it on the constraint violation dataset.\n
+        Returns:
+        *w[fitness/constraint dimension][number of coefficients]: coefficients of the
+        regression model, ordered as follows: highest order first, lexicographical.
+        """
+        if self.npoints==0:
+            raise ValueError(
+                "analysis._regression_coefficients: sampling first is necessary")
+        if degree<1 or degree>10:
+            raise ValueError(
+                "analysis._regression_coefficients: regression_degree needs to be [1,10]")
+        if mode=='c':
+            if self.c_dim==0:
+                raise ValueError(
+                    "analysis._regression_coefficients: selected mode 'c' for unconstrained problem")
+            elif self.c==[]:
+                raise ValueError(
+                    "analysis._regression_coefficients: computing constraints first is necessary")
+        else:
+            if mode!='f':
+                raise ValueError(
+                    "analysis._regression_coefficients: mode needs to be 'f' or 'c' ") 
+        try:
+            from numpy.linalg import lstsq
+            from numpy import array
+        except ImportError:
+            raise ImportError(
+                "analysis._regression_coefficients needs numpy to run. Is it installed?")
+        if A==None:
+            A=self._build_polynomial(self.points,degree,interaction)
+        if mode=='f':
+            l=self.f_dim
+        else:
+            l=self.c_dim
+        w=[]
+        for i in range(l):
+            if mode=='f':
+                b=[self.f[j][i] for j in range(self.npoints)]
+            else:
+                b=[self.c[j][i] for j in range(self.npoints)]
+            b=array(b)
+            temp=lstsq(A,b)[0]
+            w.append(list(temp))
+        return w
+
+    def _regression_properties(self,degree,interaction=False,mode='f',pred=False,tolerance=10**(-8),w=None):
+        try:
+            from numpy import var,array,zeros
+        except ImportError:
+            raise ImportError(
+                "analysis._regression_properties needs numpy to run. Is it installed?")
+        if mode=='f':
+            y=self.f
+            y_dim=self.f_dim
+        elif mode=='c':
+            y=self.c
+            y_dim=self.c_dim
+        if w==None:
+            w=self._regression_coefficients(degree,interaction,mode)
+        sst=self.npoints*var(y,0)
+        sse=sum((array(self._regression_predict(w,self.points,degree,interaction))-array(y))**2,0)
+        output=[]
+        if pred:
+            press=self._regression_press(degree,interaction,mode)
+        for i in range(y_dim):
+            p=0
+            tmp=[]
+            for j in w[i][:-1]:
+                if j>tolerance:
+                    p+=1
+            tmp.append(((sst[i]-sse[i])/sse[i])*(self.npoints-p-1)/p)#F
+            tmp.append(1-sse[i]/sst[i])#R2
+            tmp.append(1-(1-tmp[1])*(self.npoints-1)/(self.npoints-p-1))#R2adj
+            tmp.append((sse[i]/(self.npoints-p-1))**0.5)#RMSE
+            if pred:
+                tmp.append(1-press[i]/sst[i])#R2pred
+                tmp.append((press[i]/(self.npoints-1))**0.5)#PRESS-RMSE
+            else:
+                tmp.extend([None,None])
+            output.append(tmp)
+        return output
+
+    def _regression_press(self,degree,interaction=False,mode='f'):
+        try:
+            from numpy import array,zeros
+        except ImportError:
+            raise ImportError(
+                "analysis._regression_press needs numpy to run. Is it installed?")
+        if mode=='f':
+            y_dim=self.f_dim
+            y=self.f
+        elif mode=='c':
+            y_dim=self.c_dim
+            y=self.c
+        press=zeros(y_dim)
+        A=self._build_polynomial(self.points,degree,interaction)
+        self.npoints-=1
+        for i in range(self.npoints+1):
+            x=self.points.pop(0)
+            a=A.pop(0)
+            yreal=y.pop(0)
+            w=self._regression_coefficients(degree,interaction,mode,A)
+            ypred=array(self._regression_predict(w,[x],degree,interaction))[0]
+            press=press+(ypred-yreal)**2
+            A.append(a)
+            self.points.append(x)
+            y.append(yreal)
+        self.npoints+=1
+        return press.tolist()
+
+    def _build_polynomial(self,x,degree,interaction=False):
+        from itertools import combinations_with_replacement
+        if interaction:
+            coef=list(combinations_with_replacement(range(self.dim),degree+1))
+            for i in range(self.dim):
+                coef.remove((i,)*(degree+1))
+        else:
+            coef=[]
+        for i in range(degree,1,-1):
+            coef=coef+list(combinations_with_replacement(range(self.dim),i))
+        n_coef=len(coef)
+
+        A=[]
+        for i in range(len(x)):
+            c=[]
+            for j in range(n_coef):
+                prod=1
+                for k in range(len(coef[j])):
+                    prod*=x[i][coef[j][k]]
+                c.append(prod)
+            A.append(c+x[i]+[1])
+        return A
+
+    def _regression_predict(self,coefficients,x,degree,interaction=False):
+        try:
+            from numpy import array,dot,transpose
+        except ImportError:
+            raise ImportError(
+                "analysis._regression_predict needs numpy to run. Is it installed?")
+        polynomial=array(self._build_polynomial(x,degree,interaction))
+        prediction=dot(polynomial,transpose(coefficients))
+        return prediction.tolist()
 
 #OBJECTIVE REDUNDANCY
     def _f_correlation(self):
@@ -970,8 +1309,8 @@ class analysis:
         if obj_corr==None:
             obj_corr=self._f_correlation()
         M=obj_corr[0]
-        eigenvals=obj_corr[1]
-        eigenvects=obj_corr[2]
+        eigenvals=asarray(obj_corr[1])
+        eigenvects=asarray(obj_corr[2])
         #eigenvalue elimination of redundant objectives
         contributions=(asarray(abs(eigenvals))/sum(abs(eigenvals))).tolist()
         l=len(eigenvals)
@@ -1534,7 +1873,7 @@ class analysis:
                 self.local_f.append(i.population.champion.f[0])
 
 
-    def _cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.0001,kmax=0):
+    def _cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.0000000001,kmax=0):
         """
         Clusters the results of a set of local searches and orders the clusters ascendently
         as regards fitness value of its centroid (after fitness decomposition in the case of
@@ -1659,6 +1998,7 @@ class analysis:
 
         #calculate cluster radius and center
         self.local_cluster_rx=[0 for i in range(self.local_nclusters)]
+        self.local_cluster_rx0=[0 for i in range(self.local_nclusters)]
         f=[[] for i in range(self.local_nclusters)]
         for i in range(self.local_initial_npoints):
             c=self.local_cluster[i]
@@ -1666,9 +2006,12 @@ class analysis:
                 f[c].append(0)
             else:
                 rx=np.linalg.norm(np.asarray(self.local_extrema[i])-np.asarray(self.local_cluster_x_centers[c]))
+                rx0=np.linalg.norm(np.asarray(self.points[self.local_initial_points[i]])-np.asarray(self.local_cluster_x_centers[c]))
                 f[c].append(self.local_f[i])
                 if rx>self.local_cluster_rx[c]:
                     self.local_cluster_rx[c]=rx
+                if rx0>self.local_cluster_rx0[c]:
+                    self.local_cluster_rx0[c]=rx0
         self.local_cluster_df=[np.ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
 
     def plot_local_cluster_pcp(self,together=True,save_fig=False):
@@ -2212,6 +2555,25 @@ class analysis:
             temp2=abs(amin(self.c,0)).tolist()
             self.c_span=[max(j,k,l) for j,k,l in zip(temp0,temp1,temp2)]
 
+    def _c_effectiveness(self,tol=10**(-8)):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis._c_effectiveness: sampling first is necessary")
+        c=[]
+        if self.c_dim!=0:
+            if len(self.c)==0:
+                raise ValueError(
+                    "analysis._c_effectiveness: compute constraints first")
+            dp=1./self.npoints
+            for i in range(self.c_dim):
+                c.append([0,0])
+                for j in range(self.npoints):
+                    if self.c[j][i]<=tol:
+                        c[i][0]+=dp
+                    if abs(self.c[j][i])<tol:
+                        c[i][1]+=dp
+            return c
+
 
 
     def _ic_effectiveness(self):
@@ -2228,7 +2590,7 @@ class analysis:
             dp=1./self.npoints
             for i in range(self.npoints):
                 for j in range(-self.ic_dim,0):
-                    if self.c[i][j]>=0:
+                    if self.c[i][j]>0:
                         ic_ef[j]+=dp
         return ic_ef
 
