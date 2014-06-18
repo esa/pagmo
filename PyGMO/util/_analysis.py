@@ -166,7 +166,7 @@ class analysis:
         if plot2 and percentile!=[]:
             self.plot_x_pcp(percentile,percentile_values)
 
-    def f_linearity_convexity(self,n_pairs=0,tolerance=10**(-10),round_to=3):
+    def f_linearity_convexity(self,n_pairs=0,tol=10**(-10),round_to=3):
         """
         This function gives the user information about the linearity and convexity of the fitness
         function(s). See analysis._p_lin_conv for a more thorough description of these tests. All
@@ -194,7 +194,7 @@ class analysis:
         print ("-------------------------------------------------------------------------------",file=output)
         print ("PROBABILITY OF LINEARITY AND CONVEXITY",file=output)
         print ("-------------------------------------------------------------------------------",file=output)
-        p=self._p_lin_conv(n_pairs,tolerance)
+        p=self._p_lin_conv(n_pairs,tol)
         print ("Number of pairs of points used :        ",[self.lin_conv_npairs],file=output)
         print ("Probability of linearity :              ",[round(i,round_to) for i in p[0]],file=output)
         print ("Probability of convexity :              ",[round(i,round_to) for i in p[1]],file=output)
@@ -248,6 +248,8 @@ class analysis:
                 print ("     Type :                             ","[<=]",file=output)
                 print ("     Effectiveness :                    ",[round(ef[c],round_to)],file=output)
                 print ("     Probability of linearity :         ",[round(lin[c],round_to)],file=output)
+        if output!=None:
+            output.close()
 
     def f_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):
         if self.dir==None:
@@ -292,6 +294,8 @@ class analysis:
                             else:
                                 print(str(round(i,round_to)).center(s),end=' ',file=output)
                     print(file=output)
+        if output!=None:
+            output.close()
 
     def c_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):
         if self.dir==None:
@@ -342,6 +346,8 @@ class analysis:
                                 else:
                                     print(str(round(i,round_to)).center(s),end=' ',file=output)
                         print(file=output)
+        if output!=None:
+            output.close()
 
     def c_feasibility(self,tol=10**(-8),round_to=3):
         if self.dir==None:
@@ -365,6 +371,8 @@ class analysis:
                 print ("Constraint g_"+str(c+self.ic_dim+1)+" : ",file=output)
                 print ("     Effectiveness >0 :                 ",[round(1-results[c][0],round_to)],file=output)
                 print ("     Number of feasible points found :  ",[int(results[c][0]*self.npoints)],file=output)  
+        if output!=None:
+            output.close()
 
     def c_linearity(self,npairs=0,tol=10**(-10),round_to=3):
         if self.dir==None:
@@ -384,6 +392,8 @@ class analysis:
                 print (" "*5,("h_"+str(c+1)).center(25),str([round(results[c],round_to)]).center(25),file=output)
             for c in range(-self.ic_dim,0):
                 print (" "*5,("g_"+str(self.c_dim-self.ic_dim+c)).center(25),str([round(results[c],round_to)]).center(25),file=output)
+        if output!=None:
+            output.close()
 
     def f_correlation(self,round_to=3):
         from numpy import asarray,ones
@@ -392,12 +402,12 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
+        print ("--------------------------------------------------------------------------------",file=output)
+        print ("OBJECTIVE CORRELATION ",file=output)
+        print ("--------------------------------------------------------------------------------",file=output)
         if self.f_dim==1:
             print ("This is a single-objective problem.",file=output)
         else:
-            print ("--------------------------------------------------------------------------------",file=output)
-            print ("OBJECTIVE CORRELATION ",file=output)
-            print ("--------------------------------------------------------------------------------",file=output)
             obj_corr=self._f_correlation()
             critical_obj=self._perform_f_pca(obj_corr)
             print ("Critical objectives from first PCA :    ",[int(i+1) for i in critical_obj],file=output)
@@ -405,41 +415,67 @@ class analysis:
             print ("Eigenvalues".center(12),"Relative contribution".center(23),"Eigenvectors".center(45),file=output)
             total_ev=sum(obj_corr[1])
             for i in range(self.f_dim):
-                print (str(round(obj_corr[1][i],round_to)).center(12),(str(round(100*obj_corr[1][i],round_to))+'%').center(23),str([round(val,round_to) for val in obj_corr[2][i]]).center(45),file=output)
+                print (str(round(obj_corr[1][i],round_to)).center(12),(str(round(100*abs(obj_corr[1][i])/sum([abs(e) for e in obj_corr[1]]),round_to))+'%').center(23),str([round(val,round_to) for val in obj_corr[2][i]]).center(45),file=output)
             print ("Objective correlation matrix :          ",file=output)
             for i in range(self.f_dim):
                 print ("     [",end='',file=output)
                 for j in obj_corr[0][i]:
                     print(str(round(j,round_to)).center(8),end='',file=output)
                 print("]",file=output)
+        if output!=None:
+            output.close()
 
-    def multimodality(self,cluster=True,clusters_to_show=10, sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],variance_ratio=0.95,k=0,round_to=3):
-            from numpy import percentile        
-            if self.dir==None:
-                output=None
-            else:
-                output=open(self.dir+'/log.txt','r+')
-                output.seek(0,2)
-            string='LOCAL SEARCH'
-            print ("--------------------------------------------------------------------------------",file=output)
-            print ("MULTI-MODALITY : "+string,file=output)
-            print ("--------------------------------------------------------------------------------",file=output)
-            self._get_local_extrema(sample_size,algo,decomposition_method,weights,z)
-            if cluster:
-                self._cluster_local_extrema(variance_ratio,k)
-            print ("Local searches performed :              ",self.local_initial_npoints,file=output)
-            print ("Quartiles of CPU time per search [ms]:  ",round(percentile(self.local_search_time,0),round_to),"/",round(percentile(self.local_search_time,25),round_to),"/",round(percentile(self.local_search_time,50),round_to),"/",round(percentile(self.local_search_time,75),round_to),"/",round(percentile(self.local_search_time,100),round_to),file=output)
-            if cluster:
-                print ("Number of clusters identified :         ",self.local_nclusters,file=output)
-                print ("Cluster properties (max. best "+str(clusters_to_show)+" clusters) :",file=output)
-                for i in range(min((self.local_nclusters,clusters_to_show))):
-                    print ("     Cluster n.:                        ",i+1)
-                    print ("         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"%",file=output)
-                    print ("         Mean objective value :         ",round(self.local_cluster_f_centers[i],round_to),file=output)
-                    print ("         Cluster center :               ",[round(x,round_to) for x in self.local_cluster_x_centers[i]],file=output)
-                    print ("         Cluster diameter in F :        ",round(self.local_cluster_df[i],round_to),file=output)
-                    print ("         Cluster radius in X :          ",round(self.local_cluster_rx[i],round_to),file=output)
-                    print ("         Radius of attraction :         ",round(self.local_cluster_rx0[i],round_to),file=output)
+    def multimodality(self,cluster=True,clusters_to_show=10,sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],variance_ratio=0.9,k=0,single_cluster_tolerance=0.001,kmax=0,round_to=3):
+        from numpy import percentile        
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+        string='LOCAL SEARCH'
+        print ("--------------------------------------------------------------------------------",file=output)
+        print ("MULTI-MODALITY : "+string,file=output)
+        print ("--------------------------------------------------------------------------------",file=output)
+        if output!=None:
+            output.close()
+        self._get_local_extrema(sample_size,algo,True,decomposition_method,weights,z,True)
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+        if cluster:
+            self._cluster_local_extrema(variance_ratio,k,single_cluster_tolerance,kmax)
+            if clusters_to_show=='all' or clusters_to_show>self.local_nclusters:
+                clusters_to_show=self.local_nclusters
+        print ("Local searches performed :              ",self.local_initial_npoints,file=output)
+        print ("Quartiles of CPU time per search [ms]:  ",round(percentile(self.local_search_time,0),round_to),"/",round(percentile(self.local_search_time,25),round_to),"/",round(percentile(self.local_search_time,50),round_to),"/",round(percentile(self.local_search_time,75),round_to),"/",round(percentile(self.local_search_time,100),round_to),file=output)
+        if cluster and clusters_to_show>0:
+            print ("Number of clusters identified :         ",self.local_nclusters,file=output)
+            print ("Cluster properties (max. best "+str(clusters_to_show)+" clusters) :",file=output)
+            for i in range(min((self.local_nclusters,clusters_to_show))):
+                print ("     Cluster n. "+str(i+1)+' :',file=output)
+                print ("         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"%",file=output)
+                print ("         Mean objective value :         ",round(self.local_cluster_f_centers[i],round_to),file=output)
+                print ("         Cluster center :               ",[round(x,round_to) for x in self.local_cluster_x_centers[i]],file=output)
+                print ("         Cluster diameter in F :        ",round(self.local_cluster_df[i],round_to),file=output)
+                print ("         Cluster radius in X :          ",round(self.local_cluster_rx[i],round_to),file=output)
+                print ("         Radius of attraction :         ",round(self.local_cluster_rx0[i],round_to),file=output)
+        if output!=None:
+            output.close()
+
+        (plot_global_pcp,plot_separate_pcp,plot_scatter)=(True,False,True)
+        scatter_plot_dimensions=[0,1,2]
+        if cluster:
+            if plot_global_pcp:
+                self.plot_local_cluster_pcp(together=True)
+            if plot_separate_pcp:
+                self.plot_local_cluster_pcp(together=False)
+            if plot_scatter:
+                self.plot_local_cluster_scatter(dimensions=scatter_plot_dimensions)
+
+    def f_sensitivity(self):
+        pass
 
     #SAMPLING
     def sample(self, npoints, method='sobol', first=1):
@@ -713,7 +749,7 @@ class analysis:
         """
         try:
             from scipy.stats import gaussian_kde
-            from matplotlib.pyplot import plot,draw,title,show,legend,axes,cla,clf
+            from matplotlib.pyplot import plot,draw,title,show,legend,axes,cla,clf,xlabel,ylabel
         except ImportError:
             raise ImportError(
                 "analysis.plot_f_distr needs scipy and matplotlib to run. Are they installed?")
@@ -730,6 +766,8 @@ class analysis:
             y=kde(x)
             ax.plot(x,y,label='objective '+str(i+1))
         title('F-Distribution(s)')
+        xlabel('F')
+        ylabel('dP/dF')
         legend()
         f=ax.get_figure()
         if self.dir==None:
@@ -1185,7 +1223,7 @@ class analysis:
             tmp.append((sse[i]/(self.npoints-p-1))**0.5)#RMSE
             if pred:
                 tmp.append(1-press[i]/sst[i])#R2pred
-                tmp.append((press[i]/(self.npoints-1))**0.5)#PRESS-RMSE
+                tmp.append((press[i]/(self.npoints))**0.5)#PRESS-RMSE
             else:
                 tmp.extend([None,None])
             output.append(tmp)
@@ -1456,7 +1494,12 @@ class analysis:
                 xd=list(x)
                 xu[i]+=hh
                 xd[i]-=hh
-                tmp=(array(self.prob.objfun(xu))-array(self.prob.objfun(xd)))/(2*hh)
+                #descale
+                xu[i]*=(self.ub[i]-self.lb[i])
+                xd[i]*=(self.ub[i]-self.lb[i])
+                xu[i]+=self.lb[i]
+                xd[i]+=self.lb[i]
+                tmp=(array(self.prob.objfun(xu))-array(self.prob.objfun(xd)))/(2*hh*array(self.f_span))
                 
                 for j in range(self.f_dim):
                     d[t%2][0][j][i]=tmp[j]
@@ -1824,6 +1867,9 @@ class analysis:
 
         if self.f_dim==1:
             decomposition=self.prob
+            span=self.f_span[0]
+            offset=self.f_offset[0]
+
         else:
             if weights=='uniform':
                 weightvector=[1./self.f_dim for i in range(self.f_dim)]
@@ -1833,6 +1879,7 @@ class analysis:
                 weightvector=weights
 
             decomposition=problem.decompose(self.prob,method=decomposition_method, weights=weightvector,z=z)
+            
             if warning:
                 if decomposition_method=='tchebycheff' or decomposition_method=='bi':
                     if z==[]:
@@ -1845,23 +1892,37 @@ class analysis:
                 else:
                     output=open(self.dir+'/log.txt','r+')
                     output.seek(0,2)
-                print ('WARNING: get_local_extrema is decomposing multi-objective problem by means of ',decomposition_method,' method, with ',str(weights),'weight vector',additional_message,file=output)
+                string='WARNING: get_local_extrema is decomposing multi-objective problem by means of '+str(decomposition_method)+' method, with '+str(weights)+' weight vector'+additional_message
+                length=0
+                for word in string.split(' '):
+                    length+=len(word)+1
+                    if length>80:
+                        length=len(word)+1
+                        print ('\n'+word,end=' ',file=output)
+                    else:
+                        print (word,end=' ',file=output)
+                print(file=output)
                 if self.dir!=None:
                     output.close()
+            span=sum([s*w for s,w in zip(self.f_span,decomposition.weights)])
+            offset=sum([o*w for o,w in zip(self.f_offset,decomposition.weights)])
 
         if par:
             archi=archipelago()
         for i in range(self.local_initial_npoints):
             pop=population(decomposition)
-            pop.push_back(self.points[self.local_initial_points[i]])
+            x0=[]
+            for j in range(self.dim):
+                x0.append(self.points[self.local_initial_points[i]][j]*(self.ub[j]-self.lb[j])+self.lb[j])
+            pop.push_back(x0)
             isl=island(algo,pop)
             if par:
                 archi.push_back(isl)
             else:
                 isl.evolve(1)
                 self.local_search_time.append(isl.get_evolution_time())
-                self.local_extrema.append(isl.population.champion.x)
-                self.local_f.append(isl.population.champion.f[0])
+                self.local_extrema.append([(c-l)/(u-l) for c,u,l in zip(list(isl.population.champion.x),self.ub,self.lb)])
+                self.local_f.append((isl.population.champion.f[0]-offset)/span)
         if par:
             start=time()
             archi.evolve(1)
@@ -1869,11 +1930,11 @@ class analysis:
             finish=time()
             for i in archi:
                 self.local_search_time.append(i.get_evolution_time())
-                self.local_extrema.append(i.population.champion.x)
-                self.local_f.append(i.population.champion.f[0])
+                self.local_extrema.append([(c-l)/(u-l) for c,u,l in zip(list(i.population.champion.x),self.ub,self.lb)])
+                self.local_f.append((i.population.champion.f[0]-offset)/span)
 
 
-    def _cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.0000000001,kmax=0):
+    def _cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.001,kmax=0):
         """
         Clusters the results of a set of local searches and orders the clusters ascendently
         as regards fitness value of its centroid (after fitness decomposition in the case of
@@ -1916,21 +1977,23 @@ class analysis:
                 "analysis._cluster_local_extrema needs numpy,scipy and sklearn to run. Are they installed?")
         from sklearn.cluster import KMeans
 
-        dataset=np.zeros([self.local_initial_npoints,self.dim+1])#normalized dataset
-
-        range_f=np.mean(np.ptp(self.f,0))
-        mean_f=np.mean(self.f)
+        #dataset=np.zeros([self.local_initial_npoints,self.dim+1])#normalized dataset
+        dataset=[]
+        # range_f=np.mean(np.ptp(self.f,0))
+        # mean_f=np.mean(self.f)
 
         if kmax==0:
             kmax=self.local_initial_npoints
 
-        if range_f<single_cluster_tolerance:
-            raise ValueError(
-                "analysis_cluster_local_extrema: the results appear to be constant")
+        # if range_f<single_cluster_tolerance:
+        #     raise ValueError(
+        #         "analysis_cluster_local_extrema: the results appear to be constant")
         for i in range(self.local_initial_npoints):
-            for j in range(self.dim):
-                dataset[i][j]=(self.local_extrema[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
-            dataset[i][self.dim]=(self.local_f[i]-mean_f)/range_f
+            #for j in range(self.dim):
+                #dataset[i][j]=(self.local_extrema[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
+            dataset.append(self.local_extrema[i][:])
+            dataset[i].append(self.local_f[i])
+            #dataset[i][self.dim]=(self.local_f[i]-mean_f)/range_f
         if k!=0:#cluster to given number of clusters
             clust=KMeans(k)
 
@@ -1946,7 +2009,8 @@ class analysis:
             clust=KMeans(1)
             total_distances=clust.fit_transform(dataset)
             total_center=clust.cluster_centers_[0]
-            total_radius=max(total_distances)
+            total_radius=max(total_distances)[0]
+            #total_radius=(total_radius**2-(self.local_f[list(total_distances).index(total_radius)]-total_center[self.dim])**2)**.5
             if total_radius<single_cluster_tolerance*(self.dim+1):#single cluster scenario
                 #storage of output
                 local_cluster=list(clust.predict(dataset))
@@ -1986,10 +2050,11 @@ class analysis:
         for i in range(self.local_nclusters):
             self.local_cluster_size.append(cluster_size[order[i]])
             self.local_cluster_x_centers.append(clust.cluster_centers_[order[i]][:self.dim])
-            self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim]*range_f+mean_f)
-            for j in range(self.dim):
-                self.local_cluster_x_centers[i][j]*=(self.ub[j]-self.lb[j])
-                self.local_cluster_x_centers[i][j]+=0.5*(self.ub[j]+self.lb[j])
+            #self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim]*range_f+mean_f)
+            self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim])
+            # for j in range(self.dim):
+            #     self.local_cluster_x_centers[i][j]*=(self.ub[j]-self.lb[j])
+            #     self.local_cluster_x_centers[i][j]+=0.5*(self.ub[j]+self.lb[j])
         for i in range(self.local_initial_npoints):
             for j in range(self.local_nclusters):
                 if local_cluster[i]==order[j]:
@@ -2014,7 +2079,7 @@ class analysis:
                     self.local_cluster_rx0[c]=rx0
         self.local_cluster_df=[np.ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
 
-    def plot_local_cluster_pcp(self,together=True,save_fig=False):
+    def plot_local_cluster_pcp(self,together=True):
         """
         Generates a Parallel Coordinate Plot of the clusters obtained for the local
         search results. The parallel axes represent the chromosome of the initial
@@ -2035,23 +2100,21 @@ class analysis:
         try:
             from pandas.tools.plotting import parallel_coordinates as pc
             from pandas import DataFrame as df
-            from matplotlib.pyplot import show,title,grid,ylabel,xlabel,legend,plot,subplot
+            from matplotlib.pyplot import show,title,grid,ylabel,xlabel,legend,plot,subplot,cla,clf
             from numpy import asarray,transpose
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
         if together:
             n=1
-            dataset=[[[self.local_cluster[i]+1]+\
-            [(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)]\
-            for i in range(self.local_initial_npoints)]]
+            dataset=[[[self.local_cluster[i]+1]+self.points[self.local_initial_points[i]] for i in range(self.local_initial_npoints)]]
             dataset[0].sort()
             separatelabel=['' for i in range(self.local_nclusters)]
         else:
             n=self.local_nclusters
             dataset=[[] for i in range(self.local_nclusters)]
             for i in range(self.local_initial_npoints):
-                dataset[self.local_cluster[i]].append([self.local_cluster[i]+1]+[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in range(self.dim)])
+                dataset[self.local_cluster[i]].append([self.local_cluster[i]+1]+self.points[self.local_initial_points[i]])
             separatelabel=[': cluster '+str(i+1) for i in range(self.local_nclusters)]
         flist=[]
         for i in range(n):
@@ -2059,18 +2122,27 @@ class analysis:
             title('Local extrema clusters PCP'+separatelabel[i]+' \n')
             grid(True)
             xlabel('Dimension')
+            ylabel('Chromosome (scaled)')
             plot=pc(dataframe,0)
             f=plot.get_figure()
-            if save_fig:
-                import os
-                if not os.path.exists('./temp_analysis_figures/'):
-                    os.makedirs('./temp_analysis_figures/')
-                f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
-                self.fignum+=1
-            else:
+            if self.dir==None:
                 show(f)
+                cla()
+                clf()
+            else:
+                f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
+                output=open(self.dir+'/log.txt','r+')
+                output.seek(0,2)
+                if together:
+                    aux='(global)'
+                else:
+                    aux='(cluster n.'+str(i+1)+')'
+                print ('*Cluster PCP '+aux+' : <figure_'+str(self.fignum)+'.png>',file=output)
+                self.fignum+=1
+                cla()
+                clf()
     
-    def plot_local_cluster_scatter(self,dimensions=[],save_fig=False):
+    def plot_local_cluster_scatter(self,dimensions=[]):
         """
         Generates a Scatter Plot of the clusters obtained for the local search results
         in the dimensions specified (up to 3). Centroids are also shown.\n
@@ -2090,7 +2162,7 @@ class analysis:
             raise ValueError(
                 "analysis.plot_local_cluster_scatter: choose a maximum of 3 dimensions to plot")
         try:
-            from matplotlib.pyplot import show,title,grid,legend,axes,figure
+            from matplotlib.pyplot import show,title,grid,legend,axes,figure,cla,clf
             from mpl_toolkits.mplot3d import Axes3D
             from matplotlib.cm import Set1
             from numpy import asarray,linspace
@@ -2098,8 +2170,11 @@ class analysis:
             raise ImportError(
                 "analysis.plot_local_cluster_scatter needs numpy and matplotlib to run. Are they installed?")
         
-        dataset=asarray([[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_initial_npoints)])
-        centers=[[(self.local_cluster_x_centers[i][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_nclusters)]
+        #dataset=asarray([[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_initial_npoints)])
+        #centers=[[(self.local_cluster_x_centers[i][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_nclusters)]
+        
+        dataset=asarray([self.points[self.local_initial_points[i]] for i in range(self.local_initial_npoints)])
+        centers=self.local_cluster_x_centers
         colors=Set1(linspace(0,1,self.local_nclusters))
         if len(dimensions)==1:
             ax=axes()
@@ -2112,6 +2187,7 @@ class analysis:
             for i in range(self.local_nclusters):
                 ax.scatter(centers[i][0],0.005,marker='^',color=colors[i],s=100)
                 ax.text(centers[i][0],0.01,'cluster '+str(i+1),horizontalalignment='center',verticalalignment='bottom',color=colors[i],rotation='vertical',size=12,backgroundcolor='w')
+            
         elif len(dimensions)==2:
             ax=axes()
             ax.scatter(dataset[:,0],dataset[:,1],c=[colors[i] for i in self.local_cluster])
@@ -2123,9 +2199,9 @@ class analysis:
             for i in range(self.local_nclusters):
                 ax.scatter(centers[i][0],centers[i][1],marker='^',color=colors[i],s=100)
                 ax.text(centers[i][0]+.02,centers[i][1],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
+            
         else:
-            fig=figure()
-            ax=Axes3D(fig)
+            ax = figure().add_subplot(111,projection='3d')
             ax.scatter(dataset[:,0],dataset[:,1],dataset[:,2],c=[colors[i] for i in self.local_cluster])
             ax.set_xlim(0,1)
             ax.set_ylim(0,1)
@@ -2138,14 +2214,19 @@ class analysis:
                 ax.text(centers[i][0],centers[i][1]+0.02,centers[i][2],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
         title('Local extrema clusters scatter plot')
         f=ax.get_figure()
-        if save_fig:
-            import os
-            if not os.path.exists('./temp_analysis_figures/'):
-                os.makedirs('./temp_analysis_figures/')
-            f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
-            self.fignum+=1
-        else:
+
+        if self.dir==None:
             show(f)
+            cla()
+            clf()
+        else:
+            f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+            print ('*Cluster scatter plot (dimensions '+str([i+1 for i in dimensions])+') : <figure_'+str(self.fignum)+'.png>',file=output)
+            self.fignum+=1
+            cla()
+            clf()
 
 #LEVELSET FEATURES NOT IN USE AT ALL(quite bad unless improved)
     def _lda(self,threshold=50,tsp=0.1):

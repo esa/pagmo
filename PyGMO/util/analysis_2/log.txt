@@ -43,7 +43,7 @@ PROBABILITY OF LINEARITY AND CONVEXITY
 Number of pairs of points used :         [100]
 Probability of linearity :               [0.0]
 Probability of convexity :               [1.0]
-Mean deviation from linearity :          [0.165]
+Mean deviation from linearity :          [0.151]
 -------------------------------------------------------------------------------
 F-REGRESSION
 -------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ This is an unconstrained problem.
 MULTI-MODALITY : LOCAL SEARCH
 --------------------------------------------------------------------------------
 Local searches performed :               100
-Quartiles of CPU time per search [ms]:   0.0 / 2.0 / 2.0 / 3.0 / 3.0
+Quartiles of CPU time per search [ms]:   1.0 / 2.0 / 2.0 / 3.0 / 3.0
 Number of clusters identified :          1
 Cluster properties (max. best 10 clusters) :
      Cluster n. 1 :

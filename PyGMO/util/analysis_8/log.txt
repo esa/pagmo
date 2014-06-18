@@ -1,0 +1,86 @@
+===============================================================================
+                                   ANALYSIS                                    
+===============================================================================
+-------------------------------------------------------------------------------
+PROBLEM PROPERTIES
+-------------------------------------------------------------------------------
+Problem name: Kursawe's study
+	Global dimension:			5
+	Integer dimension:			0
+	Fitness dimension:			2
+	Constraints dimension:			0
+	Inequality constraints dimension:	0
+	Lower bounds: [-5, -5, -5, -5, -5]
+	Upper bounds: [5, 5, 5, 5, 5]
+	Constraints tolerance: []
+
+-------------------------------------------------------------------------------
+SAMPLED [10] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
+--------------------------------------------------------------------------------
+MULTI-MODALITY : LOCAL SEARCH
+--------------------------------------------------------------------------------
+WARNING: get_local_extrema is decomposing multi-objective problem by means of 
+tchebycheff method, with uniform weight vector and [0, 0] ideal reference 
+point! 
+Local searches performed :               10
+Quartiles of CPU time per search [ms]:   0.0 / 3.0 / 3.0 / 3.0 / 5.0
+Number of clusters identified :          8
+Cluster properties (max. best 8 clusters) :
+     Cluster n. 1 :
+         Size:                           1.0 ,  10.0 %
+         Mean objective value :          1.117
+         Cluster center :                [0.147, 0.0, 0.0, 1.0, 0.663]
+         Cluster diameter in F :         0.0
+         Cluster radius in X :           0.0
+         Radius of attraction :          0.0
+     Cluster n. 2 :
+         Size:                           1.0 ,  10.0 %
+         Mean objective value :          1.132
+         Cluster center :                [0.945, 0.07, 0.562, 0.945, 0.31]
+         Cluster diameter in F :         0.0
+         Cluster radius in X :           0.0
+         Radius of attraction :          0.0
+     Cluster n. 3 :
+         Size:                           1.0 ,  10.0 %
+         Mean objective value :          1.159
+         Cluster center :                [0.689, 0.817, 0.816, 0.185, 0.061]
+         Cluster diameter in F :         0.0
+         Cluster radius in X :           0.0
+         Radius of attraction :          0.0
+     Cluster n. 4 :
+         Size:                           1.0 ,  10.0 %
+         Mean objective value :          1.171
+         Cluster center :                [0.132, 0.625, 0.882, 0.882, 0.625]
+         Cluster diameter in F :         0.0
+         Cluster radius in X :           0.0
+         Radius of attraction :          0.0
+     Cluster n. 5 :
+         Size:                           2.0 ,  20.0 %
+         Mean objective value :          1.186
+         Cluster center :                [0.569, 0.84, 0.153, 0.721, 0.289]
+         Cluster diameter in F :         0.054
+         Cluster radius in X :           0.35
+         Radius of attraction :          0.348
+     Cluster n. 6 :
+         Size:                           2.0 ,  20.0 %
+         Mean objective value :          1.215
+         Cluster center :                [0.56, 0.273, 0.719, 0.155, 0.827]
+         Cluster diameter in F :         0.041
+         Cluster radius in X :           0.24
+         Radius of attraction :          0.238
+     Cluster n. 7 :
+         Size:                           1.0 ,  10.0 %
+         Mean objective value :          1.22
+         Cluster center :                [0.63, 0.094, 0.352, 0.352, 0.109]
+         Cluster diameter in F :         0.0
+         Cluster radius in X :           0.0
+         Radius of attraction :          0.0
+     Cluster n. 8 :
+         Size:                           1.0 ,  10.0 %
+         Mean objective value :          1.633
+         Cluster center :                [0.5, 0.5, 0.5, 0.5, 0.5]
+         Cluster diameter in F :         0.0
+         Cluster radius in X :           0.0
+         Radius of attraction :          0.0
+*Cluster PCP (global) : <figure_1.png>
+*Cluster scatter plot (dimensions [1, 2, 3]) : <figure_2.png>
