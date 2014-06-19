@@ -425,7 +425,7 @@ class analysis:
         if output!=None:
             output.close()
 
-    def multimodality(self,cluster=True,clusters_to_show=10,sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],variance_ratio=0.9,k=0,single_cluster_tolerance=0.001,kmax=0,round_to=3):
+    def multimodality(self,cluster=True,clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=False,plot_scatter=True,scatter_plot_dimensions=[],sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],variance_ratio=0.9,k=0,single_cluster_tolerance=0.001,kmax=0,round_to=3):
         from numpy import percentile        
         if self.dir==None:
             output=None
@@ -456,25 +456,26 @@ class analysis:
             for i in range(min((self.local_nclusters,clusters_to_show))):
                 print ("     Cluster n. "+str(i+1)+' :',file=output)
                 print ("         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"%",file=output)
-                print ("         Mean objective value :         ",round(self.local_cluster_f_centers[i],round_to),file=output)
+                print ("         Mean objective value :         ",[round(f,round_to) for f in self.local_cluster_f_centers[i]],file=output)
                 print ("         Cluster center :               ",[round(x,round_to) for x in self.local_cluster_x_centers[i]],file=output)
-                print ("         Cluster diameter in F :        ",round(self.local_cluster_df[i],round_to),file=output)
+                print ("         Cluster span in F :            ",[round(s,round_to) for s in self.local_cluster_f_span[i]],file=output)
                 print ("         Cluster radius in X :          ",round(self.local_cluster_rx[i],round_to),file=output)
                 print ("         Radius of attraction :         ",round(self.local_cluster_rx0[i],round_to),file=output)
         if output!=None:
             output.close()
 
-        (plot_global_pcp,plot_separate_pcp,plot_scatter)=(True,False,True)
-        scatter_plot_dimensions=[0,1,2]
         if cluster:
             if plot_global_pcp:
-                self.plot_local_cluster_pcp(together=True)
+                self.plot_local_cluster_pcp(together=True,clusters_to_plot=clusters_to_show)
             if plot_separate_pcp:
-                self.plot_local_cluster_pcp(together=False)
+                self.plot_local_cluster_pcp(together=False,clusters_to_plot=clusters_to_show)
             if plot_scatter:
-                self.plot_local_cluster_scatter(dimensions=scatter_plot_dimensions)
+                self.plot_local_cluster_scatter(dimensions=scatter_plot_dimensions,clusters_to_plot=clusters_to_show)
 
     def f_sensitivity(self):
+        pass
+
+    def c_sensitivity(self):
         pass
 
     #SAMPLING
@@ -1420,7 +1421,7 @@ class analysis:
 
 #CURVATURE
 #possible problem: tolerance needs to be relative to the magnitude of the result
-    def _get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001):
+    def _get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001,mode='f'):
         """
         Routine that selects points from the sample and calculates the Jacobian
         matrix in them by calling richardson_gradient. Also computes its sparsity.\n
@@ -1443,6 +1444,18 @@ class analysis:
         if self.npoints==0:
             raise ValueError(
                 "analysis._get_gradient: sampling first is necessary")
+        if mode=='f':
+            dim=self.f_dim
+        elif mode=='c':
+            if self.c_dim==0:
+                raise ValueError(
+                    "analysis._get_gradient: mode 'c' selected for unconstrained problem")
+            else:
+                dim=self.c_dim
+        else:
+            raise ValueError(
+                "analysis._get_gradient: select a valid mode 'f' or 'c'")
+
         try:
             from numpy.random import randint
             from numpy import nanmean, asarray
@@ -1451,24 +1464,37 @@ class analysis:
                 "analysis._get_gradient needs numpy to run. Is it installed?")
         
         if sample_size<=0 or sample_size>=self.npoints:
-            self.grad_points=range(self.npoints)
-            self.grad_npoints=self.npoints
+            grad_points=range(self.npoints)
+            grad_npoints=self.npoints
         else:
-            self.grad_npoints=sample_size
-            self.grad_points=[randint(self.npoints) for i in range(sample_size)] #avoid repetition?
+            grad_npoints=sample_size
+            grad_points=[randint(self.npoints) for i in range(sample_size)] #avoid repetition?
 
-        self.grad=[]
-        self.grad_sparsity=0
-        for i in self.grad_points:
-            self.grad.append(self._richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol))
-        self.average_abs_gradient=nanmean(abs(asarray(self.grad)),0)
-        for i in range(self.f_dim):
+        grad=[]
+        grad_sparsity=0
+        for i in grad_points:
+            grad.append(self._richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol,mode=mode))
+        average_abs_gradient=nanmean(abs(asarray(grad)),0)
+        for i in range(dim):
             for j in range(self.cont_dim):
-                if abs(self.average_abs_gradient[i][j])<=zero_tol:
-                    self.grad_sparsity+=1.
-        self.grad_sparsity/=(self.cont_dim*self.f_dim)
+                if abs(average_abs_gradient[i][j])<=zero_tol:
+                    grad_sparsity+=1.
+        grad_sparsity/=(self.cont_dim*dim)
 
-    def _richardson_gradient(self,x,h,grad_tol,tmax=15):
+        if mode=='f':
+            self.grad_npoints=grad_npoints
+            self.grad_points=grad_points
+            self.grad=grad
+            self.average_abs_gradient=average_abs_gradient
+            self.grad_sparsity=grad_sparsity
+        else:
+            self.c_grad_npoints=grad_npoints
+            self.c_grad_points=grad_points
+            self.c_grad=grad
+            self.average_abs_c_gradient=average_abs_gradient
+            self.c_grad_sparsity=grad_sparsity
+
+    def _richardson_gradient(self,x,h,grad_tol,tmax=15,mode='f'):
         """
         Evaluates jacobian matrix in point x of the search space by means of Richardson
         Extrapolation.\n
@@ -1483,25 +1509,31 @@ class analysis:
         dimension]
         """
         from numpy import array, zeros, amax
-        d=[[zeros([self.f_dim,self.cont_dim])],[]]
+        if mode=='f':
+            function=self.prob.objfun
+            span=self.f_span
+            dim=self.f_dim
+        elif mode=='c':
+            function=self.prob.compute_constraints
+            span=self.c_span
+            dim=self.c_dim
+        d=[[zeros([dim,self.cont_dim])],[]]
         hh=2*h
         err=1
         t=0
+        #descale
+        x=array(x)*(array(self.ub)-array(self.lb))+array(self.lb)
         while (err>grad_tol and t<tmax):
             hh/=2
             for i in range(self.cont_dim):
-                xu=list(x)
-                xd=list(x)
-                xu[i]+=hh
-                xd[i]-=hh
-                #descale
-                xu[i]*=(self.ub[i]-self.lb[i])
-                xd[i]*=(self.ub[i]-self.lb[i])
-                xu[i]+=self.lb[i]
-                xd[i]+=self.lb[i]
-                tmp=(array(self.prob.objfun(xu))-array(self.prob.objfun(xd)))/(2*hh*array(self.f_span))
+                xu=x.tolist()
+                xd=x.tolist()
+                xu[i]+=hh*(self.ub[i]-self.lb[i])
+                xd[i]-=hh*(self.ub[i]-self.lb[i])
+                #rescale
+                tmp=(array(function(xu))-array(function(xd)))/(2*hh*array(span))
                 
-                for j in range(self.f_dim):
+                for j in range(dim):
                     d[t%2][0][j][i]=tmp[j]
 
             for k in range(1,t+1):
@@ -1510,7 +1542,7 @@ class analysis:
             if t>0:
                 err=amax(abs(d[t%2][t]-d[(t+1)%2][t-1]))
 
-            d[(t+1)%2].extend([zeros([self.f_dim,self.cont_dim]),zeros([self.f_dim,self.cont_dim])])
+            d[(t+1)%2].extend([zeros([dim,self.cont_dim]),zeros([dim,self.cont_dim])])
             t+=1
 
         return d[(t+1)%2][t-1].tolist()
@@ -1575,33 +1607,34 @@ class analysis:
         hh=2*h
         err=1
         t=0
+        x=array(x)*(array(self.ub)-array(self.lb))+array(self.lb)
         while (err>hess_tol and t<tmax):
             hh/=2
             for i in range(n_ind):
-                xu=list(x)
-                xd=list(x)
-                xuu=list(x)
-                xdd=list(x)
-                xud=list(x)
-                xdu=list(x)
+                xu=x.tolist()
+                xd=x.tolist()
+                xuu=x.tolist()
+                xdd=x.tolist()
+                xud=x.tolist()
+                xdu=x.tolist()
 
                 if ind[i][0]==ind[i][1]:
-                    xu[ind[i][0]]+=hh
-                    xd[ind[i][0]]-=hh
-
-                    tmp=(array(self.prob.objfun(xu))-2*array(self.prob.objfun(x))+array(self.prob.objfun(xd)))/(hh**2)
+                    xu[ind[i][0]]=xu[ind[i][0]]+hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
+                    xd[ind[i][0]]-=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
+                    #rescale
+                    tmp=(array(self.prob.objfun(xu))-2*array(self.prob.objfun(x))+array(self.prob.objfun(xd)))/((hh**2)*array(self.f_span))
 
                 else:
-                    xuu[ind[i][0]]+=hh
-                    xuu[ind[i][1]]+=hh
-                    xdd[ind[i][0]]-=hh
-                    xdd[ind[i][1]]-=hh
-                    xud[ind[i][0]]+=hh
-                    xud[ind[i][1]]-=hh
-                    xdu[ind[i][0]]-=hh
-                    xdu[ind[i][1]]+=hh
-
-                    tmp=(array(self.prob.objfun(xuu))-array(self.prob.objfun(xud))-array(self.prob.objfun(xdu))+array(self.prob.objfun(xdd)))/(4*hh*hh)
+                    xuu[ind[i][0]]+=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
+                    xuu[ind[i][1]]+=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
+                    xdd[ind[i][0]]-=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
+                    xdd[ind[i][1]]-=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
+                    xud[ind[i][0]]+=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
+                    xud[ind[i][1]]-=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
+                    xdu[ind[i][0]]-=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
+                    xdu[ind[i][1]]+=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
+                    #rescale
+                    tmp=(array(self.prob.objfun(xuu))-array(self.prob.objfun(xud))-array(self.prob.objfun(xdu))+array(self.prob.objfun(xdd)))/(4*hh*hh*array(self.f_span))
 
                 for j in range(self.f_dim):
                     d[t%2][0][j][i]=tmp[j]
@@ -1625,7 +1658,7 @@ class analysis:
 
         return hessian
 
-    def plot_gradient_sparsity(self,zero_tol=0.0001,save_fig=False):
+    def plot_gradient_sparsity(self,zero_tol=0.0001,mode='f'):
         """
         Plots sparsity of jacobian matrix. A position is considered a zero if its mean
         absolute value is lower than tolerance.\n
@@ -1634,47 +1667,74 @@ class analysis:
         *save_fig: if True, figures generated with this plot will be saved to a directory.
         If False, they will be shown on screen. Defaults to False.
         """
-        if self.grad_npoints==0:
+        if mode=='f':
+            if self.grad_npoints==0:
+                raise ValueError(
+                    "analysis.plot_gradient_sparsity: sampling and getting gradient first is necessary")
+            dim=self.f_dim
+        elif mode=='c':
+            if self.c_dim==0:
+                raise ValueError(
+                    "analysis.plot_gradient_sparsity: mode 'c' selected for unconstrained problem")
+            if self.c_grad_npoints==0:
+                raise ValueError(
+                    "analysis.plot_gradient_sparsity: sampling and getting c_gradient first is necessary")
+            else:
+                dim=self.c_dim
+        else:
             raise ValueError(
-                "analysis.plot_gradient_sparsity: sampling and getting gradient first is necessary")
+                "analysis.plot_gradient_sparsity: select a valid mode 'f' or 'c'")
         try:
-            from matplotlib.pylab import spy,show,title,grid,xlabel,ylabel,xticks,yticks,draw
+            from matplotlib.pylab import spy,show,title,grid,xlabel,ylabel,xticks,yticks,draw,cla,clf
             from numpy import nanmean,asarray
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_sparsity needs matplotlib and numpy to run. Are they installed?")
 
-        
-        title('Gradient/Jacobian Sparsity ('+str(100*round(self.grad_sparsity,4))+'% sparse) \n \n')
+        if mode=='f':
+            title('Gradient/Jacobian Sparsity ('+str(100*round(self.grad_sparsity,4))+'% sparse)\n')
+            ylabel('Objective')
+            matrix=self.average_abs_gradient
+        else:
+            title('Constraint Gradient/Jacobian Sparsity ('+str(100*round(self.c_grad_sparsity,4))+'% sparse)\n')
+            ylabel('Constraint')
+            matrix=self.average_abs_c_gradient
+
         grid(True)
-        xlabel('dimension')
-        ylabel('objective')
-        plot=spy(self.average_abs_gradient,precision=zero_tol,markersize=20)
+        xlabel('Dimension')
+        
+        plot=spy(matrix,precision=zero_tol,markersize=20)
         try:
             xlocs=range(self.cont_dim)
-            ylocs=range(self.f_dim)
+            ylocs=range(dim)
             xlabels=[str(i) for i in range(1,self.cont_dim+1)]
-            ylabels=[str(i) for i in range(1,self.f_dim+1)]
+            ylabels=[str(i) for i in range(1,dim+1)]
             xticks(xlocs,[x.format(xlocs[i]) for i,x in enumerate(xlabels)])
             yticks(ylocs,[y.format(ylocs[i]) for i,y in enumerate(ylabels)])
         except IndexError, ValueError:
             pass
         f=plot.get_figure()
-        if save_fig:
-            import os
-            if not os.path.exists('./temp_analysis_figures/'):
-                os.makedirs('./temp_analysis_figures/')
-            f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
-            self.fignum+=1
-        else:
+        if self.dir==None:
             show(f)
+            cla()
+            clf()
+        else:
+            f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+            if mode=='f':
+                print ('*Gradient/Jacobian sparsity plot : <figure_'+str(self.fignum)+'.png>',file=output)
+            else:
+                print ('*Constraints Gradient/Jacobian sparsity plot : <figure_'+str(self.fignum)+'.png>',file=output)
+            self.fignum+=1
+            cla()
+            clf()
 
-
-    def plot_gradient_pcp(self,mode='x',scaled=True,save_fig=False):
+    def plot_gradient_pcp(self,mode='f',invert=False):
         """
         Generates Parallel Coordinate Plot of Gradient.\n
-        USAGE: analysis.plot_gradient_pcp([mode='x', scaled=True, save_fig=False])
-        *mode: 2 options are available:
+        USAGE: analysis.plot_gradient_pcp([invert='x', scaled=True, save_fig=False])
+        *invert: 2 options are available:
                 *'x': parallel axes are search variables, colors are objectives.
                 Not suitable for univariate problems.
                 *'f': parallel axes are objectives, colors are search variables.
@@ -1684,82 +1744,114 @@ class analysis:
         *save_fig: if True, figures generated with this plot will be saved to a directory.
         If False, they will be shown on screen. Defaults to False.
         """
-        if self.grad_npoints==0:
+        if mode=='f':
+            if self.grad_npoints==0:
+                raise ValueError(
+                    "analysis.plot_gradient_pcp: sampling and getting gradient first is necessary")
+            else:
+                dim=self.f_dim
+                grad=self.grad
+                npoints=self.grad_npoints
+                string='Objective '
+        elif mode=='c':
+            if self.c_dim==0:
+                raise ValueError(
+                    "analysis.plot_gradient_pcp: mode 'c' selected for unconstrained problem")            
+            if self.c_grad_npoints==0:
+                raise ValueError(
+                    "analysis.plot_gradient_pcp: sampling and getting c_gradient first is necessary")
+            else:
+                dim=self.c_dim
+                grad=self.c_grad
+                npoints=self.c_grad_npoints
+                string='Constraint '
+        else:
             raise ValueError(
-                "analysis.plot_gradient_pcp: sampling and getting gradient first is necessary")
-        if mode!='x' and mode!='f':
+                "analysis.plot_gradient_pcp: choose a valid mode 'f' or 'c'")
+
+        if invert==False and self.cont_dim==1:
             raise ValueError(
-                "analysis.plot_gradient_pcp: choose a valid value for mode ('x' or 'f')")
-        if mode=='x' and self.cont_dim==1:
+                "analysis.plot_gradient_pcp: this plot makes no sense for univariate problems")
+        if invert==True and dim==1:
             raise ValueError(
-                "analysis.plot_gradient_pcp: mode 'x' makes no sense for univariate problems")
-        if mode=='f' and self.f_dim==1:
-            raise ValueError(
-                "analysis.plot_gradient_pcp: mode 'f' makes no sense for single-objective problems")
+                "analysis.plot_gradient_pcp: this plot makes no sense for single-"+string.lower()+"problems")
+
+        #----------- FIX THINGS OVER THIS LINE ------------------------------------------
         try:
             from pandas.tools.plotting import parallel_coordinates as pc
             from pandas import DataFrame as df
-            from matplotlib.pyplot import show,title,grid,ylabel,xlabel
+            from matplotlib.pyplot import show,title,grid,ylabel,xlabel,cla,clf,xticks
             from numpy import asarray,transpose
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
         gradient=[]
-        if scaled:
-            ranges=self._ptp()
-        if mode=='x':
-            aux=0
-            rowlabel=True
-        else:
+        if invert:
             aux=1
-            rowlabel=False
-        for i in range(self.grad_npoints):
-            if rowlabel:
-                tmp=[]
-            else:
+            file_string=' (inverted)'
+        else:
+            aux=0
+            file_string=''
+        for i in range(npoints):
+            if invert:
                 tmp=[['x'+str(x+1) for x in range(self.cont_dim)]]
-            for j in range(self.f_dim):
-                if rowlabel:
-                    tmp.append(['objective '+str(j+1)])
-                else:
-                    tmp.append([])
-                if scaled:
-                    for k in range(self.cont_dim):
-                        tmp[j+aux].append(self.grad[i][j][k]*(self.ub[k]-self.lb[k])/ranges[j])
-                else:
-                    tmp[j+aux].extend(self.grad[i][j])
-            if rowlabel:
-                gradient.extend(tmp)
             else:
+                tmp=[]
+            for j in range(dim):
+                if invert:
+                    tmp.append([])
+                else:
+                    if mode=='c':
+                        if j<self.c_dim-self.ic_dim:
+                            tmp.append(['Constraint h'+str(j+1)])  
+                        else:
+                            tmp.append(['Constraint g'+str(j-self.c_dim+self.ic_dim+1)])   
+                    else:
+                        tmp.append(['Objective '+str(j+1)])
+
+                tmp[j+aux].extend(grad[i][j])
+
+            if invert:
                 tmp2=[]
                 for ii in range(self.cont_dim):
                     tmp2.append([])
-                    for jj in range(self.f_dim+1):
+                    for jj in range(dim+1):
                         tmp2[ii].append(tmp[jj][ii])
                 gradient.extend(tmp2)
+            else:
+                gradient.extend(tmp)
+
         gradient=df(gradient)
 
-        title('Gradient PCP \n')
+        title(string+'Gradient/Jacobian PCP \n')
         grid(True)
-        if scaled:
-            scalelabel=' (scaled)'
+        ylabel('Derivative value (scaled)')
+        if invert:
+            xlabel(string)
         else:
-            scalelabel=''
-        ylabel('Derivative value'+scalelabel)
-        if rowlabel:
             xlabel('Dimension')
-        else:
-            xlabel('Objective')
+
         plot=pc(gradient,0)
+        if mode=='c' and invert:
+            try:
+                xlocs=range(self.c_dim)
+                xlabels=['h'+str(i+1) for i in range(self.c_dim-self.ic_dim)]+['g'+str(i+1) for i in range(self.ic_dim)]
+                xticks(xlocs,[x.format(xlocs[i]) for i,x in enumerate(xlabels)])
+            except IndexError, ValueError:
+                pass
         f=plot.get_figure()
-        if save_fig:
-            import os
-            if not os.path.exists('./temp_analysis_figures/'):
-                os.makedirs('./temp_analysis_figures/')
-            f.savefig('./temp_analysis_figures/figure_'+str(self.fignum)+'.png')
-            self.fignum+=1
-        else:
+        if self.dir==None:
             show(f)
+            cla()
+            clf()
+        else:
+            f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+            print ('*'+string+'Gradient/Jacobian PCP plot'+file_string+' : <figure_'+str(self.fignum)+'.png>',file=output)
+            self.fignum+=1
+            cla()
+            clf()
 
 #LOCAL SEARCH -> minimization assumed, single objective assumed
 
@@ -1846,11 +1938,12 @@ class analysis:
             raise ValueError(
                 "analysis._get_local_extrema: input a valid pygmo algorithm")
         try:
-            import numpy as np
+            from numpy.random import randint
+            from numpy import array,ptp
         except ImportError:
             raise ImportError(
                 "analysis._get_local_extrema needs numpy to run. Is it installed?")
-        from numpy.random import randint
+
         from time import time
         
         if sample_size<=0 or sample_size>=self.npoints:
@@ -1864,11 +1957,10 @@ class analysis:
         #self.local_neval=[]// pygmo doesn't return it
         self.local_search_time=[]
         self.local_f=[]
+        self.local_f_dec=[]
 
         if self.f_dim==1:
             decomposition=self.prob
-            span=self.f_span[0]
-            offset=self.f_offset[0]
 
         else:
             if weights=='uniform':
@@ -1904,9 +1996,6 @@ class analysis:
                 print(file=output)
                 if self.dir!=None:
                     output.close()
-            span=sum([s*w for s,w in zip(self.f_span,decomposition.weights)])
-            offset=sum([o*w for o,w in zip(self.f_offset,decomposition.weights)])
-
         if par:
             archi=archipelago()
         for i in range(self.local_initial_npoints):
@@ -1922,7 +2011,11 @@ class analysis:
                 isl.evolve(1)
                 self.local_search_time.append(isl.get_evolution_time())
                 self.local_extrema.append([(c-l)/(u-l) for c,u,l in zip(list(isl.population.champion.x),self.ub,self.lb)])
-                self.local_f.append((isl.population.champion.f[0]-offset)/span)
+                self.local_f_dec.append(isl.population.champion.f[0])
+                if self.f_dim==1:
+                    self.local_f.append([(isl.population.champion.f[0]-self.f_offset[0])/self.f_span[0]])
+                else:
+                    self.local_f.append(((array(isl.population.champion.f)-array(self.f_offset))/array(self.f_span)).tolist())
         if par:
             start=time()
             archi.evolve(1)
@@ -1931,7 +2024,14 @@ class analysis:
             for i in archi:
                 self.local_search_time.append(i.get_evolution_time())
                 self.local_extrema.append([(c-l)/(u-l) for c,u,l in zip(list(i.population.champion.x),self.ub,self.lb)])
-                self.local_f.append((i.population.champion.f[0]-offset)/span)
+                self.local_f_dec.append(i.population.champion.f[0])
+                if self.f_dim==1:
+                    self.local_f.append([(i.population.champion.f[0]-self.f_offset[0])/self.f_span[0]])
+                else:
+                    self.local_f.append(((array(i.population.champion.f)-array(self.f_offset))/array(self.f_span)).tolist())
+        f_dec_offset=min(self.local_f_dec)
+        f_dec_span=ptp(self.local_f_dec)
+        self.local_f_dec=[(i-f_dec_offset)/f_dec_span for i in self.local_f_dec[:]]
 
 
     def _cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.001,kmax=0):
@@ -1992,7 +2092,7 @@ class analysis:
             #for j in range(self.dim):
                 #dataset[i][j]=(self.local_extrema[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
             dataset.append(self.local_extrema[i][:])
-            dataset[i].append(self.local_f[i])
+            dataset[i].extend(self.local_f[i])
             #dataset[i][self.dim]=(self.local_f[i]-mean_f)/range_f
         if k!=0:#cluster to given number of clusters
             clust=KMeans(k)
@@ -2011,7 +2111,7 @@ class analysis:
             total_center=clust.cluster_centers_[0]
             total_radius=max(total_distances)[0]
             #total_radius=(total_radius**2-(self.local_f[list(total_distances).index(total_radius)]-total_center[self.dim])**2)**.5
-            if total_radius<single_cluster_tolerance*(self.dim+1):#single cluster scenario
+            if total_radius<single_cluster_tolerance*(self.dim+self.f_dim):#single cluster scenario
                 #storage of output
                 local_cluster=list(clust.predict(dataset))
                 self.local_nclusters=1
@@ -2041,6 +2141,9 @@ class analysis:
 
         #more storage and reordering so clusters are ordered best to worst
         cluster_value=[clust.cluster_centers_[i][self.dim] for i in range(self.local_nclusters)]
+        cluster_value=[0]*self.local_nclusters
+        for i in range(self.local_initial_npoints):
+            cluster_value[local_cluster[i]]+=self.local_f_dec[i]
         order=[x for (y,x) in sorted(zip(cluster_value,range(self.local_nclusters)))]
 
         self.local_cluster_x_centers=[]
@@ -2051,7 +2154,7 @@ class analysis:
             self.local_cluster_size.append(cluster_size[order[i]])
             self.local_cluster_x_centers.append(clust.cluster_centers_[order[i]][:self.dim])
             #self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim]*range_f+mean_f)
-            self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim])
+            self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim:])
             # for j in range(self.dim):
             #     self.local_cluster_x_centers[i][j]*=(self.ub[j]-self.lb[j])
             #     self.local_cluster_x_centers[i][j]+=0.5*(self.ub[j]+self.lb[j])
@@ -2062,13 +2165,13 @@ class analysis:
                     break
 
         #calculate cluster radius and center
-        self.local_cluster_rx=[0 for i in range(self.local_nclusters)]
-        self.local_cluster_rx0=[0 for i in range(self.local_nclusters)]
+        self.local_cluster_rx=[0]*self.local_nclusters
+        self.local_cluster_rx0=[0]*self.local_nclusters
         f=[[] for i in range(self.local_nclusters)]
         for i in range(self.local_initial_npoints):
             c=self.local_cluster[i]
             if self.local_cluster_size[c]==1:
-                f[c].append(0)
+                f[c].append([0]*self.f_dim)
             else:
                 rx=np.linalg.norm(np.asarray(self.local_extrema[i])-np.asarray(self.local_cluster_x_centers[c]))
                 rx0=np.linalg.norm(np.asarray(self.points[self.local_initial_points[i]])-np.asarray(self.local_cluster_x_centers[c]))
@@ -2077,9 +2180,10 @@ class analysis:
                     self.local_cluster_rx[c]=rx
                 if rx0>self.local_cluster_rx0[c]:
                     self.local_cluster_rx0[c]=rx0
-        self.local_cluster_df=[np.ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
 
-    def plot_local_cluster_pcp(self,together=True):
+        self.local_cluster_f_span=[np.ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
+
+    def plot_local_cluster_pcp(self,together=True,clusters_to_plot=10):
         """
         Generates a Parallel Coordinate Plot of the clusters obtained for the local
         search results. The parallel axes represent the chromosome of the initial
@@ -2105,16 +2209,22 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
+        if clusters_to_plot=='all':
+            clusters_to_plot=self.local_nclusters
         if together:
             n=1
-            dataset=[[[self.local_cluster[i]+1]+self.points[self.local_initial_points[i]] for i in range(self.local_initial_npoints)]]
+            dataset=[[]]
+            for i in range(self.local_initial_npoints):
+                if self.local_cluster[i]<clusters_to_plot:
+                    dataset[0].append([self.local_cluster[i]+1]+self.points[self.local_initial_points[i]])
             dataset[0].sort()
             separatelabel=['' for i in range(self.local_nclusters)]
         else:
-            n=self.local_nclusters
-            dataset=[[] for i in range(self.local_nclusters)]
+            n=min([clusters_to_plot,self.local_nclusters])
+            dataset=[[] for i in range(clusters_to_plot)]
             for i in range(self.local_initial_npoints):
-                dataset[self.local_cluster[i]].append([self.local_cluster[i]+1]+self.points[self.local_initial_points[i]])
+                if self.local_cluster[i]<clusters_to_plot:
+                    dataset[self.local_cluster[i]].append([self.local_cluster[i]+1]+self.points[self.local_initial_points[i]])
             separatelabel=[': cluster '+str(i+1) for i in range(self.local_nclusters)]
         flist=[]
         for i in range(n):
@@ -2137,12 +2247,12 @@ class analysis:
                     aux='(global)'
                 else:
                     aux='(cluster n.'+str(i+1)+')'
-                print ('*Cluster PCP '+aux+' : <figure_'+str(self.fignum)+'.png>',file=output)
+                print ('*Cluster PCP plot '+aux+' : <figure_'+str(self.fignum)+'.png>',file=output)
                 self.fignum+=1
                 cla()
                 clf()
     
-    def plot_local_cluster_scatter(self,dimensions=[]):
+    def plot_local_cluster_scatter(self,dimensions=[],clusters_to_plot=10):
         """
         Generates a Scatter Plot of the clusters obtained for the local search results
         in the dimensions specified (up to 3). Centroids are also shown.\n
@@ -2173,43 +2283,56 @@ class analysis:
         #dataset=asarray([[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_initial_npoints)])
         #centers=[[(self.local_cluster_x_centers[i][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_nclusters)]
         
-        dataset=asarray([self.points[self.local_initial_points[i]] for i in range(self.local_initial_npoints)])
-        centers=self.local_cluster_x_centers
-        colors=Set1(linspace(0,1,self.local_nclusters))
+        dataset=[]
+        if clusters_to_plot=='all':
+            clusters_to_plot=self.local_nclusters
+        else:
+            clusters_to_plot=min(clusters_to_plot,self.local_nclusters)
+        npoints=0
+        c=[]
+        colors=Set1(linspace(0,1,clusters_to_plot))
+        for i in range(self.local_initial_npoints):
+            if self.local_cluster[i]<clusters_to_plot:
+                dataset.append([self.points[self.local_initial_points[i]][j] for j in dimensions])
+                c.append(colors[self.local_cluster[i]])
+                npoints+=1
+        dataset=asarray(dataset)
+        centers=self.local_cluster_x_centers[:clusters_to_plot]
+
         if len(dimensions)==1:
             ax=axes()
-            ax.scatter(dataset,[0 for i in range(self.local_initial_npoints)], c=[colors[i] for i in self.local_cluster])
+            ax.scatter(dataset,[0 for i in range(npoints)], c=c)
             ax.set_xlim(0,1)
             ax.set_ylim(-0.1,0.1)
             ax.set_yticklabels([])
             ax.set_xlabel('x'+str(dimensions[0]+1))
             grid(True)
-            for i in range(self.local_nclusters):
+            for i in range(clusters_to_plot):
                 ax.scatter(centers[i][0],0.005,marker='^',color=colors[i],s=100)
                 ax.text(centers[i][0],0.01,'cluster '+str(i+1),horizontalalignment='center',verticalalignment='bottom',color=colors[i],rotation='vertical',size=12,backgroundcolor='w')
             
         elif len(dimensions)==2:
             ax=axes()
-            ax.scatter(dataset[:,0],dataset[:,1],c=[colors[i] for i in self.local_cluster])
+            ax.scatter(dataset[:,0],dataset[:,1],c=c)
             ax.set_xlim(0,1)
             ax.set_ylim(0,1)
             ax.set_xlabel('x'+str(dimensions[0]+1))
             ax.set_ylabel('x'+str(dimensions[1]+1))
             grid(True)
-            for i in range(self.local_nclusters):
+            for i in range(clusters_to_plot):
                 ax.scatter(centers[i][0],centers[i][1],marker='^',color=colors[i],s=100)
                 ax.text(centers[i][0]+.02,centers[i][1],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
             
         else:
             ax = figure().add_subplot(111,projection='3d')
-            ax.scatter(dataset[:,0],dataset[:,1],dataset[:,2],c=[colors[i] for i in self.local_cluster])
+            ax.scatter(dataset[:,0],dataset[:,1],dataset[:,2],c=c)
             ax.set_xlim(0,1)
             ax.set_ylim(0,1)
             ax.set_zlim(0,1)
             ax.set_xlabel('x'+str(dimensions[0]+1))
             ax.set_ylabel('x'+str(dimensions[1]+1))
             ax.set_zlabel('x'+str(dimensions[2]+1))
-            for i in range(self.local_nclusters):
+            for i in range(clusters_to_plot):
                 ax.scatter(centers[i][0],centers[i][1],centers[i][2],marker='^',color=colors[i],s=100)
                 ax.text(centers[i][0],centers[i][1]+0.02,centers[i][2],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
         title('Local extrema clusters scatter plot')
