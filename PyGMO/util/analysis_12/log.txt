@@ -1,0 +1,54 @@
+===============================================================================
+                                   ANALYSIS                                    
+===============================================================================
+-------------------------------------------------------------------------------
+PROBLEM PROPERTIES
+-------------------------------------------------------------------------------
+Problem name: CEC2006 - g4
+	Global dimension:			5
+	Integer dimension:			0
+	Fitness dimension:			1
+	Constraints dimension:			6
+	Inequality constraints dimension:	6
+	Lower bounds: [78, 33, 27, 27, 27]
+	Upper bounds: [102, 45, 45, 45, 45]
+	Constraints tolerance: [0, 0, 0, 0, 0, 0]
+
+-------------------------------------------------------------------------------
+SAMPLED [1000] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
+-------------------------------------------------------------------------------
+C-FEASIBILITY
+-------------------------------------------------------------------------------
+Constraint g_1 : 
+     Effectiveness >0 :                  [0.634]
+     Redundancy wrt. all other ic :      [0.301]
+     Number of feasible points found :   [366]
+Constraint g_2 : 
+     Effectiveness >0 :                  [-0.0]
+     Redundancy wrt. all other ic :      [0.0]
+     Number of feasible points found :   [1000]
+Constraint g_3 : 
+     Effectiveness >0 :                  [0.009]
+     Redundancy wrt. all other ic :      [1.0]
+     Number of feasible points found :   [991]
+Constraint g_4 : 
+     Effectiveness >0 :                  [-0.0]
+     Redundancy wrt. all other ic :      [0.0]
+     Number of feasible points found :   [1000]
+Constraint g_5 : 
+     Effectiveness >0 :                  [0.078]
+     Redundancy wrt. all other ic :      [0.769]
+     Number of feasible points found :   [922]
+Constraint g_6 : 
+     Effectiveness >0 :                  [0.203]
+     Redundancy wrt. all other ic :      [0.631]
+     Number of feasible points found :   [797]
+Pairwise redundancy (ic) :
+        g1   |   g2   |   g3   |   g4   |   g5   |   g6   |
+
+ g1   [1.0]  | [0.0]  |[0.014] | [0.0]  |[0.095] |[0.202] |
+ g2   [0.0]  | [0.0]  | [0.0]  | [0.0]  | [0.0]  | [0.0]  |
+ g3   [1.0]  | [0.0]  | [1.0]  | [0.0]  |[0.667] | [0.0]  |
+ g4   [0.0]  | [0.0]  | [0.0]  | [0.0]  | [0.0]  | [0.0]  |
+ g5  [0.769] | [0.0]  |[0.077] | [0.0]  | [1.0]  | [0.0]  |
+ g6  [0.631] | [0.0]  | [0.0]  | [0.0]  | [0.0]  | [1.0]  |

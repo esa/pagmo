@@ -4,80 +4,42 @@
 -------------------------------------------------------------------------------
 PROBLEM PROPERTIES
 -------------------------------------------------------------------------------
-Problem name: Kursawe's study
+Problem name: CEC2006 - g4
 	Global dimension:			5
 	Integer dimension:			0
-	Fitness dimension:			2
-	Constraints dimension:			0
-	Inequality constraints dimension:	0
-	Lower bounds: [-5, -5, -5, -5, -5]
-	Upper bounds: [5, 5, 5, 5, 5]
-	Constraints tolerance: []
+	Fitness dimension:			1
+	Constraints dimension:			6
+	Inequality constraints dimension:	6
+	Lower bounds: [78, 33, 27, 27, 27]
+	Upper bounds: [102, 45, 45, 45, 45]
+	Constraints tolerance: [0, 0, 0, 0, 0, 0]
 
 -------------------------------------------------------------------------------
-SAMPLED [10] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
---------------------------------------------------------------------------------
-MULTI-MODALITY : LOCAL SEARCH
---------------------------------------------------------------------------------
-Local searches performed :               10
-Quartiles of CPU time per search [ms]:   0.0 / 2.0 / 2.5 / 4.5 / 5.0
-Number of clusters identified :          8
-Cluster properties (max. best 8 clusters) :
-     Cluster n. 1 :
-         Size:                           1.0 ,  10.0 %
-         Mean objective value :          1.117
-         Cluster center :                [0.147, 0.0, 0.0, 1.0, 0.663]
-         Cluster diameter in F :         0.0
-         Cluster radius in X :           0.0
-         Radius of attraction :          0.0
-     Cluster n. 2 :
-         Size:                           1.0 ,  10.0 %
-         Mean objective value :          1.132
-         Cluster center :                [0.945, 0.07, 0.562, 0.945, 0.31]
-         Cluster diameter in F :         0.0
-         Cluster radius in X :           0.0
-         Radius of attraction :          0.0
-     Cluster n. 3 :
-         Size:                           1.0 ,  10.0 %
-         Mean objective value :          1.159
-         Cluster center :                [0.689, 0.817, 0.816, 0.185, 0.061]
-         Cluster diameter in F :         0.0
-         Cluster radius in X :           0.0
-         Radius of attraction :          0.0
-     Cluster n. 4 :
-         Size:                           1.0 ,  10.0 %
-         Mean objective value :          1.171
-         Cluster center :                [0.132, 0.625, 0.882, 0.882, 0.625]
-         Cluster diameter in F :         0.0
-         Cluster radius in X :           0.0
-         Radius of attraction :          0.0
-     Cluster n. 5 :
-         Size:                           2.0 ,  20.0 %
-         Mean objective value :          1.186
-         Cluster center :                [0.569, 0.84, 0.153, 0.721, 0.289]
-         Cluster diameter in F :         0.054
-         Cluster radius in X :           0.35
-         Radius of attraction :          0.348
-     Cluster n. 6 :
-         Size:                           2.0 ,  20.0 %
-         Mean objective value :          1.215
-         Cluster center :                [0.56, 0.273, 0.719, 0.155, 0.827]
-         Cluster diameter in F :         0.041
-         Cluster radius in X :           0.24
-         Radius of attraction :          0.238
-     Cluster n. 7 :
-         Size:                           1.0 ,  10.0 %
-         Mean objective value :          1.22
-         Cluster center :                [0.63, 0.094, 0.352, 0.352, 0.109]
-         Cluster diameter in F :         0.0
-         Cluster radius in X :           0.0
-         Radius of attraction :          0.0
-     Cluster n. 8 :
-         Size:                           1.0 ,  10.0 %
-         Mean objective value :          1.633
-         Cluster center :                [0.5, 0.5, 0.5, 0.5, 0.5]
-         Cluster diameter in F :         0.0
-         Cluster radius in X :           0.0
-         Radius of attraction :          0.0
-*Cluster PCP (global) : <figure_1.png>
-*Cluster scatter plot (dimensions [1, 2, 3]) : <figure_2.png>
+SAMPLED [1000] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
+-------------------------------------------------------------------------------
+C-FEASIBILITY
+-------------------------------------------------------------------------------
+Constraint g_1 : 
+     Effectiveness >0 :                  [0.634]
+     Redundancy wrt. other constraints:  [0.301]
+     Number of feasible points found :   [366]
+Constraint g_2 : 
+     Effectiveness >0 :                  [-0.0]
+     Redundancy wrt. other constraints:  [0.0]
+     Number of feasible points found :   [1000]
+Constraint g_3 : 
+     Effectiveness >0 :                  [0.009]
+     Redundancy wrt. other constraints:  [1.0]
+     Number of feasible points found :   [991]
+Constraint g_4 : 
+     Effectiveness >0 :                  [-0.0]
+     Redundancy wrt. other constraints:  [0.0]
+     Number of feasible points found :   [1000]
+Constraint g_5 : 
+     Effectiveness >0 :                  [0.078]
+     Redundancy wrt. other constraints:  [0.769]
+     Number of feasible points found :   [922]
+Constraint g_6 : 
+     Effectiveness >0 :                  [0.203]
+     Redundancy wrt. other constraints:  [0.631]
+     Number of feasible points found :   [797]

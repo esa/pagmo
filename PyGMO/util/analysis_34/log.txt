@@ -1,0 +1,30 @@
+===============================================================================
+                                   ANALYSIS                                    
+===============================================================================
+-------------------------------------------------------------------------------
+PROBLEM PROPERTIES
+-------------------------------------------------------------------------------
+Problem name: Schwefel
+	Global dimension:			4
+	Integer dimension:			0
+	Fitness dimension:			1
+	Constraints dimension:			0
+	Inequality constraints dimension:	0
+	Lower bounds: [-500, -500, -500, -500]
+	Upper bounds: [500, 500, 500, 500]
+	Constraints tolerance: []
+
+-------------------------------------------------------------------------------
+SAMPLED [100] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
+-------------------------------------------------------------------------------
+LEVELSET FEATURES 
+-------------------------------------------------------------------------------
+Percentile 50  :
+     Mean Misclassification Errors 
+         Linear Kernel :                 [0.51] 
+         Quadratic Kernel :              [0.49] 
+         Non-Linear Kernel (RBF):        [0.41] 
+     P-Values :
+         Linear/Quadratic :              [0.096] 
+         Linear/Nonlinear :              [0.017] 
+         Quadratic/Nonlinear :           [0.036] 

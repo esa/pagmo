@@ -4,188 +4,186 @@
 -------------------------------------------------------------------------------
 PROBLEM PROPERTIES
 -------------------------------------------------------------------------------
-Problem name: CEC2006 - g5
-	Global dimension:			4
+Problem name: Kursawe's study
+	Global dimension:			5
 	Integer dimension:			0
-	Fitness dimension:			1
-	Constraints dimension:			5
-	Inequality constraints dimension:	2
-	Lower bounds: [0, 0, -0.55000000000000004, -0.55000000000000004]
-	Upper bounds: [1200, 1200, 0.55000000000000004, 0.55000000000000004]
-	Constraints tolerance: [0.0001, 0.0001, 0.0001, 0, 0]
+	Fitness dimension:			2
+	Constraints dimension:			0
+	Inequality constraints dimension:	0
+	Lower bounds: [-5, -5, -5, -5, -5]
+	Upper bounds: [5, 5, 5, 5, 5]
+	Constraints tolerance: []
 
 -------------------------------------------------------------------------------
 SAMPLED [1000] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
 --------------------------------------------------------------------------------
-F-DISTRIBUTION FEATURES 
---------------------------------------------------------------------------------
-Fitness magnitude :
-     Min :                               [179.447]
-     Max :                               [8766.151]
-     Peak-to-peak (scale factor) :       [8586.704]
-Fitness distribution :
-     Mean :                              [0.412]
-     Standard deviation :                [0.21]
-     Percentiles :
-           5 :                           [0.091]
-           10 :                          [0.14]
-           25 :                          [0.246]
-           50 :                          [0.4]
-           75 :                          [0.563]
-     Skew :                              [0.268]
-     Kurtosis :                          [-0.594]
-Number of peaks of f-distribution :      [1]
-*F-distribution plot : <figure_1.png>
-*X-PCP plot obj.1 :    <figure_2.png>
--------------------------------------------------------------------------------
-PROBABILITY OF LINEARITY AND CONVEXITY
--------------------------------------------------------------------------------
-Number of pairs of points used :         [1000]
-Probability of linearity :               [0.0]
-Probability of convexity :               [1.0]
-Mean deviation from linearity :          [0.014]
--------------------------------------------------------------------------------
-F-REGRESSION
--------------------------------------------------------------------------------
-OBJECTIVE 1 :
- DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-  1(i)      11491.689       0.983     0.983      0.027        X          X      
-   1        11491.689       0.983     0.983      0.027        X          X      
-   2        162724.464       1.0       1.0       0.005        X          X      
-   3        3.763e+30        1.0       1.0     1.709e-15      X          X      
---------------------------------------------------------------------------------
-OBJECTIVE CORRELATION 
---------------------------------------------------------------------------------
-This is a single-objective problem.
--------------------------------------------------------------------------------
-C-LINEARITY
--------------------------------------------------------------------------------
-              CONSTRAINT         PROBABILITY OF LINEARITY
-                 h_1                      [0.0]          
-                 h_2                      [0.0]          
-                 h_3                      [0.0]          
-                 g_1                      [1.0]          
-                 g_2                      [1.0]          
--------------------------------------------------------------------------------
-C-FEASIBILITY
--------------------------------------------------------------------------------
-Constraint h_1 :
-     Effectiveness >=0 :                 [0.383]
-     Effectiveness <=0 :                 [0.617]
-     Number of feasible points found :   [0]
-Constraint h_2 :
-     Effectiveness >=0 :                 [0.417]
-     Effectiveness <=0 :                 [0.583]
-     Number of feasible points found :   [0]
-Constraint h_3 :
-     Effectiveness >=0 :                 [0.891]
-     Effectiveness <=0 :                 [0.109]
-     Number of feasible points found :   [0]
-Constraint g_1 : 
-     Effectiveness >0 :                  [0.121]
-     Number of feasible points found :   [879]
-Constraint g_2 : 
-     Effectiveness >0 :                  [0.125]
-     Number of feasible points found :   [875]
--------------------------------------------------------------------------------
-C-REGRESSION
--------------------------------------------------------------------------------
-CONSTRAINT h_1 :
- DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-   1         274774.0       0.999     0.999      0.006      0.999      0.006    
-   2        776926.823       1.0       1.0       0.002       1.0       0.002    
-CONSTRAINT h_2 :
- DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-   1        278813.696      0.998     0.998      0.009      0.998      0.009    
-   2        413073.839       1.0       1.0       0.002       1.0       0.002    
-CONSTRAINT h_3 :
- DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-   1        142252.834      0.998     0.998      0.012      0.998      0.012    
-   2        342214.503       1.0       1.0       0.003       1.0       0.003    
-CONSTRAINT g_1 :
- DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-   1        6.378e+31        1.0       1.0     8.455e-16     1.0     7.765e-16  
-   2        5.168e+31        1.0       1.0     9.394e-16     1.0     2.507e-15  
-CONSTRAINT g_2 :
- DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-   1        3.777e+31        1.0       1.0     1.099e-15     1.0     7.283e-16  
-   2        4.869e+31        1.0       1.0     9.678e-16     1.0     2.495e-15  
---------------------------------------------------------------------------------
 MULTI-MODALITY : LOCAL SEARCH
 --------------------------------------------------------------------------------
+WARNING: get_local_extrema is decomposing multi-objective problem by means of 
+tchebycheff method, with uniform weight vector and [0, 0] ideal reference 
+point! 
 Local searches performed :               1000
-Quartiles of CPU time per search [ms]:   6.0 / 121.0 / 218.0 / 345.0 / 462.0
-Number of clusters identified :          83
-Cluster properties (max. best 10 clusters) :
+Quartiles of CPU time per search [ms]:   8.0 / 94.0 / 421.5 / 466.0 / 495.0
+Number of clusters identified :          101
+Cluster properties (max. best 20 clusters) :
      Cluster n. 1 :
-         Size:                           10.0 ,  1.0 %
-         Mean objective value :          0.059
-         Cluster center :                [0.114, 0.111, 0.836, 0.466]
-         Cluster diameter in F :         0.139
-         Cluster radius in X :           0.272
-         Radius of attraction :          0.272
+         Size:                           5.0 ,  0.5 %
+         Mean objective value :          [1.628, 0.395]
+         Cluster center :                [0.396, 0.99, 0.981, 0.392, 0.004]
+         Cluster span in F :             [0.044, 0.028]
+         Cluster radius in X :           0.194
+         Radius of attraction :          0.518
      Cluster n. 2 :
-         Size:                           14.0 ,  1.4 %
-         Mean objective value :          0.071
-         Cluster center :                [0.124, 0.135, 0.413, 0.869]
-         Cluster diameter in F :         0.12
-         Cluster radius in X :           0.254
-         Radius of attraction :          0.254
+         Size:                           7.0 ,  0.7 %
+         Mean objective value :          [1.621, 0.391]
+         Cluster center :                [0.103, 0.819, 0.072, 0.965, 0.058]
+         Cluster span in F :             [0.066, 0.041]
+         Cluster radius in X :           0.392
+         Radius of attraction :          0.857
      Cluster n. 3 :
-         Size:                           14.0 ,  1.4 %
-         Mean objective value :          0.084
-         Cluster center :                [0.132, 0.17, 0.21, 0.363]
-         Cluster diameter in F :         0.167
-         Cluster radius in X :           0.235
-         Radius of attraction :          0.235
+         Size:                           7.0 ,  0.7 %
+         Mean objective value :          [1.624, 0.393]
+         Cluster center :                [0.946, 0.868, 0.941, 0.052, 0.52]
+         Cluster span in F :             [0.05, 0.031]
+         Cluster radius in X :           0.222
+         Radius of attraction :          0.555
      Cluster n. 4 :
-         Size:                           12.0 ,  1.2 %
-         Mean objective value :          0.098
-         Cluster center :                [0.146, 0.194, 0.566, 0.56]
-         Cluster diameter in F :         0.12
-         Cluster radius in X :           0.255
-         Radius of attraction :          0.255
+         Size:                           8.0 ,  0.8 %
+         Mean objective value :          [1.622, 0.392]
+         Cluster center :                [0.888, 0.13, 0.945, 0.932, 0.888]
+         Cluster span in F :             [0.08, 0.05]
+         Cluster radius in X :           0.308
+         Radius of attraction :          0.689
      Cluster n. 5 :
-         Size:                           10.0 ,  1.0 %
-         Mean objective value :          0.1
-         Cluster center :                [0.232, 0.073, 0.161, 0.709]
-         Cluster diameter in F :         0.105
-         Cluster radius in X :           0.219
-         Radius of attraction :          0.219
+         Size:                           4.0 ,  0.4 %
+         Mean objective value :          [1.679, 0.428]
+         Cluster center :                [0.61, 0.272, 0.954, 0.91, 0.713]
+         Cluster span in F :             [0.049, 0.031]
+         Cluster radius in X :           0.228
+         Radius of attraction :          0.217
      Cluster n. 6 :
-         Size:                           9.0 ,  0.9 %
-         Mean objective value :          0.101
-         Cluster center :                [0.16, 0.185, 0.893, 0.825]
-         Cluster diameter in F :         0.155
-         Cluster radius in X :           0.198
-         Radius of attraction :          0.198
+         Size:                           8.0 ,  0.8 %
+         Mean objective value :          [1.636, 0.401]
+         Cluster center :                [0.506, 0.045, 0.887, 0.951, 0.544]
+         Cluster span in F :             [0.088, 0.054]
+         Cluster radius in X :           0.318
+         Radius of attraction :          0.501
      Cluster n. 7 :
-         Size:                           17.0 ,  1.7 %
-         Mean objective value :          0.111
-         Cluster center :                [0.22, 0.127, 0.743, 0.167]
-         Cluster diameter in F :         0.161
-         Cluster radius in X :           0.324
-         Radius of attraction :          0.324
+         Size:                           8.0 ,  0.8 %
+         Mean objective value :          [1.636, 0.401]
+         Cluster center :                [0.862, 0.096, 0.977, 0.23, 0.928]
+         Cluster span in F :             [0.121, 0.075]
+         Cluster radius in X :           0.263
+         Radius of attraction :          0.645
      Cluster n. 8 :
-         Size:                           12.0 ,  1.2 %
-         Mean objective value :          0.117
-         Cluster center :                [0.2, 0.18, 0.445, 0.15]
-         Cluster diameter in F :         0.149
-         Cluster radius in X :           0.24
-         Radius of attraction :          0.24
+         Size:                           8.0 ,  0.8 %
+         Mean objective value :          [1.637, 0.401]
+         Cluster center :                [0.156, 0.959, 0.646, 0.929, 0.889]
+         Cluster span in F :             [0.117, 0.073]
+         Cluster radius in X :           0.284
+         Radius of attraction :          0.512
      Cluster n. 9 :
-         Size:                           6.0 ,  0.6 %
-         Mean objective value :          0.15
-         Cluster center :                [0.149, 0.36, 0.915, 0.186]
-         Cluster diameter in F :         0.056
-         Cluster radius in X :           0.187
-         Radius of attraction :          0.187
+         Size:                           8.0 ,  0.8 %
+         Mean objective value :          [1.638, 0.402]
+         Cluster center :                [0.795, 0.965, 0.039, 0.194, 0.923]
+         Cluster span in F :             [0.105, 0.065]
+         Cluster radius in X :           0.276
+         Radius of attraction :          0.733
      Cluster n. 10 :
-         Size:                           12.0 ,  1.2 %
-         Mean objective value :          0.16
-         Cluster center :                [0.123, 0.421, 0.177, 0.688]
-         Cluster diameter in F :         0.134
-         Cluster radius in X :           0.286
-         Radius of attraction :          0.286
-*Cluster PCP (global) : <figure_3.png>
-*Cluster scatter plot (dimensions [1, 2, 3]) : <figure_4.png>
+         Size:                           9.0 ,  0.9 %
+         Mean objective value :          [1.633, 0.399]
+         Cluster center :                [0.55, 0.951, 0.952, 0.706, 0.986]
+         Cluster span in F :             [0.083, 0.051]
+         Cluster radius in X :           0.323
+         Radius of attraction :          0.549
+     Cluster n. 11 :
+         Size:                           7.0 ,  0.7 %
+         Mean objective value :          [1.653, 0.411]
+         Cluster center :                [0.531, 0.93, 0.062, 0.057, 0.413]
+         Cluster span in F :             [0.112, 0.07]
+         Cluster radius in X :           0.225
+         Radius of attraction :          0.472
+     Cluster n. 12 :
+         Size:                           9.0 ,  0.9 %
+         Mean objective value :          [1.64, 0.403]
+         Cluster center :                [0.517, 0.984, 0.915, 0.146, 0.205]
+         Cluster span in F :             [0.105, 0.065]
+         Cluster radius in X :           0.297
+         Radius of attraction :          0.53
+     Cluster n. 13 :
+         Size:                           8.0 ,  0.8 %
+         Mean objective value :          [1.65, 0.409]
+         Cluster center :                [0.084, 0.27, 0.904, 0.945, 0.597]
+         Cluster span in F :             [0.096, 0.059]
+         Cluster radius in X :           0.28
+         Radius of attraction :          0.493
+     Cluster n. 14 :
+         Size:                           10.0 ,  1.0 %
+         Mean objective value :          [1.634, 0.399]
+         Cluster center :                [0.861, 0.086, 0.894, 0.932, 0.345]
+         Cluster span in F :             [0.069, 0.043]
+         Cluster radius in X :           0.24
+         Radius of attraction :          0.478
+     Cluster n. 15 :
+         Size:                           9.0 ,  0.9 %
+         Mean objective value :          [1.642, 0.404]
+         Cluster center :                [0.154, 0.123, 0.959, 0.065, 0.837]
+         Cluster span in F :             [0.122, 0.076]
+         Cluster radius in X :           0.276
+         Radius of attraction :          0.71
+     Cluster n. 16 :
+         Size:                           10.0 ,  1.0 %
+         Mean objective value :          [1.634, 0.4]
+         Cluster center :                [0.196, 0.952, 0.185, 0.041, 0.866]
+         Cluster span in F :             [0.13, 0.081]
+         Cluster radius in X :           0.316
+         Radius of attraction :          0.659
+     Cluster n. 17 :
+         Size:                           9.0 ,  0.9 %
+         Mean objective value :          [1.643, 0.405]
+         Cluster center :                [0.305, 0.109, 0.902, 0.048, 0.25]
+         Cluster span in F :             [0.113, 0.07]
+         Cluster radius in X :           0.288
+         Radius of attraction :          0.42
+     Cluster n. 18 :
+         Size:                           7.0 ,  0.7 %
+         Mean objective value :          [1.664, 0.418]
+         Cluster center :                [0.134, 0.121, 0.2, 0.878, 0.904]
+         Cluster span in F :             [0.065, 0.041]
+         Cluster radius in X :           0.342
+         Radius of attraction :          0.572
+     Cluster n. 19 :
+         Size:                           8.0 ,  0.8 %
+         Mean objective value :          [1.656, 0.413]
+         Cluster center :                [0.123, 0.031, 0.493, 0.034, 0.243]
+         Cluster span in F :             [0.11, 0.068]
+         Cluster radius in X :           0.313
+         Radius of attraction :          0.54
+     Cluster n. 20 :
+         Size:                           9.0 ,  0.9 %
+         Mean objective value :          [1.647, 0.408]
+         Cluster center :                [0.172, 0.877, 0.029, 0.828, 0.865]
+         Cluster span in F :             [0.13, 0.081]
+         Cluster radius in X :           0.339
+         Radius of attraction :          0.49
+*Cluster PCP plot (global) : <figure_1.png>
+*Cluster PCP plot (cluster n.1) : <figure_2.png>
+*Cluster PCP plot (cluster n.2) : <figure_3.png>
+*Cluster PCP plot (cluster n.3) : <figure_4.png>
+*Cluster PCP plot (cluster n.4) : <figure_5.png>
+*Cluster PCP plot (cluster n.5) : <figure_6.png>
+*Cluster PCP plot (cluster n.6) : <figure_7.png>
+*Cluster PCP plot (cluster n.7) : <figure_8.png>
+*Cluster PCP plot (cluster n.8) : <figure_9.png>
+*Cluster PCP plot (cluster n.9) : <figure_10.png>
+*Cluster PCP plot (cluster n.10) : <figure_11.png>
+*Cluster PCP plot (cluster n.11) : <figure_12.png>
+*Cluster PCP plot (cluster n.12) : <figure_13.png>
+*Cluster PCP plot (cluster n.13) : <figure_14.png>
+*Cluster PCP plot (cluster n.14) : <figure_15.png>
+*Cluster PCP plot (cluster n.15) : <figure_16.png>
+*Cluster PCP plot (cluster n.16) : <figure_17.png>
+*Cluster PCP plot (cluster n.17) : <figure_18.png>
+*Cluster PCP plot (cluster n.18) : <figure_19.png>
+*Cluster PCP plot (cluster n.19) : <figure_20.png>
+*Cluster PCP plot (cluster n.20) : <figure_21.png>

@@ -98,7 +98,7 @@ class analysis:
             output.close()
 
     #BLOCKS
-    def f_distribution(self,percentile=[5,10,25,50,75],plot1=True,plot2=True,round_to=3):
+    def f_distribution(self,percentile=[5,10,25,50,75],plot_f_distribution=True,plot_x_pcp=True,round_to=3):
         """
         This function gives the user information about the f-distribution of their search-space
         sample. All properties are shown per objective. Distribution properties are computed on
@@ -362,6 +362,7 @@ class analysis:
             print ("This is an unconstrained problem.",file=output)
         else:
             results=self._c_effectiveness(tol)
+            redundancy=self._ic_redundancy(tol)
             for c in range(self.c_dim-self.ic_dim):
                 print ("Constraint h_"+str(c+1)+" :",file=output)
                 print ("     Effectiveness >=0 :                ",[round(1-results[c][0]+results[c][1],round_to)],file=output)
@@ -370,7 +371,19 @@ class analysis:
             for c in range(-self.ic_dim,0):
                 print ("Constraint g_"+str(c+self.ic_dim+1)+" : ",file=output)
                 print ("     Effectiveness >0 :                 ",[round(1-results[c][0],round_to)],file=output)
+                print ("     Redundancy wrt. all other ic :     ",[round(redundancy[0][c],round_to)],file=output)
                 print ("     Number of feasible points found :  ",[int(results[c][0]*self.npoints)],file=output)  
+            if self.ic_dim>0:
+                print ("Pairwise redundancy (ic) :",file=output)
+                print ("_____|",end='',file=output)
+                for i in range(self.ic_dim-1):
+                    print(("g"+str(i+1)).center(8),end='|',file=output)
+                print(("g"+str(self.ic_dim)).center(8),end='|',file=output)
+                for i in range(self.ic_dim):
+                    print(file=output)
+                    print((" g"+str(i+1)).ljust(5),end='|',file=output)
+                    for j in range(self.ic_dim):
+                        print (str(round(redundancy[1][i][j],round_to)).center(8),end='|',file=output)
         if output!=None:
             output.close()
 
@@ -425,7 +438,7 @@ class analysis:
         if output!=None:
             output.close()
 
-    def multimodality(self,cluster=True,clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=False,plot_scatter=True,scatter_plot_dimensions=[],sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],variance_ratio=0.9,k=0,single_cluster_tolerance=0.001,kmax=0,round_to=3):
+    def local_search(self,cluster=True,clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=True,scatter_plot_dimensions=[],sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],variance_ratio=0.9,k=0,single_cluster_tolerance=0.001,kmax=0,round_to=3):
         from numpy import percentile        
         if self.dir==None:
             output=None
@@ -434,7 +447,7 @@ class analysis:
             output.seek(0,2)
         string='LOCAL SEARCH'
         print ("--------------------------------------------------------------------------------",file=output)
-        print ("MULTI-MODALITY : "+string,file=output)
+        print ("LOCAL SEARCH "+string,file=output)
         print ("--------------------------------------------------------------------------------",file=output)
         if output!=None:
             output.close()
@@ -469,14 +482,107 @@ class analysis:
                 self.plot_local_cluster_pcp(together=True,clusters_to_plot=clusters_to_show)
             if plot_separate_pcp:
                 self.plot_local_cluster_pcp(together=False,clusters_to_plot=clusters_to_show)
-            if plot_scatter:
-                self.plot_local_cluster_scatter(dimensions=scatter_plot_dimensions,clusters_to_plot=clusters_to_show)
+            if len(scatter_plot_dimensions)>0:
+                self.plot_local_cluster_scatter(dimensions=[i-1 for i in scatter_plot_dimensions],clusters_to_plot=clusters_to_show)
 
-    def f_sensitivity(self):
-        pass
+    def levelset(self,threshold=50,k_test=10,k_tune=3,linear=True,quadratic=True,nonlinear=True,round_to=3):
+        if isinstance(threshold,(int,float)):
+            threshold=[threshold]
+        if any([linear,quadratic,nonlinear]) and len(threshold)>0:
+            if self.dir==None:
+                output=None
+            else:
+                output=open(self.dir+'/log.txt','r+')
+                output.seek(0,2)
 
-    def c_sensitivity(self):
-        pass
+            print ("-------------------------------------------------------------------------------",file=output)
+            print ("LEVELSET FEATURES ",file=output)
+            print ("-------------------------------------------------------------------------------",file=output)
+            for i in threshold:
+                svm_results=self._svm_p_values(threshold=i,k_test=k_test,k_tune=k_tune)
+                print ("Percentile",i," :",file=output)
+                print ("     Mean Misclassification Errors ",file=output)
+                if linear:
+                    print ("         Linear Kernel :                ",[round(r,round_to) for r in svm_results[0]],"",file=output)
+                if quadratic:
+                    print ("         Quadratic Kernel :             ",[round(r,round_to) for r in svm_results[1]],"",file=output)
+                if nonlinear:
+                    print ("         Non-Linear Kernel (RBF):       ",[round(r,round_to) for r in svm_results[2]],"",file=output)
+                if any([linear and quadratic, linear and nonlinear, quadratic and nonlinear]):
+                    print ("     P-Values :",file=output)
+                if linear and quadratic:
+                    print ("         Linear/Quadratic :             ",[round(r,round_to) for r in svm_results[3]],"",file=output)
+                if linear and nonlinear:
+                    print ("         Linear/Nonlinear :             ",[round(r,round_to) for r in svm_results[4]],"",file=output)
+                if quadratic and nonlinear:
+                    print ("         Quadratic/Nonlinear :          ",[round(r,round_to) for r in svm_results[5]],"",file=output)
+            if output!=None:
+                output.close()
+
+    def f_sensitivity(self,hessian=True,plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0,h=0.01,conv_tol=0.000001,zero_tol=0.000001,tmax=15,round_to=3):
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+        print ("-------------------------------------------------------------------------------",file=output)
+        print ("F-SENSITIVITY ",file=output)
+        print ("-------------------------------------------------------------------------------",file=output)
+        self._get_gradient(sample_size=sample_size,h=h,grad_tol=conv_tol,zero_tol=zero_tol,tmax=tmax,mode='f')
+        g=self._grad_properties(tol=zero_tol,mode='f')
+        self._get_hessian(sample_size=sample_size,h=h,hess_tol=conv_tol,tmax=tmax)
+        h=self._hess_properties(tol=zero_tol)
+        for f in range(self.f_dim):
+            if self.f_dim>1:
+                print ("OBJECTIVE "+str(f+1)+" :",file=output)
+            print ("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
+            print ("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
+            print ("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
+            if hessian:
+                print ("     Hessian conditioning :".ljust(28),str(round(h[0][f][0],round_to)).center(9),str(round(h[0][f][1],round_to)).center(9),str(round(h[0][f][2],round_to)).center(9),str(round(h[0][f][3],round_to)).center(9),str(round(h[0][f][4],round_to)).center(9),"",sep="|",file=output)
+                print ("     Gradient sparsity :                               ","["+str(round(self.grad_sparsity,round_to))+"]")  
+                print ("     Fraction of points with PD hessian :              ","["+str(round(h[1][f],round_to))+"]",file=output)
+                print ("     Fraction of points with PSD (not PD) hessian :    ","["+str(round(h[2][f],round_to))+"]",file=output)
+            else:
+                print ("     Gradient sparsity :           ","["+str(round(self.grad_sparsity,round_to))+"]")
+        if output!=None:
+            output.close()
+        if plot_gradient_sparsity:
+            self.plot_gradient_sparsity(zero_tol=zero_tol,mode='f')
+        if plot_pcp and self.cont_dim>1:
+            self.plot_gradient_pcp(mode='f',invert=False)
+        if plot_inverted_pcp and self.f_dim>1:
+            self.plot_gradient_pcp(mode='f',invert=True)
+
+
+    def c_sensitivity(self,plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True,sample_size=0,h=0.01,conv_tol=0.000001,zero_tol=0.000001,tmax=15,round_to=3):
+        if self.dir==None:
+            output=None
+        else:
+            output=open(self.dir+'/log.txt','r+')
+            output.seek(0,2)
+
+        print ("-------------------------------------------------------------------------------",file=output)
+        print ("C-SENSITIVITY ",file=output)
+        print ("-------------------------------------------------------------------------------",file=output)
+        self._get_gradient(sample_size=sample_size,h=h,grad_tol=conv_tol,zero_tol=zero_tol,tmax=tmax,mode='c')
+        g=self._grad_properties(tol=zero_tol,mode='c')
+        for f in range(self.ic_dim):
+            if self.ic_dim>1:
+                print ("CONSTRAINT g_"+str(f+1)+" :",file=output)
+            print ("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
+            print ("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
+            print ("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
+            print ("     Gradient sparsity :           ","["+str(round(self.c_grad_sparsity,round_to))+"]")
+
+        if output!=None:
+            output.close()
+        if plot_gradient_sparsity:
+            self.plot_gradient_sparsity(zero_tol=zero_tol,mode='c')
+        if plot_pcp and self.cont_dim>1:
+            self.plot_gradient_pcp(mode='c',invert=False)
+        if plot_inverted_pcp and self.c_dim>1:
+            self.plot_gradient_pcp(mode='c',invert=True)
 
     #SAMPLING
     def sample(self, npoints, method='sobol', first=1):
@@ -783,6 +889,7 @@ class analysis:
             self.fignum+=1
             cla()
             clf()
+            output.close()
 
     def plot_x_pcp(self,percentile=[],percentile_values=[]):
         """
@@ -859,6 +966,7 @@ class analysis:
                     self.fignum+=1
                     cla()
                     clf()
+                    output.close()
 
     def _n_peaks_f(self,nf=0):
         """
@@ -1420,8 +1528,7 @@ class analysis:
       
 
 #CURVATURE
-#possible problem: tolerance needs to be relative to the magnitude of the result
-    def _get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001,mode='f'):
+    def _get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001,tmax=15,mode='f'):
         """
         Routine that selects points from the sample and calculates the Jacobian
         matrix in them by calling richardson_gradient. Also computes its sparsity.\n
@@ -1473,7 +1580,7 @@ class analysis:
         grad=[]
         grad_sparsity=0
         for i in grad_points:
-            grad.append(self._richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol,mode=mode))
+            grad.append(self._richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol,tmax=tmax,mode=mode))
         average_abs_gradient=nanmean(abs(asarray(grad)),0)
         for i in range(dim):
             for j in range(self.cont_dim):
@@ -1548,7 +1655,7 @@ class analysis:
         return d[(t+1)%2][t-1].tolist()
 
 
-    def _get_hessian(self,sample_size=0,h=0.01,hess_tol=0.000001):
+    def _get_hessian(self,sample_size=0,h=0.01,hess_tol=0.000001,tmax=15):
         """
         Routine that selects points from the sample and calculates the Hessian
         3rd-order tensor in them by calling richardson_hessian.\n
@@ -1583,7 +1690,7 @@ class analysis:
 
         self.hess=[]
         for i in self.hess_points:
-            self.hess.append(self._richardson_hessian(x=self.points[i],h=h,hess_tol=hess_tol))
+            self.hess.append(self._richardson_hessian(x=self.points[i],h=h,hess_tol=hess_tol,tmax=tmax))
 
     def _richardson_hessian(self,x,h,hess_tol,tmax=15):
         """
@@ -1658,6 +1765,92 @@ class analysis:
 
         return hessian
 
+    def _grad_properties(self,tol=10**(-8),mode='f'):
+        if mode=='f':
+            if self.grad_npoints==0:
+                raise ValueError(
+                    "analysis._grad_properties: sampling and getting gradient first is necessary")
+            dim=self.f_dim
+            grad=self.grad
+            npoints=self.grad_npoints
+        elif mode=='c':
+            if self.c_dim==0:
+                raise ValueError(
+                    "analysis._grad_properties: mode 'c' selected for unconstrained problem")
+            if self.c_grad_npoints==0:
+                raise ValueError(
+                    "analysis._grad_properties: sampling and getting c_gradient first is necessary")
+            else:
+                dim=self.c_dim
+                grad=self.c_grad
+                npoints=self.c_grad_npoints
+        else:
+            raise ValueError(
+                "analysis._grad_properties: select a valid mode 'f' or 'c'")
+        try:
+            from numpy import percentile
+            from numpy.linalg import norm
+        except ImportError:
+            raise ImportError(
+                "analysis._grad_properties needs numpy to run. Is it installed?")
+        cond_quartiles=[]
+        norm_quartiles=[]
+        for f in range(dim):
+            cond=[]
+            norms=[]
+            for p in range(npoints):
+                tmp=[abs(i) for i in grad[p][f]]
+                norms.append(norm(grad[p][f]))
+                if min(tmp)>tol:
+                    cond.append(max(tmp)/min(tmp))
+                else:
+                    cond.append(float('inf'))
+            cond_quartiles.append([])
+            norm_quartiles.append([])
+            for i in range(0,101,25):
+                cond_quartiles[f].append(percentile(cond,i).tolist())
+                norm_quartiles[f].append(percentile(norms,i).tolist())
+        return (norm_quartiles,cond_quartiles)
+
+    def _hess_properties(self,tol=10**(-8)):
+        if self.hess_npoints==0:
+            raise ValueError(
+                "analysis._hess_properties: sampling and getting gradient first is necessary")
+        if self.dim==1:
+            raise ValueError(
+                "analysis._hess_properties: test not applicable to univariate problems")
+        try:
+            from numpy import percentile
+            from numpy.linalg import eigh
+        except ImportError:
+            raise ImportError(
+                "analysis._hess_properties needs numpy to run. Is it installed?")
+        pd=[0]*self.f_dim
+        psd=[0]*self.f_dim
+        cond_quartiles=[]
+        for f in range(self.f_dim):
+            cond=[]
+            
+            for p in range(self.hess_npoints):
+                e=eigh(self.hess[p][f])[0]
+                eu=max(e)
+                ed=min(e)
+                eabs=[abs(i) for i in e]
+                if min(eabs)>tol:
+                    cond.append(max(eabs)/min(eabs))
+                else:
+                    cond.append(float('inf'))
+                if ed>=tol:
+                    pd[f]+=1.
+                if abs(ed)<tol:
+                    psd[f]+=1.
+            pd[f]/=self.hess_npoints
+            psd[f]/=self.hess_npoints
+            cond_quartiles.append([])
+            for i in range(0,101,25):
+                cond_quartiles[f].append(percentile(cond,i).tolist())
+        return (cond_quartiles,pd,psd)
+
     def plot_gradient_sparsity(self,zero_tol=0.0001,mode='f'):
         """
         Plots sparsity of jacobian matrix. A position is considered a zero if its mean
@@ -1729,6 +1922,7 @@ class analysis:
             self.fignum+=1
             cla()
             clf()
+            output.close()
 
     def plot_gradient_pcp(self,mode='f',invert=False):
         """
@@ -1776,7 +1970,6 @@ class analysis:
             raise ValueError(
                 "analysis.plot_gradient_pcp: this plot makes no sense for single-"+string.lower()+"problems")
 
-        #----------- FIX THINGS OVER THIS LINE ------------------------------------------
         try:
             from pandas.tools.plotting import parallel_coordinates as pc
             from pandas import DataFrame as df
@@ -1852,6 +2045,7 @@ class analysis:
             self.fignum+=1
             cla()
             clf()
+            output.close()
 
 #LOCAL SEARCH -> minimization assumed, single objective assumed
 
@@ -2251,8 +2445,9 @@ class analysis:
                 self.fignum+=1
                 cla()
                 clf()
+                output.close()
     
-    def plot_local_cluster_scatter(self,dimensions=[],clusters_to_plot=10):
+    def plot_local_cluster_scatter(self,dimensions='all',clusters_to_plot=10):
         """
         Generates a Scatter Plot of the clusters obtained for the local search results
         in the dimensions specified (up to 3). Centroids are also shown.\n
@@ -2266,11 +2461,13 @@ class analysis:
         if self.local_nclusters==0:
             raise ValueError(
                 "analysis.plot_local_cluster_scatter: sampling, getting local extrema and clustering them first is necessary")
-        if len(dimensions)==0:
+        if dimensions=='all':
             dimensions=range(self.dim)
-        if len(dimensions)>3:
+        if isinstance(dimensions,int):
+            dimensions=[dimensions]
+        if len(dimensions)>3 or len(dimensions)==0:
             raise ValueError(
-                "analysis.plot_local_cluster_scatter: choose a maximum of 3 dimensions to plot")
+                "analysis.plot_local_cluster_scatter: choose 1, 2 or 3 dimensions to plot")
         try:
             from matplotlib.pyplot import show,title,grid,legend,axes,figure,cla,clf
             from mpl_toolkits.mplot3d import Axes3D
@@ -2611,13 +2808,7 @@ class analysis:
             g_range=2.**np.arange(-15,4)
             param_grid=dict(gamma=g_range,C=c_range)
         per=self._percentile(threshold)
-        
-        dataset=[] #normalization of data
-        for i in range(self.npoints):
-            dataset.append(np.zeros(self.dim))
-            for j in range(self.dim):
-                dataset[i][j]=(self.points[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
-
+        dataset=self.points[:]
         mce=[]
         for obj in range(self.f_dim):
             y=np.zeros(self.npoints) #classification of data
@@ -2630,31 +2821,49 @@ class analysis:
             grid.fit(dataset,y)
             #print grid.best_estimator_
             test_score=cross_val_score(estimator=grid.best_estimator_,X=dataset,y=y,scoring=None,cv=StratifiedKFold(y,k_test))
-            mce.append(list(np.ones(k_test)-test_score))
-
+            mce.append((np.ones(k_test)-test_score).tolist())
         return mce #mce[n_obj][k_test]
 
-    def _svm_p_values(self,threshold=50,k_tune=3,k_test=10):
-        if self.npoints==0:
-            raise ValueError(
-                "analysis._svm_p_values: sampling first is necessary")
-        try:
-            import scipy as sp
-            import numpy as np
-        except ImportError:
-            raise ImportError(
-                "analysis._svm_p_values needs scipy and numpy to run. Is it installed?")
-        linear=self._svm(threshold=threshold, kernel='linear',k_tune=k_tune, k_test=k_test)
-        quadratic=self._svm(threshold=threshold, kernel='quadratic',k_tune=k_tune, k_test=k_test)
-        nonlinear=self._svm(threshold=threshold, kernel='rbf',k_tune=k_tune, k_test=k_test)
-        l_q=[]
-        q_n=[]
-        l_n=[]
-        for i in range(self.f_dim):
-            l_q.append(sp.stats.mannwhitneyu(linear[i],quadratic[i])[1])
-            l_n.append(sp.stats.mannwhitneyu(linear[i],nonlinear[i])[1])
-            q_n.append(sp.stats.mannwhitneyu(quadratic[i],nonlinear[i])[1])
-        return (list(np.mean(linear,1)),list(np.mean(quadratic,1)),list(np.mean(nonlinear,1)),l_q,l_n,q_n)
+    def _svm_p_values(self,threshold=50,k_tune=3,k_test=10,l=True,q=True,n=True):
+        if any([l,q,n]):
+            if self.npoints==0:
+                raise ValueError(
+                    "analysis._svm_p_values: sampling first is necessary")
+            try:
+                import scipy as sp
+                import numpy as np
+            except ImportError:
+                raise ImportError(
+                    "analysis._svm_p_values needs scipy and numpy to run. Is it installed?")
+            if l:
+                linear=self._svm(threshold=threshold, kernel='linear',k_tune=k_tune, k_test=k_test)
+            else:
+                linear=[[-1]*self.f_dim]
+            if q:
+                quadratic=self._svm(threshold=threshold, kernel='quadratic',k_tune=k_tune, k_test=k_test)
+            else:
+                quadratic=[[-1]*self.f_dim]
+            if n:
+                nonlinear=self._svm(threshold=threshold, kernel='rbf',k_tune=k_tune, k_test=k_test)
+            else:
+                nonlinear=[[-1]*self.f_dim]
+            l_q=[]
+            q_n=[]
+            l_n=[]
+            for i in range(self.f_dim):
+                if l and q:
+                    l_q.append(sp.stats.mannwhitneyu(linear[i],quadratic[i])[1])
+                else:
+                    l_q.append(-1)
+                if l and n:
+                    l_n.append(sp.stats.mannwhitneyu(linear[i],nonlinear[i])[1])
+                else:
+                    l_n.append(-1)
+                if n and q:
+                    q_n.append(sp.stats.mannwhitneyu(quadratic[i],nonlinear[i])[1])
+                else:
+                    q_n.append(-1)
+            return (list(np.mean(linear,1)),list(np.mean(quadratic,1)),list(np.mean(nonlinear,1)),l_q,l_n,q_n)
 
 
 #CONSTRAINTS
@@ -2779,7 +2988,6 @@ class analysis:
             return c
 
 
-
     def _ic_effectiveness(self):
         if self.npoints==0:
             raise ValueError(
@@ -2803,7 +3011,7 @@ class analysis:
             raise ValueError(
                 "analysis._constraint_feasibility: sampling first is necessary")
         ec_f=[]
-        if self.ic_dim-self.c_dim!=0:
+        if self.c_dim-self.ic_dim!=0:
             if len(self.c)==0:
                 raise ValueError(
                     "analysis._constraint_feasibility: compute constraints first")
@@ -2813,6 +3021,49 @@ class analysis:
                     if self.c[j][i]==0 or (self.c[j][i]>0 and self.c[0][i]<0) or (self.c[0][i]>0 and self.c[j][i]<0):
                         ec_f[i]=True
         return ec_f
+
+    def _ic_redundancy(self,tol=10**(-8)):
+        if self.npoints==0:
+            raise ValueError(
+                "analysis._constraint_feasibility: sampling first is necessary")
+        ec_f=[]
+        if self.ic_dim!=0:
+            if len(self.c)==0:
+                raise ValueError(
+                    "analysis._constraint_feasibility: compute constraints first")
+            try:
+                from numpy import dot,transpose,array
+            except ImportError:
+                raise ImportError(
+                    "analysis._c_lin needs numpy to run. Is it installed?")
+            redundancy=[0 for i in range(self.ic_dim)]
+            violation=[]
+            for i in range(self.npoints):
+                violation.append([0]*self.ic_dim)
+                count=0
+                for j in range(-self.ic_dim,0):
+                    if self.c[i][j]>tol:
+                        violation[i][j]=1.
+                        if count==0:
+                            first_index=j
+                        elif count==1:
+                            redundancy[first_index]+=1.
+                            redundancy[j]+=1.
+                        else:
+                            redundancy[j]+=1.
+                        count+=1
+
+            m=dot(transpose(violation),violation)
+            for i in range(self.ic_dim):
+                d=float(m[i][i])
+                if d>0:
+                    redundancy[i]=redundancy[i]/d
+                    for j in range(self.ic_dim):
+                        m[i][j]=m[i][j]/d
+                else:
+                    redundancy[i]=1
+                    m[i]=[1]*self.ic_dim
+            return (redundancy,m.tolist())
 
     #PRESENTATION OF RESULTS
 

@@ -4,85 +4,25 @@
 -------------------------------------------------------------------------------
 PROBLEM PROPERTIES
 -------------------------------------------------------------------------------
-Problem name: De Jong
+Problem name: Kursawe's study
 	Global dimension:			5
 	Integer dimension:			0
-	Fitness dimension:			1
+	Fitness dimension:			2
 	Constraints dimension:			0
 	Inequality constraints dimension:	0
-	Lower bounds: [-5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001, -5.1200000000000001]
-	Upper bounds: [5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001, 5.1200000000000001]
+	Lower bounds: [-5, -5, -5, -5, -5]
+	Upper bounds: [5, 5, 5, 5, 5]
 	Constraints tolerance: []
 
 -------------------------------------------------------------------------------
-SAMPLED [100] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
---------------------------------------------------------------------------------
-F-DISTRIBUTION FEATURES 
---------------------------------------------------------------------------------
-Fitness magnitude :
-     Min :                               [0.0]
-     Max :                               [90.144]
-     Peak-to-peak (scale factor) :       [90.144]
-Fitness distribution :
-     Mean :                              [0.472]
-     Standard deviation :                [0.186]
-     Percentiles :
-           5 :                           [0.16]
-           10 :                          [0.241]
-           25 :                          [0.36]
-           50 :                          [0.469]
-           75 :                          [0.568]
-     Skew :                              [0.248]
-     Kurtosis :                          [0.135]
-Number of peaks of f-distribution :      [1]
-*F-distribution plot : <figure_1.png>
-*X-PCP plot obj.1 :    <figure_2.png>
--------------------------------------------------------------------------------
-PROBABILITY OF LINEARITY AND CONVEXITY
--------------------------------------------------------------------------------
-Number of pairs of points used :         [100]
-Probability of linearity :               [0.0]
-Probability of convexity :               [1.0]
-Mean deviation from linearity :          [0.151]
--------------------------------------------------------------------------------
-F-REGRESSION
--------------------------------------------------------------------------------
-OBJECTIVE 1 :
- DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-  1(i)        3.528         0.185     0.133      0.174        X          X      
-   1          3.528         0.185     0.133      0.174        X          X      
-   2        2.176e+29        1.0       1.0     1.782e-15      X          X      
-   3         2.08e+28        1.0       1.0     1.722e-15      X          X      
---------------------------------------------------------------------------------
-OBJECTIVE CORRELATION 
---------------------------------------------------------------------------------
-This is a single-objective problem.
--------------------------------------------------------------------------------
-C-LINEARITY
--------------------------------------------------------------------------------
-This is an unconstrained problem.
--------------------------------------------------------------------------------
-C-FEASIBILITY
--------------------------------------------------------------------------------
-This is an unconstrained problem.
--------------------------------------------------------------------------------
-C-REGRESSION
--------------------------------------------------------------------------------
-This is an unconstrained problem.
+SAMPLED [1000] POINTS VIA sobol METHOD FOR THE SUBSEQUENT TESTS
 --------------------------------------------------------------------------------
 MULTI-MODALITY : LOCAL SEARCH
 --------------------------------------------------------------------------------
-Local searches performed :               100
-Quartiles of CPU time per search [ms]:   1.0 / 2.0 / 2.0 / 3.0 / 3.0
-Number of clusters identified :          1
-Cluster properties (max. best 10 clusters) :
+WARNING: get_local_extrema is decomposing multi-objective problem by means of  tchebycheff  method, with  uniform weight vector  and [0, 0] ideal reference point!
+Local searches performed :               1000
+Quartiles of CPU time per search [ms]:   9.0 / 107.75 / 509.0 / 550.0 / 590.0
+Number of clusters identified :          6
+Cluster properties (max. best 6 clusters) :
      Cluster n. 1 :
-         Size:                           100 ,  100.0 %
-         Mean objective value :          0.0
-         Cluster center :                [0.5, 0.5, 0.5, 0.5, 0.5]
-         Cluster diameter in F :         0.0
-         Cluster radius in X :           0.001
-         Radius of attraction :          0.927
-*F-distribution plot : <figure_3.png>
-*F-distribution plot : <figure_4.png>
-*F-distribution plot : <figure_5.png>
+         Size:                           253.0 ,  25.3 %
