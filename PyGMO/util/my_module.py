@@ -25,7 +25,7 @@ class my_problem(base):
    def _objfun_impl(self,x):
       f=0
       for i in range(self.__dim):
-         f+=(i+1)*x[i]
+         f+=(i)*x[i]
          #note that we return a tuple with one element only. In PyGMO the objective functions
          #return tuples so that multi-objective optimization is also possible.
       s=(f,)
