@@ -67,6 +67,7 @@ class __PAGMO_VISIBLE tsp: public base_tsp
 {
 	public:
 		tsp();
+                tsp(const tsp_graph &);
 		tsp(const std::vector<std::vector<double> > &);
 		base_ptr clone() const;
 		bool check_partial_feasibility(const decision_vector &x) const;
@@ -83,9 +84,11 @@ class __PAGMO_VISIBLE tsp: public base_tsp
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_weights;
+                        ar & m_graph;
 			ar & m_tmpDecisionVector;
 		}
 		std::vector<std::vector<double> > m_weights;
+                tsp_graph m_graph;
 		mutable decision_vector m_tmpDecisionVector;
 };
 

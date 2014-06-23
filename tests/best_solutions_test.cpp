@@ -105,7 +105,7 @@ int main()
 	best_tests.push_back(make_struct(problem::himmelblau().clone()));
 	best_tests.push_back(make_struct(problem::string_match("e dai dai dai.....portiamolo a casa!!").clone()));
 	best_tests.push_back(make_struct(problem::inventory(7,8,1234).clone()));
-	best_tests.push_back(make_struct(problem::knapsack(a,b,c).clone()));
+//	best_tests.push_back(make_struct(problem::knapsack(a,b,c).clone()));
 	best_tests.push_back(make_struct(problem::kur(dimension).clone()));
 	best_tests.push_back(make_struct(problem::lennard_jones(dimension).clone()));
 	best_tests.push_back(make_struct(problem::levy5(dimension).clone()));

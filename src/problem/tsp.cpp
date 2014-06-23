@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+//#include <boost/graph/graph_concepts.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <sstream>
 #include <string>
@@ -77,25 +78,38 @@ tsp::tsp(const std::vector<std::vector<double> > &weights):
 	base_tsp(boost::numeric_cast<int>(weights[0].size()),1,0), m_weights(weights) {
 	
 	//Check weights matrix
-	for(problem::base_tsp::size_type i = 0; i < m_weights.size(); ++i) {
-		if (m_weights[i].size() != m_weights.size()) {
-			pagmo_throw(value_error,"Weights matrix must be a square matrix!");		
-		}
-		if(m_weights[i][i] != 0) {
-			pagmo_throw(value_error,"Weights matrix must have 0's on the diagonal!");
-		}
-		for (problem::base_tsp::size_type j = 0; j < m_weights[i].size(); ++j) {
-			if(m_weights[i][j] != m_weights[j][i]) {
-				pagmo_throw(value_error,"Weights matrix must be a symmetric matrix!");	
-			}
-		}
-	}
+//	for(problem::base_tsp::size_type i = 0; i < m_weights.size(); ++i) {
+//		if (m_weights[i].size() != m_weights.size()) {
+//			pagmo_throw(value_error,"Weights matrix must be a square matrix!");		
+//		}
+//		if(m_weights[i][i] != 0) {
+//			pagmo_throw(value_error,"Weights matrix must have 0's on the diagonal!");
+//		}
+//              Not necessary (we also include asymmetric problems)
+//		for (problem::base_tsp::size_type j = 0; j < m_weights[i].size(); ++j) {
+//			if(m_weights[i][j] != m_weights[j][i]) {
+//				pagmo_throw(value_error,"Weights matrix must be a symmetric matrix!");	
+//			}
+//		}
+//	}
 
 	set_lb(0);
 	set_ub(weights[0].size()-1); //number of nodes in the graph -1 (we count from 0)
 	set_heuristic_information_matrix();
 }
 
+/// Constructor from boost graph object
+/**
+ * Initialize weights of the edges (city distances) from the boost graph.
+ * @param[in] boost graph object containing weights between edges.
+ */
+tsp::tsp(const tsp_graph &graph):
+        base_tsp(boost::num_vertices(graph),1,0), m_graph(graph) {
+            
+        set_lb(0);
+        set_ub(boost::num_vertices(graph)-1); //number of nodes in the graph
+        set_heuristic_information_matrix();
+        }
 
 /** For tsp eta[k][i][j] represents the cost of having the node j in position k of the path and the node i in position k+1. 
  *  this represents the weight of the edge between i and j (distance from city i and j) and doesn't depends from k.

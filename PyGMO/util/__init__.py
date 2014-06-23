@@ -3,7 +3,7 @@ from PyGMO.util._util import *
 from PyGMO.util._util.hv_algorithm import hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy, fpl
 from PyGMO.core._core import population
 
-__all__ = ['hypervolume', 'hv_algorithm']
+__all__ = ['hypervolume', 'hv_algorithm', 'tsp']
 
 hv_algorithm.__doc__ = """Module containing available algorithms for the hypervolume computation
 

@@ -88,8 +88,8 @@ int main()
 	probs_new.push_back(problem::string_match().clone());
 	probs.push_back(problem::inventory(7,8,1234).clone());
 	probs_new.push_back(problem::inventory().clone());
-	probs.push_back(problem::knapsack(a,b,c).clone());
-	probs_new.push_back(problem::knapsack().clone());
+//	probs.push_back(problem::knapsack(a,b,c).clone());
+//	probs_new.push_back(problem::knapsack().clone());
 	probs.push_back(problem::kur(dimension).clone());
 	probs_new.push_back(problem::kur().clone());
 	probs.push_back(problem::lennard_jones(dimension).clone());

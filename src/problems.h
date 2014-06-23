@@ -53,7 +53,7 @@
 #include "problem/michalewicz.h"
 #include "problem/dejong.h"
 #include "problem/tsp.h"
-#include "problem/knapsack.h"
+//#include "problem/knapsack.h"
 #include "problem/sch.h"
 #include "problem/fon.h"
 #include "problem/pol.h"
