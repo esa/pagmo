@@ -6,8 +6,8 @@ Tests
 ======================================= ======================================================= =========================================
 Common Name                          	Name in PyGMO						Comments
 ======================================= ======================================================= =========================================
-Sample                              	:class:`PyGMO.util.analysis.sample`			
-F-distribution	                     	:class:`PyGMO.util.analysis.f_distribution`            
+Sample                              	:ref:`PyGMO.util.analysis.sample`			
+F-distribution	                     	:ref:`PyGMO.util.analysis.f_distribution`            
 F-linearity and convexity  	    	:class:`PyGMO.util.analysis.f_linearity_convexity`	
 F-regression			     	:class:`PyGMO.util.analysis.f_regression`		Polynomial regression on F
 F-sensitivity			     	:class:`PyGMO.util.analysis.f_sensitivity`		Jacobian and Hessian of F
