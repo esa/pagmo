@@ -16,7 +16,8 @@ class analysis:
         """
         Constructor of the analysis class from a problem or population object. Also calls
         analysis.sample when npoints>0 or by default when a population object is input.\n
-        USAGE: analysis(input_object=prob [, npoints=1000, method='sobol', first=1])\n
+        USAGE:
+        analysis(input_object=prob [, npoints=1000, method='sobol', first=1])\n
         * input_object: problem or population object used to initialise the analysis.
         * npoints: number of points of the search space to sample. If a population is input,
         a random subset of its individuals of size npoints will be sampled. Option 'all' will
@@ -38,7 +39,7 @@ class analysis:
         in attribute analysis.dir. If False, all of them will be shown on screen.\n
         NOTE: when calling sample outside the constructor, all methods can be used even if a
         population has been input to the constructor, additional method 'pop' will select members
-        from the population whereas the rest will sample the search space within its box constraints.
+        from the population whereas the rest will sample the search space within its box constraints.\n
         """
         self.npoints=0
         self.points=[]
@@ -119,10 +120,10 @@ class analysis:
             *Percentiles specified
             *Skew
             *Kurtosis
-        *Number of peaks of f-distribution as probability density function.
+        *Number of peaks of f-distribution as probability density function.\n
         Shows or saves to file:
         *Plot of f-distribution as probability density function.
-        *X-PCP: pcp of chromosome of points in the sample grouped in fitness value ranges.
+        *X-PCP: pcp of chromosome of points in the sample grouped in fitness value ranges.\n
         """
         if self.dir==None:
             output=None
@@ -227,8 +228,8 @@ class analysis:
         *R2adj: adjusted R-square coefficient.
         *RMSE: Root Mean Square Eror.
         *R2pred: prediction R-square coefficient.
-        *PRESS-RMSE: prediction RMSE.
-        REF: http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf
+        *PRESS-RMSE: prediction RMSE.\n
+        REF: http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf\n
         """
         if self.dir==None:
             output=None
@@ -275,82 +276,55 @@ class analysis:
                     print(file=output)
         if output!=None:
             output.close()
-
-    def c_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):        
+            
+    def f_correlation(self,tc=0.95,tabs=0.1,round_to=3):
         """
-        This function performs polynomial regressions on each constraint function and measures the
-        precision of these regressions.\n
+        This function performs first dimensionality reduction via PCA on the fitness sample of
+        multi-objective problems following the algorithm proposed in the reference and returns
+        the critical objectives picked. Also gives the user other informations about objective
+        function correlation for a possible eventual fitness dimensionality reduction.\n
+        REF: Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through Dimensionality
+        Reduction for Certain Large-Dimensional Multi-Objective Optimization Problems, KanGAL
+        Report No. 2005011, IIT Kanpur, 2005.\n
         USAGE:
-        analysis.c_regression(degree=[1,1,2] [, interaction= [False,True,False], pred=True, tol=10**(-8),round_to=4])
-        *degree: integer (or list of integers) specifying the degree of the regression(s) to perform.
-        *interaction: bool (or list of bools of same length as degree). If True, interaction products of
-        first order will be added. These are all terms of order regression_degree+1 that involve at least 2
-        variables. If a single boolean is input, this will be applied to all regressions performed. Defaults
-        to False.
-        *pred: bool (or list of bools of same length as degree). If True, prediction propperties will also
-        be evaluated (their process of evaluation involves performing one regression per point in the sample).
-        These are the last 2 columns of the output table. If a single boolean is input, this will be applied
-        to all regressions performed. Defaults to True.
-        *tol: tolerance to consider a coefficient of the regression model as zero. Defaults to 10**(-8).
-        *round_to: precision of the results printed. Defaults to 3.\n
+        analysis.f_correlation([tc=0.95,tabs=0.1,round_to=4])
+        *tc: threshold cut. When the cumulative contribution of the eigenvalues absolute value
+        equals this fraction of its maximum value, the reduction algorithm stops. A higher
+        threshold cut means less reduction (see reference). Defaults to 0.95.
+        *tabs: absolute tolerance. A Principal Component is treated differently if the absolute
+        value of its corresponding eigenvalue is lower than this value (see reference). Defaults
+        to 0.1.\n
         Prints to screen or file:
-        *Degree: Degree of the regression. (i) indicates the addition of interaction products.
-        *F: F-statistic value of the regression.
-        *R2: R-square coefficient.
-        *R2adj: adjusted R-square coefficient.
-        *RMSE: Root Mean Square Eror.
-        *R2pred: prediction R-square coefficient.
-        *PRESS-RMSE: prediction RMSE.
-        REF: http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf
+        *Critical objectives from first PCA: objectives not to be eliminated of the problem.
+        *Eigenvalues, relative contribution, eigenvectors (of the objective correlation matrix).
+        *Objective correlation matrix.\n
         """
+        from numpy import asarray,ones
         if self.dir==None:
             output=None
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
+        print ("--------------------------------------------------------------------------------",file=output)
+        print ("OBJECTIVE CORRELATION ",file=output)
+        print ("--------------------------------------------------------------------------------",file=output)
+        if self.f_dim==1:
+            print ("This is a single-objective problem.",file=output)
+        else:
+            obj_corr=self._f_correlation()
+            critical_obj=self._perform_f_pca(obj_corr,tc=tc,tabs=tabs)
+            print ("Critical objectives from first PCA :    ",[int(i+1) for i in critical_obj],file=output)
 
-        if isinstance(degree,int):
-            degree=[degree]
-        if len(degree)>0:
-            if isinstance(interaction,bool):
-                interaction=[interaction]*len(degree)
-            if isinstance(pred,bool):
-                pred=[pred]*len(degree)
-            if len(degree)!=len(interaction) or len(degree)!=len(pred):
-                raise ValueError(
-                        "analysis.c_regression: format of arguments is incorrect")
-
-            print ("-------------------------------------------------------------------------------",file=output)
-            print ("C-REGRESSION",file=output)
-            print ("-------------------------------------------------------------------------------",file=output)
-            if self.c_dim==0:
-                print ("This is an unconstrained problem.",file=output)
-            else:
-                properties=[]
-                for deg,inter,predi in zip(degree,interaction,pred):
-                    properties.append(self._regression_properties(degree=deg,interaction=interaction,mode='c',pred=predi,tol=tol,w=None))
-                for c in range(self.c_dim):
-                    if c<self.c_dim-self.ic_dim:
-                        print ("CONSTRAINT h_"+str(c+1)+" :",file=output)
-                    else:
-                        print ("CONSTRAINT g_"+str(c-self.c_dim+self.ic_dim+1)+" :",file=output)
-                    spaces=[7,17,9,9,11,9,11]
-                    print ("DEGREE".center(spaces[0]),"F*".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
-                    for deg,inter,prop in zip(degree,interaction,properties):
-                        if inter:
-                            print((str(deg)+'(i)').center(spaces[0]),end=' ',file=output)
-                        else:
-                            print(str(deg).center(spaces[0]),end=' ',file=output)
-                        for i,s in zip(prop[c],spaces[1:]):
-                            if i==None:
-                                print("X".center(s),end=' ',file=output)
-                            else:
-                                string=str(i).split('e')
-                                if len(string)>1:
-                                    print((str(round(float(string[0]),round_to))+'e'+string[1]).center(s),end=' ',file=output)
-                                else:
-                                    print(str(round(i,round_to)).center(s),end=' ',file=output)
-                        print(file=output)
+            print ("Eigenvalues".center(12),"Relative contribution".center(23),"Eigenvectors".center(45),file=output)
+            total_ev=sum(obj_corr[1])
+            for i in range(self.f_dim):
+                print (str(round(obj_corr[1][i],round_to)).center(12),(str(round(100*abs(obj_corr[1][i])/sum([abs(e) for e in obj_corr[1]]),round_to))+'%').center(23),str([round(val,round_to) for val in obj_corr[2][i]]).center(45),file=output)
+            print ("Objective correlation matrix :          ",file=output)
+            for i in range(self.f_dim):
+                print ("     [",end='',file=output)
+                for j in obj_corr[0][i]:
+                    print(str(round(j,round_to)).center(8),end='',file=output)
+                print("]",file=output)
         if output!=None:
             output.close()
 
@@ -379,7 +353,7 @@ class analysis:
             *Number of feasible points found.
         *Pairwise redundancy of inequality constraints: table 
         ______|   g_j   |   R_ij is the redundancy of constraint g_i with respect to g_j, this is the
-         g_i  |  R_ij   |   fraction of the points violating g_i (row) that also violate g_j (column).
+         g_i  |  R_ij   |   fraction of the points violating g_i (row) that also violate g_j (column).\n
         """
         if self.dir==None:
             output=None
@@ -458,60 +432,173 @@ class analysis:
         if output!=None:
             output.close()
 
-    def f_correlation(self,tc=0.95,tabs=0.1,round_to=3):
+    def c_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):        
         """
-        This function performs first dimensionality reduction via PCA on the fitness sample of
-        multi-objective problems following the algorithm proposed in the reference and returns
-        the critical objectives picked. Also gives the user other informations about objective
-        function correlation for a possible eventual fitness dimensionality reduction.\n
-        REF: Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through Dimensionality
-        Reduction for Certain Large-Dimensional Multi-Objective Optimization Problems, KanGAL
-        Report No. 2005011, IIT Kanpur, 2005.\n
+        This function performs polynomial regressions on each constraint function and measures the
+        precision of these regressions.\n
         USAGE:
-        analysis.f_correlation([tc=0.95,tabs=0.1,round_to=4])
-        *tc: threshold cut. When the cumulative contribution of the eigenvalues absolute value
-        equals this fraction of its maximum value, the reduction algorithm stops. A higher
-        threshold cut means less reduction (see reference). Defaults to 0.95.
-        *tabs: absolute tolerance. A Principal Component is treated differently if the absolute
-        value of its corresponding eigenvalue is lower than this value (see reference). Defaults
-        to 0.1.\n
+        analysis.c_regression(degree=[1,1,2] [, interaction= [False,True,False], pred=True, tol=10**(-8),round_to=4])
+        *degree: integer (or list of integers) specifying the degree of the regression(s) to perform.
+        *interaction: bool (or list of bools of same length as degree). If True, interaction products of
+        first order will be added. These are all terms of order regression_degree+1 that involve at least 2
+        variables. If a single boolean is input, this will be applied to all regressions performed. Defaults
+        to False.
+        *pred: bool (or list of bools of same length as degree). If True, prediction propperties will also
+        be evaluated (their process of evaluation involves performing one regression per point in the sample).
+        These are the last 2 columns of the output table. If a single boolean is input, this will be applied
+        to all regressions performed. Defaults to True.
+        *tol: tolerance to consider a coefficient of the regression model as zero. Defaults to 10**(-8).
+        *round_to: precision of the results printed. Defaults to 3.\n
         Prints to screen or file:
-        *Critical objectives from first PCA: objectives not to be eliminated of the problem.
-        *Eigenvalues, relative contribution, eigenvectors (of the objective correlation matrix).
-        *Objective correlation matrix.
+        *Degree: Degree of the regression. (i) indicates the addition of interaction products.
+        *F: F-statistic value of the regression.
+        *R2: R-square coefficient.
+        *R2adj: adjusted R-square coefficient.
+        *RMSE: Root Mean Square Eror.
+        *R2pred: prediction R-square coefficient.
+        *PRESS-RMSE: prediction RMSE.\n
+        REF: http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf\n
         """
-        from numpy import asarray,ones
         if self.dir==None:
             output=None
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        print ("--------------------------------------------------------------------------------",file=output)
-        print ("OBJECTIVE CORRELATION ",file=output)
-        print ("--------------------------------------------------------------------------------",file=output)
-        if self.f_dim==1:
-            print ("This is a single-objective problem.",file=output)
-        else:
-            obj_corr=self._f_correlation()
-            critical_obj=self._perform_f_pca(obj_corr,tc=tc,tabs=tabs)
-            print ("Critical objectives from first PCA :    ",[int(i+1) for i in critical_obj],file=output)
 
-            print ("Eigenvalues".center(12),"Relative contribution".center(23),"Eigenvectors".center(45),file=output)
-            total_ev=sum(obj_corr[1])
-            for i in range(self.f_dim):
-                print (str(round(obj_corr[1][i],round_to)).center(12),(str(round(100*abs(obj_corr[1][i])/sum([abs(e) for e in obj_corr[1]]),round_to))+'%').center(23),str([round(val,round_to) for val in obj_corr[2][i]]).center(45),file=output)
-            print ("Objective correlation matrix :          ",file=output)
-            for i in range(self.f_dim):
-                print ("     [",end='',file=output)
-                for j in obj_corr[0][i]:
-                    print(str(round(j,round_to)).center(8),end='',file=output)
-                print("]",file=output)
+        if isinstance(degree,int):
+            degree=[degree]
+        if len(degree)>0:
+            if isinstance(interaction,bool):
+                interaction=[interaction]*len(degree)
+            if isinstance(pred,bool):
+                pred=[pred]*len(degree)
+            if len(degree)!=len(interaction) or len(degree)!=len(pred):
+                raise ValueError(
+                        "analysis.c_regression: format of arguments is incorrect")
+
+            print ("-------------------------------------------------------------------------------",file=output)
+            print ("C-REGRESSION",file=output)
+            print ("-------------------------------------------------------------------------------",file=output)
+            if self.c_dim==0:
+                print ("This is an unconstrained problem.",file=output)
+            else:
+                properties=[]
+                for deg,inter,predi in zip(degree,interaction,pred):
+                    properties.append(self._regression_properties(degree=deg,interaction=interaction,mode='c',pred=predi,tol=tol,w=None))
+                for c in range(self.c_dim):
+                    if c<self.c_dim-self.ic_dim:
+                        print ("CONSTRAINT h_"+str(c+1)+" :",file=output)
+                    else:
+                        print ("CONSTRAINT g_"+str(c-self.c_dim+self.ic_dim+1)+" :",file=output)
+                    spaces=[7,17,9,9,11,9,11]
+                    print ("DEGREE".center(spaces[0]),"F*".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
+                    for deg,inter,prop in zip(degree,interaction,properties):
+                        if inter:
+                            print((str(deg)+'(i)').center(spaces[0]),end=' ',file=output)
+                        else:
+                            print(str(deg).center(spaces[0]),end=' ',file=output)
+                        for i,s in zip(prop[c],spaces[1:]):
+                            if i==None:
+                                print("X".center(s),end=' ',file=output)
+                            else:
+                                string=str(i).split('e')
+                                if len(string)>1:
+                                    print((str(round(float(string[0]),round_to))+'e'+string[1]).center(s),end=' ',file=output)
+                                else:
+                                    print(str(round(i,round_to)).center(s),end=' ',file=output)
+                        print(file=output)
         if output!=None:
             output.close()
 
-    def local_search(self,cluster=True,clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=True,scatter_plot_dimensions=[],sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio',variance_ratio=0.9,k=0,single_cluster_tolerance=0.001,kmax=0,round_to=3):
+    def local_search(self,clusters_to_show=10,plot_global_pcp=False,plot_separate_pcp=False,scatter_plot_dimensions=[],\
+        sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio',\
+        variance_ratio=0.9,k=0,single_cluster_tolerance=0.0001,kmax=0,round_to=3):
         """
-
+        This function selects points from the sample and launches local searches using them as initial
+        points. Then it clusters the results and orders the clusters ascendently as regards fitness
+        value of its centroid (after transformation for constraint problems and fitness decomposition
+        for multi-objective problems). The clustering is conducted by means of the k-Means algorithm
+        in the search-fitness space. Some parameters are also computed after the clustering to allow
+        landscape analysis and provide insight into the basins of attraction that affect the algorithm
+        deployed.\n
+        USAGE:
+        analysis.local_search([clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=True,scatter_plot_dimensions=[],sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio',variance_ratio=0.9,k=0,single_cluster_tolerance=0.001,kmax=0,round_to=3])
+        *clusters_to_show: number of clusters whose parameters will be displayed. Option 'all' will
+        display all clusters obtained. Clusters will be ordered ascendently as regards mean fitness
+        value (after applying problem.con2mo in the case of constrained problems and problem.decompose
+        for multi-objective problems), and the best ones will be shown. This parameters also affects
+        the plots.
+        *plot_global_pcp: if True, the local search cluster PCP will be generated, representing all
+        clusters to show in the same graph. See plot_local_cluster_pcp for more information on this
+        plot. Defaults to True.
+        *plot_separate_pcp: if True, as many PCPs as clusters_to_show will be generated, representing
+        a cluster per graph. See plot_local_cluster_pcp for more information on this plot. Defaults to
+        True.
+        *scatter_plot_dimensions: integer or list of up to 3 integers specifying the dimensions to
+        consider for the local search cluster scatter plot. Option 'all' will pick all dimensions.
+        Option [] will not generate the scatter plot. Defaults to [].
+        *sample_size: number of initial points to launch local searches from. If set to 0, all
+        points in sample are used. Defaults to 0.
+        *algo: algorithm object used in searches. For purposes, it should be a local optimisation
+        algorithm. Defaults to algorithm.gsl_fr().
+        *par: if True, an unconnected archipelago will be used for possible parallelization.
+        *decomposition_method: method used by problem.decompose in the case of multi-objective
+        problems. Options are: 'tchebycheff', 'weighted', 'bi' (boundary intersection).
+        Defaults to 'tchebycheff'.
+        *weights: weight vector used by problem.decompose in the case of multi-objective
+        problems. Options are: 'uniform', 'random' or any vector of length [fitness dimension]
+        whose components sum to one with precision of 10**(-8). Defaults to 'uniform'.
+        *z: ideal reference point used by 'tchebycheff' and 'bi' methods. If set to [] (empty
+        vector), point [0,0,...,0] is used. Defaults to [].
+        *con2mo: way in which constraint problems will be transformed into multi-objective problems
+        before decomposition. Defaults to 'obj_cstrsvio'. Options are:
+                *'obj_cstrs': f1=original objective, f2=number of violated constraints.
+                *'obj_cstrsvio': f1=original objective, f2=norm of total constraint violation.
+                *'obj_eqvio_ineqvio': f1=original objective, f2= norm of equality constraint violation,
+                f3= norm of inequality constraint violation.
+                *None: in this case the function won't try to transform the constraint problem via
+                meta-problem con2mo. Set to None when a local search algorithm that supports constraint
+                optimization is input.
+        *variance_ratio: target fraction of variance explained by the cluster centroids, when not
+        clustering to a fixed number of clusters. Defaults to 0.9.
+        *k: number of clusters when clustering to fixed number of clusters. If k=0, the clustering
+        will be performed for increasing value of k until the explained variance ratio is achieved.
+        Defaults to 0.
+        *single_cluster_tolerance: if the radius of a single cluster is lower than this value
+        times (search space dimension+fitness space dimension), k will be set to 1 when not clustering
+        to a fixed number of clusters. Defaults to 0.0001.
+        *kmax: maximum number of clusters admissible. If set to 0, the limit is the number of local
+        searches performed. Defaults to 0.
+        *round_to: precision of the results printed. Defaults to 3.\n
+        Prints to screen or file:
+        *Number of local searches performed.
+        *Quartiles of CPU time per search: percentiles 0, 25, 50, 75 and 100 of the time elapsed per
+        single local search.
+        *Cluster properties: the following parameters will be shown for the number of clusters
+        specified via argument clusters_to_show:
+            *Size: size of the cluster, in number of points and as a percentage of the sample size.
+            *Cluster X_center: projection of the cluster centroid in the search space.
+            *Mean objective value: projection of the cluster centroid in the fitness space.
+            *F(X_center): fitness value of the X_center. If it differs abruptly from the cluster
+            mean objective value, the odds are that the cluster spans through more than one mode
+            of the fitness function.
+            *C(X_center): constraint function values of the X_center. Only for constrained problems.
+            *Cluster span in F: peak-to-peak values of the fitness values of the local search
+            final points in the cluster.
+            *Cluster radius in X: euclidian distance from the furthest final local search point in the
+            cluster to the cluster X-center.
+            *Radius of attraction: euclidian distance from the furthest initial local search point in
+            the cluster to the cluster X-center.\n
+        Shows or saves to file:
+        *Global cluster PCP: PCP of the clusters of the local search results, all clusters to show on
+        the same graph. See analysis.plot_local_cluster_pcp for more information on the plot.
+        *Separate cluster PCP: PCP of the clusters of the local search results, one graph per cluster.
+        See analysis.plot_local_cluster_pcp for more information on the plot.
+        *Cluster scatter plot: scatter plot of the clusters of the local search results. See
+        analysis.plot_local_cluster_scatter for more information on the plot.\n
+        NOTE: this function calls analysis._get_local_extrema and analysis._cluster_local_extrema. Both
+        these functions store a great number of properties as class attributes. See ther respective
+        entries for more information about these attributes.\n
         """
         from numpy import percentile        
         if self.dir==None:
@@ -531,13 +618,12 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        if cluster:
-            self._cluster_local_extrema(variance_ratio,k,single_cluster_tolerance,kmax)
-            if clusters_to_show=='all' or clusters_to_show>self.local_nclusters:
-                clusters_to_show=self.local_nclusters
+        self._cluster_local_extrema(variance_ratio,k,single_cluster_tolerance,kmax)
+        if clusters_to_show=='all' or clusters_to_show>self.local_nclusters:
+            clusters_to_show=self.local_nclusters
         print ("Local searches performed :              ",self.local_initial_npoints,file=output)
         print ("Quartiles of CPU time per search [ms]:  ",round(percentile(self.local_search_time,0),round_to),"/",round(percentile(self.local_search_time,25),round_to),"/",round(percentile(self.local_search_time,50),round_to),"/",round(percentile(self.local_search_time,75),round_to),"/",round(percentile(self.local_search_time,100),round_to),file=output)
-        if cluster and clusters_to_show>0:
+        if clusters_to_show>0:
             print ("Number of clusters identified :         ",self.local_nclusters,file=output)
             print ("Cluster properties (max. best "+str(clusters_to_show)+" clusters) :",file=output)
             for i in range(min((self.local_nclusters,clusters_to_show))):
@@ -554,15 +640,18 @@ class analysis:
         if output!=None:
             output.close()
 
-        if cluster:
-            if plot_global_pcp:
-                self.plot_local_cluster_pcp(together=True,clusters_to_plot=clusters_to_show)
-            if plot_separate_pcp:
-                self.plot_local_cluster_pcp(together=False,clusters_to_plot=clusters_to_show)
-            if len(scatter_plot_dimensions)>0:
-                self.plot_local_cluster_scatter(dimensions=[i-1 for i in scatter_plot_dimensions],clusters_to_plot=clusters_to_show)
+        if plot_global_pcp:
+            self.plot_local_cluster_pcp(together=True,clusters_to_plot=clusters_to_show)
+        if plot_separate_pcp:
+            self.plot_local_cluster_pcp(together=False,clusters_to_plot=clusters_to_show)
+        if isinstance(scatter_plot_dimensions,int):
+            scatter_plot_dimensions=[scatter_plot_dimensions]
+        if isinstance(scatter_plot_dimensions,(list,tuple)):
+            scatter_plot_dimensions=[i-1 for i in scatter_plot_dimensions]
+        if len(scatter_plot_dimensions)>0:
+            self.plot_local_cluster_scatter(dimensions=scatter_plot_dimensions,clusters_to_plot=clusters_to_show)
 
-    def levelset(self,threshold=50,k_test=10,k_tune=3,linear=True,quadratic=True,nonlinear=True,round_to=3):
+    def levelset(self,threshold=50,k_tune=3,k_test=10,linear=True,quadratic=True,nonlinear=True,round_to=3):
         """
         This function performs binary classifications of the sample via SVM and assesses its precision.
         The classes are defined by a percentile threshold on a fitness function. Linear, quadratic and
@@ -573,15 +662,15 @@ class analysis:
         analysis.levelset([threshold=[25,50],k_test=10,k_tune=3,linear=True,quadratic=False,nonlinear=True,round_to=3])
         *threshold: percentile or list of percentiles that will serve as threshold for binary
         classification of the sample. Defaults to 50.
-        *k_test: k used in k-fold crossvalidation to assess the model properties. Defaults to 10.
         *k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
+        *k_test: k used in k-fold crossvalidation to assess the model properties. Defaults to 10.
         *linear, quadratic, nonlinear: boolean values. If True, the corresponding test will be performed.
         All default to true.
         *round_to: precision of the results printed. Defaults to 3.\n
         Prints to screen or file:
         *Percentile used as threshold.
             *Mean misclassification error of each method used (linear, quadratic, nonlinear).
-            *P-values of each pairwise comparison (l/q, l/nl, q/nl)
+            *P-values of each pairwise comparison (l/q, l/nl, q/nl)\n
         """
         if isinstance(threshold,(int,float)):
             threshold=[threshold]
@@ -656,7 +745,10 @@ class analysis:
         Shows or saves to file:
         *Gradient/Jacobian sparsity plot.
         *Gradient/Jacobian PCP with chromosome in X-axis.
-        *Gradient/Jacobian PCP with fitness in X-axis.
+        *Gradient/Jacobian PCP with fitness in X-axis.\n
+        NOTE: this function calls analysis._get_gradient and analysis._get_hessian. Both these
+        functions store a great number of properties as class attributes. See their respective
+        entries for more information about these attributes.\n
         """
         if self.dir==None:
             output=None
@@ -727,7 +819,9 @@ class analysis:
         Shows or saves to file:
         *C-Gradient/Jacobian sparsity plot.
         *C-Gradient/Jacobian PCP with chromosome in X-axis.
-        *C-Gradient/Jacobian PCP with fitness in X-axis.
+        *C-Gradient/Jacobian PCP with fitness in X-axis.\n
+        NOTE: this function calls analysis._get_gradient, which stores a great number of properties
+        as class attributes. See its entry for more information about these attributes.\n
         """
         if self.dir==None:
             output=None
@@ -906,14 +1000,13 @@ class analysis:
         USAGE: analysis._skew()
         """
         try:
-            import scipy as sp
+            from scipy.stats import skew
         except ImportError:
             raise ImportError(
                 "analysis._skew needs scipy to run. Is it installed?")
         if self.npoints==0:
             raise ValueError(
                 "analysis._skew: sampling first is necessary")
-        from scipy.stats import skew
         return skew(self.f).tolist()
 
     def _kurtosis(self):
@@ -922,14 +1015,13 @@ class analysis:
         USAGE: analysis._kurtosis()
         """
         try:
-            import scipy as sp
+            from scipy.stats import kurtosis
         except ImportError:
             raise ImportError(
                 "analysis._kurtosis needs scipy to run. Is it installed?")
         if self.npoints==0:
             raise ValueError(
                 "analysis._kurtosis: sampling first is necessary")
-        from scipy.stats import kurtosis
         return kurtosis(self.f).tolist()
 
     def _mean(self):
@@ -938,14 +1030,13 @@ class analysis:
         USAGE: analysis._mean()
         """
         try:
-            import numpy as np
+            from numpy import mean
         except ImportError:
             raise ImportError(
                 "analysis._mean needs numpy to run. Is it installed?")
         if self.npoints==0:
             raise ValueError(
                 "analysis._mean: sampling first is necessary")
-        from numpy import mean
         return mean(self.f,0).tolist()
 
     def _var(self):
@@ -955,14 +1046,13 @@ class analysis:
         USAGE: analysis._var()
         """
         try:
-            import numpy as np
+            from numpy import var
         except ImportError:
             raise ImportError(
                 "analysis._var needs numpy to run. Is it installed?")
         if self.npoints==0:
             raise ValueError(
                 "analysis._var: sampling first is necessary")
-        from numpy import var
         return var(self.f,0).tolist()
 
     def _std(self):
@@ -988,14 +1078,13 @@ class analysis:
         USAGE: analysis._ptp()
         """
         try:
-            import numpy as np
+            from numpy import ptp
         except ImportError:
             raise ImportError(
                 "analysis._ptp needs numpy to run. Is it installed?")
         if self.npoints==0:
             raise ValueError(
                 "analysis._ptp: sampling first is necessary")
-        from numpy import ptp
         return ptp(self.f,0).tolist()
 
     def _percentile(self,p):
@@ -1006,17 +1095,16 @@ class analysis:
         *p: percentile(s) to return. Can be a single int/float or a list.
         """
         try:
-            import numpy as np
+            from numpy import percentile
         except ImportError:
             raise ImportError(
                 "analysis._percentile needs numpy to run. Is it installed?")
         if self.npoints==0:
             raise ValueError(
                 "analysis._percentile: sampling first is necessary")
-        from numpy import percentile
-        try:
+        if isinstance(p,(list,tuple)):
             return [percentile(self.f,i,0).tolist() for i in p]
-        except TypeError:
+        else:
             return percentile(self.f,p,0).tolist()
 
     def plot_f_distr(self):
@@ -1215,16 +1303,14 @@ class analysis:
         if n_pairs==0:
             n_pairs=self.npoints
         try:
-            import numpy as np
+            from numpy.random import random,randint
+            from numpy import array, multiply,divide,zeros
         except ImportError:
             raise ImportError(
                 "analysis._p_lin_conv needs numpy to run. Is it installed?")
-
-        from numpy.random import random,randint
-        from numpy import array, multiply,divide
-        p_lin=np.zeros(self.f_dim)
-        p_conv=np.zeros(self.f_dim)
-        mean_dev=np.zeros(self.f_dim)
+        p_lin=zeros(self.f_dim)
+        p_conv=zeros(self.f_dim)
+        mean_dev=zeros(self.f_dim)
         for i in range(n_pairs):
             i1=randint(self.npoints)
             i2=randint(self.npoints)
@@ -1747,12 +1833,10 @@ class analysis:
             raise ValueError(
                 "analysis._get_hessian: sampling first is necessary")
         try:
-            import numpy as np
+            from numpy.random import randint
         except ImportError:
             raise ImportError(
                 "analysis._get_hessian needs numpy to run. Is it installed?")
-        from numpy.random import randint
-        
         if sample_size<=0 or sample_size>=self.npoints:
             self.hess_points=range(self.npoints)
             self.hess_npoints=self.npoints
@@ -2145,7 +2229,6 @@ class analysis:
 #LOCAL SEARCH
 
     def _get_local_extrema(self,sample_size=0,algo=algorithm.gsl_fr(),par=True,decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio', warning=True):
-    #maybe cool to add con2un meta problem when handling constraint optimisation
         """
         Selects points from the sample and launches local searches using them as initial points.
         USAGE: analysis._get_local_extrema([sample_size=0, algo=algorithm.gsl_fr(), par=True, decomposition_method='tchebycheff', weights='uniform', z=[], con2mo='obj_cstrsvio', warning=True])
@@ -2306,7 +2389,10 @@ class analysis:
         """
         Clusters the results of a set of local searches and orders the clusters ascendently as
         regards fitness value of its centroid (after transformation for constraint problems and
-        fitness decomposition in the case of multi-objective problems).\n
+        fitness decomposition for multi-objective problems). The clustering is conducted by means of
+        the k-Means algorithm in the search-fitness space. Some parameters are also computed after
+        the clustering to allow landscape analysis and provide insight into the basins of attraction
+        that affect the algorithm deployed.\n
         USAGE: analysis._cluster_local_extrema([variance_ratio=0.95, k=0, single_cluster_tolerance=0.0001, kmax=0])
         *variance_ratio: target fraction of variance explained by the cluster centroids, when not
         clustering to a fixed number of clusters.
@@ -2332,9 +2418,10 @@ class analysis:
         *analysis.local_cluster_f_span[number of clusters][fitness dimension]: peak-to-peak value of
         each of the fitness functions inside the cluster.
         *analysis.local_cluster_rx[number of clusters]: radius of each cluster in the search space,
-        or distance from the furthest final search point to the cluster x-center.
-        *analysis.local_cluster_rx0[number of clusters]: radius of attraction, or distance from the
-        furthest initial search point to the cluster x-center.
+        or euclidian distance from the furthest final local search point in the cluster to the cluster
+        X-center.
+        *analysis.local_cluster_rx0[number of clusters]: radius of attraction, or euclidian distance
+        from the furthest initial local search point in the cluster to the cluster X-center.
         """
         if self.npoints==0:
             raise ValueError(
@@ -2343,14 +2430,12 @@ class analysis:
             raise ValueError(
                 "analysis._cluster_local_extrema: getting local extrema first is necessary")
         try:
-            import numpy as np
-            import scipy as sp
-            import sklearn as sk
+            from numpy import array, zeros, ptp
+            from numpy.linalg import norm
+            from sklearn.cluster import KMeans
         except ImportError:
             raise ImportError(
-                "analysis._cluster_local_extrema needs numpy,scipy and sklearn to run. Are they installed?")
-        from sklearn.cluster import KMeans
-
+                "analysis._cluster_local_extrema needs numpy and sklearn to run. Are they installed?")
         #dataset=np.zeros([self.local_initial_npoints,self.dim+1])#normalized dataset
         dataset=[]
         # range_f=np.mean(np.ptp(self.f,0))
@@ -2374,7 +2459,7 @@ class analysis:
             #storage of output
             local_cluster=list(clust.fit_predict(dataset))
             self.local_nclusters=k
-            cluster_size=np.zeros(k)
+            cluster_size=zeros(k)
             for i in range(self.local_initial_npoints):
                 cluster_size[local_cluster[i]]+=1
             cluster_size=list(cluster_size)
@@ -2400,12 +2485,12 @@ class analysis:
                 while var_ratio<=variance_ratio and k<=kmax:
                     clust=KMeans(k)
                     y=clust.fit_predict(dataset)
-                    cluster_size=np.zeros(k)
+                    cluster_size=zeros(k)
                     var_exp=0
                     for i in range(self.local_initial_npoints):
                         cluster_size[y[i]]+=1
                     for i in range(k):
-                        distance=np.linalg.norm(clust.cluster_centers_[i]-total_center)
+                        distance=norm(clust.cluster_centers_[i]-total_center)
                         var_exp+=cluster_size[i]*distance**2
                     var_ratio=var_exp/var_tot
                     k+=1
@@ -2431,9 +2516,9 @@ class analysis:
             self.local_cluster_x_centers.append(clust.cluster_centers_[order[i]][:self.dim])
             #self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim]*range_f+mean_f)
             self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim:])
-            self.local_cluster_f.append(((np.array(self.prob.objfun(np.array(self.local_cluster_x_centers[i])*(np.array(self.ub)-np.array(self.lb))+np.array(self.lb)))-np.array(self.f_offset))/np.array(self.f_span)).tolist())
+            self.local_cluster_f.append(((array(self.prob.objfun(array(self.local_cluster_x_centers[i])*(array(self.ub)-array(self.lb))+array(self.lb)))-array(self.f_offset))/array(self.f_span)).tolist())
             if self.c_dim>0:
-                self.local_cluster_c.append(((np.array(self.prob.compute_constraints(np.array(self.local_cluster_x_centers[i])*(np.array(self.ub)-np.array(self.lb))+np.array(self.lb))))/np.array(self.c_span)).tolist())
+                self.local_cluster_c.append(((array(self.prob.compute_constraints(array(self.local_cluster_x_centers[i])*(array(self.ub)-array(self.lb))+array(self.lb))))/array(self.c_span)).tolist())
             # for j in range(self.dim):
             #     self.local_cluster_x_centers[i][j]*=(self.ub[j]-self.lb[j])
             #     self.local_cluster_x_centers[i][j]+=0.5*(self.ub[j]+self.lb[j])
@@ -2452,26 +2537,27 @@ class analysis:
             if self.local_cluster_size[c]==1:
                 f[c].append([0]*self.f_dim)
             else:
-                rx=np.linalg.norm(np.asarray(self.local_extrema[i])-np.asarray(self.local_cluster_x_centers[c]))
-                rx0=np.linalg.norm(np.asarray(self.points[self.local_initial_points[i]])-np.asarray(self.local_cluster_x_centers[c]))
+                rx=norm(array(self.local_extrema[i])-array(self.local_cluster_x_centers[c]))
+                rx0=norm(array(self.points[self.local_initial_points[i]])-array(self.local_cluster_x_centers[c]))
                 f[c].append(self.local_f[i])
                 if rx>self.local_cluster_rx[c]:
                     self.local_cluster_rx[c]=rx
                 if rx0>self.local_cluster_rx0[c]:
                     self.local_cluster_rx0[c]=rx0
 
-        self.local_cluster_f_span=[np.ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
+        self.local_cluster_f_span=[ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
 
     def plot_local_cluster_pcp(self,together=True,clusters_to_plot=10):
         """
-        Generates a Parallel Coordinate Plot of the clusters obtained for the local search results.
+        Generates a Parallel Coordinate Plot of the clusters obtained on the local search results.
         The parallel axes represent the chromosome of the initial points of each local search and
         the colors are the clusters to which its local search resulting points belong.\n
         USAGE: analysis.plot_local_cluster_pcp([together=True, clusters_to_plot=5])
         *together: if True, a single plot will be generated. If False, each cluster will be presented
         in a separate plot. Defaults to True.
-        *clusters_to_plot: number of clusters to show. The best clusters will be shown. Clusters
-        are rated by mean decomposed fitness value.\n
+        *clusters_to_plot: number of clusters to show. Option 'all' will plot all the clusters obtained.
+        Otherwise the best clusters will be shown. Clusters are rated by mean decomposed fitness value.
+        Defaults to 10.\n
         NOTE: the plot will be shown on screen or saved to file depending on the  option that was
         selected when instantiating the analysis class.\n
         """
@@ -2536,13 +2622,15 @@ class analysis:
     def plot_local_cluster_scatter(self,dimensions='all',clusters_to_plot=10):
         """
         Generates a Scatter Plot of the clusters obtained for the local search results in the
-        dimensions specified (up to 3). Centroids are also shown.\n
+        dimensions specified (up to 3). Points on the plot are local search initial points and
+        colors are the cluster to which their corresponding final points belong. Cluster X-centers
+        are also shown. These are computed as specified in analysis._cluster_local_extrema.\n
         USAGE: analysis.plot_local_cluster_scatter([dimensions=[1,2], save_fig=False])
         *dimensions: list of up to 3 dimensions in the search space that will be shown in the scatter
         plot (zero based). If set to 'all', the whole search space will be taken. An error will be
-        raised when trying to plot more than 3 dimensions.
+        raised when trying to plot more than 3 dimensions. Defaults to 'all'.
         *clusters_to_plot: number of clusters to show. The best clusters will be shown. Clusters
-        are rated by mean decomposed fitness value.\n
+        are rated by mean decomposed fitness value. Defaults to 10.\n
         NOTE: the plot will be shown on screen or saved to file depending on the  option that was
         selected when instantiating the analysis class.\n
         """
@@ -2638,6 +2726,24 @@ class analysis:
 
 #LEVELSET FEATURES WITH SVM
     def _svm(self,threshold=50,kernel='rbf',k_tune=3,k_test=10):
+        """
+        This function performs binary classifications of the sample via SVM and assesses its precision.
+        The classes are defined by a percentile threshold on a fitness function. The method is tuned by
+        a grid search with ranges 2**[-5,16] for C and 2**[-15,4] for gamma and cross-validation for every
+        combination, and the set of hyperparameters that leads to minimum mean misclassification error will
+        be employed. Linear, quadratic and nonlinear (rbf) kernels can be used, and their misclassification
+        errors can be evaluated by crossvalidation and returned as a distribution.\n
+        USAGE: 
+        analysis._svm([threshold=25,kernel='rbf',k_tune=3,k_test=10])
+        *threshold: percentile of the fitness function that will serve as threshold for binary
+        classification of the sample. Defaults to 50.
+        *kernel: options are 'linear','quadratic' and 'rbf'. Defaults to 'rbf'.
+        *k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
+        *k_test: k used in k-fold crossvalidation to assess the model misclassification error. Defaults
+        to 10.\n
+        Returns:
+        *mce[fitness dimension][k_test]: misclassification errors obtained for each of the fitness functions.
+        """
         if self.npoints==0:
             raise ValueError(
                 "analysis._svm: sampling first is necessary")
@@ -2648,28 +2754,28 @@ class analysis:
             raise ValueError(
                 "analysis._svm: threshold needs to be a value ]0,100[")
         try:
-            import numpy as np
-            import sklearn as sk
+            from numpy import arange, zeros, ones
+            from sklearn.cross_validation import StratifiedKFold, cross_val_score
+            from sklearn.svm import SVC
+            from sklearn.grid_search import GridSearchCV
+            from sklearn.preprocessing import StandardScaler
         except ImportError:
             raise ImportError(
                 "analysis._svm needs numpy and scikit-learn to run. Are they installed?")
-        from sklearn.cross_validation import StratifiedKFold, cross_val_score
-        from sklearn.svm import SVC
-        from sklearn.grid_search import GridSearchCV
-        from sklearn.preprocessing import StandardScaler
+        
         if kernel=='quadratic':
             kernel='poly'
-        c_range=2.**np.arange(-5,16)
+        c_range=2.**arange(-5,16)
         if kernel=='linear':
             param_grid=dict(C=c_range)
         else:
-            g_range=2.**np.arange(-15,4)
+            g_range=2.**arange(-15,4)
             param_grid=dict(gamma=g_range,C=c_range)
         per=self._percentile(threshold)
         dataset=self.points[:]
         mce=[]
         for obj in range(self.f_dim):
-            y=np.zeros(self.npoints) #classification of data
+            y=zeros(self.npoints) #classification of data
             for i in range(self.npoints):
                 if self.f[i][obj]>per[obj]:
                     y[i]=1
@@ -2679,17 +2785,44 @@ class analysis:
             grid.fit(dataset,y)
             #print grid.best_estimator_
             test_score=cross_val_score(estimator=grid.best_estimator_,X=dataset,y=y,scoring=None,cv=StratifiedKFold(y,k_test))
-            mce.append((np.ones(k_test)-test_score).tolist())
+            mce.append((ones(k_test)-test_score).tolist())
         return mce #mce[n_obj][k_test]
 
     def _svm_p_values(self,threshold=50,k_tune=3,k_test=10,l=True,q=True,n=True):
+        """
+        This function calls analysis._svm several times with identical parameters (threshold, k_tune
+        and k_test) but different kernels, and returns the mean misclassification errors of each
+        method deployed as well as the p-values of their pairwise comparison.\n
+        USAGE:
+        analysis._svm_p_values([threshold=25,k_tune=3,k_test=10,l=True,q=False,nl=True])
+        *threshold: percentile of the fitness function that will serve as threshold for binary classification
+        of the sample. Defaults to 50.
+        *k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
+        *k_test: k used in k-fold crossvalidation to assess the model misclassification error. Defaults
+        to 10.
+        *l: if True, the linear kernel model will be included.
+        *q: if True, the quadratic kernel model will be included.
+        *n: if True, the non-linear (rbf) kernel model will be included.\n
+        NOTE: if any of the booleans (l,q,n) is set to False and the corresponding model is not fit, the
+        function will return -1 for all the associated results.\n
+        Returns a tuple of length 6 containing:
+        *mmce_linear[fitness dimension]: mean misclassification error of linear kernel model.
+        *mmce_quadratic[fitness dimension]: mean misclassification error of quadratic kernel model.
+        *mmce_nonlinear[fitness dimension]: mean misclassification error of nonlinear (rbf) kernel model.
+        *l_q[fitness dimension]: p-value of the comparison between distributions of mce for linear and
+        quadratic kernels.
+        *l_n[fitness dimension]: p-value of the comparison between distributions of mce for linear and 
+        nonlinear (rbf) kernels.
+        *q_n[fitness dimension]: p-value of the comparison between distributions of mce for quadratic
+        and nonlinear (rbf) kernels.\n
+        """
         if any([l,q,n]):
             if self.npoints==0:
                 raise ValueError(
                     "analysis._svm_p_values: sampling first is necessary")
             try:
-                import scipy as sp
-                import numpy as np
+                from scipy.stats import mannwhitneyu
+                from numpy import mean
             except ImportError:
                 raise ImportError(
                     "analysis._svm_p_values needs scipy and numpy to run. Is it installed?")
@@ -2710,18 +2843,18 @@ class analysis:
             l_n=[]
             for i in range(self.f_dim):
                 if l and q:
-                    l_q.append(sp.stats.mannwhitneyu(linear[i],quadratic[i])[1])
+                    l_q.append(mannwhitneyu(linear[i],quadratic[i])[1])
                 else:
                     l_q.append(-1)
                 if l and n:
-                    l_n.append(sp.stats.mannwhitneyu(linear[i],nonlinear[i])[1])
+                    l_n.append(mannwhitneyu(linear[i],nonlinear[i])[1])
                 else:
                     l_n.append(-1)
                 if n and q:
-                    q_n.append(sp.stats.mannwhitneyu(quadratic[i],nonlinear[i])[1])
+                    q_n.append(mannwhitneyu(quadratic[i],nonlinear[i])[1])
                 else:
                     q_n.append(-1)
-            return (list(np.mean(linear,1)),list(np.mean(quadratic,1)),list(np.mean(nonlinear,1)),l_q,l_n,q_n)
+            return (list(mean(linear,1)),list(mean(quadratic,1)),list(mean(nonlinear,1)),l_q,l_n,q_n)
 
 
 #CONSTRAINTS
