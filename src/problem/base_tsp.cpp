@@ -26,55 +26,36 @@
 
 namespace pagmo { namespace problem {
 	/**
-	 * @param[in] n integer dimension of the problem.
-	 * @param[in] nc global constraints dimension
-	 * @param[in] nic inequality constraints dimension
+	 * @param[in] n integer dimension of the problem (no vertices)
 	 */
-	base_tsp::base_tsp(size_type n, size_type nc, size_type nic):base(n, n, 1, nc, nic, 0.){ }
+	base_tsp::base_tsp(int n) : base(n, n, 1, 0, 0, 0.0){ }
         
-//the default behaviour is to set to 1 all the values corresponding to values inside the bounds and 0 elsewhere
-void base_tsp::set_heuristic_information_matrix() {
-	//allocates the memory for eta.
-	create_heuristic_information_matrix();  //that MUST be called at the begining of each set_heuristic_information_matrix implementation!
-
-	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
-		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
-			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {
-				if(i <= get_ub()[k] - get_lb()[k] && j <= get_ub()[k+1] - get_lb()[k+1]) {
-					m_eta[k][i][j][0] = 1;
-				}
-				else {
-					//CR - This is just not a number as there is no edge in the graph!!!!
-					m_eta[k][i][j][0] = std::numeric_limits<double>::quiet_NaN();
-				}
-			}
-		}
-	}
-}
-
-const std::vector<std::vector<std::vector<fitness_vector> > > &base_tsp::get_heuristic_information_matrix() const {
-	return m_eta;
-}
-
-void base_tsp::create_heuristic_information_matrix() {
-	double max_size = 0;
-	for(problem::base::size_type i = 0; i < get_i_dimension(); ++i) {
-		if(max_size < (get_ub()[i] - get_lb()[i])) {
-			max_size = get_ub()[i] - get_lb()[i];
-		}
-	}
-	const std::vector<decision_vector>::size_type nComponents = boost::numeric_cast<std::vector<decision_vector>::size_type>(max_size) + 1; 
-
-	fitness_vector tempA(get_f_dimension(),0);	//used for initialisation purpouses
-	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
-	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
-	std::vector<std::vector<std::vector<fitness_vector> > > eta(get_i_dimension(), tempC); //heuristic information matrix 
-	m_eta = eta;
-}
-
-bool base_tsp::check_partial_feasibility(const decision_vector &x) const{
-	(void)x; //to avoid the  unused parameter ‘x’ warning by compiler
-	return true;
-}
+        /// Public
+        tsp_graph const& base_tsp::get_graph() const { return m_graph; }
+        
+        void base_tsp::set_graph(tsp_graph const& new_graph) { m_graph = new_graph; }
+        
+        void base_tsp::set_graph(std::vector< std::vector<double> > const& new_graph) {
+            list_to_graph(new_graph, m_graph);
+        }
+        
+        /// Protected
+        void base_tsp::list_to_graph(std::vector< std::vector<double> > const& the_list, tsp_graph& the_graph) const {            
+            std::vector< std::vector<double> >::const_iterator row;
+            std::vector<double>::const_iterator col;
+            for (row = the_list.begin(); row != the_list.end(); ++row) {
+                for (col = row->begin(); col != row->end(); ++col) {
+                    // do stuff ... 
+                    std::cout << *col; 
+                    //boost::add_edge(std::distance(the_list.begin(),row), std::distance(row->begin(), col), *col, the_graph);
+                }
+            }
+        }
+        
+        int base_tsp::get_no_vertices() const {
+            return boost::num_vertices(m_graph);
+        }
+        
+        /// Private
 
 }} //namespaces

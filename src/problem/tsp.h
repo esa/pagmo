@@ -67,29 +67,24 @@ class __PAGMO_VISIBLE tsp: public base_tsp
 {
 	public:
 		tsp();
-                tsp(const tsp_graph &);
-		tsp(const std::vector<std::vector<double> > &);
+                tsp(tsp_graph const&);
+		tsp(std::vector< std::vector<double> > const&);
 		base_ptr clone() const;
-		bool check_partial_feasibility(const decision_vector &x) const;
 		std::string get_name() const;
+//                bool check_partial_feasibility(decision_vector const&) const;
 	protected:
-		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
-		void objfun_impl(fitness_vector &, const decision_vector &) const;
+		void objfun_impl(fitness_vector &, decision_vector const&) const;
 		std::string human_readable_extra() const;
-		void set_heuristic_information_matrix();
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
 		{
 			ar & boost::serialization::base_object<base>(*this);
-			ar & m_weights;
                         ar & m_graph;
-			ar & m_tmpDecisionVector;
+//			ar & m_tmpDecisionVector;
 		}
-		std::vector<std::vector<double> > m_weights;
                 tsp_graph m_graph;
-		mutable decision_vector m_tmpDecisionVector;
 };
 
 }} //namespaces
