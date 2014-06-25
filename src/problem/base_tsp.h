@@ -39,20 +39,27 @@ namespace pagmo{ namespace problem {
  * typedef boost::property<boost::vertex_index_t, int, boost::property<boost::vertex_name_t, std::string> > tsp_vertex_property;
  * We don't need vertice names, so an index will suffice for now:
  * boost::no_property automatically adds vertex_index_t, int for vecS
+ * 
  */
-typedef boost::property<boost::edge_weight_t, double> tsp_edge_properties;
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property, tsp_edge_properties> tsp_graph;
+template <typename T>
+using tsp_edge_properties = typename boost::property<boost::edge_weight_t, T>;
+//typedef boost::property<boost::edge_weight_t, double> tsp_edge_properties;
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property, tsp_edge_properties<double> > tsp_graph;
+
+/**
+ * Shortened version of the 2D vector type
+ */
+template <typename T>
+using vector2D = typename std::vector<std::vector<T> >;
 
 /// Base TSP.
 /**
- *
- * All integer optimization problems must extend this class in order to be solved by Ant Colony Optimization.
- *
+ * This is a base class for Traveling Salesman Problems.
  * m_graph is of type tsp_graph, defined above.
  * It is an adjacency list representing symmetric or assymmetric graphs, with edges representing cost/weight between vertices.
  * The internal properties of the boost graph are defined above in the tsp_edge_properties.
- * The only internal property for a vertice is its index
- * We consider all problems to be directed graphs, since for undirected it is just a matter of storage space.
+ * The only internal property for a vertice is its index.
+ * All problems are considered to be directed graphs, since for undirected it's just a matter of storage space.
  * Most of the TSPLIB problems are dense (e.g. fully connected graphs).
  *
  * @author Florin Schimbinschi (florinsch@gmail.com)
@@ -60,34 +67,54 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost:
 
 class __PAGMO_VISIBLE base_tsp : public base
 {
-	public:
-		base_tsp(int);
-                /**
-                 * @return the m_graph of type tsp_graph
-                 */
-                tsp_graph const& get_graph() const;
-                /**
-                 * Setters for the m_graph
-                 * @param tsp_graph or list of list of doubles
-                 */
-                void set_graph(tsp_graph const&);
-                void set_graph(std::vector< std::vector<double> > const&);
+    public:
+            /**
+             * Constructor with the dimension of the problem (number of vertices)
+             * @param[in] number of vertices
+             */
+            base_tsp(int);
+            /**
+             * Getter for the m_graph
+             * @return reference to the m_graph of type tsp_graph
+             */
+            tsp_graph const& get_graph() const;
+            /**
+             * Setter for the m_graph
+             * @param[in] tsp_graph
+             */
+            void set_graph(tsp_graph const&);
+            /**
+             * Setter for the m_graph
+             * @param[in] 2D vector of doubles
+             */
+            void set_graph(vector2D<double> const&);
 
-	protected:
-                void list_to_graph(std::vector< std::vector<double> > const&, tsp_graph&) const;
-                int get_no_vertices() const;
-        private:                
-		/**
-		 * The boost graph, contains weights between nodes (vertices)
-		 */
-                tsp_graph m_graph;
-
-//              friend class boost::serialization::access;
-//		template <class Archive>
-//		void serialize(Archive &ar, const unsigned int)
-//		{
-//			ar & boost::serialization::base_object<base>(*this);
-//		}
+    protected:
+            /**
+             * Converts a 2D vector to a boost graph type tsp_graph
+             * @param[in] the 2D vector of doubles
+             * @param[out] the tsp_graph adjacency list
+             */
+            void vector2D_to_graph(vector2D<double> const&, tsp_graph&) const;
+            /**
+             * Returns the number of vertices in the boost graph
+             * @return number of vertices
+             */
+            int get_no_vertices() const;
+            /**
+             * The boost graph, an adjacency list
+             * derived classes inherit this property
+             */
+            tsp_graph m_graph;
+                
+    private:                
+            friend class boost::serialization::access;
+            template <class Archive>
+            void serialize(Archive &ar, const unsigned int)
+            {
+                    ar & boost::serialization::base_object<base>(*this);
+                    ar & m_graph;
+            }
     
 };
 

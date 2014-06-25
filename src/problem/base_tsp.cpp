@@ -27,27 +27,29 @@
 namespace pagmo { namespace problem {
 	/**
 	 * @param[in] n integer dimension of the problem (no vertices)
+         * 3rd parameter from base is dimension of the fitness_vector (1)
+         * Global and inequality constraints dimensions are equal to 0
+         * Constraints tolerance is 0.0
 	 */
-	base_tsp::base_tsp(int n) : base(n, n, 1, 0, 0, 0.0){ }
+	base_tsp::base_tsp(int n): base(n, n, 1, 0, 0, 0.0){ }
         
         /// Public
         tsp_graph const& base_tsp::get_graph() const { return m_graph; }
         
         void base_tsp::set_graph(tsp_graph const& new_graph) { m_graph = new_graph; }
         
-        void base_tsp::set_graph(std::vector< std::vector<double> > const& new_graph) {
-            list_to_graph(new_graph, m_graph);
+        void base_tsp::set_graph(vector2D<double> const& new_graph) {
+            vector2D_to_graph(new_graph, m_graph);
         }
         
         /// Protected
-        void base_tsp::list_to_graph(std::vector< std::vector<double> > const& the_list, tsp_graph& the_graph) const {            
-            std::vector< std::vector<double> >::const_iterator row;
+        void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) const {            
+            vector2D<double>::const_iterator row;
             std::vector<double>::const_iterator col;
-            for (row = the_list.begin(); row != the_list.end(); ++row) {
+            for (row = the_vector.begin(); row != the_vector.end(); ++row) {
                 for (col = row->begin(); col != row->end(); ++col) {
-                    // do stuff ... 
-                    std::cout << *col; 
-                    //boost::add_edge(std::distance(the_list.begin(),row), std::distance(row->begin(), col), *col, the_graph);
+//                    std::cout << *col; 
+                    boost::add_edge(std::distance(the_vector.begin(), row), std::distance(row->begin(), col), *col, the_graph);
                 }
             }
         }
