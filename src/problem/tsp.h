@@ -35,25 +35,25 @@
 #include "../types.h"
 #include "base_tsp.h"
 
-
 namespace pagmo { namespace problem {
 
 /// Traveling salesman problem
 /**
- *
- * \image html tsp.png "An optimal TSP tour through Germany’s 15 largest cities."
- * \image latex tsp.png "An optimal TSP tour through Germany’s 15 largest cities" width=3cm
- *
  * This is a constrained integer single-objective problem.
  *
- * Given a list of cities and their pairwise distances, the task is to find a shortest possible tour that visits each city exactly once.
+ * Given a list of cities and their pairwise distances, the task is to find the 
+ * shortest possible tour that visits each city exactly once.
  *
- * TSP can be modeled as a graph, such that cities are the graph's vertices, paths are the graph's edges, and a path's distance is the edge's length. 
- * A TSP tour becomes a Hamiltonian cycle, and the optimal TSP tour is the shortest Hamiltonian cycle.
+ * TSP can be modeled as a graph, such that cities are the graph's vertices, 
+ * paths are the graph's edges, and a path's distance is the edge's length. 
+ * A TSP tour becomes a Hamiltonian cycle, and the optimal TSP tour is the 
+ * shortest Hamiltonian cycle.
  *
- * In PaGMO's terminology, this problem has global and integer dimensions equal to N (number of vertices of the graph), 
- * fitness dimension equal to 1 (cost of the path), global and inequality constraints dimensions equal to 1 (to check whether the solution is valid). 
- * A valid decision vector is a permutation of the edges. The optmial solution minimize the cost of the path S(x)
+ * In PaGMO's terminology, this problem has global and integer dimensions equal to N 
+ * (the number of vertices of the graph), fitness dimension equal to 1 (cost of the path).
+ * ??? global and inequality constraints dimensions equal to 1 (to check whether the solution is valid). 
+ * A valid decision vector is a permutation of the edges. 
+ * The optmial solution minimizes the cost of the path S(x)
  * 
  * \f[
  * 	\textnormal{minimize:} S(x) = w_{x_n,1} + \sum_{i=1}{n} w_{x_i, x_{i+1}} 
@@ -61,30 +61,40 @@ namespace pagmo { namespace problem {
  *
  * @see http://en.wikipedia.org/wiki/Travelling_salesman_problem
  *
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * @author Florin Schimbinschi (florinsch@gmail.com)
  */
 class __PAGMO_VISIBLE tsp: public base_tsp
 {
-	public:
-		tsp();
-                tsp(tsp_graph const&);
-		tsp(std::vector< std::vector<double> > const&);
-		base_ptr clone() const;
-		std::string get_name() const;
-//                bool check_partial_feasibility(decision_vector const&) const;
-	protected:
-		void objfun_impl(fitness_vector &, decision_vector const&) const;
-		std::string human_readable_extra() const;
-	private:
-		friend class boost::serialization::access;
-		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
-		{
-			ar & boost::serialization::base_object<base>(*this);
-                        ar & m_graph;
-//			ar & m_tmpDecisionVector;
-		}
-                tsp_graph m_graph;
+    public:
+            /**
+             * The default constructor
+             */
+            tsp();
+            /**
+             * Constructor from a tsp_graph object
+             * @param[in] tsp_graph
+             */
+            tsp(tsp_graph const&);
+            /**
+             * Constructor from a vector2D
+             */
+            tsp(vector2D<double> const&);
+            base_ptr clone() const;
+            std::string get_name() const;
+            
+    protected:
+            void objfun_impl(fitness_vector &, decision_vector const&) const;
+            void tsp::compute_constraints_impl(constraint_vector &, decision_vector const&) const;
+            std::string human_readable_extra() const;
+            
+    private:
+            friend class boost::serialization::access;
+            template <class Archive>
+            void serialize(Archive &ar, const unsigned int)
+            {
+                    ar & boost::serialization::base_object<base>(*this);
+    //			ar & m_tmpDecisionVector;
+            }
 };
 
 }} //namespaces
