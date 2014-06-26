@@ -1,7 +1,5 @@
 from __future__ import print_function
 from PyGMO import *
-import PyGMO
-
 
 class analysis:
     """
@@ -17,8 +15,8 @@ class analysis:
         Constructor of the analysis class from a problem or population object. Also calls
         analysis.sample when npoints>0 or by default when a population object is input.
 
-        USAGE:
-        analysis(input_object=prob [, npoints=1000, method='sobol', first=1])d
+        **USAGE:**
+        analysis(input_object=prob [, npoints=1000, method='sobol', first=1])
 
         * input_object: problem or population object used to initialise the analysis.
         * npoints: number of points of the search space to sample. If a population is input,
@@ -27,13 +25,11 @@ class analysis:
           selected using the specified method. If set to zero, no sampling will be conducted.
         * method: method used to sample the normalized search space. Used only when input_object
           is a problem. Options are:
-
                 * 'sobol': sampling based on sobol low-discrepancy sequence. Default option.
                 * 'faure': sampling based on faure low-discrepancy sequence. Dim [2,23].
                 * 'halton': sampling based on halton low-discrepancy sequence. Dim <10.
                 * 'lhs': latin hypersquare sampling.
                 * 'montecarlo': Monte Carlo (random) sampling.
-
         * first: used only when sampling with 'sobol', 'faure' or 'halton'. Index of the first element
           of the sequence that will be included in the sample. Defaults to 1. Set to >1 to skip. If set
           to 0 with 'sobol' method, point (0,0,...,0) will also be sampled.
@@ -41,7 +37,7 @@ class analysis:
           log.txt and all plots saved as .png images in the directory ./analysis_X/ which is specified
           in attribute analysis.dir. If False, all of them will be shown on screen.
 
-        NOTE: when calling sample outside the constructor, all methods can be used even if a
+        **NOTE:** when calling sample outside the constructor, all methods can be used even if a
         population has been input to the constructor, additional method 'pop' will select members
         from the population whereas the rest will sample the search space within its box constraints.
         """
@@ -63,7 +59,7 @@ class analysis:
         self.c_lin_npairs=0
         self.dir=None
 
-        if isinstance(input_object,population):
+        if isinstance(input_object,core._core.population):
             self.prob=input_object.problem
             self.pop=input_object
             method='pop'
@@ -109,27 +105,30 @@ class analysis:
         sample. All properties are shown per objective. Distribution properties are computed on
         a dataset where all fitness values have been scaled to [0,1].
 
-        USAGE:
-        analysis.f_distribution([percentile=[0,25,50,75,100],show_plot=True,save_plot=False,scale=True,round_to=4])
+
+        **USAGE:**
+        analysis.f_distribution([percentile=[0,25,50,75,100], show_plot=True, save_plot=False, scale=True, round_to=4])
 
         * percentile: percentiles to show. Number or iterable. Defaults to [].
-        * plot_f_distribution: if True, the f-distribution plot will be generated and shown on
-          screen or saved.
-        * plot_x_pcp: if True, the x-PCP plot will be generated and shown on screen or saved, using
-          as interval limits the same percentiles demanded via argument percentile. Defaults to True.
+        * plot_f_distribution: if True, the f-distribution plot will be generated and shown on screen or saved.
+        * plot_x_pcp: if True, the x-PCP plot will be generated and shown on screen or saved, using as interval limits the same percentiles demanded via argument percentile. Defaults to True.
         * round_to: precision of the results printed. Defaults to 3.
 
-        Prints to screen or file:
+
+        **Prints to screen or file:**
+
         * Fitness magnitude: minimum, maximum and peak-to-peak absolute values per objective.
         * Fitness distribution parameters (computed on scaled dataset):
-            * Mean
-            * Standard deviation
-            * Percentiles specified
-            * Skew
-            * Kurtosis
+                * Mean
+                * Standard deviation
+                * Percentiles specified
+                * Skew
+                * Kurtosis
         * Number of peaks of f-distribution as probability density function.
 
-        Shows or saves to file:
+
+        **Shows or saves to file:**
+
         * Plot of f-distribution as probability density function.
         * X-PCP: pcp of chromosome of points in the sample grouped in fitness value ranges.
         """
@@ -180,21 +179,27 @@ class analysis:
         """
         This function gives the user information about the probability of linearity and convexity
         of the fitness function(s). See analysis._p_lin_conv for a more thorough description of
-        these tests. All properties are shown per objective.\n
-        NOTE: integer variable values are fixed during each of the tests and linearity or convexity
-        is assessed as regards the continuous part of the chromosome.\n
-        USAGE:
-        analysis.f_linearity_convexity([n_pairs=1000,tolerance=10**(-8),round_to=4])
-        *n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
-        of points as points there are in the sample. Defaults to 0.
-        *tol: tolerance considered to rate the function as linear or convex between two points.
-        Defaults to 10**(-8).
-        *round_to: precision of the results printed. Defaults to 3.\n
-        Prints to screen or file:
-        *Number of pairs of points used in test
-        *Probability of linearity [0,1].
-        *Probability of convexity [0,1].
-        *Mean deviation from linearity, scaled with corresponding fitness scale factor.\n
+        these tests. All properties are shown per objective.
+
+
+        **USAGE:**
+        analysis.f_linearity_convexity([n_pairs=1000, tolerance=10**(-8), round_to=4])
+
+        * n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs of points as points there are in the sample. Defaults to 0.
+        * tol: tolerance considered to rate the function as linear or convex between two points. Defaults to 10**(-8).
+        * round_to: precision of the results printed. Defaults to 3.
+
+
+        **Prints to screen or file:**
+
+        * Number of pairs of points used in test
+        * Probability of linearity [0,1].
+        * Probability of convexity [0,1].
+        * Mean deviation from linearity, scaled with corresponding fitness scale factor.
+
+
+        **NOTE:** integer variable values are fixed during each of the tests and linearity or convexity
+        is assessed as regards the continuous part of the chromosome.
         """
         if self.dir==None:
             output=None
@@ -215,29 +220,37 @@ class analysis:
     def f_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):
         """
         This function performs polynomial regressions on each objective function and measures the
-        precision of these regressions.\n
-        USAGE:
+        precision of these regressions.
+
+
+        **USAGE:**
         analysis.f_regression(degree=[1,1,2] [, interaction= [False,True,False], pred=True, tol=10**(-8),round_to=4])
-        *degree: integer (or list of integers) specifying the degree of the regression(s) to perform.
-        *interaction: bool (or list of bools of same length as degree). If True, interaction products of
-        first order will be added. These are all terms of order regression_degree+1 that involve at least 2
-        variables. If a single boolean is input, this will be applied to all regressions performed. Defaults
-        to False.
-        *pred: bool (or list of bools of same length as degree). If True, prediction propperties will also
-        be evaluated (their process of evaluation involves performing one regression per point in the sample).
-        These are the last 2 columns of the output table. If a single boolean is input, this will be applied
-        to all regressions performed. Defaults to True.
-        *tol: tolerance to consider a coefficient of the regression model as zero. Defaults to 10**(-8).
-        *round_to: precision of the results printed. Defaults to 3.\n
-        Prints to screen or file:
-        *Degree: Degree of the regression. (i) indicates the addition of interaction products.
-        *F: F-statistic value of the regression.
-        *R2: R-square coefficient.
-        *R2adj: adjusted R-square coefficient.
-        *RMSE: Root Mean Square Eror.
-        *R2pred: prediction R-square coefficient.
-        *PRESS-RMSE: prediction RMSE.\n
-        REF: http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf\n
+
+        * degree: integer (or list of integers) specifying the degree of the regression(s) to perform.
+        * interaction: bool (or list of bools of same length as degree). If True, interaction products of
+          first order will be added. These are all terms of order regression_degree+1 that involve at least 2
+          variables. If a single boolean is input, this will be applied to all regressions performed. Defaults
+          to False.
+        * pred: bool (or list of bools of same length as degree). If True, prediction propperties will also
+          be evaluated (their process of evaluation involves performing one regression per point in the sample).
+          These are the last 2 columns of the output table. If a single boolean is input, this will be applied
+          to all regressions performed. Defaults to True.
+        * tol: tolerance to consider a coefficient of the regression model as zero. Defaults to 10**(-8).
+        * round_to: precision of the results printed. Defaults to 3.
+ 
+
+        **Prints to screen or file:**
+
+        * Degree: Degree of the regression. (i) indicates the addition of interaction products.
+        * F: F-statistic value of the regression.
+        * R2: R-square coefficient.
+        * R2adj: adjusted R-square coefficient.
+        * RMSE: Root Mean Square Eror.
+        * R2pred: prediction R-square coefficient.
+        * PRESS-RMSE: prediction RMSE.
+
+
+        **REF:** http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf
         """
         if self.dir==None:
             output=None
@@ -288,24 +301,31 @@ class analysis:
     def f_correlation(self,tc=0.95,tabs=0.1,round_to=3):
         """
         This function performs first dimensionality reduction via PCA on the fitness sample of
-        multi-objective problems following the algorithm proposed in the reference and returns
+        multi-objective problems following the algorithm proposed in the reference and **Returns**
         the critical objectives picked. Also gives the user other informations about objective
-        function correlation for a possible eventual fitness dimensionality reduction.\n
-        REF: Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through Dimensionality
+        function correlation for a possible eventual fitness dimensionality reduction.
+
+        **REF:** Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through Dimensionality
         Reduction for Certain Large-Dimensional Multi-Objective Optimization Problems, KanGAL
-        Report No. 2005011, IIT Kanpur, 2005.\n
-        USAGE:
-        analysis.f_correlation([tc=0.95,tabs=0.1,round_to=4])
-        *tc: threshold cut. When the cumulative contribution of the eigenvalues absolute value
-        equals this fraction of its maximum value, the reduction algorithm stops. A higher
-        threshold cut means less reduction (see reference). Defaults to 0.95.
-        *tabs: absolute tolerance. A Principal Component is treated differently if the absolute
-        value of its corresponding eigenvalue is lower than this value (see reference). Defaults
-        to 0.1.\n
-        Prints to screen or file:
-        *Critical objectives from first PCA: objectives not to be eliminated of the problem.
-        *Eigenvalues, relative contribution, eigenvectors (of the objective correlation matrix).
-        *Objective correlation matrix.\n
+        Report No. 2005011, IIT Kanpur, 2005.
+
+
+        **USAGE:**
+        analysis.f_correlation([tc=0.95, tabs=0.1, round_to=4])
+
+        * tc: threshold cut. When the cumulative contribution of the eigenvalues absolute value
+          equals this fraction of its maximum value, the reduction algorithm stops. A higher
+          threshold cut means less reduction (see reference). Defaults to 0.95.
+        * tabs: absolute tolerance. A Principal Component is treated differently if the absolute
+          value of its corresponding eigenvalue is lower than this value (see reference). Defaults
+          to 0.1.
+
+
+        **Prints to screen or file:**
+
+        * Critical objectives from first PCA: objectives not to be eliminated of the problem.
+        * Eigenvalues, relative contribution, eigenvectors (of the objective correlation matrix).
+        * Objective correlation matrix.
         """
         from numpy import asarray,ones
         if self.dir==None:
@@ -339,29 +359,37 @@ class analysis:
     def c_feasibility(self,tol=10**(-8),round_to=3):        
         """
         This function gives the user information about the effectivity and possible redundancy of
-        the constraints of the problem.\n
-        USAGE:
-        analysis.c_feasibility([tol=10**(-8),round_to=4])
-        *n_pairs: number of pairs of points used to test probability of linearity. If set to 0,
-        it will use as many pairs of points as points there are in the sample. Defaults to 0.
-        *tol: tolerance considered in the assessment of equality. Defaults to 10**(-8).
-        *round_to: precision of the results printed. Defaults to 3.\n
+        the constraints of the problem.
+
+
+        **USAGE:**
+        analysis.c_feasibility([tol=10**(-8), round_to=4])
+
+        * n_pairs: number of pairs of points used to test probability of linearity. If set to 0,
+          it will use as many pairs of points as points there are in the sample. Defaults to 0.
+        * tol: tolerance considered in the assessment of equality. Defaults to 10**(-8).
+        * round_to: precision of the results printed. Defaults to 3.
+
+
         Prints to screen or file, for each of the constraints:
-        *Constraint. g indicates inequality constraint of type <=, h indicates equality constraint.
-        *Equality constraints:
-            *Effectiveness >=0: fraction of the sampled points that satisfy this constraint or
-            violate it superiorly.
-            *Effectiveness <=0: fraction of the sampled points that satisfy this constraint or
-            violate it inferiorly.
-            *Number of feasible points found.
-        *Inequality constraints:
-            *Effectiveness >0: fraction of the sampled points that violate this constraint.
-            *Redundancy wrt all other ic: if there is more than one inequality constraint, fraction
-            of the points violating this inequality constraint that also violate any of the other.
-            *Number of feasible points found.
-        *Pairwise redundancy of inequality constraints: table 
-        ______|   g_j   |   R_ij is the redundancy of constraint g_i with respect to g_j, this is the
-         g_i  |  R_ij   |   fraction of the points violating g_i (row) that also violate g_j (column).\n
+
+        * Constraint. g indicates inequality constraint of type <=, h indicates equality constraint.
+        * Equality constraints:
+
+                * Effectiveness >=0: fraction of the sampled points that satisfy this constraint or
+                  violate it superiorly.
+                * Effectiveness <=0: fraction of the sampled points that satisfy this constraint or
+                  violate it inferiorly.
+                * Number of feasible points found.
+        * Inequality constraints:
+
+                * Effectiveness >0: fraction of the sampled points that violate this constraint.
+                * Redundancy wrt all other ic: if there is more than one inequality constraint, fraction
+                  of the points violating this inequality constraint that also violate any of the other.
+                * Number of feasible points found.
+        * Pairwise redundancy of inequality constraints: table where R_ij is the redundancy of constraint
+          g_i (row) with respect to g_j (column), this is the fraction of the points violating g_i that
+          also violate g_j (column).
         """
         if self.dir==None:
             output=None
@@ -405,18 +433,26 @@ class analysis:
     def c_linearity(self,npairs=0,tol=10**(-8),round_to=3):
         """
         This function gives the user information about the probability of linearity of the constraint
-        function(s). See analysis._c_lin for a more thorough description of this test.\n
-        NOTE: integer variable values are fixed during each of the tests and linearity or convexity
-        is assessed as regards the continuous part of the chromosome.\n
-        USAGE:
-        analysis.c_linearity([n_pairs=1000,tolerance=10**(-8),round_to=4])
-        *n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
-        of points as points there are in the sample. Defaults to 0.
-        *tol: tolerance considered to rate the function as linear between two points. Defaults to 10**(-8).
-        *round_to: precision of the results printed. Defaults to 3.\n
-        Prints to screen or file:
-        *Number of pairs of points used in test.
-        *Probability of linearity [0,1] of each constraint.\n
+        function(s). See analysis._c_lin for a more thorough description of this test.
+
+
+        **USAGE:**
+        analysis.c_linearity([n_pairs=1000, tolerance=10**(-8), round_to=4])
+
+        * n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
+          of points as points there are in the sample. Defaults to 0.
+        * tol: tolerance considered to rate the function as linear between two points. Defaults to 10**(-8).
+        * round_to: precision of the results printed. Defaults to 3.
+
+
+        **Prints to screen or file:**
+
+        * Number of pairs of points used in test.
+        * Probability of linearity [0,1] of each constraint.
+
+
+        **NOTE:** integer variable values are fixed during each of the tests and linearity or convexity
+        is assessed as regards the continuous part of the chromosome.
         """
         if self.dir==None:
             output=None
@@ -443,29 +479,37 @@ class analysis:
     def c_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):        
         """
         This function performs polynomial regressions on each constraint function and measures the
-        precision of these regressions.\n
-        USAGE:
-        analysis.c_regression(degree=[1,1,2] [, interaction= [False,True,False], pred=True, tol=10**(-8),round_to=4])
-        *degree: integer (or list of integers) specifying the degree of the regression(s) to perform.
-        *interaction: bool (or list of bools of same length as degree). If True, interaction products of
-        first order will be added. These are all terms of order regression_degree+1 that involve at least 2
-        variables. If a single boolean is input, this will be applied to all regressions performed. Defaults
-        to False.
-        *pred: bool (or list of bools of same length as degree). If True, prediction propperties will also
-        be evaluated (their process of evaluation involves performing one regression per point in the sample).
-        These are the last 2 columns of the output table. If a single boolean is input, this will be applied
-        to all regressions performed. Defaults to True.
-        *tol: tolerance to consider a coefficient of the regression model as zero. Defaults to 10**(-8).
-        *round_to: precision of the results printed. Defaults to 3.\n
-        Prints to screen or file:
-        *Degree: Degree of the regression. (i) indicates the addition of interaction products.
-        *F: F-statistic value of the regression.
-        *R2: R-square coefficient.
-        *R2adj: adjusted R-square coefficient.
-        *RMSE: Root Mean Square Eror.
-        *R2pred: prediction R-square coefficient.
-        *PRESS-RMSE: prediction RMSE.\n
-        REF: http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf\n
+        precision of these regressions.
+
+
+        **USAGE:**
+        analysis.c_regression(degree=[1,1,2] [, interaction=[False,True,False], pred=True, tol=10**(-8),round_to=4])
+
+        * degree: integer (or list of integers) specifying the degree of the regression(s) to perform.
+        * interaction: bool (or list of bools of same length as degree). If True, interaction products of
+          first order will be added. These are all terms of order regression_degree+1 that involve at least 2
+          variables. If a single boolean is input, this will be applied to all regressions performed. Defaults
+          to False.
+        * pred: bool (or list of bools of same length as degree). If True, prediction propperties will also
+          be evaluated (their process of evaluation involves performing one regression per point in the sample).
+          These are the last 2 columns of the output table. If a single boolean is input, this will be applied
+          to all regressions performed. Defaults to True.
+        * tol: tolerance to consider a coefficient of the regression model as zero. Defaults to 10**(-8).
+        * round_to: precision of the results printed. Defaults to 3.
+        
+
+        **Prints to screen or file:**
+        
+        * Degree: Degree of the regression. (i) indicates the addition of interaction products.
+        * F: F-statistic value of the regression.
+        * R2: R-square coefficient.
+        * R2adj: adjusted R-square coefficient.
+        * RMSE: Root Mean Square Eror.
+        * R2pred: prediction R-square coefficient.
+        * PRESS-RMSE: prediction RMSE.
+        
+
+        **REF:** http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf
         """
         if self.dir==None:
             output=None
@@ -518,7 +562,7 @@ class analysis:
         if output!=None:
             output.close()
 
-    def local_search(self,clusters_to_show=10,plot_global_pcp=False,plot_separate_pcp=False,scatter_plot_dimensions=[],\
+    def local_search(self,clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=True,scatter_plot_dimensions=[],\
         sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio',\
         variance_ratio=0.9,k=0,single_cluster_tolerance=0.0001,kmax=0,round_to=3):
         """
@@ -528,85 +572,93 @@ class analysis:
         for multi-objective problems). The clustering is conducted by means of the k-Means algorithm
         in the search-fitness space. Some parameters are also computed after the clustering to allow
         landscape analysis and provide insight into the basins of attraction that affect the algorithm
-        deployed.\n
-        USAGE:
-        analysis.local_search([clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=True,scatter_plot_dimensions=[],sample_size=0,algo=algorithm.gsl_fr(),decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio',variance_ratio=0.9,k=0,single_cluster_tolerance=0.001,kmax=0,round_to=3])
-        *clusters_to_show: number of clusters whose parameters will be displayed. Option 'all' will
-        display all clusters obtained. Clusters will be ordered ascendently as regards mean fitness
-        value (after applying problem.con2mo in the case of constrained problems and problem.decompose
-        for multi-objective problems), and the best ones will be shown. This parameters also affects
-        the plots.
-        *plot_global_pcp: if True, the local search cluster PCP will be generated, representing all
-        clusters to show in the same graph. See plot_local_cluster_pcp for more information on this
-        plot. Defaults to True.
-        *plot_separate_pcp: if True, as many PCPs as clusters_to_show will be generated, representing
-        a cluster per graph. See plot_local_cluster_pcp for more information on this plot. Defaults to
-        True.
-        *scatter_plot_dimensions: integer or list of up to 3 integers specifying the dimensions to
-        consider for the local search cluster scatter plot. Option 'all' will pick all dimensions.
-        Option [] will not generate the scatter plot. Defaults to [].
-        *sample_size: number of initial points to launch local searches from. If set to 0, all
-        points in sample are used. Defaults to 0.
-        *algo: algorithm object used in searches. For purposes, it should be a local optimisation
-        algorithm. Defaults to algorithm.gsl_fr().
-        *par: if True, an unconnected archipelago will be used for possible parallelization.
-        *decomposition_method: method used by problem.decompose in the case of multi-objective
-        problems. Options are: 'tchebycheff', 'weighted', 'bi' (boundary intersection).
-        Defaults to 'tchebycheff'.
-        *weights: weight vector used by problem.decompose in the case of multi-objective
-        problems. Options are: 'uniform', 'random' or any vector of length [fitness dimension]
-        whose components sum to one with precision of 10**(-8). Defaults to 'uniform'.
-        *z: ideal reference point used by 'tchebycheff' and 'bi' methods. If set to [] (empty
-        vector), point [0,0,...,0] is used. Defaults to [].
-        *con2mo: way in which constraint problems will be transformed into multi-objective problems
-        before decomposition. Defaults to 'obj_cstrsvio'. Options are:
-                *'obj_cstrs': f1=original objective, f2=number of violated constraints.
-                *'obj_cstrsvio': f1=original objective, f2=norm of total constraint violation.
-                *'obj_eqvio_ineqvio': f1=original objective, f2= norm of equality constraint violation,
-                f3= norm of inequality constraint violation.
-                *None: in this case the function won't try to transform the constraint problem via
-                meta-problem con2mo. Set to None when a local search algorithm that supports constraint
-                optimization is input.
-        *variance_ratio: target fraction of variance explained by the cluster centroids, when not
-        clustering to a fixed number of clusters. Defaults to 0.9.
-        *k: number of clusters when clustering to fixed number of clusters. If k=0, the clustering
-        will be performed for increasing value of k until the explained variance ratio is achieved.
-        Defaults to 0.
-        *single_cluster_tolerance: if the radius of a single cluster is lower than this value
-        times (search space dimension+fitness space dimension), k will be set to 1 when not clustering
-        to a fixed number of clusters. Defaults to 0.0001.
-        *kmax: maximum number of clusters admissible. If set to 0, the limit is the number of local
-        searches performed. Defaults to 0.
-        *round_to: precision of the results printed. Defaults to 3.\n
-        Prints to screen or file:
-        *Number of local searches performed.
-        *Quartiles of CPU time per search: percentiles 0, 25, 50, 75 and 100 of the time elapsed per
-        single local search.
-        *Cluster properties: the following parameters will be shown for the number of clusters
-        specified via argument clusters_to_show:
-            *Size: size of the cluster, in number of points and as a percentage of the sample size.
-            *Cluster X_center: projection of the cluster centroid in the search space.
-            *Mean objective value: projection of the cluster centroid in the fitness space.
-            *F(X_center): fitness value of the X_center. If it differs abruptly from the cluster
-            mean objective value, the odds are that the cluster spans through more than one mode
-            of the fitness function.
-            *C(X_center): constraint function values of the X_center. Only for constrained problems.
-            *Cluster span in F: peak-to-peak values of the fitness values of the local search
-            final points in the cluster.
-            *Cluster radius in X: euclidian distance from the furthest final local search point in the
-            cluster to the cluster X-center.
-            *Radius of attraction: euclidian distance from the furthest initial local search point in
-            the cluster to the cluster X-center.\n
-        Shows or saves to file:
-        *Global cluster PCP: PCP of the clusters of the local search results, all clusters to show on
-        the same graph. See analysis.plot_local_cluster_pcp for more information on the plot.
-        *Separate cluster PCP: PCP of the clusters of the local search results, one graph per cluster.
-        See analysis.plot_local_cluster_pcp for more information on the plot.
-        *Cluster scatter plot: scatter plot of the clusters of the local search results. See
-        analysis.plot_local_cluster_scatter for more information on the plot.\n
-        NOTE: this function calls analysis._get_local_extrema and analysis._cluster_local_extrema. Both
+        deployed.
+
+
+        **USAGE:**
+        analysis.local_search([clusters_to_show=10, plot_global_pcp=True, plot_separate_pcp=True, scatter_plot_dimensions=[], sample_size=0, algo=algorithm.gsl_fr(), decomposition_method='tchebycheff', weights='uniform', z=[],con2mo='obj_cstrsvio', variance_ratio=0.9, k=0,single_cluster_tolerance=0.001, kmax=0, round_to=3])
+        
+        * clusters_to_show: number of clusters whose parameters will be displayed. Option 'all' will
+          display all clusters obtained. Clusters will be ordered ascendently as regards mean fitness
+          value (after applying problem.con2mo in the case of constrained problems and problem.decompose
+          for multi-objective problems), and the best ones will be shown. This parameters also affects
+          the plots.
+        * plot_global_pcp: if True, the local search cluster PCP will be generated, representing all
+          clusters to show in the same graph. See plot_local_cluster_pcp for more information on this
+          plot. Defaults to True.
+        * plot_separate_pcp: if True, as many PCPs as clusters_to_show will be generated, representing
+          a cluster per graph. See plot_local_cluster_pcp for more information on this plot. Defaults to
+          True.
+        * scatter_plot_dimensions: integer or list of up to 3 integers specifying the dimensions to
+          consider for the local search cluster scatter plot. Option 'all' will pick all dimensions.
+          Option [] will not generate the scatter plot. Defaults to [].
+        * sample_size: number of initial points to launch local searches from. If set to 0, all
+          points in sample are used. Defaults to 0.
+        * algo: algorithm object used in searches. For purposes, it should be a local optimisation
+          algorithm. Defaults to algorithm.gsl_fr().
+        * par: if True, an unconnected archipelago will be used for possible parallelization.
+        * decomposition_method: method used by problem.decompose in the case of multi-objective
+          problems. Options are: 'tchebycheff', 'weighted', 'bi' (boundary intersection).
+          Defaults to 'tchebycheff'.
+        * weights: weight vector used by problem.decompose in the case of multi-objective
+          problems. Options are: 'uniform', 'random' or any vector of length [fitness dimension]
+          whose components sum to one with precision of 10**(-8). Defaults to 'uniform'.
+        * z: ideal reference point used by 'tchebycheff' and 'bi' methods. If set to [] (empty
+          vector), point [0,0,...,0] is used. Defaults to [].
+        * con2mo: way in which constraint problems will be transformed into multi-objective problems
+          before decomposition. Defaults to 'obj_cstrsvio'. Options are:
+                * 'obj_cstrs': f1=original objective, f2=number of violated constraints.
+                * 'obj_cstrsvio': f1=original objective, f2=norm of total constraint violation.
+                * 'obj_eqvio_ineqvio': f1=original objective, f2= norm of equality constraint violation,
+                  f3= norm of inequality constraint violation.
+                * None: in this case the function won't try to transform the constraint problem via
+                  meta-problem con2mo. Set to None when a local search algorithm that supports constraint
+                  optimization is input.
+        * variance_ratio: target fraction of variance explained by the cluster centroids, when not
+          clustering to a fixed number of clusters. Defaults to 0.9.
+        * k: number of clusters when clustering to fixed number of clusters. If k=0, the clustering
+          will be performed for increasing value of k until the explained variance ratio is achieved.
+          Defaults to 0.
+        * single_cluster_tolerance: if the radius of a single cluster is lower than this value
+          times (search space dimension+fitness space dimension), k will be set to 1 when not clustering
+          to a fixed number of clusters. Defaults to 0.0001.
+        * kmax: maximum number of clusters admissible. If set to 0, the limit is the number of local
+          searches performed. Defaults to 0.
+        * round_to: precision of the results printed. Defaults to 3.\n
+          **Prints to screen or file:**
+        * Number of local searches performed.
+        * Quartiles of CPU time per search: percentiles 0, 25, 50, 75 and 100 of the time elapsed per
+          single local search.
+        * Cluster properties: the following parameters will be shown for the number of clusters
+          specified via argument clusters_to_show:
+                * Size: size of the cluster, in number of points and as a percentage of the sample size.
+                * Cluster X_center: projection of the cluster centroid in the search space.
+                * Mean objective value: projection of the cluster centroid in the fitness space.
+                * F(X_center): fitness value of the X_center. If it differs abruptly from the cluster
+                  mean objective value, the odds are that the cluster spans through more than one mode
+                  of the fitness function.
+                * C(X_center): constraint function values of the X_center. Only for constrained problems.
+                * Cluster span in F: peak-to-peak values of the fitness values of the local search
+                  final points in the cluster.
+                * Cluster radius in X: euclidian distance from the furthest final local search point in the
+                  cluster to the cluster X-center.
+                * Radius of attraction: euclidian distance from the furthest initial local search point in
+                  the cluster to the cluster X-center.
+
+
+        **Shows or saves to file:**
+
+        * Global cluster PCP: PCP of the clusters of the local search results, all clusters to show on
+          the same graph. See analysis.plot_local_cluster_pcp for more information on the plot.
+        * Separate cluster PCP: PCP of the clusters of the local search results, one graph per cluster.
+          See analysis.plot_local_cluster_pcp for more information on the plot.
+        * Cluster scatter plot: scatter plot of the clusters of the local search results. See
+          analysis.plot_local_cluster_scatter for more information on the plot.
+
+
+        **NOTE:** this function calls analysis._get_local_extrema and analysis._cluster_local_extrema. Both
         these functions store a great number of properties as class attributes. See ther respective
-        entries for more information about these attributes.\n
+        entries for more information about these attributes.
         """
         from numpy import percentile        
         if self.dir==None:
@@ -614,9 +666,8 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        string='LOCAL SEARCH'
         print ("--------------------------------------------------------------------------------",file=output)
-        print ("LOCAL SEARCH "+string,file=output)
+        print ("LOCAL SEARCH",file=output)
         print ("--------------------------------------------------------------------------------",file=output)
         if output!=None:
             output.close()
@@ -665,20 +716,27 @@ class analysis:
         The classes are defined by a percentile threshold on a fitness function. Linear, quadratic and
         nonlinear (rbf) kernels can be used, and their misclassification errors as well as p-values of
         pairwise comparison can be evaluated as indicators for multi-modality. All results are presented
-        per objective.\n
-        USAGE: 
-        analysis.levelset([threshold=[25,50],k_test=10,k_tune=3,linear=True,quadratic=False,nonlinear=True,round_to=3])
-        *threshold: percentile or list of percentiles that will serve as threshold for binary
-        classification of the sample. Defaults to 50.
-        *k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
-        *k_test: k used in k-fold crossvalidation to assess the model properties. Defaults to 10.
-        *linear, quadratic, nonlinear: boolean values. If True, the corresponding test will be performed.
-        All default to true.
-        *round_to: precision of the results printed. Defaults to 3.\n
-        Prints to screen or file:
-        *Percentile used as threshold.
-            *Mean misclassification error of each method used (linear, quadratic, nonlinear).
-            *P-values of each pairwise comparison (l/q, l/nl, q/nl)\n
+        per objective.
+
+
+        **USAGE:** 
+        analysis.levelset([threshold=[25,50], k_test=10,k_tune=3, linear=True, quadratic=False, nonlinear=True, round_to=3])
+
+        * threshold: percentile or list of percentiles that will serve as threshold for binary
+          classification of the sample. Defaults to 50.
+        * k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
+        * k_test: k used in k-fold crossvalidation to assess the model properties. Defaults to 10.
+        * linear, quadratic, nonlinear: boolean values. If True, the corresponding test will be performed. All default to true.
+        * round_to: precision of the results printed. Defaults to 3.
+
+
+        **Prints to screen or file:**
+        * K tune
+        * K test
+        * Percentile used as threshold.
+        
+                * Mean misclassification error of each method used (linear, quadratic, nonlinear).
+                * One-sided p-values of each pairwise comparison (l/q, l/nl, q/nl)
         """
         if isinstance(threshold,(int,float)):
             threshold=[threshold]
@@ -692,6 +750,8 @@ class analysis:
             print ("-------------------------------------------------------------------------------",file=output)
             print ("LEVELSET FEATURES ",file=output)
             print ("-------------------------------------------------------------------------------",file=output)
+            print ("         K tune :                       ",[k_tune],"",file=output)
+            print ("         K test :                       ",[k_test],"",file=output)
             for i in threshold:
                 svm_results=self._svm_p_values(threshold=i,k_test=k_test,k_tune=k_tune)
                 print ("Percentile",i," :",file=output)
@@ -718,45 +778,47 @@ class analysis:
         This function evaluates the jacobian matrix and hessian tensor in a subset of the sample
         in order to extract information about sensitivity of the fitness function(s) with respect
         to the search variables. All results are presented per objective and scaled with the
-        corresponding scale factors.\n
-        USAGE:
-        analysis.f_sensitivity([hessian=True,plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0,h=0.01,conv_tol=10**(-6),zero_tol=10**(-8),tmax=15,round_to=3])
-        *hessian: if True, the hessian tensor and its properties will also be evaluated. Defaults
-        to True.
-        *plot_gradient_sparsity: if True, the Jacobian matrix sparsity plot will be generated.
-        *plot_pcp: if True, the gradient PCP (with chromosome in X-axis) will be generated. This
-        doesn't make sense for univariate problems. Defaults to True.
-        *plot_inverted_pcp: if True, the gradient PCP (with F in X-axis) will be generated. This
-        doesn't make sense for single-objective problems. Defaults to True.
-        *sample_size: number of points to calculate the gradient or hessian at. A subset of this
-        number of points will be randomly picked amongst the sample. If set to 0, all the sample
-        will be picked. Defaults to 0.
-        *h: initial fraction of the search space span used as dx for evaluation of derivatives.
-        (note that in Richardson extrapolation method, the value of this parameter is reduced
-        in every iteration).
-        *conv_tol: convergence parameter for Richardson extrapolation method. Defaults to 10**(-6).
-        *zero_tol: tolerance for considering a component of the average absolute value jacobian
-        matrix as nule during the sparsity test. Defaults to 10**(-8).
-        *tmax: maximum of iterations for Richardson extrapolation. Defaults to 15.
-        *round_to: precision of the results printed. Defaults to 3. \n
-        Prints to screen or file:
-        *Number of points used.
-        *Percentiles 0, 25, 50, 75 and 100 of the distribution of:
-            *Gradient norm.
-            *|dFx|_max/|dFx|_min: ratio of maximum to minimum absolute value of partial derivatives
-            in that fitness function gradient.
-            *Hessian conditioning: ratio of maximum to minimum absolute value of eigenvalues of
-            that fitness function hessian matrix.
-        *Gradient sparsity: fraction of components of the gradient that are nule at every point.
-        *Fraction of points with Positive Definite hessian.
-        *Fraction of points with Positive Semi-Definite (and not Positive-Definite) hessian.
-        Shows or saves to file:
-        *Gradient/Jacobian sparsity plot.
-        *Gradient/Jacobian PCP with chromosome in X-axis.
-        *Gradient/Jacobian PCP with fitness in X-axis.\n
-        NOTE: this function calls analysis._get_gradient and analysis._get_hessian. Both these
+        corresponding scale factors.
+
+
+        **USAGE:**
+        analysis.f_sensitivity([hessian=True, plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0, h=0.01,conv_tol=10**(-6), zero_tol=10**(-8), tmax=15, round_to=3])
+        
+        * hessian: if True, the hessian tensor and its properties will also be evaluated. Defaults to True.
+        * plot_gradient_sparsity: if True, the Jacobian matrix sparsity plot will be generated.
+        * plot_pcp: if True, the gradient PCP (with chromosome in X-axis) will be generated. Defaults to True.
+        * plot_inverted_pcp: if True, the gradient PCP (with F in X-axis) will be generated. Defaults to True.
+        * sample_size: number of points to calculate the gradient or hessian at. If set to 0, all the sample will be picked. Defaults to 0.
+        * h: initial fraction of the search space span used as dx for evaluation of derivatives.
+        * conv_tol: convergence parameter for Richardson extrapolation method. Defaults to 10**(-6).
+        * zero_tol: tolerance for considering a component nule during the sparsity test. Defaults to 10**(-8).
+        * tmax: maximum of iterations for Richardson extrapolation. Defaults to 15.
+        * round_to: precision of the results printed. Defaults to 3.
+
+
+        **Prints to screen or file:**
+        
+        * Number of points used.
+        * Percentiles 0, 25, 50, 75 and 100 of the distribution of:
+
+                * Gradient norm.
+                * |dFx|_max/|dFx|_min: ratio of maximum to minimum absolute value of partial derivatives in that fitness function gradient.
+                * Hessian conditioning: ratio of maximum to minimum absolute value of eigenvalues of that fitness function hessian matrix.
+        * Gradient sparsity: fraction of components of the gradient that are nule at every point.
+        * Fraction of points with Positive Definite hessian.
+        * Fraction of points with Positive Semi-Definite (and not Positive-Definite) hessian.
+
+
+        **Shows or saves to file:**
+
+        * Gradient/Jacobian sparsity plot.
+        * Gradient/Jacobian PCP with chromosome in X-axis.
+        * Gradient/Jacobian PCP with fitness in X-axis.
+
+
+        **NOTE:** this function calls analysis._get_gradient and analysis._get_hessian. Both these
         functions store a great number of properties as class attributes. See their respective
-        entries for more information about these attributes.\n
+        entries for more information about these attributes.
         """
         if self.dir==None:
             output=None
@@ -798,38 +860,42 @@ class analysis:
         """
         This function evaluates the jacobian matrix of the constraint fucntions in a subset of the 
         sample in order to extract information about sensitivity of the constraints with respect
-        to the search variables. All results are presented per constraint.\n
-        USAGE:
-        analysis.c_sensitivity([plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0,h=0.01,conv_tol=10**(-6),zero_tol=10**(-8),tmax=15,round_to=3])
-        *plot_gradient_sparsity: if True, the Jacobian matrix sparsity plot will be generated.
-        *plot_pcp: if True, the c-gradient PCP (with chromosome in X-axis) will be generated. This
-        doesn't make sense for univariate problems. Defaults to True.
-        *plot_inverted_pcp: if True, the c-gradient PCP (with F in X-axis) will be generated. This
-        doesn't make sense for single-constraint problems. Defaults to True.
-        *sample_size: number of points to calculate the c-gradient at. A subset of this number of
-        points will be randomly picked amongst the sample. If set to 0, all the sample will be picked.
-        Defaults to 0.
-        *h: initial fraction of the search space span used as dx for evaluation of derivatives.
-        (note that in Richardson extrapolation method, the value of this parameter is reduced
-        in every iteration).
-        *conv_tol: convergence parameter for Richardson extrapolation method. Defaults to 10**(-6).
-        *zero_tol: tolerance for considering a component of the average absolute value jacobian
-        matrix as nule during the sparsity test. Defaults to 10**(-8).
-        *tmax: maximum of iterations for Richardson extrapolation. Defaults to 15.
-        *round_to: precision of the results printed. Defaults to 3. \n
-        Prints to screen or file:
-        *Number of points used.
-        *Percentiles 0, 25, 50, 75 and 100 of the distribution of:
-            *C-Gradient norm.
-            *|dFx|_max/|dFx|_min: ratio of maximum to minimum absolute value of partial derivatives
-            in that constraint function gradient.
-        *C-Gradient sparsity: fraction of components of the c-gradient that are nule at every point.
-        Shows or saves to file:
-        *C-Gradient/Jacobian sparsity plot.
-        *C-Gradient/Jacobian PCP with chromosome in X-axis.
-        *C-Gradient/Jacobian PCP with fitness in X-axis.\n
-        NOTE: this function calls analysis._get_gradient, which stores a great number of properties
-        as class attributes. See its entry for more information about these attributes.\n
+        to the search variables. All results are presented per constraint.
+
+
+        **USAGE:**
+        analysis.c_sensitivity([plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0, h=0.01, conv_tol=10**(-6), zero_tol=10**(-8), tmax=15,round_to=3])
+        
+        * plot_gradient_sparsity: if True, the Jacobian matrix sparsity plot will be generated.
+        * plot_pcp: if True, the c-gradient PCP (with chromosome in X-axis) will be generated. Defaults to True.
+        * plot_inverted_pcp: if True, the c-gradient PCP (with F in X-axis) will be generated. Defaults to True.
+        * sample_size: number of points to calculate the c-gradient at. If set to 0, all the sample will be picked. Defaults to 0.
+        * h: initial fraction of the search space span used as dx for evaluation of derivatives.
+        * conv_tol: convergence parameter for Richardson extrapolation method. Defaults to 10**(-6).
+        * zero_tol: tolerance for considering a component as nule during the sparsity test. Defaults to 10**(-8).
+        * tmax: maximum of iterations for Richardson extrapolation. Defaults to 15.
+        * round_to: precision of the results printed. Defaults to 3. 
+        
+
+        **Prints to screen or file:**
+        
+        * Number of points used.
+        * Percentiles 0, 25, 50, 75 and 100 of the distribution of:
+
+                * C-Gradient norm.
+                * |dFx|_max/|dFx|_min: ratio of maximum to minimum absolute value of partial derivatives in that constraint function gradient.
+        * C-Gradient sparsity: fraction of components of the c-gradient that are nule at every point.
+        
+
+        **Shows or saves to file:**
+
+        * C-Gradient/Jacobian sparsity plot.
+        * C-Gradient/Jacobian PCP with chromosome in X-axis.
+        * C-Gradient/Jacobian PCP with fitness in X-axis.
+        
+
+        **NOTE:** this function calls analysis._get_gradient, which stores a great number of properties
+        as class attributes. See its entry for more information about these attributes.
         """
         if self.dir==None:
             output=None
@@ -840,60 +906,75 @@ class analysis:
         print ("-------------------------------------------------------------------------------",file=output)
         print ("C-SENSITIVITY ",file=output)
         print ("-------------------------------------------------------------------------------",file=output)
-        self._get_gradient(sample_size=sample_size,h=h,grad_tol=conv_tol,zero_tol=zero_tol,tmax=tmax,mode='c')
-        g=self._grad_properties(tol=zero_tol,mode='c')
-        for f in range(self.ic_dim):
-            if self.ic_dim>1:
-                print ("CONSTRAINT g_"+str(f+1)+" :",file=output)
-            print ("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
-            print ("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
-            print ("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
-            print ("     Gradient sparsity :           ","["+str(round(self.c_grad_sparsity,round_to))+"]",file=output)
+        if self.c_dim==0:
+                print ("This is an unconstrained problem.",file=output)
+        else:
+            self._get_gradient(sample_size=sample_size,h=h,grad_tol=conv_tol,zero_tol=zero_tol,tmax=tmax,mode='c')
+            g=self._grad_properties(tol=zero_tol,mode='c')
+            for f in range(self.ic_dim):
+                if self.ic_dim>1:
+                    print ("CONSTRAINT g_"+str(f+1)+" :",file=output)
+                print ("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
+                print ("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
+                print ("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
+                print ("     Gradient sparsity :           ","["+str(round(self.c_grad_sparsity,round_to))+"]",file=output)
 
-        if output!=None:
-            output.close()
-        if plot_gradient_sparsity:
-            self.plot_gradient_sparsity(zero_tol=zero_tol,mode='c')
-        if plot_pcp and self.cont_dim>1:
-            self.plot_gradient_pcp(mode='c',invert=False)
-        if plot_inverted_pcp and self.c_dim>1:
-            self.plot_gradient_pcp(mode='c',invert=True)
+            if output!=None:
+                output.close()
+            if plot_gradient_sparsity:
+                self.plot_gradient_sparsity(zero_tol=zero_tol,mode='c')
+            if plot_pcp and self.cont_dim>1:
+                self.plot_gradient_pcp(mode='c',invert=False)
+            if plot_inverted_pcp and self.c_dim>1:
+                self.plot_gradient_pcp(mode='c',invert=True)
 
     #SAMPLING
     def sample(self, npoints, method='sobol', first=1):
         """
-        Routine used to sample the search space. Samples in x, f and c and scales the datasets.\n
-        USAGE: analysis.sample(npoints=1000 [, method='sobol',first=1])\n
-        *npoints: number of points of the search space to sample.
-        *method: method used to sample the normalized search space. Options are:
-                *'sobol': sampling based on sobol low-discrepancy sequence. Default option.
-                *'faure': sampling based on faure low-discrepancy sequence. Dim [2,23].
-                *'halton': sampling based on halton low-discrepancy sequence. Dim <10.
-                *'lhs': latin hypersquare sampling.
-                *'montecarlo': Monte Carlo (random) sampling.
-                *'pop': sampling by selection of random individuals from a population. Can only
-                be used when a population object has ben input to the constructor.
-        NOTE: when calling sample, all methods can be used if a population has been input to the
+        Routine used to sample the search space. Samples in x, f and c and scales the datasets.
+
+
+        **USAGE:**
+        analysis.sample(npoints=1000 [, method='sobol', first=1])
+
+        * npoints: number of points of the search space to sample.
+        * method: method used to sample the normalized search space. Options are:
+
+                * 'sobol': sampling based on sobol low-discrepancy sequence. Default option.
+                * 'faure': sampling based on faure low-discrepancy sequence. Dim [2,23].
+                * 'halton': sampling based on halton low-discrepancy sequence. Dim <10.
+                * 'lhs': latin hypersquare sampling.
+                * 'montecarlo': Monte Carlo (random) sampling.
+                * 'pop': sampling by selection of random individuals from a population. Can only
+                  be used when a population object has ben input to the constructor.
+        * first: used only when sampling with 'sobol', 'faure' or 'halton'. Index of the first element
+          of the sequence that will be included in the sample. Defaults to 1. Set to >1 to skip. If set
+          to 0 with 'sobol' method, point (0,0,...,0) will also be sampled.
+
+
+        **The following parameters are stored as attributes:**
+        
+        * analysis.npoints: number of points sampled.
+        * analysis.points[number of points sampled][search dimension]: chromosome of points sampled.
+        * analysis.f[number of points sampled][fitness dimension]: fitness vector of points sampled.
+        * analysis.ub[search dimension]: upper bounds of search space.
+        * analysis.lb[search dimension]: lower bounds of search space.
+        * analysis.dim: search dimension, number of variables in search space
+        * analysis.cont_dim: number of continuous variables in search space
+        * analysis.int_dim: number of integer variables in search space
+        * analysis.c_dim: number of constraints
+        * analysis.ic_dim: number of inequality constraints
+        * analysis.f_dim: fitness dimension, number of objectives
+        * analysis.f_offset: minimum values of unscaled fitness functions. Used for scaling.
+        * analysis.f_span: peak-to-peak values of unscaled fitness functions. Used for scaling.
+
+
+        **NOTE:** when calling sample, all methods can be used if a population has been input to the
         constructor, but only 'pop' will select members from the population whereas the rest will
         sample the search space within its box constraints.
-        *first: used only when sampling with 'sobol', 'faure' or 'halton'. Index of the first element
-        of the sequence that will be included in the sample. Defaults to 1. Set to >1 to skip. If set
-        to 0 with 'sobol' method, point (0,0,...,0) will also be sampled.\n
-        The following parameters are stored as attributes:
-        *analysis.npoints: number of points sampled.
-        *analysis.points[number of points sampled][search dimension]: chromosome of points sampled.
-        *analysis.f[number of points sampled][fitness dimension]: fitness vector of points sampled.
-        *analysis.ub[search dimension]: upper bounds of search space.
-        *analysis.lb[search dimension]: lower bounds of search space.
-        *analysis.dim: search dimension, number of variables in search space
-        *analysis.cont_dim: number of continuous variables in search space
-        *analysis.int_dim: number of integer variables in search space
-        *analysis.c_dim: number of constraints
-        *analysis.ic_dim: number of inequality constraints
-        *analysis.f_dim: fitness dimension, number of objectives
-        *analysis.f_offset: minimum values of unscaled fitness functions. Used for scaling.
-        *analysis.f_span: peak-to-peak values of unscaled fitness functions. Used for scaling.
         """
+        from PyGMO.util import lhs,sobol,faure,halton
+        
         self.points=[]
         self.f=[]
         self.npoints=npoints
@@ -949,13 +1030,13 @@ class analysis:
                 self.f.append(list(self.prob.objfun(self.points[i])))
         else:
             if method=='sobol':
-                sampler=util.sobol(self.dim,first)
+                sampler=sobol(self.dim,first)
             elif method=='lhs':
-                sampler=util.lhs(self.dim,npoints)
+                sampler=lhs(self.dim,npoints)
             elif method=='faure':
-                sampler=util.faure(self.dim,first)
+                sampler=faure(self.dim,first)
             elif method=='halton':
-                sampler=util.halton(self.dim,first)
+                sampler=halton(self.dim,first)
             else:
                 raise ValueError(
                     "analysis.sample: method specified is not valid. choose 'sobol', 'lhs', 'faure','halton', 'montecarlo' or 'pop'")
@@ -1004,8 +1085,11 @@ class analysis:
    
     def _skew(self):
         """
-        Returns the skew of the f-distributions in the form of a list [fitness dimension].\n
-        USAGE: analysis._skew()
+        **Returns** the skew of the f-distributions in the form of a list [fitness dimension].
+
+
+        **USAGE:**
+        analysis._skew()
         """
         try:
             from scipy.stats import skew
@@ -1019,8 +1103,11 @@ class analysis:
 
     def _kurtosis(self):
         """
-        Returns the kurtosis of the f-distributions in the form of a list [fitness dimension].\n
-        USAGE: analysis._kurtosis()
+        **Returns** the kurtosis of the f-distributions in the form of a list [fitness dimension].
+
+
+        **USAGE:**
+        analysis._kurtosis()
         """
         try:
             from scipy.stats import kurtosis
@@ -1034,8 +1121,11 @@ class analysis:
 
     def _mean(self):
         """
-        Returns the mean values of the f-distributions in the form of a list [fitness dimension].\n
-        USAGE: analysis._mean()
+        **Returns** the mean values of the f-distributions in the form of a list [fitness dimension].
+
+
+        **USAGE:**
+        analysis._mean()
         """
         try:
             from numpy import mean
@@ -1049,9 +1139,14 @@ class analysis:
 
     def _var(self):
         """
-        Returns the variances of the f-distributions in the form of a list [fitness dimension].\n
-        NOTE: not corrected, (averages with /N and not /(N-1))\n
-        USAGE: analysis._var()
+        **Returns** the variances of the f-distributions in the form of a list [fitness dimension].
+
+
+        **USAGE:**
+        analysis._var()
+
+
+        **NOTE:** not corrected, (averages with /N and not /(N-1))
         """
         try:
             from numpy import var
@@ -1065,10 +1160,15 @@ class analysis:
 
     def _std(self):
         """
-        Returns the standard deviations of the f-distributions in the form of a list
-        [fitness dimension].\n
-        NOTE: not corrected (averages with /N and not /(N-1))\n
-        USAGE: analysis._std()
+        **Returns** the standard deviations of the f-distributions in the form of a list
+        [fitness dimension].
+
+
+        **USAGE:**
+        analysis._std()
+
+
+        **NOTE:** not corrected (averages with /N and not /(N-1))
         """
         try:
             from numpy import std
@@ -1082,8 +1182,11 @@ class analysis:
 
     def _ptp(self):
         """
-        Returns the peak-to-peak range of the f-distributions in the form of a list [fitness dimension].\n
-        USAGE: analysis._ptp()
+        **Returns** the peak-to-peak range of the f-distributions in the form of a list [fitness dimension].
+
+
+        **USAGE:**
+        analysis._ptp()
         """
         try:
             from numpy import ptp
@@ -1097,10 +1200,14 @@ class analysis:
 
     def _percentile(self,p):
         """
-        Returns the percentile(s) of the f-distributions specified in p inthe form of a list
-        [length p][fitness dimension].\n
-        USAGE: analysis._percentile(p=[0,10,25,50,75,100])
-        *p: percentile(s) to return. Can be a single int/float or a list.
+        **Returns** the percentile(s) of the f-distributions specified in p inthe form of a list
+        [length p][fitness dimension].
+
+
+        **USAGE:**
+        analysis._percentile(p=[0,10,25,50,75,100])
+        
+        * p: percentile(s) to return. Can be a single int/float or a list.
         """
         try:
             from numpy import percentile
@@ -1118,10 +1225,15 @@ class analysis:
     def plot_f_distr(self):
         """
         Routine that plots the f-distributions in terms of density of probability of a fitness value
-        in the sample considered.\n
-        USAGE: analysis.plot_f_distr()\n
-        NOTE: the plot will be shown on screen or saved to file depending on the  option that was
-        selected when instantiating the analysis class.\n
+        in the sample considered.
+
+
+        **USAGE:**
+        analysis.plot_f_distr()
+
+
+        **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
+        selected when instantiating the analysis class.
         """
         try:
             from scipy.stats import gaussian_kde
@@ -1164,15 +1276,21 @@ class analysis:
         """
         Routine that creates parallel coordinate plots of the chromosome of all points in the sample
         classified in ranges defined by the list of percentiles input. A plot per objective will be
-        generated.\n
-        USAGE: analysis.plot_x_pcp(percentile=[5,10,25,50,75] [,percentile_values=[0.06,0.08,0.3,0.52,0.8]])
-        *percentile: the percentile or list of percentiles that will serve as limits
-        to the intervals in which the f-values are classified.
-        *percentile_values: the f-values corresponding to the aforementioned percentiles.
-        This argument is added for reusability, if set to [], they will be calculated.
-        Defaults to [].\n
-        NOTE: the plot will be shown on screen or saved to file depending on the
-        option that was selected when instantiating the analysis class.\n
+        generated.
+
+
+        **USAGE:**
+        analysis.plot_x_pcp(percentile=[5,10,25,50,75] [, percentile_values=[0.06,0.08,0.3,0.52,0.8]])
+
+        * percentile: the percentile or list of percentiles that will serve as limits
+          to the intervals in which the f-values are classified.
+        * percentile_values: the f-values corresponding to the aforementioned percentiles.
+          This argument is added for reusability, if set to [], they will be calculated.
+          Defaults to [].
+
+
+        **NOTE:** the plot will be shown on screen or saved to file depending on the
+        option that was selected when instantiating the analysis class.
         """
         try:
             from pandas.tools.plotting import parallel_coordinates as pc
@@ -1239,9 +1357,13 @@ class analysis:
 
     def _n_peaks_f(self,nf=0):
         """
-        Returns the number of peaks of the f-distributions in the form of a list [fitness dimension].\n
-        USAGE: analysis._n_peaks_f([nf=100])
-        *nf: discretisation of the f-distributions used to find their peaks. Defaults to npoints-1.\n
+        **Returns** the number of peaks of the f-distributions in the form of a list [fitness dimension].
+
+
+        **USAGE:**
+        analysis._n_peaks_f([nf=100])
+        
+        * nf: discretisation of the f-distributions used to find their peaks. Defaults to npoints-1.
         """
         try:
             from numpy import array,zeros
@@ -1288,19 +1410,28 @@ class analysis:
         per test and a random convex combination of them is taken (Xconv,Fconv). For each objective,
         if F(Xconv)=Fconv within tolerance, the function is considered linear there. Otherwise, if
         F(Xconv)<Fconv, the function is considered convex. |F(Xconv)-Fconv| is the linear deviation.
-        The average of all tests performed gives the overall result.\n
-        NOTE: integer variables values are fixed during each of the tests and linearity or convexity
-        is evaluated as regards the continuous part of the chromosome.\n
-        USAGE: analysis._p_lin_conv([n_pairs=100,threshold=10**(-10)])
-        *n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
-        of points as points there are in the sample. Defaults to 0.
-        *threshold: tolerance considered to rate the function as linear or convex between two points.
-        Defaults to 10**(-10).\n
-        Returns a tuple of length 3 containing:
-        *p_lin[fitness dimension]: probability of linearity [0,1].
-        *p_conv[fitness dimension]: probability of convexity [0,1].
-        *mean_dev[fitness dimension]: mean deviation from linearity as defined above (scaled with
-        corresponding fitness scaling factor).\n
+        The average of all tests performed gives the overall result.
+
+
+        **USAGE:**
+        analysis._p_lin_conv([n_pairs=100, threshold=10**(-10)])
+        
+        * n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
+          of points as points there are in the sample. Defaults to 0.
+        * threshold: tolerance considered to rate the function as linear or convex between two points.
+          Defaults to 10**(-10).
+
+
+        **Returns** a tuple of length 3 containing:
+
+        * p_lin[fitness dimension]: probability of linearity [0,1].
+        * p_conv[fitness dimension]: probability of convexity [0,1].
+        * mean_dev[fitness dimension]: mean deviation from linearity as defined above (scaled with
+          corresponding fitness scaling factor).
+
+
+        **NOTE:** integer variables values are fixed during each of the tests and linearity or convexity
+        is evaluated as regards the continuous part of the chromosome.
         """
         if self.npoints==0:
             raise ValueError(
@@ -1353,20 +1484,27 @@ class analysis:
 
     def _regression_coefficients(self,degree,interaction=False,mode='f',A=None):    
         """
-        Performs a polynomial regression on the sampled dataset and returns the
-        coefficients of the polynomial model.\n
-        USAGE: analysis._regression_coefficients(degree=2 [, interaction=True, mode='f'])
-        *regression_degree: degree of polynomial regression.
-        *interaction: if True, interaction products of first order will be added. These
-        are all terms of order regression_degree+1 that involve at least 2 variables.
-        Defaults to False.
-        *mode: 'f' to perform the regression on the fitness values dataset, 'c' to
-        perform it on the constraint function values dataset.
-        *A: matrix of polynomial terms as returned by _build_polynomial. This argument is
-        added for reusability, if set to None, it will be calculated. Defaults to None.\n
-        Returns:
-        *w[fitness/constraint dimension][number of coefficients]: coefficients of the
-        regression model, ordered as follows: highest order first, lexicographical.\n
+        Performs a polynomial regression on the sampled dataset and **Returns** the
+        coefficients of the polynomial model.
+
+
+        **USAGE:**
+        analysis._regression_coefficients(degree=2 [, interaction=True, mode='f'])
+
+        * regression_degree: degree of polynomial regression.
+        * interaction: if True, interaction products of first order will be added. These
+          are all terms of order regression_degree+1 that involve at least 2 variables.
+          Defaults to False.
+        * mode: 'f' to perform the regression on the fitness values dataset, 'c' to
+          perform it on the constraint function values dataset.
+        * A: matrix of polynomial terms as returned by _build_polynomial. This argument is
+          added for reusability, if set to None, it will be calculated. Defaults to None.
+
+
+        **Returns**:
+
+        * w[fitness/constraint dimension][number of coefficients]: coefficients of the
+          regression model, ordered as follows: highest order first, lexicographical.
         """
         if self.npoints==0:
             raise ValueError(
@@ -1410,28 +1548,36 @@ class analysis:
 
     def _regression_properties(self,degree,interaction=False,mode='f',pred=True,tol=10**(-8),w=None):
         """
-        Tests the precision and extracts the properties of a regression model fitting the dataset.\n
-        USAGE:
-        analysis._regression_properties(degree=1 [ ,interaction=False,mode='f',pred=False,tol=10**(-8),w=None])
-        *degree: degree of regression.
-        *interaction: if True, interaction products of first order will be added. These are all terms
-        of order regression_degree+1 that involve at least 2 variables. Defaults to False.
-        *mode: 'f' for a regression model of the fitness values dataset, 'c' for the constraint function
-        values dataset. Defaults to 'f'.
-        *pred: if True, prediction properties will also be evaluated by calling _regression_press.
-        Evaluation of these properties involves fitting of as many regressions as points in the dataset.
-        Defaults to True.
-        *tol: tolerance to consider a coefficient of the model as zero. Defaults to 10**(-8).
-        *w: coefficients of the regression model whose propperties one wants to assess. This argument
-        is added for reusability, if set to None they will be calculated. Defaults to None.\n
-        Returns list of size [fitness/constraint dimension][6] containing, per fitness/constraint function:
-        *F: F-statistic value of the regression.
-        *R2: R-square coefficient.
-        *R2adj: adjusted R-square coefficient.
-        *RMSE: Root Mean Square Eror.
-        *R2pred: prediction R-square coefficient.
-        *PRESS-RMSE: prediction RMSE.
-        REF: http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf\n
+        Tests the precision and extracts the properties of a regression model fitting the dataset.
+
+
+        **USAGE:**
+        analysis._regression_properties(degree=1 [ ,interaction=False,mode='f', pred=False, tol=10**(-8), w=None])
+
+        * degree: degree of regression.
+        * interaction: if True, interaction products of first order will be added. These are all terms
+          of order regression_degree+1 that involve at least 2 variables. Defaults to False.
+        * mode: 'f' for a regression model of the fitness values dataset, 'c' for the constraint function
+          values dataset. Defaults to 'f'.
+        * pred: if True, prediction properties will also be evaluated by calling _regression_press.
+          Evaluation of these properties involves fitting of as many regressions as points in the dataset.
+          Defaults to True.
+        * tol: tolerance to consider a coefficient of the model as zero. Defaults to 10**(-8).
+        * w: coefficients of the regression model whose propperties one wants to assess. This argument
+          is added for reusability, if set to None they will be calculated. Defaults to None.
+        
+
+        **Returns** list of size [fitness/constraint dimension][6] containing, per fitness/constraint function:
+
+        * F: F-statistic value of the regression.
+        * R2: R-square coefficient.
+        * R2adj: adjusted R-square coefficient.
+        * RMSE: Root Mean Square Eror.
+        * R2pred: prediction R-square coefficient.
+        * PRESS-RMSE: prediction RMSE.
+
+
+        **REF:** http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf
         """
         try:
             from numpy import var,array,zeros
@@ -1472,16 +1618,22 @@ class analysis:
     def _regression_press(self,degree,interaction=False,mode='f'):
         """
         Calculates the PRESS of a regression model on the dataset. This involves fitting of as
-        many models as points there are in the dataset.\n
-        USAGE:
+        many models as points there are in the dataset.
+
+
+        **USAGE:**
         analysis._regression_press(degree=1 [,interaction=False, mode='c'])
-        *degree: of the regression
-        *interaction: if True, interaction products of first order will be added. These are all terms
-        of order regression_degree+1 that involve at least 2 variables. Defaults to False.
-        *mode: 'f' for a regression model of the fitness values dataset, 'c' for the constraint function
-        values dataset. Defaults to 'f'.\n
-        Returns:
-        *PRESS [fitness/constraint dimension].\n
+
+        * degree: of the regression
+        * interaction: if True, interaction products of first order will be added. These are all terms
+          of order regression_degree+1 that involve at least 2 variables. Defaults to False.
+        * mode: 'f' for a regression model of the fitness values dataset, 'c' for the constraint function
+          values dataset. Defaults to 'f'.
+
+
+        **Returns**:
+
+        * PRESS [fitness/constraint dimension].
         """
         try:
             from numpy import array,zeros
@@ -1512,16 +1664,22 @@ class analysis:
 
     def _build_polynomial(self,x,degree,interaction=False):
         """
-        Builds the polynomial base necessary to fit or evaluate a regression model.\n
-        USAGE:
+        Builds the polynomial base necessary to fit or evaluate a regression model.
+
+
+        **USAGE:**
         analysis._build_polynomial(x=analysis.points, degree=2 [,interaction=True])
-        *x [number of points][dimension]: chromosome (or list of chromosomes) of the point (or points)
-        whose polynomial is built.
-        *degree: degree of the polynomial.
-        *interaction: if True, interaction products of first order will be added. These are all terms
-        of order regression_degree+1 that involve at least 2 variables. Defaults to False.\n
-        Returns:
-        *A[number of points][number of terms in the polynomial].\n
+        
+        * x [number of points][dimension]: chromosome (or list of chromosomes) of the point (or points)
+          whose polynomial is built.
+        * degree: degree of the polynomial.
+        * interaction: if True, interaction products of first order will be added. These are all terms
+          of order regression_degree+1 that involve at least 2 variables. Defaults to False.
+        
+
+        **Returns**:
+        
+        * A[number of points][number of terms in the polynomial].
         """
         from itertools import combinations_with_replacement
         if interaction:
@@ -1548,16 +1706,22 @@ class analysis:
     def _regression_predict(self,coefficients,x,degree,interaction=False):
         """
         Routine that, given the coefficients of a regression model and a point, calculates the 
-        predicted value for that point.\n
-        USAGE:
-        analysis._regression_predict(coefficients=[1,1,1,1],x=[[0,0,0],[1,1,1]],degree=1 [,interaction=False])
-        *coefficients[fitness/constraint dimension][number of coefficients]: of the regression model
-        *x[number of points][dimension]: chromosome of point to evaluate.
-        *degree: of the regression model.
-        *interaction: if True, interaction products of first order will be added. These are all terms
-        of order regression_degree+1 that involve at least 2 variables. Defaults to False.\n
-        Returns:
-        *prediction[number of points][fitness/constraint dimension].\n
+        predicted value for that point.
+
+
+        **USAGE:**
+        analysis._regression_predict(coefficients=[1,1,1,1], x=[[0,0,0],[1,1,1]], degree=1 [,interaction=False])
+        
+        * coefficients[fitness/constraint dimension][number of coefficients]: of the regression model
+        * x[number of points][dimension]: chromosome of point to evaluate.
+        * degree: of the regression model.
+        * interaction: if True, interaction products of first order will be added. These are all terms
+          of order regression_degree+1 that involve at least 2 variables. Defaults to False.
+        
+
+        **Returns**:
+        
+        * prediction[number of points][fitness/constraint dimension].
         """
         try:
             from numpy import array,dot,transpose
@@ -1572,12 +1736,18 @@ class analysis:
     def _f_correlation(self):
         """
         Calculates the objective correlation matrix and its eigenvalues and eigenvectors. Only for
-        multi-objective problems.\n
-        USAGE: analysis._f_correlation()\n
-        Returns: tuple (M,eval,evect)
-        *M[search dimension][search dimension]: correlation matrix.
-        *eval[search dimension]: its eigenvalues.
-        *evect[search dimension][search dimension]: its eigenvectors.\n
+        multi-objective problems.
+
+
+        **USAGE:**
+        analysis._f_correlation()
+
+
+        **Returns** tuple of 3 containing:
+
+        * M[search dimension][search dimension]: correlation matrix.
+        * eval[search dimension]: its eigenvalues.
+        * evect[search dimension][search dimension]: its eigenvectors.
         """
         if self.npoints==0:
             raise ValueError(
@@ -1598,22 +1768,29 @@ class analysis:
     def _perform_f_pca(self,obj_corr=None,tc=0.95,tabs=0.1):
         """
         Performs first Objective Reduction using Principal Component Analysis on the objective 
-        correlation matrix as defined in the reference and returns a list of the relevant objectives
-        according to this procedure. Only for multi-objective problems.\n
-        REF: Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through Dimensionality
+        correlation matrix as defined in the reference and **Returns** a list of the relevant objectives
+        according to this procedure. Only for multi-objective problems.
+
+
+        **USAGE:** analysis._perform_f_pca([obj_corr=None, tc=0.95, tabs=0.1])
+        * obj_corr: objective correlation matrix, its eigenvalues and eigenvectors, in the form of
+          the output of analysis._f_correlation. This parameter is added for reusability (if None,
+          these will be calculated). Defaults to None.
+        * tc: threshold cut. When the cumulative contribution of the eigenvalues absolute value equals
+          this fraction of its maximum value, the reduction algorithm stops. A higher threshold cut means
+          less reduction (see reference). Defaults to 0.95.
+        * tabs: absolute tolerance. A Principal Component is treated differently if the absolute value
+          of its corresponding eigenvalue is lower than this value (see reference). Defaults to 0.1.
+        
+
+        **Returns**:
+
+        * Keep: list of critical objectives or objectives to keep (zero-based).
+
+        
+        **REF:** Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through Dimensionality
         Reduction for Certain Large-Dimensional Multi-Objective Optimization Problems, KanGAL Report
-        No. 2005011, IIT Kanpur, 2005.\n
-        USAGE: analysis._perform_f_pca([obj_corr=None, tc=0.95, tabs=0.1])
-        *obj_corr: objective correlation matrix, its eigenvalues and eigenvectors, in the form of
-        the output of analysis._f_correlation. This parameter is added for reusability (if None,
-        these will be calculated). Defaults to None.
-        *tc: threshold cut. When the cumulative contribution of the eigenvalues absolute value equals
-        this fraction of its maximum value, the reduction algorithm stops. A higher threshold cut means
-        less reduction (see reference). Defaults to 0.95.
-        *tabs: absolute tolerance. A Principal Component is treated differently if the absolute value
-        of its corresponding eigenvalue is lower than this value (see reference). Defaults to 0.1.\n
-        Returns:
-        *Keep: list of critical objectives or objectives to keep (zero-based).\n
+        No. 2005011, IIT Kanpur, 2005.
         """
         try:
             from numpy import asarray,corrcoef,transpose,dot,argmax,argmin
@@ -1700,22 +1877,31 @@ class analysis:
     def _get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001,tmax=15,mode='f'):
         """
         Routine that selects points from the sample and calculates the Jacobian matrix in them by 
-        calling richardson_gradient. Also computes its sparsity.\n
-        NOTE: all integer variables are ignored for this test.\n
-        USAGE: analysis._get_gradient([sample_size=100, h=0.01, grad_tol=0.000001, zero_tol=0.000001])
-        *sample_size: number of points from sample to calculate gradient at. If set to 0, all points
-        will be used. Defaults to 0.
-        *zero_tol: sparsity tolerance. For a position of the jacobian matrix to be considered a zero,
-        its mean absolute value has to be <=zero_tol.
-        The rest of parameters are passed to _richardson_gradient.\n
-        The following information is stored as attributes:
-        *analysis.grad_npoints: number of points where jacobian is computed.
-        *analysis.grad_points[grad_npoints]: indexes of these points in sample list.
-        *analysis.grad[grad_npoints][fitness dimension][continuous search dimension]:
-        jacobian matrixes computed.
-        *analysis.average_abs_gradient[fitness dimension][continuous search dimension]: mean absolute
-        value of the terms of each jacobian matrix computed.
-        *analysis.grad_sparsity: fraction of zeros in jacobian matrix (zero for all points).\n
+        calling richardson_gradient. Also computes its sparsity.
+
+        
+        **USAGE:**
+        analysis._get_gradient([sample_size=100, h=0.01, grad_tol=0.000001, zero_tol=0.000001])
+
+        * sample_size: number of points from sample to calculate gradient at. If set to 0, all points
+          will be used. Defaults to 0.
+        * zero_tol: sparsity tolerance. For a position of the jacobian matrix to be considered a zero,
+          its mean absolute value has to be <=zero_tol.
+          The rest of parameters are passed to _richardson_gradient.
+
+
+        **The following parameters are stored as attributes:**
+
+        * analysis.grad_npoints: number of points where jacobian is computed.
+        * analysis.grad_points[grad_npoints]: indexes of these points in sample list.
+        * analysis.grad[grad_npoints][fitness dimension][continuous search dimension]:
+          jacobian matrixes computed.
+        * analysis.average_abs_gradient[fitness dimension][continuous search dimension]: mean absolute
+          value of the terms of each jacobian matrix computed.
+        * analysis.grad_sparsity: fraction of zeros in jacobian matrix (zero for all points).
+
+
+        **NOTE:** all integer variables are ignored for this test.
         """
         if self.npoints==0:
             raise ValueError(
@@ -1772,15 +1958,23 @@ class analysis:
 
     def _richardson_gradient(self,x,h,grad_tol,tmax=15,mode='f'):
         """
-        Evaluates jacobian matrix in point x of the search space by means of Richardson Extrapolation.\n
-        NOTE: all integer variables are ignored for this test.\n
-        USAGE: analysis._richardson_gradient(x=(a point's chromosome), h=0.01, grad_tol=0.000001 [, tmax=15])
-        *x: list or tuple containing the chromosome of a point in the search space, where the Jacobian
-        Matrix will be evaluated.
-        *h: initial dx taken for evaluation of derivatives.
-        *grad_tol: tolerance for convergence.
-        *tmax: maximum of iterations. Defaults to 15.\n
-        Returns jacobian matrix at point x as a list [fitness dimension][continuous search dimension].\n
+        Evaluates jacobian matrix in point x of the search space by means of Richardson Extrapolation.
+
+
+        **USAGE:**
+        analysis._richardson_gradient(x=(a point's chromosome), h=0.01, grad_tol=0.000001 [, tmax=15])
+
+        * x: list or tuple containing the chromosome of a point in the search space, where the Jacobian
+          Matrix will be evaluated.
+        * h: initial dx taken for evaluation of derivatives.
+        * grad_tol: tolerance for convergence.
+        * tmax: maximum of iterations. Defaults to 15.
+
+
+        **Returns** jacobian matrix at point x as a list [fitness dimension][continuous search dimension].
+
+
+        **NOTE:** all integer variables are ignored for this test.
         """
         from numpy import array, zeros, amax
         if mode=='f':
@@ -1825,17 +2019,26 @@ class analysis:
     def _get_hessian(self,sample_size=0,h=0.01,hess_tol=0.000001,tmax=15):
         """
         Routine that selects points from the sample and calculates the Hessian 3rd-order tensor in
-        them by calling richardson_hessian.\n
-        NOTE: all integer variables are ignored for this test.\n
-        USAGE: analysis._get_hessian([sample_size=100, h=0.01, hess_tol=0.000001])
-        *sample_size: number of points from sample to calculate hessian at. If set to 0, all points
-        will be used. Defaults to 0.
-        The rest of parameters are passed to _richardson_hessian.\n
-        The following information is saved as attributes:
-        *analysis.hess_npoints: number of points where hessian is computed.
-        *analysis.hess_points[hess_npoints]: indexes of these points in sample list.
-        *analysis.hess[hess_npoints][fitness dimension][continuous search dimension][continuous
-        search dimension]: hessian 3rd-order tensors computed.\n
+        them by calling richardson_hessian.
+
+
+        **USAGE:**
+        analysis._get_hessian([sample_size=100, h=0.01, hess_tol=0.000001])
+
+        * sample_size: number of points from sample to calculate hessian at. If set to 0, all points
+          will be used. Defaults to 0.
+        * The rest of parameters are passed to _richardson_hessian.
+
+
+        **The following parameters are stored as attributes:**
+        
+        * analysis.hess_npoints: number of points where hessian is computed.
+        * analysis.hess_points[hess_npoints]: indexes of these points in sample list.
+        * analysis.hess[hess_npoints][fitness dimension][continuous search dimension][continuous
+          search dimension]: hessian 3rd-order tensors computed.
+
+
+        **NOTE:** all integer variables are ignored for this test.
         """
         if self.npoints==0:
             raise ValueError(
@@ -1860,16 +2063,24 @@ class analysis:
     def _richardson_hessian(self,x,h,hess_tol,tmax=15):
         """
         Evaluates hessian 3rd-order tensor in point x of the search space by means of Richardson
-        Extrapolation.\n
-        NOTE: all integer variables are ignored for this test.\n
-        USAGE: analysis._richardson_hessian(x=(a point's chromosome), h=0.01, hess_tol=0.000001 [, tmax=15])
-        *x: list or tuple containing the chromosome of a point in the search space, where the Hessian
-        3rd-order tensor will be evaluated.
-        *h: initial dx taken for evaluation of derivatives.
-        *hess_tol: tolerance for convergence.
-        *tmax: maximum of iterations. Defaults to 15.\n
-        Returns hessian tensor at point x as a list [fitness dimension][continuous search dimension]
-        [continuous search dimension].\n
+        Extrapolation.
+
+
+        **USAGE:**
+        analysis._richardson_hessian(x=(a point's chromosome), h=0.01, hess_tol=0.000001 [, tmax=15])
+        
+        * x: list or tuple containing the chromosome of a point in the search space, where the Hessian
+          3rd-order tensor will be evaluated.
+        * h: initial dx taken for evaluation of derivatives.
+        * hess_tol: tolerance for convergence.
+        * tmax: maximum of iterations. Defaults to 15.
+        
+
+        **Returns** hessian tensor at point x as a list [fitness dimension][continuous search dimension]
+        [continuous search dimension].
+
+
+        **NOTE:** all integer variables are ignored for this test.\n
         """
         from numpy import array, zeros, amax
         from itertools import combinations_with_replacement
@@ -1932,16 +2143,23 @@ class analysis:
 
     def _grad_properties(self,tol=10**(-8),mode='f'):
         """
-        Computes some properties of the gradient once it is stored as an attribute.\n
-        USAGE: analysis._grad_properties([tol=10**(-8),mode='f'])
-        *tol: tolerance to consider a partial derivative value as zero. Defaults to 10**(-8).
-        *mode: 'f'/'c' to act on fitness function/constraint function jacobian matrix.\n
-        Returns tuple of 2:
-        *norm_quartiles[fitness/constraint dimension][5]: percentiles 0,25,50,75,100 of
-        gradient norm (per fitness/constraint function)
-        *cond_quartiles[fitness/constraint dimension][5]: percentiles 0,25,50,75,100 of
-        ratio of maximum to minimum absolute value of partial derivatives in that gradient
-        (per fitness/constraint function).\n
+        Computes some properties of the gradient once it is stored as an attribute.
+
+
+        **USAGE:**
+        analysis._grad_properties([tol=10**(-8), mode='f'])
+
+        * tol: tolerance to consider a partial derivative value as zero. Defaults to 10**(-8).
+        * mode: 'f'/'c' to act on fitness function/constraint function jacobian matrix.
+
+
+        **Returns** tuple of 2 containing:
+        
+        * norm_quartiles[fitness/constraint dimension][5]: percentiles 0,25,50,75,100 of
+          gradient norm (per fitness/constraint function)
+        * cond_quartiles[fitness/constraint dimension][5]: percentiles 0,25,50,75,100 of
+          ratio of maximum to minimum absolute value of partial derivatives in that gradient
+          (per fitness/constraint function).
         """
         if mode=='f':
             if self.grad_npoints==0:
@@ -1991,15 +2209,22 @@ class analysis:
 
     def _hess_properties(self,tol=10**(-8)):        
         """
-        Computes some properties of the hessian once it is stored as an attribute.\n
-        USAGE: analysis._hess_properties([tol=10**(-8)])
-        *tol: tolerance to consider an eigenvalue as zero. Defaults to 10**(-8).\n
-        Returns tuple of 3:
-        *cond_quartiles[fitness dimension][5]: percentiles 0,25,50,75,100 of ratio of maximum to
-        minimum absolute value of eigenvalues in that hessian matrix (per fitness function).
-        *pd[fitness dimension]: fraction of points of sample with positive-definite hessian.
-        *psd[fitness dimension]: fraction of points of sample with positive-semidefinite
-        (and not positive-definite) hessian matrix.\n
+        Computes some properties of the hessian once it is stored as an attribute.
+
+
+        **USAGE:**
+        analysis._hess_properties([tol=10**(-8)])
+        
+        * tol: tolerance to consider an eigenvalue as zero. Defaults to 10**(-8).
+
+
+          **Returns** tuple of 3:
+        
+        * cond_quartiles[fitness dimension][5]: percentiles 0,25,50,75,100 of ratio of maximum to
+          minimum absolute value of eigenvalues in that hessian matrix (per fitness function).
+        * pd[fitness dimension]: fraction of points of sample with positive-definite hessian.
+        * psd[fitness dimension]: fraction of points of sample with positive-semidefinite
+          (and not positive-definite) hessian matrix.
         """
         if self.hess_npoints==0:
             raise ValueError(
@@ -2042,12 +2267,18 @@ class analysis:
     def plot_gradient_sparsity(self,zero_tol=10**(-8),mode='f'):
         """
         Plots sparsity of jacobian matrix. A position is considered a zero if its mean
-        absolute value is lower than tolerance.\n
-        USAGE: analysis.plot_gradient_sparsity([zero_tol=10**(-10),mode='c'])
-        *zero_tol: tolerance to consider a term as zero.
-        *mode: 'f'/'c' to act on the fitness/constraint function jacobian matrix.\n
-        NOTE: the plot will be shown on screen or saved to file depending on the  option that was
-        selected when instantiating the analysis class.\n
+        absolute value is lower than tolerance.
+
+
+        **USAGE:**
+        analysis.plot_gradient_sparsity([zero_tol=10**(-10), mode='c'])
+        
+        * zero_tol: tolerance to consider a term as zero.
+        * mode: 'f'/'c' to act on the fitness/constraint function jacobian matrix.
+        
+
+        **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
+        selected when instantiating the analysis class.
         """
         if mode=='f':
             if self.grad_npoints==0:
@@ -2116,14 +2347,20 @@ class analysis:
     def plot_gradient_pcp(self,mode='f',invert=False):
         """
         Generates Parallel Coordinate Plot of Gradient: magnitude of (scaled) partial
-        derivative dFi/dXj vs. X et F.\n
-        USAGE: analysis.plot_gradient_pcp([mode='c',invert=True])
-        *mode: 'f'/'c' to use fitness/constraint jacobian matrix.
-        *invert: if True, parallel axes are objectives, colors are search variables (not suitable
-        for single-objective problems).if False, parallel axes are search variables, colors are
-        objectives (not suitable for univariate problems).\n
-        NOTE: the plot will be shown on screen or saved to file depending on the  option that was
-        selected when instantiating the analysis class.\n
+        derivative dFi/dXj vs. X et F.
+
+
+        **USAGE:**
+        analysis.plot_gradient_pcp([mode='c', invert=True])
+        
+        * mode: 'f'/'c' to use fitness/constraint jacobian matrix.
+        * invert: if True, parallel axes are objectives, colors are search variables (not suitable
+          for single-objective problems).if False, parallel axes are search variables, colors are
+          objectives (not suitable for univariate problems).
+        
+
+        **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
+        selected when instantiating the analysis class.
         """
         if mode=='f':
             if self.grad_npoints==0:
@@ -2239,53 +2476,61 @@ class analysis:
     def _get_local_extrema(self,sample_size=0,algo=algorithm.gsl_fr(),par=True,decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio', warning=True):
         """
         Selects points from the sample and launches local searches using them as initial points.
-        USAGE: analysis._get_local_extrema([sample_size=0, algo=algorithm.gsl_fr(), par=True, decomposition_method='tchebycheff', weights='uniform', z=[], con2mo='obj_cstrsvio', warning=True])
-        *sample_size: number of initial points to launch local searches from. If set to 0, all
-        points in sample are used. Defaults to 0.
-        *algo: algorithm object used in searches. For purposes, it should be a local
-        optimisation algorithm. Defaults to algorithm.gsl_fr().
-        *par: if True, an unconnected archipelago will be used for possible parallelization.
-        *decomposition_method: method used by problem.decompose in the case of multi-objective
-        problems. Options are: 'tchebycheff', 'weighted', 'bi' (boundary intersection).
-        Defaults to 'tchebycheff'.
-        *weights: weight vector used by problem.decompose in the case of multi-objective
-        problems. Options are: 'uniform', 'random' or any vector of length [fitness dimension]
-        whose components sum to one with precision of 10**(-8). Defaults to 'uniform'.
-        *z: ideal reference point used by 'tchebycheff' and 'bi' methods. If set to [] (empty
-        vector), point [0,0,...,0] is used. Defaults to [].
-        *con2mo: way in which constraint problems will be transformed into multi-objective problems
-        before decomposition. Options are:
-                *'obj_cstrs': f1=original objective, f2=number of violated constraints.
-                *'obj_cstrsvio': f1=original objective, f2=norm of total constraint violation.
-                *'obj_eqvio_ineqvio': f1=original objective, f2= norm of equality constraint violation,
-                f3= norm of inequality constraint violation.
-                *None: in this case the function won't try to transform the constraint problem via
-                meta-problem con2mo. Set to None when using a local search algorithm that supports
-                constraint optimization.
-        *warning: if True, a warning showing transformation method will be shown when applying con2mo
-        meta-problem, and another warning with the decomposition method and parameters will be shown
-        when applying decompose meta-problem to a multi-objective problem.\n
-        The following parameters are stored as attributes:
-        *analysis.local_initial_npoints: number of initial points used for local searches (number
-        of searches performed).
-        *analysis.local_initial_points[number of searches]: index of each initial point in the
-        list of sampled points. If the whole sample is used, the list is sorted.
-        *analysis.local_search_time[number of searches]: time elapsed in each local search
-        (miliseconds).
-        *analysis.local_extrema [number of searches][search space dimension]: resulting point of
-        each of the local searches.
-        *analysis.local_f [number of searches][fitness dimension]: real fitness value of each
-        of the resulting points
-        *analysis.local_f_dec[number of searches]: fitness value of points after con2mo in constraint
-        and decompose in multi-objective problems. Used to rate and order clusters.\n
+
+
+        **USAGE:**
+        analysis._get_local_extrema([sample_size=0, algo=algorithm.gsl_fr(), par=True, decomposition_method='tchebycheff', weights='uniform', z=[], con2mo='obj_cstrsvio', warning=True])
+        
+        * sample_size: number of initial points to launch local searches from. If set to 0, all
+          points in sample are used. Defaults to 0.
+        * algo: algorithm object used in searches. For purposes, it should be a local
+          optimisation algorithm. Defaults to algorithm.gsl_fr().
+        * par: if True, an unconnected archipelago will be used for possible parallelization.
+        * decomposition_method: method used by problem.decompose in the case of multi-objective
+          problems. Options are: 'tchebycheff', 'weighted', 'bi' (boundary intersection).
+          Defaults to 'tchebycheff'.
+        * weights: weight vector used by problem.decompose in the case of multi-objective
+          problems. Options are: 'uniform', 'random' or any vector of length [fitness dimension]
+          whose components sum to one with precision of 10**(-8). Defaults to 'uniform'.
+        * z: ideal reference point used by 'tchebycheff' and 'bi' methods. If set to [] (empty
+          vector), point [0,0,...,0] is used. Defaults to [].
+        * con2mo: way in which constraint problems will be transformed into multi-objective problems
+          before decomposition. Options are:
+                * 'obj_cstrs': f1=original objective, f2=number of violated constraints.
+                * 'obj_cstrsvio': f1=original objective, f2=norm of total constraint violation.
+                * 'obj_eqvio_ineqvio': f1=original objective, f2= norm of equality constraint violation,
+                  f3= norm of inequality constraint violation.
+                * None: in this case the function won't try to transform the constraint problem via
+                  meta-problem con2mo. Set to None when using a local search algorithm that supports
+                  constraint optimization.
+        * warning: if True, a warning showing transformation method will be shown when applying con2mo
+          meta-problem, and another warning with the decomposition method and parameters will be shown
+          when applying decompose meta-problem to a multi-objective problem.
+
+
+        **The following parameters are stored as attributes:**
+        
+        * analysis.local_initial_npoints: number of initial points used for local searches (number
+          of searches performed).
+        * analysis.local_initial_points[number of searches]: index of each initial point in the
+          list of sampled points. If the whole sample is used, the list is sorted.
+        * analysis.local_search_time[number of searches]: time elapsed in each local search
+          miliseconds).
+        * analysis.local_extrema [number of searches][search space dimension]: resulting point of
+          each of the local searches.
+        * analysis.local_f [number of searches][fitness dimension]: real fitness value of each
+          of the resulting points
+        * analysis.local_f_dec[number of searches]: fitness value of points after con2mo in constraint
+          and decompose in multi-objective problems. Used to rate and order clusters.\n
         """
         if self.npoints==0:
             raise ValueError(
                 "analysis._get_local_extrema: sampling first is necessary")
 
-        if not isinstance(algo,PyGMO.algorithm._algorithm._base):
+        if not isinstance(algo,algorithm._algorithm._base):
             raise ValueError(
                 "analysis._get_local_extrema: input a valid pygmo algorithm")
+        from PyGMO import archipelago,island,population
         try:
             from numpy.random import randint
             from numpy import array,ptp
@@ -2400,36 +2645,43 @@ class analysis:
         fitness decomposition for multi-objective problems). The clustering is conducted by means of
         the k-Means algorithm in the search-fitness space. Some parameters are also computed after
         the clustering to allow landscape analysis and provide insight into the basins of attraction
-        that affect the algorithm deployed.\n
-        USAGE: analysis._cluster_local_extrema([variance_ratio=0.95, k=0, single_cluster_tolerance=0.0001, kmax=0])
-        *variance_ratio: target fraction of variance explained by the cluster centroids, when not
-        clustering to a fixed number of clusters.
-        *k: number of clusters when clustering to fixed number of clusters. If k=0, the clustering
-        will be performed for increasing value of k until the explained variance ratio is achieved.
-        Defaults to 0.
-        *single_cluster_tolerance: if the radius of a single cluster is lower than this value
-        times (search space dimension+fitness space dimension), k will be set to 1 when not clustering
-        to a fixed number of clusters. Defaults to 0.0001.
-        *kmax: maximum number of clusters admissible. If set to 0, the limit is the number of local
-        searches performed. Defaults to 0.\n
-        The following parameters are stored as attributes:
-        *analysis.local_nclusters: number of clusters obtained.
-        *analysis.local_cluster[number of searches]: cluster to which each point belongs.
-        *analysis.local_cluster_size[number of clusters]: size of each cluster.
-        *analysis.local_cluster_x_centers[number of clusters][search dimension]: projection of the cluster
-        centroid on the search space.
-        *analysis.local_cluster_f_centers[number of clusters][fitness dimension]: projection of the cluster
-        centroid on the fitness space, or mean fitness value in the cluster.
-        *analysis.local_cluster_f[number of clusters][fitness dimension]: fitness value of the cluster x-center.
-        *analysis.local_cluster_c[number of clusters][constraint dimension]: constraint function value
-        of the cluster x-center.
-        *analysis.local_cluster_f_span[number of clusters][fitness dimension]: peak-to-peak value of
-        each of the fitness functions inside the cluster.
-        *analysis.local_cluster_rx[number of clusters]: radius of each cluster in the search space,
-        or euclidian distance from the furthest final local search point in the cluster to the cluster
-        X-center.
-        *analysis.local_cluster_rx0[number of clusters]: radius of attraction, or euclidian distance
-        from the furthest initial local search point in the cluster to the cluster X-center.
+        that affect the algorithm deployed.
+
+
+        **USAGE:**
+        analysis._cluster_local_extrema([variance_ratio=0.95, k=0, single_cluster_tolerance=0.0001, kmax=0])
+        
+        * variance_ratio: target fraction of variance explained by the cluster centroids, when not
+          clustering to a fixed number of clusters.
+        * k: number of clusters when clustering to fixed number of clusters. If k=0, the clustering
+          will be performed for increasing value of k until the explained variance ratio is achieved.
+          Defaults to 0.
+        * single_cluster_tolerance: if the radius of a single cluster is lower than this value
+          times (search space dimension+fitness space dimension), k will be set to 1 when not clustering
+          to a fixed number of clusters. Defaults to 0.0001.
+        * kmax: maximum number of clusters admissible. If set to 0, the limit is the number of local
+          searches performed. Defaults to 0.
+        
+
+        **The following parameters are stored as attributes:**
+
+        * analysis.local_nclusters: number of clusters obtained.
+        * analysis.local_cluster[number of searches]: cluster to which each point belongs.
+        * analysis.local_cluster_size[number of clusters]: size of each cluster.
+        * analysis.local_cluster_x_centers[number of clusters][search dimension]: projection of the cluster
+          centroid on the search space.
+        * analysis.local_cluster_f_centers[number of clusters][fitness dimension]: projection of the cluster
+          centroid on the fitness space, or mean fitness value in the cluster.
+        * analysis.local_cluster_f[number of clusters][fitness dimension]: fitness value of the cluster x-center.
+        * analysis.local_cluster_c[number of clusters][constraint dimension]: constraint function value
+          of the cluster x-center.
+        * analysis.local_cluster_f_span[number of clusters][fitness dimension]: peak-to-peak value of
+          each of the fitness functions inside the cluster.
+        * analysis.local_cluster_rx[number of clusters]: radius of each cluster in the search space,
+          or euclidian distance from the furthest final local search point in the cluster to the cluster
+          X-center.
+        * analysis.local_cluster_rx0[number of clusters]: radius of attraction, or euclidian distance
+          from the furthest initial local search point in the cluster to the cluster X-center.
         """
         if self.npoints==0:
             raise ValueError(
@@ -2559,15 +2811,21 @@ class analysis:
         """
         Generates a Parallel Coordinate Plot of the clusters obtained on the local search results.
         The parallel axes represent the chromosome of the initial points of each local search and
-        the colors are the clusters to which its local search resulting points belong.\n
-        USAGE: analysis.plot_local_cluster_pcp([together=True, clusters_to_plot=5])
-        *together: if True, a single plot will be generated. If False, each cluster will be presented
-        in a separate plot. Defaults to True.
-        *clusters_to_plot: number of clusters to show. Option 'all' will plot all the clusters obtained.
-        Otherwise the best clusters will be shown. Clusters are rated by mean decomposed fitness value.
-        Defaults to 10.\n
-        NOTE: the plot will be shown on screen or saved to file depending on the  option that was
-        selected when instantiating the analysis class.\n
+        the colors are the clusters to which its local search resulting points belong.
+
+
+        **USAGE:**
+        analysis.plot_local_cluster_pcp([together=True, clusters_to_plot=5])
+        
+        * together: if True, a single plot will be generated. If False, each cluster will be presented
+          in a separate plot. Defaults to True.
+        * clusters_to_plot: number of clusters to show. Option 'all' will plot all the clusters obtained.
+          Otherwise the best clusters will be shown. Clusters are rated by mean decomposed fitness value.
+          Defaults to 10.
+        
+
+        **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
+        selected when instantiating the analysis class.
         """
         if self.local_nclusters==0:
             raise ValueError(
@@ -2632,15 +2890,21 @@ class analysis:
         Generates a Scatter Plot of the clusters obtained for the local search results in the
         dimensions specified (up to 3). Points on the plot are local search initial points and
         colors are the cluster to which their corresponding final points belong. Cluster X-centers
-        are also shown. These are computed as specified in analysis._cluster_local_extrema.\n
-        USAGE: analysis.plot_local_cluster_scatter([dimensions=[1,2], save_fig=False])
-        *dimensions: list of up to 3 dimensions in the search space that will be shown in the scatter
-        plot (zero based). If set to 'all', the whole search space will be taken. An error will be
-        raised when trying to plot more than 3 dimensions. Defaults to 'all'.
-        *clusters_to_plot: number of clusters to show. The best clusters will be shown. Clusters
-        are rated by mean decomposed fitness value. Defaults to 10.\n
-        NOTE: the plot will be shown on screen or saved to file depending on the  option that was
-        selected when instantiating the analysis class.\n
+        are also shown. These are computed as specified in analysis._cluster_local_extrema.
+
+
+        **USAGE:**
+        analysis.plot_local_cluster_scatter([dimensions=[1,2], save_fig=False])
+        
+        * dimensions: list of up to 3 dimensions in the search space that will be shown in the scatter
+          plot (zero based). If set to 'all', the whole search space will be taken. An error will be
+          raised when trying to plot more than 3 dimensions. Defaults to 'all'.
+        * clusters_to_plot: number of clusters to show. The best clusters will be shown. Clusters
+          are rated by mean decomposed fitness value. Defaults to 10.
+        
+
+        **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
+        selected when instantiating the analysis class.
         """
         if self.local_nclusters==0:
             raise ValueError(
@@ -2740,17 +3004,23 @@ class analysis:
         a grid search with ranges 2**[-5,16] for C and 2**[-15,4] for gamma and cross-validation for every
         combination, and the set of hyperparameters that leads to minimum mean misclassification error will
         be employed. Linear, quadratic and nonlinear (rbf) kernels can be used, and their misclassification
-        errors can be evaluated by crossvalidation and returned as a distribution.\n
-        USAGE: 
-        analysis._svm([threshold=25,kernel='rbf',k_tune=3,k_test=10])
-        *threshold: percentile of the fitness function that will serve as threshold for binary
-        classification of the sample. Defaults to 50.
-        *kernel: options are 'linear','quadratic' and 'rbf'. Defaults to 'rbf'.
-        *k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
-        *k_test: k used in k-fold crossvalidation to assess the model misclassification error. Defaults
-        to 10.\n
-        Returns:
-        *mce[fitness dimension][k_test]: misclassification errors obtained for each of the fitness functions.
+        errors can be evaluated by crossvalidation and returned as a distribution.
+
+
+        **USAGE:** 
+        analysis._svm([threshold=25, kernel='rbf', k_tune=3, k_test=10])
+        
+        * threshold: percentile of the fitness function that will serve as threshold for binary
+          classification of the sample. Defaults to 50.
+        * kernel: options are 'linear','quadratic' and 'rbf'. Defaults to 'rbf'.
+        * k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
+        * k_test: k used in k-fold crossvalidation to assess the model misclassification error. Defaults
+          to 10.
+
+
+        **Returns**:
+        
+        * mce[fitness dimension][k_test]: misclassification errors obtained for each of the fitness functions.
         """
         if self.npoints==0:
             raise ValueError(
@@ -2773,11 +3043,11 @@ class analysis:
         
         if kernel=='quadratic':
             kernel='poly'
-        c_range=2.**arange(-5,16)
+        c_range=2.**arange(-5,16,2)
         if kernel=='linear':
             param_grid=dict(C=c_range)
         else:
-            g_range=2.**arange(-15,4)
+            g_range=2.**arange(-15,4,2)
             param_grid=dict(gamma=g_range,C=c_range)
         per=self._percentile(threshold)
         dataset=self.points[:]
@@ -2799,30 +3069,38 @@ class analysis:
     def _svm_p_values(self,threshold=50,k_tune=3,k_test=10,l=True,q=True,n=True):
         """
         This function calls analysis._svm several times with identical parameters (threshold, k_tune
-        and k_test) but different kernels, and returns the mean misclassification errors of each
-        method deployed as well as the p-values of their pairwise comparison.\n
-        USAGE:
-        analysis._svm_p_values([threshold=25,k_tune=3,k_test=10,l=True,q=False,nl=True])
-        *threshold: percentile of the fitness function that will serve as threshold for binary classification
-        of the sample. Defaults to 50.
-        *k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
-        *k_test: k used in k-fold crossvalidation to assess the model misclassification error. Defaults
-        to 10.
-        *l: if True, the linear kernel model will be included.
-        *q: if True, the quadratic kernel model will be included.
-        *n: if True, the non-linear (rbf) kernel model will be included.\n
-        NOTE: if any of the booleans (l,q,n) is set to False and the corresponding model is not fit, the
-        function will return -1 for all the associated results.\n
-        Returns a tuple of length 6 containing:
-        *mmce_linear[fitness dimension]: mean misclassification error of linear kernel model.
-        *mmce_quadratic[fitness dimension]: mean misclassification error of quadratic kernel model.
-        *mmce_nonlinear[fitness dimension]: mean misclassification error of nonlinear (rbf) kernel model.
-        *l_q[fitness dimension]: p-value of the comparison between distributions of mce for linear and
-        quadratic kernels.
-        *l_n[fitness dimension]: p-value of the comparison between distributions of mce for linear and 
-        nonlinear (rbf) kernels.
-        *q_n[fitness dimension]: p-value of the comparison between distributions of mce for quadratic
-        and nonlinear (rbf) kernels.\n
+        and k_test) but different kernels, and **Returns** the mean misclassification errors of each
+        method deployed as well as the p-values of their pairwise comparison.
+
+
+        **USAGE:**
+        analysis._svm_p_values([threshold=25, k_tune=3, k_test=10, l=True, q=False, nl=True])
+        
+        * threshold: percentile of the fitness function that will serve as threshold for binary classification
+          of the sample. Defaults to 50.
+        * k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
+        * k_test: k used in k-fold crossvalidation to assess the model misclassification error. Defaults
+          to 10.
+        * l: if True, the linear kernel model will be included.
+        * q: if True, the quadratic kernel model will be included.
+        * n: if True, the non-linear (rbf) kernel model will be included.
+        
+
+        **Returns** a tuple of length 6 containing:
+
+        * mmce_linear[fitness dimension]: mean misclassification error of linear kernel model.
+        * mmce_quadratic[fitness dimension]: mean misclassification error of quadratic kernel model.
+        * mmce_nonlinear[fitness dimension]: mean misclassification error of nonlinear (rbf) kernel model.
+        * l_q[fitness dimension]: p-value of the comparison between distributions of mce for linear and
+          quadratic kernels.
+        * l_n[fitness dimension]: p-value of the comparison between distributions of mce for linear and 
+          nonlinear (rbf) kernels.
+        * q_n[fitness dimension]: p-value of the comparison between distributions of mce for quadratic
+          and nonlinear (rbf) kernels.
+
+
+        **NOTE:** if any of the booleans (l,q,n) is set to False and the corresponding model is not fit, the
+        function will return -1 for all the associated results.
         """
         if any([l,q,n]):
             if self.npoints==0:
@@ -2851,15 +3129,24 @@ class analysis:
             l_n=[]
             for i in range(self.f_dim):
                 if l and q:
-                    l_q.append(mannwhitneyu(linear[i],quadratic[i])[1])
+                    try:
+                        l_q.append(mannwhitneyu(linear[i],quadratic[i])[1])
+                    except ValueError:
+                        l_q.append(0.5)
                 else:
                     l_q.append(-1)
                 if l and n:
-                    l_n.append(mannwhitneyu(linear[i],nonlinear[i])[1])
+                    try:
+                        l_n.append(mannwhitneyu(linear[i],nonlinear[i])[1])
+                    except ValueError:
+                        l_n.append(0.5)
                 else:
                     l_n.append(-1)
                 if n and q:
-                    q_n.append(mannwhitneyu(quadratic[i],nonlinear[i])[1])
+                    try:
+                        q_n.append(mannwhitneyu(quadratic[i],nonlinear[i])[1])
+                    except ValueError:
+                        q_n.append(0.5)
                 else:
                     q_n.append(-1)
             return (list(mean(linear,1)),list(mean(quadratic,1)),list(mean(nonlinear,1)),l_q,l_n,q_n)
@@ -2872,16 +3159,25 @@ class analysis:
         pair of points (X1,C1),(X2,C2) from the sample is selected per test and a random convex
         combination of them is taken (Xconv,Fconv). For each constraint, if C(Xconv)=Cconv within
         tolerance, the constraint is considered linear there. The average of all tests performed
-        gives the overall result.\n
-        NOTE: integer variable values are fixed during each of the tests and linearity
+        gives the overall result.
+
+
+        **USAGE:**
+        analysis._c_lin([n_pairs=100, threshold=10**(-10)])
+
+        * n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
+          of points as points there are in the sample. Defaults to 0.
+        * threshold: tolerance considered to rate the constraint as linear between two points.
+          Defaults to 10**(-10).
+
+
+        **Returns**:
+
+        * p_lin[fitness dimension]: probability of linearity [0,1].
+
+
+        **NOTE:** integer variable values are fixed during each of the tests and linearity
         is evaluated as regards the continuous part of the chromosome.\n
-        USAGE: analysis._c_lin([n_pairs=100,threshold=10**(-10)])
-        *n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
-        of points as points there are in the sample. Defaults to 0.
-        *threshold: tolerance considered to rate the constraint as linear between two points.
-        Defaults to 10**(-10).\n
-        Returns:
-        *p_lin[fitness dimension]: probability of linearity [0,1].
         """
         if self.npoints==0:
             raise ValueError(
@@ -2946,14 +3242,21 @@ class analysis:
 
     def _compute_constraints(self):#NEVER CALL AFTER SCALING!!! (sample calls it default)
         """
-        Computes the constraint function values of the points in the sample.\n
-        USAGE:
-        analysis._compute_constraints()\n
-        NOTE: Never call this function after having scaled the dataset. _sample function calls it
-        automatically if the problem is a constrained one, and then calls _scale_sample.\n
+        Computes the constraint function values of the points in the sample.
+
+
+        **USAGE:**
+        analysis._compute_constraints()
+
+
         Stores as attribute:
-        *analysis.c: unscaled constraint value distribution.
-        *analysis.c_span: scale factors for constraint function values.
+
+        * analysis.c: unscaled constraint value distribution.
+        * analysis.c_span: scale factors for constraint function values.
+
+
+        **NOTE:** Never call this function after having scaled the dataset. _sample function calls it
+        automatically if the problem is a constrained one, and then calls _scale_sample.\n
         """
         if self.npoints==0:
             raise ValueError(
@@ -2979,14 +3282,21 @@ class analysis:
 
     def _c_effectiveness(self,tol=10**(-8)):
         """
-        Evaluates constraint effectiveness for a constraint problem.\n
-        USAGE:
+        Evaluates constraint effectiveness for a constraint problem.
+
+
+        **USAGE:**
         analysis._c_effectiveness([tol=10**(-10)])
-        *tol: tolerance for assessment of equality.\n
-        Returns:
-        *c[constraint dimension][2]:
-            *c[i][0] is the <= effectiveness of the constraint i (fraction of sample <=).
-            *c[i][1] is the == effectiveness of the constraint i (fraction of sample ==).
+
+        * tol: tolerance for assessment of equality.
+
+
+        **Returns**:
+
+        * c[constraint dimension][2]:
+
+                * c[i][0] is the <= effectiveness of the constraint i (fraction of sample <=).
+                * c[i][1] is the == effectiveness of the constraint i (fraction of sample ==).
         """
         if self.npoints==0:
             raise ValueError(
@@ -3009,16 +3319,21 @@ class analysis:
     def _ic_redundancy(self,tol=10**(-8)):
         """
         Evaluates redundancy of inequality constraints, both of each constraint wrt all the rest and
-        pairwise.\n
-        USAGE:
+        pairwise.
+
+
+        **USAGE:**
         analysis._ic_redundancy([tol=10**(-10)])
-        *tol: tolerance for assessment of equality.\n
-        Returns tuple of 2:
-        *redundancy[inequality constraint dimension]: redundancy of each inequality constraint with
-        respect to all other inequality constraints. redundancy[i] is the fraction of points violating
-        constraint g_i that also violate any other inequality constraint.
-        *m[inequality constraint dimension][inequality constraint dimension]: pairwise redundancy.
-        m[i][j] is the fraction of points violating constraint g_i that also violate constraint g_j.
+        
+        * tol: tolerance for assessment of equality.\n
+        
+
+        **Returns** tuple of 2:
+        * redundancy[inequality constraint dimension]: redundancy of each inequality constraint with
+          respect to all other inequality constraints. redundancy[i] is the fraction of points violating
+          constraint g_i that also violate any other inequality constraint.
+        * m[inequality constraint dimension][inequality constraint dimension]: pairwise redundancy.
+          m[i][j] is the fraction of points violating constraint g_i that also violate constraint g_j.
         """
         if self.npoints==0:
             raise ValueError(
