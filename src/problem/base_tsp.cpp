@@ -43,7 +43,7 @@ namespace pagmo { namespace problem {
         }
         
         /// Protected
-        void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) const {            
+        void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {            
             vector2D<double>::const_iterator row;
             std::vector<double>::const_iterator col;
             for (row = the_vector.begin(); row != the_vector.end(); ++row)

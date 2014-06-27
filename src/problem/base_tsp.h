@@ -95,7 +95,7 @@ class __PAGMO_VISIBLE base_tsp : public base
              * @param[in] the 2D vector of doubles
              * @param[out] the tsp_graph adjacency list
              */
-            void vector2D_to_graph(vector2D<double> const&, tsp_graph&) const;
+            void vector2D_to_graph(vector2D<double> const&, tsp_graph&);
             /**
              * Checks the maximum dimensions for both width and height.
              * The 'matrix' might not be square for asymmetric problems.
