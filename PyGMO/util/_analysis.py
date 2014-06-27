@@ -3225,7 +3225,7 @@ class analysis:
         p_lin/=n_pairs
 
         self.c_lin_npairs=n_pairs
-        return list(p_lin)            )
+        return list(p_lin)
 
     def _compute_constraints(self):#NEVER CALL AFTER SCALING!!! (sample calls it default)
         """
