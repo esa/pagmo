@@ -97,10 +97,13 @@ class __PAGMO_VISIBLE base_tsp : public base
              */
             void vector2D_to_graph(vector2D<double> const&, tsp_graph&) const;
             /**
-             * Returns the number of vertices in the boost graph
+             * Checks the maximum dimensions for both width and height.
+             * (The 'matrix' might not be square for asymmetric problems)
+             * Returns the number of vertices in the 2D vector,
+             * which is either max(row, col)
              * @return number of vertices
              */
-            int get_no_vertices() const;
+            int get_no_vertices(vector2D<double> const&) const;
             /**
              * The boost graph, an adjacency list
              * derived classes inherit this property

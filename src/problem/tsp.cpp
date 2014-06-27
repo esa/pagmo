@@ -54,12 +54,12 @@ namespace pagmo { namespace problem {
      * - city 5: ( 0,   -4)
      */
     tsp::tsp(): base_tsp(5) {
-        vector2D<double> tmp;
+        vector2D<double> tmp(5, std::vector<double>(5, 0));
         for (int i = 0; i < 5; ++i)
             for (int j = 0; j < 5; ++j)
                 tmp[i][j] = default_weights[i][j];
-        set_graph(tmp);
         
+        set_graph(tmp);
         set_lb(0);
         set_ub(5); //number of nodes/vertices in the graph
     }
@@ -78,15 +78,12 @@ namespace pagmo { namespace problem {
     /// Constructor from vectors and maximum weight.
     /**
      * Initialize weights between vertices (city distances) from the matrix.
-     * @param[in] weights matrix of distances between cities.
+     * @param[in] weights vector of distances between cities
      */
-    tsp::tsp(vector2D<double> const& weights): base_tsp(1 /*!?!?! isit ???*/ ) {
-        //TODO: figure out how to set problem bounds after converting
-        
-        set_graph(weights); 
-        
+    tsp::tsp(vector2D<double> const& weights): base_tsp(get_no_vertices(weights)) {
+        set_graph(weights);         
         set_lb(0);
-        set_ub(get_no_vertices()); // number of vertices after set_graph is run
+        set_ub(boost::num_vertices(m_graph));
     }
 
     /// Clone method.
@@ -124,18 +121,18 @@ namespace pagmo { namespace problem {
     void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const
     {   //TODO: figure out if this is really needed
         
-        // Checks if the length is the same
-        if ( x.size() != get_no_vertices() )
-            c[0] = 1;
-        return;
-        
-        // Checks if there are duplicate items
-        std::sort(x.begin(), x.end());
-        if ( std::unique(x.begin(), x.end()) != x.end() )
-            c[0] = 1;
-        return;
-        
-        c[0] = 0; // we're good
+//        // Checks if the length is the same
+//        if ( (int)x.size() != get_no_vertices() )
+//            c[0] = 1;
+//        return;
+//        
+//        // Checks if there are duplicate items
+//        std::sort(x.begin(), x.end());
+//        if ( std::unique(x.begin(), x.end()) != x.end() )
+//            c[0] = 1;
+//        return;
+//        
+//        c[0] = 0; // we're good
     }
 
     /// Extra human readable info for the problem.
@@ -144,13 +141,12 @@ namespace pagmo { namespace problem {
      */
     std::string tsp::human_readable_extra() const
     {//TODO: There must be a better way of doing this..
+        //TODO: Write an "<<" operator for this
         std::ostringstream oss;
         oss << "Adjacency List: " << std::endl;
-        
-        oss << m_graph; // might just work
 
         typedef boost::property_map<tsp_graph, boost::vertex_index_t>::type vertex_index_map;
-        vertex_index_map index = get(boost::vertex_index, m_graph);
+        vertex_index_map index = get(boost::vertex_index_t(), m_graph);
 
         oss << "Vertices = ";
         typedef boost::graph_traits<tsp_graph>::vertex_iterator vertex_iter;
@@ -163,18 +159,20 @@ namespace pagmo { namespace problem {
         boost::graph_traits<tsp_graph>::edge_iterator ei, ei_end;
         for (boost::tie(ei, ei_end) = boost::edges(m_graph); ei != ei_end; ++ei)
                 oss << "(" << index[boost::source(*ei, m_graph)] 
-                    << "," << index[boost::target(*ei, m_graph)] << ") ";
+                    << "," << index[boost::target(*ei, m_graph)]<< ")";
         oss << std::endl;
         
+        oss << "Weights = ";
+        typedef boost::graph_traits<tsp_graph>::edge_iterator EdgeIterator;
+        std::pair<EdgeIterator, EdgeIterator> edges = boost::edges(m_graph);
+
+        typedef boost::property_map<tsp_graph, boost::edge_weight_t>::const_type WeightMap;
         
-//        typedef typename boost::property_map<tsp_graph, boost::edge_weight_t>::const_type edge_map;
-//        edge_map weight = boost::get(boost::edge_weight, m_graph);
-//
-//        typedef typename boost::property_traits<edge_map>::value_type edge_type;
-//
-//        edge_type source;
-//
-//            source = boost::get(name, source(*first, G));
+        WeightMap weights = boost::get(boost::edge_weight_t(), m_graph);
+
+        EdgeIterator edge;
+        for (edge = edges.first; edge != edges.second; ++edge)
+          oss << boost::get(weights, *edge) << std::endl;
         
         return oss.str();
     }

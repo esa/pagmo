@@ -46,16 +46,20 @@ namespace pagmo { namespace problem {
         void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) const {            
             vector2D<double>::const_iterator row;
             std::vector<double>::const_iterator col;
-            for (row = the_vector.begin(); row != the_vector.end(); ++row) {
-                for (col = row->begin(); col != row->end(); ++col) {
-//                    std::cout << *col; 
+            for (row = the_vector.begin(); row != the_vector.end(); ++row)
+                for (col = row->begin(); col != row->end(); ++col)
                     boost::add_edge(std::distance(the_vector.begin(), row), std::distance(row->begin(), col), *col, the_graph);
-                }
-            }
         }
         
-        int base_tsp::get_no_vertices() const {
-            return boost::num_vertices(m_graph);
+        int base_tsp::get_no_vertices(vector2D<double> const& the_vector) const {
+            int maxRow = the_vector.size();
+            int maxCol = 0;
+            vector2D<double>::const_iterator row;
+            for (row = the_vector.begin(); row != the_vector.end(); ++row)
+                if(row->size() > maxCol)
+                    maxCol = row->size();
+            
+            return maxRow > maxCol ? maxRow : maxCol;
         }
         
         /// Private

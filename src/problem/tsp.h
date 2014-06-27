@@ -77,6 +77,7 @@ class __PAGMO_VISIBLE tsp: public base_tsp
             tsp(tsp_graph const&);
             /**
              * Constructor from a vector2D
+             * @param[in] vector2D
              */
             tsp(vector2D<double> const&);
             base_ptr clone() const;
@@ -84,7 +85,7 @@ class __PAGMO_VISIBLE tsp: public base_tsp
             
     protected:
             void objfun_impl(fitness_vector &, decision_vector const&) const;
-            void tsp::compute_constraints_impl(constraint_vector &, decision_vector const&) const;
+            void compute_constraints_impl(constraint_vector &, decision_vector const&) const;
             std::string human_readable_extra() const;
             
     private:
@@ -93,6 +94,7 @@ class __PAGMO_VISIBLE tsp: public base_tsp
             void serialize(Archive &ar, const unsigned int)
             {
                     ar & boost::serialization::base_object<base>(*this);
+                    ar & m_graph;
     //			ar & m_tmpDecisionVector;
             }
 };
