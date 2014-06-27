@@ -52,14 +52,14 @@ namespace pagmo { namespace problem {
         }
         
         int base_tsp::get_no_vertices(vector2D<double> const& the_vector) const {
-            int maxRow = the_vector.size();
-            int maxCol = 0;
+            unsigned int maxRow = the_vector.size();
+            unsigned int maxCol = 0;
             vector2D<double>::const_iterator row;
             for (row = the_vector.begin(); row != the_vector.end(); ++row)
                 if(row->size() > maxCol)
                     maxCol = row->size();
             
-            return maxRow > maxCol ? maxRow : maxCol;
+            return (int)(maxRow > maxCol ? maxRow : maxCol);
         }
         
         /// Private
