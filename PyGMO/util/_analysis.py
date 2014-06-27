@@ -1998,8 +1998,11 @@ class analysis:
                 xd=x.tolist()
                 xu[i]+=hh*(self.ub[i]-self.lb[i])
                 xd[i]-=hh*(self.ub[i]-self.lb[i])
-                #rescale
-                tmp=(array(function(xu))-array(function(xd)))/(2*hh*array(span))
+                if xu[i]>self.ub[i] or xd[i]<self.lb[i]:
+                    tmp=zeros(dim)
+                else:
+                    #rescale
+                    tmp=(array(function(xu))-array(function(xd)))/(2*hh*array(span))
                 
                 for j in range(dim):
                     d[t%2][0][j][i]=tmp[j]
@@ -2104,8 +2107,11 @@ class analysis:
                 if ind[i][0]==ind[i][1]:
                     xu[ind[i][0]]=xu[ind[i][0]]+hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
                     xd[ind[i][0]]-=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
-                    #rescale
-                    tmp=(array(self.prob.objfun(xu))-2*array(self.prob.objfun(x))+array(self.prob.objfun(xd)))/((hh**2)*array(self.f_span))
+                    if xu[ind[i][0]]>self.ub[ind[i][0]] or xd[ind[i][0]]<self.lb[ind[i][0]]:
+                        tmp=zeros(self.f_dim)
+                    else:
+                        #rescale
+                        tmp=(array(self.prob.objfun(xu))-2*array(self.prob.objfun(x))+array(self.prob.objfun(xd)))/((hh**2)*array(self.f_span))
 
                 else:
                     xuu[ind[i][0]]+=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
@@ -2116,8 +2122,13 @@ class analysis:
                     xud[ind[i][1]]-=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
                     xdu[ind[i][0]]-=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
                     xdu[ind[i][1]]+=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
-                    #rescale
-                    tmp=(array(self.prob.objfun(xuu))-array(self.prob.objfun(xud))-array(self.prob.objfun(xdu))+array(self.prob.objfun(xdd)))/(4*hh*hh*array(self.f_span))
+                    limit_test=[xuu[ind[i][0]]>self.ub[ind[i][0]],xuu[ind[i][1]]>self.ub[ind[i][1]], xdd[ind[i][0]]<self.lb[ind[i][0]],  xdd[ind[i][1]]<self.lb[ind[i][1]],\
+                    xud[ind[i][0]]>self.ub[ind[i][0]], xud[ind[i][1]]<self.lb[ind[i][1]],xdu[ind[i][0]]<self.lb[ind[i][0]],xdu[ind[i][1]]>self.ub[ind[i][1]] ]
+                    if any(limit_test):
+                        tmp=zeros(self.f_dim)
+                    else:
+                        #rescale
+                        tmp=(array(self.prob.objfun(xuu))-array(self.prob.objfun(xud))-array(self.prob.objfun(xdu))+array(self.prob.objfun(xdd)))/(4*hh*hh*array(self.f_span))
 
                 for j in range(self.f_dim):
                     d[t%2][0][j][i]=tmp[j]
@@ -2696,23 +2707,16 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._cluster_local_extrema needs numpy and sklearn to run. Are they installed?")
-        #dataset=np.zeros([self.local_initial_npoints,self.dim+1])#normalized dataset
         dataset=[]
-        # range_f=np.mean(np.ptp(self.f,0))
-        # mean_f=np.mean(self.f)
 
         if kmax==0:
             kmax=self.local_initial_npoints
 
-        # if range_f<single_cluster_tolerance:
-        #     raise ValueError(
-        #         "analysis_cluster_local_extrema: the results appear to be constant")
         for i in range(self.local_initial_npoints):
-            #for j in range(self.dim):
-                #dataset[i][j]=(self.local_extrema[i][j]-0.5*self.ub[j]-0.5*self.lb[j])/(self.ub[j]-self.lb[j])
+
             dataset.append(self.local_extrema[i][:])
             dataset[i].extend(self.local_f[i])
-            #dataset[i][self.dim]=(self.local_f[i]-mean_f)/range_f
+
         if k!=0:#cluster to given number of clusters
             clust=KMeans(k)
 
@@ -2729,7 +2733,7 @@ class analysis:
             total_distances=clust.fit_transform(dataset)
             total_center=clust.cluster_centers_[0]
             total_radius=max(total_distances)[0]
-            #total_radius=(total_radius**2-(self.local_f[list(total_distances).index(total_radius)]-total_center[self.dim])**2)**.5
+
             if total_radius<single_cluster_tolerance*(self.dim+self.f_dim):#single cluster scenario
                 #storage of output
                 local_cluster=list(clust.predict(dataset))
@@ -2774,14 +2778,11 @@ class analysis:
         for i in range(self.local_nclusters):
             self.local_cluster_size.append(cluster_size[order[i]])
             self.local_cluster_x_centers.append(clust.cluster_centers_[order[i]][:self.dim])
-            #self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim]*range_f+mean_f)
             self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim:])
             self.local_cluster_f.append(((array(self.prob.objfun(array(self.local_cluster_x_centers[i])*(array(self.ub)-array(self.lb))+array(self.lb)))-array(self.f_offset))/array(self.f_span)).tolist())
             if self.c_dim>0:
                 self.local_cluster_c.append(((array(self.prob.compute_constraints(array(self.local_cluster_x_centers[i])*(array(self.ub)-array(self.lb))+array(self.lb))))/array(self.c_span)).tolist())
-            # for j in range(self.dim):
-            #     self.local_cluster_x_centers[i][j]*=(self.ub[j]-self.lb[j])
-            #     self.local_cluster_x_centers[i][j]+=0.5*(self.ub[j]+self.lb[j])
+
         for i in range(self.local_initial_npoints):
             for j in range(self.local_nclusters):
                 if local_cluster[i]==order[j]:
@@ -2925,8 +2926,6 @@ class analysis:
             raise ImportError(
                 "analysis.plot_local_cluster_scatter needs numpy and matplotlib to run. Are they installed?")
         
-        #dataset=asarray([[(self.points[self.local_initial_points[i]][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_initial_npoints)])
-        #centers=[[(self.local_cluster_x_centers[i][j]-self.lb[j])/(self.ub[j]-self.lb[j]) for j in dimensions] for i in range(self.local_nclusters)]
         
         dataset=[]
         if clusters_to_plot=='all':
@@ -3058,10 +3057,8 @@ class analysis:
                 if self.f[i][obj]>per[obj]:
                     y[i]=1
 
-            #grid search
             grid=GridSearchCV(estimator=SVC(kernel=kernel,degree=2),param_grid=param_grid,cv=StratifiedKFold(y,k_tune))
             grid.fit(dataset,y)
-            #print grid.best_estimator_
             test_score=cross_val_score(estimator=grid.best_estimator_,X=dataset,y=y,scoring=None,cv=StratifiedKFold(y,k_test))
             mce.append((ones(k_test)-test_score).tolist())
         return mce #mce[n_obj][k_test]
@@ -3201,8 +3198,6 @@ class analysis:
                 "analysis._c_lin needs numpy to run. Is it installed?")
 
         p_lin=zeros(self.c_dim)
-        # p_conv=np.zeros(self.c_dim)
-        #mean_dev=zeros(self.c_dim)
         for i in range(n_pairs):
             i1=randint(self.npoints)
             i2=randint(self.npoints)
@@ -3222,23 +3217,15 @@ class analysis:
                 c_lin=r*array(self.c[i1])+(1-r)*array(self.c[i2])
 
             c_real=divide(self.prob.compute_constraints(x),self.c_span)
-            #c_real=self.prob.compute_constraints(x)
             delta=c_lin-c_real
-            #mean_dev+=abs(delta)
 
             for j in range(self.c_dim):
                 if abs(delta[j])<threshold:
                     p_lin[j]+=1
-                # elif delta[j]>0:
-                #     p_conv[j]+=1
         p_lin/=n_pairs
-        # p_conv/=n_pairs
-        #mean_dev/=n_pairs
+
         self.c_lin_npairs=n_pairs
-        return (list(p_lin)
-            #,list(p_conv),
-            #list(mean_dev)
-            )
+        return list(p_lin)            )
 
     def _compute_constraints(self):#NEVER CALL AFTER SCALING!!! (sample calls it default)
         """
@@ -3271,8 +3258,6 @@ class analysis:
         self.c_span=[]
         if self.c_dim!=0:
             for i in range(self.npoints):
-                #x=multiply(array(self.points[i]),array(self.ub)-array(self.lb))+array(self.lb)
-                #self.c.append(list(self.prob.compute_constraints(x)))
                 self.c.append(list(self.prob.compute_constraints(self.points[i])))
 
             temp0=ptp(self.c,0).tolist()
