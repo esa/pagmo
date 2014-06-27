@@ -114,8 +114,23 @@ int main()
 	probs_new.push_back(problem::schwefel().clone());
 	probs.push_back(problem::snopt_toyprob().clone());
 	probs_new.push_back(problem::snopt_toyprob().clone());
-	probs.push_back(problem::tsp().clone()); //TODO: define the tsp using a non-default weight-matrix
-	probs_new.push_back(problem::tsp().clone());
+	
+        //----- Test TSP -----//
+//        probs.push_back(problem::tsp().clone());
+//        
+//        static std::default_random_engine rengine(time(NULL)); // seed software PRNG
+//        static std::uniform_real_distribution<> distr(0, 1); // range
+//        static int no_vertices = rand() % 100 + 10; // between 10 and 100
+//        static std::vector<std::vector<double> > matrnd(no_vertices, std::vector<double>(no_vertices, 0));
+//        for (int i = 0; i < no_vertices; ++i) {
+//            for (int j = 0; j < no_vertices; ++j) {
+//                if (i == j) 
+//                    matrnd[i][j] = 0;
+//                else
+//                    matrnd[i][j] = distr(rengine);
+//            }
+//        }
+//        probs_new.push_back(problem::tsp(matrnd).clone());
 
 	//----- Test ZDT -----//
 	for(int i = 1; i <= 6; i++) {
