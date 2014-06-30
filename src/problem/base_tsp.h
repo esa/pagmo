@@ -27,6 +27,8 @@
 
 #include "base.h"
 #include <vector>
+#include <boost/graph/graphviz.hpp>
+//#include "graph_helper.hpp"
 
 namespace pagmo{ namespace problem {
 
@@ -34,21 +36,44 @@ namespace pagmo{ namespace problem {
 /**
  * std::vector (vecS) are fastest for iterators: http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/using_adjacency_list.html
  * External properties can also be added: http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/quick_tour.html
- * for hashmaps or other types, which are better for other operations
- *
- * typedef boost::property<boost::vertex_index_t, int, boost::property<boost::vertex_name_t, std::string> > tsp_vertex_property;
- * We don't need vertice names, so an index will suffice for now:
- * boost::no_property automatically adds vertex_index_t, int for vecS
- * 
+ * for hashmaps or other types, which are better for other operations.
  */
-template <typename T>
-using tsp_edge_properties = typename boost::property<boost::edge_weight_t, T>;
-//typedef boost::property<boost::edge_weight_t, double> tsp_edge_properties;
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property, tsp_edge_properties<double> > tsp_graph;
+/* Graph Internal Properties */    
+typedef boost::property<boost::vertex_index_t, int 
+    /*, boost::property<boost::vertex_name_t, std::string> */> tsp_vertex_properties;
+typedef boost::property<boost::edge_index_t, int, 
+        boost::property<boost::edge_weight_t, double> > tsp_edge_properties;
+/* Graph Type, internal containers for edges and lists */
+typedef boost::adjacency_list<  
+            boost::setS, // disallow parallel edges
+            boost::listS, // vertex container
+            boost::directedS, // directed graph
+            tsp_vertex_properties, 
+            tsp_edge_properties
+        > tsp_graph;
+/* Graph specific typedefs */
+typedef boost::graph_traits<tsp_graph>::vertex_descriptor tsp_vertex;
+typedef boost::graph_traits<tsp_graph>::edge_descriptor tsp_edge;
 
-/**
- * Shortened version of the 2D vector type
- */
+typedef boost::property_map<tsp_graph, boost::vertex_index_t>::type tsp_vertex_map_index;
+typedef boost::property_map<tsp_graph, boost::edge_weight_t>::type tsp_edge_map_weight;
+typedef boost::property_map<tsp_graph, boost::vertex_index_t>::const_type tsp_vertex_map_const_index;
+typedef boost::property_map<tsp_graph, boost::edge_weight_t>::const_type tsp_edge_map_const_weight;
+
+typedef boost::graph_traits<tsp_graph>::vertex_iterator tsp_vertex_iter;
+typedef boost::graph_traits<tsp_graph>::edge_iterator tsp_edge_iter;
+typedef boost::graph_traits<tsp_graph>::adjacency_iterator tsp_adjacency_iter;
+typedef boost::graph_traits<tsp_graph>::out_edge_iterator tsp_out_edge_iter;
+typedef boost::graph_traits<tsp_graph>::degree_size_type tsp_degree_t;
+
+typedef std::pair<tsp_edge, tsp_edge> tsp_edge_pair;
+typedef std::pair<tsp_adjacency_iter, tsp_adjacency_iter> tsp_adjacency_vertex_range_t;
+typedef std::pair<tsp_out_edge_iter, tsp_out_edge_iter> tsp_out_edge_range_t;
+typedef std::pair<tsp_vertex_iter, tsp_vertex_iter> tsp_vertex_range_t;
+typedef std::pair<tsp_edge_iter, tsp_edge_iter> edge_range_t;
+
+
+/// Shortened version of the 2D vector type
 template <typename T>
 using vector2D = typename std::vector<std::vector<T> >;
 

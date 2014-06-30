@@ -43,12 +43,47 @@ namespace pagmo { namespace problem {
         }
         
         /// Protected
-        void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {            
-            vector2D<double>::const_iterator row;
-            std::vector<double>::const_iterator col;
-            for (row = the_vector.begin(); row != the_vector.end(); ++row)
-                for (col = row->begin(); col != row->end(); ++col)
-                    boost::add_edge(std::distance(the_vector.begin(), row), std::distance(row->begin(), col), *col, the_graph);
+        void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {
+            tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), the_graph);
+            tsp_vertex from, to;
+            tsp_edge link;
+            
+            // add vertices first 
+            /* Checking if a vertex exists with no vertices inserted causes segfault
+             * so we have to iterate 1st to get total number of vertices
+             * then iterate again to insert them ... bummer
+             * Couldn't figure out how to do it all in 2 for loops
+             */
+            int no_vertices = get_no_vertices(the_vector);
+            for (int v = 0; v < no_vertices; ++v)
+                boost::add_vertex(v, the_graph);
+            
+            // add edges and weights
+            for (size_t i = 0; i < the_vector.size(); ++i) {
+
+                /* uncomment this and it's segfault
+                 * don't do this check and the logic is wrong
+                 */ 
+//                from = boost::vertex(i, the_graph);
+//                if (from == tsp_graph::null_vertex())
+                    from = boost::add_vertex(i, the_graph);
+                
+                for (size_t j = 0 ; j < (the_vector.at(i)).size(); ++j) {
+                    // we don't allow connections to self
+                    if(i == j) continue;
+                    
+//                    to = boost::vertex(j, the_graph);
+                    // create destination vertex only if not existent
+                    // for some reason this works, but is not enough
+//                    if (to == tsp_graph::null_vertex())
+                        to = boost::add_vertex(j, the_graph);
+                    
+                    // create an edge connecting those two vertices
+                    link = (boost::add_edge(from, to, the_graph)).first;
+                    // add weight property to the edge
+                    weights[link] = the_vector.at(i).at(j);
+                }
+            }
         }
         
         int base_tsp::get_no_vertices(vector2D<double> const& the_vector) const {

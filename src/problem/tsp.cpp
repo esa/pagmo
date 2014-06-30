@@ -34,10 +34,12 @@
 #include "../types.h"
 //#include "base.h"
 #include "tsp.h"
+#include "graph_helper.hpp"
 
 namespace pagmo { namespace problem {
 
-    static double const default_weights[5][5] = {
+//    static double const default_weights[5][5] = {
+    static vector2D<double> const default_weights = {
         {0, 1,              2,              3,              4},
         {1, 0,              2.236067,       4,              4.123105},
         {2, 2.236067,       0,              3.605551,       6},
@@ -53,13 +55,8 @@ namespace pagmo { namespace problem {
      * - city 4: (-3,    0)
      * - city 5: ( 0,   -4)
      */
-    tsp::tsp(): base_tsp(5) {
-        vector2D<double> tmp(5, std::vector<double>(5, 0));
-        for (int i = 0; i < 5; ++i)
-            for (int j = 0; j < 5; ++j)
-                tmp[i][j] = default_weights[i][j];
-        
-        set_graph(tmp);
+    tsp::tsp(): base_tsp(5) {        
+        set_graph(default_weights);
         set_lb(0);
         set_ub(5); //number of nodes/vertices in the graph
     }
@@ -120,7 +117,8 @@ namespace pagmo { namespace problem {
      */
     void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const
     {   //TODO: figure out if this is really needed
-        
+        (void)x;
+        (void)c;
 //        // Checks if the length is the same
 //        if ( (int)x.size() != get_no_vertices() )
 //            c[0] = 1;
@@ -140,39 +138,29 @@ namespace pagmo { namespace problem {
      * Will return a list of vertices and edges
      */
     std::string tsp::human_readable_extra() const
-    {//TODO: There must be a better way of doing this..
-        //TODO: Write an "<<" operator for this
+    {
         std::ostringstream oss;
-        oss << "Adjacency List: " << std::endl;
+        oss << "The Boost Graph (Adjacency List): \n";// << m_graph << std::endl;
+        boost::write_graphviz(oss, m_graph);//, boost::make_label_writer(boost::edge_weight));
+        
+        tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), m_graph);
+        tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), m_graph);
 
-        typedef boost::property_map<tsp_graph, boost::vertex_index_t>::type vertex_index_map;
-        vertex_index_map index = get(boost::vertex_index_t(), m_graph);
-
-        oss << "Vertices = ";
-        typedef boost::graph_traits<tsp_graph>::vertex_iterator vertex_iter;
-        std::pair<vertex_iter, vertex_iter> vp;
-        for (vp = boost::vertices(m_graph); vp.first != vp.second; ++vp.first)
-                oss << index[*vp.first] <<  " ";
+        oss << "Vertices = { ";
+        std::pair<tsp_vertex_iter, tsp_vertex_iter> v_it;
+        for (v_it = boost::vertices(m_graph); v_it.first != v_it.second; ++v_it.first)
+                oss << vtx_idx[*v_it.first] <<  " ";
+        oss << "}" << std::endl;
+        
+        oss << "Edges (Source, Target) = Weight : " << std::endl;
+        
+        std::pair<tsp_edge_iter, tsp_edge_iter> e_it;
+        for (e_it = boost::edges(m_graph); e_it.first != e_it.second; ++e_it.first)
+                oss << "(" << vtx_idx[boost::source(*e_it.first, m_graph)] 
+                    << ", " << vtx_idx[boost::target(*e_it.first, m_graph)]
+//                    << " ... " << boost::get(weights, *e_it.first);
+                    << ") = " << weights[*e_it.first] << std::endl;
         oss << std::endl;
-        
-        oss << "Edges = ";
-        boost::graph_traits<tsp_graph>::edge_iterator ei, ei_end;
-        for (boost::tie(ei, ei_end) = boost::edges(m_graph); ei != ei_end; ++ei)
-                oss << "(" << index[boost::source(*ei, m_graph)] 
-                    << "," << index[boost::target(*ei, m_graph)]<< ")";
-        oss << std::endl;
-        
-        oss << "Weights = ";
-        typedef boost::graph_traits<tsp_graph>::edge_iterator EdgeIterator;
-        std::pair<EdgeIterator, EdgeIterator> edges = boost::edges(m_graph);
-
-        typedef boost::property_map<tsp_graph, boost::edge_weight_t>::const_type WeightMap;
-        
-        WeightMap weights = boost::get(boost::edge_weight_t(), m_graph);
-
-        EdgeIterator edge;
-        for (edge = edges.first; edge != edges.second; ++edge)
-          oss << boost::get(weights, *edge) << std::endl;
         
         return oss.str();
     }
