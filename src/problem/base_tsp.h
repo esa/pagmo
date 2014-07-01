@@ -70,7 +70,7 @@ typedef std::pair<tsp_edge, tsp_edge> tsp_edge_pair;
 typedef std::pair<tsp_adjacency_iter, tsp_adjacency_iter> tsp_adjacency_vertex_range_t;
 typedef std::pair<tsp_out_edge_iter, tsp_out_edge_iter> tsp_out_edge_range_t;
 typedef std::pair<tsp_vertex_iter, tsp_vertex_iter> tsp_vertex_range_t;
-typedef std::pair<tsp_edge_iter, tsp_edge_iter> edge_range_t;
+typedef std::pair<tsp_edge_iter, tsp_edge_iter> tsp_edge_range_t;
 
 
 /// Shortened version of the 2D vector type
@@ -113,6 +113,12 @@ class __PAGMO_VISIBLE base_tsp : public base
              * @param[in] 2D vector of doubles
              */
             void set_graph(vector2D<double> const&);
+            /**
+             * Converts a graph back to a vector2D
+             * @param[in] tsp_graph object
+             * @return vector2D
+             */
+            static vector2D<double> graph_to_vector2D(tsp_graph const&);
 
     protected:
             /**

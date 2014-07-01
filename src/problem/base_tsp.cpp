@@ -42,6 +42,21 @@ namespace pagmo { namespace problem {
             vector2D_to_graph(new_graph, m_graph);
         }
         
+        vector2D<double> base_tsp::graph_to_vector2D(tsp_graph const& the_graph) {
+            int dimension = boost::num_vertices(the_graph);
+            vector2D<double> out_vec(dimension, std::vector<double>(dimension, 0));
+            
+            tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
+            tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
+            tsp_edge_range_t e_it;
+            
+            for (e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
+                out_vec[ vtx_idx[boost::source(*e_it.first, the_graph)] ][ vtx_idx[boost::source(*e_it.first, the_graph)] ] = 0;
+                out_vec[ vtx_idx[boost::source(*e_it.first, the_graph)] ][ vtx_idx[boost::target(*e_it.first, the_graph)] ] = weights[*e_it.first];
+            }
+            return out_vec;
+        }
+        
         /// Protected
         void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {
             tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), the_graph);

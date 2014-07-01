@@ -34,7 +34,8 @@
 #include "../types.h"
 //#include "base.h"
 #include "tsp.h"
-#include "graph_helper.hpp"
+#include <boost/graph/graphviz.hpp>
+#include <boost/graph/iteration_macros.hpp>
 
 namespace pagmo { namespace problem {
 
@@ -141,24 +142,24 @@ namespace pagmo { namespace problem {
     {
         std::ostringstream oss;
         oss << "The Boost Graph (Adjacency List): \n";// << m_graph << std::endl;
-        boost::write_graphviz(oss, m_graph);//, boost::make_label_writer(boost::edge_weight));
+//        boost::write_graphviz(oss, m_graph, boost::make_edge_attributes_writer( boost::get(boost::edge_weight_t(), m_graph) ) );
         
         tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), m_graph);
         tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), m_graph);
 
         oss << "Vertices = { ";
-        std::pair<tsp_vertex_iter, tsp_vertex_iter> v_it;
+        
+        tsp_vertex_range_t v_it;
         for (v_it = boost::vertices(m_graph); v_it.first != v_it.second; ++v_it.first)
                 oss << vtx_idx[*v_it.first] <<  " ";
         oss << "}" << std::endl;
         
         oss << "Edges (Source, Target) = Weight : " << std::endl;
         
-        std::pair<tsp_edge_iter, tsp_edge_iter> e_it;
+        tsp_edge_range_t e_it;
         for (e_it = boost::edges(m_graph); e_it.first != e_it.second; ++e_it.first)
                 oss << "(" << vtx_idx[boost::source(*e_it.first, m_graph)] 
                     << ", " << vtx_idx[boost::target(*e_it.first, m_graph)]
-//                    << " ... " << boost::get(weights, *e_it.first);
                     << ") = " << weights[*e_it.first] << std::endl;
         oss << std::endl;
         
