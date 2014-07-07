@@ -99,14 +99,16 @@ namespace pagmo { namespace problem {
      * @param[in] x decision vector (a permutation of the vertices)
      */
     void tsp::objfun_impl(fitness_vector &f, decision_vector const& x) const {
-        pagmo_assert(f.size() == 1);
-        pagmo_assert(x.size() == get_dimension() && x.size() == get_no_vertices());
+        size_t dimension = get_dimension();
         
-        size_t dim = get_dimension();
+        pagmo_assert(f.size() == 1);
+        pagmo_assert(x.size() == dimension && 
+                boost::numeric_cast<int>(x.size()) == get_no_vertices(m_weights));
+        
         f[0] = 0;
-        for (size_t i = 1; i < dim; ++i)
+        for (size_t i = 1; i < dimension; ++i)
             f[0] += m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])];
-        f[0] += m_weights[boost::numeric_cast<int>(x[dim-1])][boost::numeric_cast<int>(x[0])];        
+        f[0] += m_weights[boost::numeric_cast<int>(x[dimension-1])][boost::numeric_cast<int>(x[0])];        
     }
 
     /// Constraint computation.
@@ -116,22 +118,35 @@ namespace pagmo { namespace problem {
      *  - if we have selected more than once the same node or 
      *  - equivalently not all the nodes have been selected.
      */
-    void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const
-    {   //TODO: figure out if this is really needed
-        (void)x;
-        (void)c;
-//        // Checks if the length is the same
-//        if ( (int)x.size() != get_no_vertices() )
-//            c[0] = 1;
-//        return;
-//        
-//        // Checks if there are duplicate items
-//        std::sort(x.begin(), x.end());
-//        if ( std::unique(x.begin(), x.end()) != x.end() )
-//            c[0] = 1;
-//        return;
-//        
-//        c[0] = 0; // we're good
+    void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const {
+        c[0] = 0; // assume all is well
+        
+        size_t dimension = get_dimension();
+        
+        // Checks if the length is the same
+        if (x.size() != dimension ||  
+                boost::numeric_cast<int>(x.size()) == get_no_vertices(m_weights)) {
+            c[0] = 1;
+            return;
+        }
+        
+        // Checks if there are duplicate items
+        decision_vector temp(x);
+        std::sort(temp.begin(), temp.end());
+        if ( std::unique(temp.begin(), temp.end()) != temp.end() ) {
+            c[0] = 1;
+            return;
+        }
+        
+        // Checks if there actually is an edge between two adjacent vertices
+        for (size_t i = 1; i < dimension; ++i) {
+            if (!m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])]) {
+                c[0] = 1;
+                return;
+            }
+        }
+        if (!m_weights[boost::numeric_cast<int>(x[dimension-1])][boost::numeric_cast<int>(x[0])])
+            c[0] = 1; // finish to start
     }
 
     /// Extra human readable info for the problem.
