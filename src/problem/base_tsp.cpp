@@ -27,7 +27,7 @@
 namespace pagmo { namespace problem {
 	/**
 	 * @param[in] n integer dimension of the problem (no vertices)
-         * 3rd parameter from base is dimension of the fitness_vector (1)
+         * 3rd parameter from base is range of the fitness_vector [0,1]
          * Global and inequality constraints dimensions are equal to 0
          * Constraints tolerance is 0.0
 	 */
@@ -39,25 +39,10 @@ namespace pagmo { namespace problem {
         void base_tsp::set_graph(tsp_graph const& new_graph) { m_graph = new_graph; }
         
         void base_tsp::set_graph(vector2D<double> const& new_graph) {
-            vector2D_to_graph(new_graph, m_graph);
+            convert_vector2D_to_graph(new_graph, m_graph);
         }
         
-        vector2D<double> base_tsp::graph_to_vector2D(tsp_graph const& the_graph) {
-            int dimension = boost::num_vertices(the_graph);
-            vector2D<double> out_vec(dimension, std::vector<double>(dimension, 0));
-            
-            tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
-            tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
-            tsp_edge_range_t e_it;
-            
-            for (e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
-                out_vec[ vtx_idx[boost::source(*e_it.first, the_graph)] ][ vtx_idx[boost::source(*e_it.first, the_graph)] ] = 0;
-                out_vec[ vtx_idx[boost::source(*e_it.first, the_graph)] ][ vtx_idx[boost::target(*e_it.first, the_graph)] ] = weights[*e_it.first];
-            }
-            return out_vec;
-        }
-        
-        void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {
+        void base_tsp::convert_vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {
             tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), the_graph);
             tsp_vertex from, to;
             tsp_edge link;
@@ -100,7 +85,20 @@ namespace pagmo { namespace problem {
             }
         }
         
-        int base_tsp::get_no_vertices(vector2D<double> const& the_vector) const {
+        void base_tsp::convert_graph_to_vector2D(tsp_graph const& the_graph, vector2D<double>& the_vector) {
+            tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
+            tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
+            tsp_edge_range_t e_it;
+            
+            for (e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
+                int i = vtx_idx[boost::source(*e_it.first, the_graph)];
+                int j = vtx_idx[boost::target(*e_it.first, the_graph)];
+                the_vector[i][i] = 0;
+                the_vector[i][j] = weights[*e_it.first];
+            }
+        }
+        
+        int base_tsp::get_no_vertices(vector2D<double> const& the_vector) {
             unsigned int maxRow = the_vector.size();
             unsigned int maxCol = 0;
             vector2D<double>::const_iterator row;

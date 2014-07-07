@@ -32,10 +32,8 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-//#include "base.h"
 #include "tsp.h"
 #include <boost/graph/graphviz.hpp>
-#include <boost/graph/iteration_macros.hpp>
 
 namespace pagmo { namespace problem {
 
@@ -57,6 +55,7 @@ namespace pagmo { namespace problem {
      */
     tsp::tsp(): base_tsp(5) {        
         set_graph(default_weights);
+        m_weights = default_weights;
         set_lb(0);
         set_ub(5); //number of nodes/vertices in the graph
     }
@@ -68,6 +67,7 @@ namespace pagmo { namespace problem {
      */
     tsp::tsp(tsp_graph const& graph): base_tsp(boost::num_vertices(graph)) {
         set_graph(graph);
+        base_tsp::convert_graph_to_vector2D(graph, m_weights);
         set_lb(0);
         set_ub(boost::num_vertices(graph)); //number of nodes in the graph
     }
@@ -78,7 +78,8 @@ namespace pagmo { namespace problem {
      * @param[in] weights vector of distances between cities
      */
     tsp::tsp(vector2D<double> const& weights): base_tsp(get_no_vertices(weights)) {
-        set_graph(weights);         
+        set_graph(weights);
+        m_weights = weights;
         set_lb(0);
         set_ub(boost::num_vertices(m_graph));
     }
@@ -92,20 +93,20 @@ namespace pagmo { namespace problem {
     /// Implementation of the objective function
     /**
      * Computes the fitness vector associated to a decision vector.
-     * @param f fitness vector
-     * @param x decision vector (a permutation of the vertices)
+     * The fitness is defined as Sum_ij(w_ij * x_ij) 
+     * where w_ij are the weights defining the distances between the cities
+     * @param[out] f fitness vector
+     * @param[in] x decision vector (a permutation of the vertices)
      */
-    void tsp::objfun_impl(fitness_vector &f, const decision_vector &x) const {
+    void tsp::objfun_impl(fitness_vector &f, decision_vector const& x) const {
         pagmo_assert(f.size() == 1);
         pagmo_assert(x.size() == get_dimension() && x.size() == get_no_vertices());
-        //TODO: figure this out later
-//        f[0] = 0;
-//        for (size_type i = 1; i < get_dimension(); ++i) {
-//                        f[0] += m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])];
-//        }
-//        f[0] += m_weights[boost::numeric_cast<int>(x[get_dimension()-1])][boost::numeric_cast<int>(x[0])];
-        (void)x;
-        (void)f;
+        
+        size_t dim = get_dimension();
+        f[0] = 0;
+        for (size_t i = 1; i < dim; ++i)
+            f[0] += m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])];
+        f[0] += m_weights[boost::numeric_cast<int>(x[dim-1])][boost::numeric_cast<int>(x[0])];        
     }
 
     /// Constraint computation.
@@ -156,10 +157,11 @@ namespace pagmo { namespace problem {
         oss << "Edges (Source, Target) = Weight : " << std::endl;
         
         tsp_edge_range_t e_it;
-        for (e_it = boost::edges(m_graph); e_it.first != e_it.second; ++e_it.first)
-                oss << "(" << vtx_idx[boost::source(*e_it.first, m_graph)] 
-                    << ", " << vtx_idx[boost::target(*e_it.first, m_graph)]
-                    << ") = " << weights[*e_it.first] << std::endl;
+        for (e_it = boost::edges(m_graph); e_it.first != e_it.second; ++e_it.first) {
+            int i = vtx_idx[boost::source(*e_it.first, m_graph)];
+            int j = vtx_idx[boost::target(*e_it.first, m_graph)];
+            oss << "(" << i << ", " << j<< ") = " << weights[*e_it.first] << std::endl;
+        }
         oss << std::endl;
         
         return oss.str();

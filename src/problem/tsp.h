@@ -89,6 +89,8 @@ class __PAGMO_VISIBLE tsp: public base_tsp
             std::string human_readable_extra() const;
             
     private:
+            vector2D<double> m_weights;
+            
             friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive &ar, const unsigned int)

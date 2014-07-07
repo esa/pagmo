@@ -41,7 +41,7 @@ namespace pagmo{ namespace problem {
 /* Graph Internal Properties */    
 typedef boost::property<boost::vertex_index_t, int 
     /*, boost::property<boost::vertex_name_t, std::string> */> tsp_vertex_properties;
-typedef boost::property<boost::edge_index_t, int, 
+typedef boost::property<boost::edge_index_t, int, // used for external properties
         boost::property<boost::edge_weight_t, double> > tsp_edge_properties;
 /* Graph Type, internal containers for edges and lists */
 typedef boost::adjacency_list<  
@@ -56,9 +56,11 @@ typedef boost::graph_traits<tsp_graph>::vertex_descriptor tsp_vertex;
 typedef boost::graph_traits<tsp_graph>::edge_descriptor tsp_edge;
 
 typedef boost::property_map<tsp_graph, boost::vertex_index_t>::type tsp_vertex_map_index;
-typedef boost::property_map<tsp_graph, boost::edge_weight_t>::type tsp_edge_map_weight;
 typedef boost::property_map<tsp_graph, boost::vertex_index_t>::const_type tsp_vertex_map_const_index;
+typedef boost::property_map<tsp_graph, boost::edge_weight_t>::type tsp_edge_map_weight;
 typedef boost::property_map<tsp_graph, boost::edge_weight_t>::const_type tsp_edge_map_const_weight;
+typedef boost::property_map<tsp_graph, boost::edge_index_t>::type tsp_edge_map_index;
+typedef boost::property_map<tsp_graph, boost::edge_index_t>::const_type tsp_edge_map_const_index;
 
 typedef boost::graph_traits<tsp_graph>::vertex_iterator tsp_vertex_iter;
 typedef boost::graph_traits<tsp_graph>::edge_iterator tsp_edge_iter;
@@ -72,6 +74,7 @@ typedef std::pair<tsp_out_edge_iter, tsp_out_edge_iter> tsp_out_edge_range_t;
 typedef std::pair<tsp_vertex_iter, tsp_vertex_iter> tsp_vertex_range_t;
 typedef std::pair<tsp_edge_iter, tsp_edge_iter> tsp_edge_range_t;
 
+typedef boost::iterator_property_map<double*, tsp_edge_map_index, double, double&> tsp_ext_weight_iterator;
 
 /// Shortened version of the 2D vector type
 template <typename T>
@@ -118,18 +121,19 @@ class __PAGMO_VISIBLE base_tsp: public base
             void set_graph(vector2D<double> const&);
             
             /**
-             * Converts a graph back to a vector2D
-             * @param[in] tsp_graph object
-             * @return vector2D
-             */
-            static vector2D<double> graph_to_vector2D(tsp_graph const&);
-            
-            /**
              * Converts a 2D vector to a boost graph type tsp_graph
-             * @param[in] the 2D vector of doubles
+             * @param[in] the vector2D of doubles
              * @param[out] the tsp_graph adjacency list
              */
-            static void vector2D_to_graph(vector2D<double> const&, tsp_graph&);
+            static void convert_vector2D_to_graph(vector2D<double> const&, tsp_graph&);
+            
+            /**
+             * Converts a graph back to a vector2D
+             * @param[in] tsp_graph object
+             * @param[out] vector2D of doubles
+             * @return vector2D
+             */
+            static void convert_graph_to_vector2D(tsp_graph const&, vector2D<double>&);
             
             /**
              * Checks the maximum dimensions for both width and height.
@@ -138,7 +142,7 @@ class __PAGMO_VISIBLE base_tsp: public base
              * which is either max(row, col) for sparse matrices.
              * @return number of vertices
              */
-            static int get_no_vertices(vector2D<double> const&) const;
+            static int get_no_vertices(vector2D<double> const&);
             
     protected:
             /**

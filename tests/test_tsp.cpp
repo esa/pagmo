@@ -64,19 +64,23 @@ int main()
 {
     // create random 2d vector and output it to console
     int no_vertices = rand() % 10 + 1; // between 1 and 10
-    problem::vector2D<double> mat( generate_random_vector2D(no_vertices, true) );
+    problem::vector2D<double> original( generate_random_vector2D(no_vertices, true) );
     
     // instantiate a tsp problem, vector constructor is called
-    pagmo::problem::tsp tsprob(mat);
+    pagmo::problem::tsp tsprob(original);
     
     // output the graph structure, conversion done internally
     std::cout << tsprob.human_readable();
     
     // get the converted graph
-    problem::tsp_graph g = tsprob.get_graph();
+    problem::tsp_graph graph = tsprob.get_graph();
     
-    // convert back to vector2D and check equality
-    if (mat != pagmo::problem::base_tsp::graph_to_vector2D( g )) {
+    // convert back to vector2D
+    problem::vector2D<double> converted(no_vertices, std::vector<double>(no_vertices, 0));
+    pagmo::problem::base_tsp::convert_graph_to_vector2D(graph, converted);
+    
+    // check equality
+    if (original != converted) {
         std::cout << "vector2D to boost graph to vector2D conversion failed!\n";
         return 1;
     }
