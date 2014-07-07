@@ -90,7 +90,7 @@ using vector2D = typename std::vector<std::vector<T> >;
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
 
-class __PAGMO_VISIBLE base_tsp : public base
+class __PAGMO_VISIBLE base_tsp: public base
 {
     public:
             /**
@@ -98,35 +98,39 @@ class __PAGMO_VISIBLE base_tsp : public base
              * @param[in] number of vertices
              */
             base_tsp(int);
+            
             /**
              * Getter for the m_graph
              * @return reference to the m_graph of type tsp_graph
              */
             tsp_graph const& get_graph() const;
+            
             /**
              * Setter for the m_graph
              * @param[in] tsp_graph
              */
             void set_graph(tsp_graph const&);
+            
             /**
              * Setter for the m_graph
              * @param[in] 2D vector of doubles
              */
             void set_graph(vector2D<double> const&);
+            
             /**
              * Converts a graph back to a vector2D
              * @param[in] tsp_graph object
              * @return vector2D
              */
             static vector2D<double> graph_to_vector2D(tsp_graph const&);
-
-    protected:
+            
             /**
              * Converts a 2D vector to a boost graph type tsp_graph
              * @param[in] the 2D vector of doubles
              * @param[out] the tsp_graph adjacency list
              */
-            void vector2D_to_graph(vector2D<double> const&, tsp_graph&);
+            static void vector2D_to_graph(vector2D<double> const&, tsp_graph&);
+            
             /**
              * Checks the maximum dimensions for both width and height.
              * The 'matrix' might not be square for asymmetric problems.
@@ -134,10 +138,12 @@ class __PAGMO_VISIBLE base_tsp : public base
              * which is either max(row, col) for sparse matrices.
              * @return number of vertices
              */
-            int get_no_vertices(vector2D<double> const&) const;
+            static int get_no_vertices(vector2D<double> const&) const;
+            
+    protected:
             /**
-             * The boost graph, an adjacency list
-             * derived classes inherit this property
+             * The boost graph, an adjacency list.
+             * Derived classes inherit this property
              */
             tsp_graph m_graph;
                 

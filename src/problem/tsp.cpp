@@ -39,7 +39,6 @@
 
 namespace pagmo { namespace problem {
 
-//    static double const default_weights[5][5] = {
     static vector2D<double> const default_weights = {
         {0, 1,              2,              3,              4},
         {1, 0,              2.236067,       4,              4.123105},
@@ -113,8 +112,8 @@ namespace pagmo { namespace problem {
     /**
      * The decision vector has to be a permutation of the set of nodes.
      * The constraint is positive when not satisfied:
-     *  if we have selected more than once the same node or 
-     *  equivalently not all the nodes have been selected.
+     *  - if we have selected more than once the same node or 
+     *  - equivalently not all the nodes have been selected.
      */
     void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const
     {   //TODO: figure out if this is really needed

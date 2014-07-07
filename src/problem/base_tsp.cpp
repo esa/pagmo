@@ -57,7 +57,6 @@ namespace pagmo { namespace problem {
             return out_vec;
         }
         
-        /// Protected
         void base_tsp::vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {
             tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), the_graph);
             tsp_vertex from, to;
@@ -111,6 +110,8 @@ namespace pagmo { namespace problem {
             
             return (int)(maxRow > maxCol ? maxRow : maxCol);
         }
+        
+        /// Protected
         
         /// Private
 
