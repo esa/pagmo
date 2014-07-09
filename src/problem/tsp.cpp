@@ -171,7 +171,7 @@ namespace pagmo { namespace problem {
         
         oss << "Edges (Source, Target) = Weight : " << std::endl;
         
-        tsp_edge_range_t e_it;
+        tsp_edge_range_t e_it = boost::edges(m_graph);
         for (e_it = boost::edges(m_graph); e_it.first != e_it.second; ++e_it.first) {
             int i = vtx_idx[boost::source(*e_it.first, m_graph)];
             int j = vtx_idx[boost::target(*e_it.first, m_graph)];

@@ -88,7 +88,7 @@ namespace pagmo { namespace problem {
         void base_tsp::convert_graph_to_vector2D(tsp_graph const& the_graph, vector2D<double>& the_vector) {
             tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
             tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
-            tsp_edge_range_t e_it;
+            tsp_edge_range_t e_it = boost::edges(the_graph);
             
             for (e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
                 int i = vtx_idx[boost::source(*e_it.first, the_graph)];
