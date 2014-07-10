@@ -87,49 +87,49 @@ int main()
     
     // some testing stuff
     
-    int n = 4; int index; int k = 0;
-    problem::vector2D<int> matt(n, std::vector<int>(n, 0));
-    std::vector<int> v(n*(n-1), 0);
-    std::vector<int> c(n*2-1, 0);
-    
-    for (int i = 0; i < n; ++i)
-        for (int j = 0; j < n; ++j)
-            matt[i][j] = i*n + j;
-    
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            if(i==j) { ++k; continue; }
-
-            index = i*n + j - k;
-            std::cout << i << " - " << j << " = " << matt[i][j] << " \t idx: " << index << std::endl;
-            v[index] = matt[i][j];
-        }
-    }
-    
-    for (int i = 0; i < n*(n-1) ; ++i){
-        std::cout << v[i] << " , ";
-    }
-    std::cout << std::endl << std::endl;
-    
-    k = 0;
-    
-    int ics = 0; k = 0;
-    for (int i = 0; i < n-1; i++) {
-        for (int j = 0; j < v.size(); j += (n-1) ) {
-            c[i+n] += v[i+j];
-
-
-            ics++;
-            std::cout << j << " - " << i << " -- " << j/(n-1) << " - " << v[j / (n-1) + i * n] << " k = " << k << std::endl;
-
-
-            c[k] += v[j / (n-1) + i * n]; 
-            if ( ics % (n-1) == 0) ++k;
-        }
-    }
-    
-    for (int i = 0; i < c.size(); ++i)
-        std::cout << c[i] << ", ";
+//    int n = 4; int index; int k = 0;
+//    problem::vector2D<int> matt(n, std::vector<int>(n, 0));
+//    std::vector<int> v(n*(n-1), 0);
+//    std::vector<int> c(n*2-1, 0);
+//    
+//    for (int i = 0; i < n; ++i)
+//        for (int j = 0; j < n; ++j)
+//            matt[i][j] = i*n + j;
+//    
+//    for (int i = 0; i < n; ++i) {
+//        for (int j = 0; j < n; ++j) {
+//            if(i==j) { ++k; continue; }
+//
+//            index = i*n + j - k;
+//            std::cout << i << " - " << j << " = " << matt[i][j] << " \t idx: " << index << std::endl;
+//            v[index] = matt[i][j];
+//        }
+//    }
+//    
+//    for (int i = 0; i < n*(n-1) ; ++i){
+//        std::cout << v[i] << " , ";
+//    }
+//    std::cout << std::endl << std::endl;
+//    
+//    k = 0;
+//    
+//    int ics = 0; k = 0;
+//    for (int i = 0; i < n-1; i++) {
+//        for (int j = 0; j < v.size(); j += (n-1) ) {
+//            c[i+n] += v[i+j];
+//
+//
+//            ics++;
+//            std::cout << j << " - " << i << " -- " << j/(n-1) << " - " << v[j / (n-1) + i * n] << " k = " << k << std::endl;
+//
+//
+//            c[k] += v[j / (n-1) + i * n]; 
+//            if ( ics % (n-1) == 0) ++k;
+//        }
+//    }
+//    
+//    for (int i = 0; i < c.size(); ++i)
+//        std::cout << c[i] << ", ";
     
     return 0;
 }
