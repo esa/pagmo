@@ -77,11 +77,11 @@ namespace pagmo { namespace problem {
      * Initialize weights between vertices (city distances) from the matrix.
      * @param[in] weights vector of distances between cities
      */
-    tsp::tsp(vector2D<double> const& weights): base_tsp(get_no_vertices(weights)) {
+    tsp::tsp(vector2D<double> const& weights): base_tsp(count_vertices(weights)) {
         set_graph(weights);
         m_weights = weights;
         set_lb(0);
-        set_ub(boost::num_vertices(m_graph));
+        set_ub(count_vertices(weights));
     }
 
     /// Clone method.
@@ -89,92 +89,128 @@ namespace pagmo { namespace problem {
     {
         return base_ptr(new tsp(*this));
     }
+    
+    /**
+     * Converts a binary decision vector to a binary adjacency matrix
+     * @param[in] x decision vector
+     * @param[out] mat two dimensional boolean vector
+     */
+    void tsp::convert_decision_vector_to_vector2D(decision_vector const& x, vector2D<bool>& mat) {
+        size_t n = x.size();
+        n = n / (n + 1); // number of vertices
+        
+        size_t k = 0;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if(i==j) { ++k; continue; }
+
+                size_t index = i*n + j - k;
+                mat[i][j] = x[index];
+            }
+        }
+    }
+    
+    /**
+     * Converts a boolean adjacency matrix to decision vector (chromosome)
+     * @param[in] mat two dimensional boolean vector
+     * @param[out] x decision vector
+     */
+    void tsp::convert_vector2D_to_decision_vector(vector2D<bool> const& mat, decision_vector& x) {
+        size_t n = count_vertices(mat);
+        size_t k = 0;
+        for (size_t i = 0; i < n ; ++i) {
+            for (size_t j = 0 ; j < n; ++j) {
+                if (i == j) continue; // we don't add diagonal elements
+                x[k++] = mat[i][j];
+            }
+        }
+    }
 
     /// Implementation of the objective function
     /**
      * Computes the fitness vector associated to a decision vector.
      * The fitness is defined as Sum_ij(w_ij * x_ij) 
      * where w_ij are the weights defining the distances between the cities
+     * The decision vector x_ij is a concatenated binary adjacency matrix, 
+     * with the diagonal elements skipped since they're always zero because
+     * in a route you can't go from one vertex to itself.
      * @param[out] f fitness vector
-     * @param[in] x decision vector (a permutation of the vertices)
+     * @param[in] x decision vector
      */
     void tsp::objfun_impl(fitness_vector &f, decision_vector const& x) const {
-        size_t dimension = get_dimension();
+        size_t n = get_no_vertices();
+        // dim = n^2 - n (matrix - diagonal)
         
         pagmo_assert(f.size() == 1);
-        pagmo_assert(x.size() == dimension && 
-                boost::numeric_cast<int>(x.size()) == get_no_vertices(m_weights));
+        pagmo_assert(x.size() == get_dimension() && x.size() == n * (n - 1));
         
-        f[0] = 0;
-        for (size_t i = 1; i < dimension; ++i)
-            f[0] += m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])];
-        f[0] += m_weights[boost::numeric_cast<int>(x[dimension-1])][boost::numeric_cast<int>(x[0])];        
+        f[0]= 0;
+        size_t k = 0; 
+        for (size_t i = 0; i < n; i++) {
+            for (size_t j = 0; j < n; j++) {
+                if(i==j) { ++k; continue; }
+                
+                size_t index = i * n + j - k;
+                f[0] += m_weights[i][j] * x[index];
+            }
+        }       
     }
 
     /// Constraint computation.
     /**
-     * The decision vector has to be a permutation of the set of nodes.
-     * The constraint is positive when not satisfied:
-     *  - if we have selected more than once the same node or 
-     *  - equivalently not all the nodes have been selected.
+     * The sum for rows and columns of the binary adjacency matrix
+     * has to be 0 for all rows and columns to be valid
+     * @param[out] c constraint_vector
+     * @param[in] x decision_vector
      */
     void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const {
-        c[0] = 0; // assume all is well
+        size_t dim = get_dimension();
+        size_t n = get_no_vertices();
         
-        size_t dimension = get_dimension();
-        
-        // Checks if the length is the same
-        if (x.size() != dimension ||  
-                boost::numeric_cast<int>(x.size()) == get_no_vertices(m_weights)) {
-            c[0] = 1;
-            return;
-        }
-        
-        // Checks if there are duplicate items
-        decision_vector temp(x);
-        std::sort(temp.begin(), temp.end());
-        if ( std::unique(temp.begin(), temp.end()) != temp.end() ) {
-            c[0] = 1;
-            return;
-        }
-        
-        // Checks if there actually is an edge between two adjacent vertices
-        for (size_t i = 1; i < dimension; ++i) {
-            if (!m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])]) {
-                c[0] = 1;
-                return;
+        size_t z = 0;
+        size_t k = 0;
+        for (size_t i = 0; i < n-1; i++) {
+            for (size_t j = 0; j < n*2-1; j += (n-1) ) {
+                z++;
+
+                // row sums
+                c[k] += x[j / (n-1) + i * n];
+                if ( z % (n-1) == 0 ) ++k;
+
+                // column sums
+                c[i+n] += x[i+j];
             }
         }
-        if (!m_weights[boost::numeric_cast<int>(x[dimension-1])][boost::numeric_cast<int>(x[0])])
-            c[0] = 1; // finish to start
+        // total size of c is n*2 - 1 (minus diagonal)
     }
 
     /// Extra human readable info for the problem.
     /**
-     * Will return a list of vertices and edges
+     * Will return a std::string containing a list of vertices and edges
      */
-    std::string tsp::human_readable_extra() const
-    {
+    std::string tsp::human_readable_extra() const {
+        tsp_graph const the_graph = get_graph();
+        
         std::ostringstream oss;
-        oss << "The Boost Graph (Adjacency List): \n";// << m_graph << std::endl;
+        oss << "The Boost Graph (Adjacency List): \n";// << the_graph << std::endl;
 //        boost::write_graphviz(oss, m_graph, boost::make_edge_attributes_writer( boost::get(boost::edge_weight_t(), m_graph) ) );
         
-        tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), m_graph);
-        tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), m_graph);
+        tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
+        tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
 
         oss << "Vertices = { ";
         
         tsp_vertex_range_t v_it;
-        for (v_it = boost::vertices(m_graph); v_it.first != v_it.second; ++v_it.first)
+        for (v_it = boost::vertices(the_graph); v_it.first != v_it.second; ++v_it.first)
                 oss << vtx_idx[*v_it.first] <<  " ";
         oss << "}" << std::endl;
         
         oss << "Edges (Source, Target) = Weight : " << std::endl;
         
-        tsp_edge_range_t e_it = boost::edges(m_graph);
-        for (e_it = boost::edges(m_graph); e_it.first != e_it.second; ++e_it.first) {
-            int i = vtx_idx[boost::source(*e_it.first, m_graph)];
-            int j = vtx_idx[boost::target(*e_it.first, m_graph)];
+        tsp_edge_range_t e_it = boost::edges(the_graph);
+        for (e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
+            int i = vtx_idx[boost::source(*e_it.first, the_graph)];
+            int j = vtx_idx[boost::target(*e_it.first, the_graph)];
             oss << "(" << i << ", " << j<< ") = " << weights[*e_it.first] << std::endl;
         }
         oss << std::endl;

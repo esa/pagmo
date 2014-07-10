@@ -87,6 +87,8 @@ class __PAGMO_VISIBLE tsp: public base_tsp
             void objfun_impl(fitness_vector &, decision_vector const&) const;
             void compute_constraints_impl(constraint_vector &, decision_vector const&) const;
             std::string human_readable_extra() const;
+            void convert_decision_vector_to_vector2D(decision_vector const&, vector2D<bool> &);
+            void convert_vector2D_to_decision_vector(vector2D<bool> const&, decision_vector &);
             
     private:
             vector2D<double> m_weights;
@@ -96,8 +98,7 @@ class __PAGMO_VISIBLE tsp: public base_tsp
             void serialize(Archive &ar, const unsigned int)
             {
                     ar & boost::serialization::base_object<base>(*this);
-                    ar & m_graph;
-    //			ar & m_tmpDecisionVector;
+                    ar & m_weights;
             }
 };
 

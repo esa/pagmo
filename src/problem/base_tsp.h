@@ -121,6 +121,11 @@ class __PAGMO_VISIBLE base_tsp: public base
             void set_graph(vector2D<double> const&);
             
             /**
+             * Returns the number of vertices in the graph
+             */
+            size_t const& get_no_vertices() const;
+            
+            /**
              * Converts a 2D vector to a boost graph type tsp_graph
              * @param[in] the vector2D of doubles
              * @param[out] the tsp_graph adjacency list
@@ -142,16 +147,22 @@ class __PAGMO_VISIBLE base_tsp: public base
              * which is either max(row, col) for sparse matrices.
              * @return number of vertices
              */
-            static int get_no_vertices(vector2D<double> const&);
+            static size_t count_vertices(vector2D<double> const&);
             
     protected:
+           
+    private:
             /**
              * The boost graph, an adjacency list.
              * Derived classes inherit this property
              */
             tsp_graph m_graph;
-                
-    private:                
+            /**
+             * The number of vertices in the graph.
+             * Stored here for not recomputing
+             */
+            size_t m_no_vertices;
+            
             friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive &ar, const unsigned int)
