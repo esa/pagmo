@@ -77,11 +77,11 @@ namespace pagmo { namespace problem {
      * Initialize weights between vertices (city distances) from the matrix.
      * @param[in] weights vector of distances between cities
      */
-    tsp::tsp(vector2D<double> const& weights): base_tsp(count_vertices(weights)) {
+    tsp::tsp(vector2D<double> const& weights): base_tsp(base_tsp::count_vertices(weights)) {
         set_graph(weights);
         m_weights = weights;
         set_lb(0);
-        set_ub(count_vertices(weights));
+        set_ub(boost::num_vertices(get_graph()));
     }
 
     /// Clone method.
@@ -95,36 +95,36 @@ namespace pagmo { namespace problem {
      * @param[in] x decision vector
      * @param[out] mat two dimensional boolean vector
      */
-    void tsp::convert_decision_vector_to_vector2D(decision_vector const& x, vector2D<bool>& mat) {
-        size_t n = x.size();
-        n = n / (n + 1); // number of vertices
-        
-        size_t k = 0;
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if(i==j) { ++k; continue; }
-
-                size_t index = i*n + j - k;
-                mat[i][j] = x[index];
-            }
-        }
-    }
+//    void tsp::convert_decision_vector_to_vector2D(decision_vector const& x, vector2D<bool>& mat) {
+//        size_t n = x.size();
+//        n = n / (n + 1); // number of vertices
+//        
+//        size_t k = 0;
+//        for (size_t i = 0; i < n; ++i) {
+//            for (size_t j = 0; j < n; ++j) {
+//                if(i==j) { ++k; continue; }
+//
+//                size_t index = i*n + j - k;
+//                mat[i][j] = x[index];
+//            }
+//        }
+//    }
     
     /**
      * Converts a boolean adjacency matrix to decision vector (chromosome)
      * @param[in] mat two dimensional boolean vector
      * @param[out] x decision vector
      */
-    void tsp::convert_vector2D_to_decision_vector(vector2D<bool> const& mat, decision_vector& x) {
-        size_t n = count_vertices(mat);
-        size_t k = 0;
-        for (size_t i = 0; i < n ; ++i) {
-            for (size_t j = 0 ; j < n; ++j) {
-                if (i == j) continue; // we don't add diagonal elements
-                x[k++] = mat[i][j];
-            }
-        }
-    }
+//    void tsp::convert_vector2D_to_decision_vector(vector2D<bool> const& mat, decision_vector& x) {
+//        size_t n = 5;//base_tsp::count_vertices<bool>(mat);
+//        size_t k = 0;
+//        for (size_t i = 0; i < n ; ++i) {
+//            for (size_t j = 0 ; j < n; ++j) {
+//                if (i == j) continue; // we don't add diagonal elements
+//                x[k++] = mat[i][j];
+//            }
+//        }
+//    }
 
     /// Implementation of the objective function
     /**
@@ -164,23 +164,26 @@ namespace pagmo { namespace problem {
      * @param[in] x decision_vector
      */
     void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const {
-        size_t dim = get_dimension();
         size_t n = get_no_vertices();
         
-        size_t z = 0;
+        size_t row = 0;
         size_t k = 0;
         for (size_t i = 0; i < n-1; i++) {
             for (size_t j = 0; j < n*2-1; j += (n-1) ) {
-                z++;
+                row++;
 
                 // row sums
                 c[k] += x[j / (n-1) + i * n];
-                if ( z % (n-1) == 0 ) ++k;
+                if ( row % (n-1) == 0 ) ++k;
 
                 // column sums
                 c[i+n] += x[i+j];
             }
         }
+        // pagmo needs c(x)-1
+        for (size_t i = 0; i < 2*n-1; ++i)
+            c[i] -= 1; // figure out how to do this in previous loops
+        
         // total size of c is n*2 - 1 (minus diagonal)
     }
 

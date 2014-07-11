@@ -49,7 +49,7 @@ const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
 
 //knapsack
 static std::vector<double> a(11,30), b(11,10);
-static double c = 15;
+//static double c = 15;
 
 //laplace
 static const int default_sequence[5] = {3,2,2,1,5};
