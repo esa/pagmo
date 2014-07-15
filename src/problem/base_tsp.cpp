@@ -25,34 +25,18 @@
 #include "base_tsp.h"
 
 namespace pagmo { namespace problem {
-	/**
-	 * @param[in] n integer dimension of the problem
-	 */
-	base_tsp::base_tsp(int n): base(n*(n-1), n*(n-1), 1, 2*n-1, 0, 0.0){ m_no_vertices = n; }
-// base_tsp::base_tsp(int ncities):base(ncities*ncities-ncities, ncities*ncities-ncities, 1, 2*ncities, 0, 0.0)
-/**
- * n and nf must be positive, ni must be in the [0,n] range, nc and nic must be positive and nic must be in the [0,nc] range.
- * Lower and upper bounds are set to 0 and 1 respectively. Constraints tolerance must be positive.
- *
- * @param[in] n global dimension of the problem.
- * @param[in] ni dimension of the combinatorial part of the problem.
- * @param[in] nf dimension of the fitness vector of the problem.
- * @param[in] nc global number of constraints.
- * @param[in] nic number of inequality constraints.
- * @param[in] c_tol constraints tolerance. Fills the tolerance vector of size nc with c_tol.
- */
-        
-        
         /// Public
         tsp_graph const& base_tsp::get_graph() const { return m_graph; }
         
-        void base_tsp::set_graph(tsp_graph const& new_graph) { m_graph = new_graph; }
+//        void base_tsp::set_graph(tsp_graph const& new_graph) { m_graph = new_graph; }
         
-        void base_tsp::set_graph(vector2D<double> const& new_graph) {
-            convert_vector2D_to_graph(new_graph, m_graph);
+        void base_tsp::set_graph(vector2D<double> const& matrix) {
+//            tsp_graph new_graph;
+            convert_vector2D_to_graph(matrix, m_graph);
+//            m_graph = new_graph;
         }
         
-        size_t const& base_tsp::get_no_vertices() const { return m_no_vertices; }
+        size_t const& base_tsp::get_n_vertices() const { return m_n_vertices; }
         
         void base_tsp::convert_vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {
             tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), the_graph);

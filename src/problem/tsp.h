@@ -39,7 +39,6 @@ namespace pagmo { namespace problem {
 
 /// Traveling salesman problem
 /**
- * This is a constrained integer single-objective problem.
  *
  * Given a list of cities and their pairwise distances, the task is to find the 
  * shortest possible tour that visits each city exactly once.
@@ -49,15 +48,7 @@ namespace pagmo { namespace problem {
  * A TSP tour becomes a Hamiltonian cycle, and the optimal TSP tour is the 
  * shortest Hamiltonian cycle.
  *
- * In PaGMO's terminology, this problem has global and integer dimensions equal to N 
- * (the number of vertices of the graph), fitness dimension equal to 1 (cost of the path).
- * ??? global and inequality constraints dimensions equal to 1 (to check whether the solution is valid). 
- * A valid decision vector is a permutation of the edges. 
- * The optmial solution minimizes the cost of the path S(x)
- * 
- * \f[
- * 	\textnormal{minimize:} S(x) = w_{x_n,1} + \sum_{i=1}{n} w_{x_i, x_{i+1}} 
- * \f]
+ * TODO: rewrite here description of the optimization problem
  *
  * @see http://en.wikipedia.org/wiki/Travelling_salesman_problem
  *
@@ -66,40 +57,39 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE tsp: public base_tsp
 {
     public:
-            /**
-             * The default constructor
-             */
-            tsp();
-            /**
-             * Constructor from a tsp_graph object
-             * @param[in] tsp_graph
-             */
-            tsp(tsp_graph const&);
-            /**
-             * Constructor from a vector2D
-             * @param[in] vector2D
-             */
-            tsp(vector2D<double> const&);
+            /*NOTE: here you can call the  relevant base_tsp constructor */
+            tsp(): base_tsp() {};
+            tsp(tsp_graph const& graph): base_tsp(graph) {};
+            tsp(vector2D<double> const& weights): base_tsp(weights) {};
             base_ptr clone() const;
             std::string get_name() const;
             
     protected:
+            /*Formal definition of the objective function and equality/inequality constraints must be taken from 
+            * http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
+            * TODO: implement
+            */
             void objfun_impl(fitness_vector &, decision_vector const&) const;
             void compute_constraints_impl(constraint_vector &, decision_vector const&) const;
+            
+            /*TODO: implement using i*(m_n_vertices-1) + (j>i)?j-1:j and use it in objfun_impl and compute_constraints_impl*/
+            decision_vector::size_type compute_idx(const std::vector<int>::size_type i, const std::vector<int>::size_type j) const;
+            
             std::string human_readable_extra() const;
-//            void convert_decision_vector_to_vector2D(decision_vector const&, vector2D<bool> &);
-//            void convert_vector2D_to_decision_vector(vector2D<bool> const&, decision_vector &);
+
             
     private:
-            vector2D<double> m_weights;
-            
+            /*NOTE: serialization of const data member added*/
             friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive &ar, const unsigned int)
             {
                     ar & boost::serialization::base_object<base>(*this);
-                    ar & m_weights;
+                    ar & const_cast<vector2D<double>& >(m_weights);
             }
+    private:        
+            const vector2D<double> m_weights;
+
 };
 
 }} //namespaces
