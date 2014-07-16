@@ -86,9 +86,10 @@ bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = fals
         // check equality
         if (original != converted) {
             std::cout << "vector2D to boost graph to vector2D conversion failed!\n";
-            return 1;
+            return true;
         }
     }
+    return false;
 }
 
 /**
@@ -97,7 +98,7 @@ bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = fals
  * For testing we instantiate a matrix with 4 rows and then compute the
  * sum for the columns and rows, skipping elements from the main diagonal.
  * 
- * Create matrix with values from 0 to n*(n-1)
+ * Create test matrix with values from 0 to n^2-1
  * matrix = 
  * ______________
  * | 0  1  2  3 |->  1 +  2 +  3 = 6
@@ -110,18 +111,43 @@ bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = fals
  *         |--|--->  2 +  6 + 14 = 22
  *            |--->  3 +  7 + 11 = 21
  * 
- * v = {1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14}, where |v| = n*(n-1) = 12
- * c = {6, 17, 28, 39, 24, 23, 22, 21}, where |c| = 2*n = 8
- *
+ * then v = {1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14}, where |v| = n*(n-1) = 12
+ * 
+ * and c = {6, 17, 28, 39, 24, 23, 22, 21, 0, 0, 0, 0, 0, 0}, 
+ *      where |c!=0| = 2*n = 8
+ * 
+ * Inequalities: length = (n-1)(n-2)
+ * 
+ * c[in] = ui - uj + n*x_{i,j} - n
+ * 
+ *   |uj 1  2  3  4
+ * __|_____________
+ * ui|
+ * 1 |   -  -  -  -
+ * 2 |   -  -  6  7
+ * 3 |   -  9  - 11
+ * 4 |   - 13 14  -
+ * 
+ * 2 - 3 + 4 *  6 - 4 = 19
+ * 2 - 4 + 4 *  7 - 4 = 22
+ * 3 - 2 + 4 *  9 - 4 = 33
+ * 3 - 4 + 4 * 11 - 4 = 39
+ * 4 - 2 + 4 * 13 - 4 = 50
+ * 4 - 3 + 4 * 14 - 4 = 53
+ * 
+ * now c = {6, 17, 28, 39, 24, 23, 22, 21, 18, 22, 33, 39, 50, 53},
+ *      where |c| = 2*n + (n-1)*(n-2) = 14
+ * 
  * @param[in] verbose - prints matrix, indexes and resulting c
  */
 bool test_compute_idx(bool verbose = false) {
     int n = 4; // the number of vertices for the square matrix
+    int ceq = 2*n; // the number of equality constraints
     problem::vector2D<int> matrix(n, std::vector<int>(n, 0));
     std::vector<int> x(n*(n-1), 0);
-    std::vector<int> c(n*2, 0);
+    std::vector<int> c(2*n + (n-1)*(n-2), 0);
     // create check, must be finally equal to c
-    std::vector<int> check = {6, 17, 28, 39, 24, 23, 22, 21};
+    std::vector<int> check = {6, 17, 28, 39, 24, 23, 22, 21, 19, 22, 33, 39, 50, 53};
     
     int k = 0;
     // create matrix and v
@@ -136,13 +162,18 @@ bool test_compute_idx(bool verbose = false) {
     // compute row and col sums
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
-            if(i==j) continue;
+            if(i==j) continue; // ignoring main diagonal
 
             int idx_row = problem::tsp::compute_idx(i, j, n);
             int idx_col = problem::tsp::compute_idx(j, i, n);
 
+            // equalities
             c[i  ] += x[idx_row];
             c[i+n] += x[idx_col];
+            
+            // inequalities ( ignoring first row & column )
+            if(i != 0 && j != 0)
+                c[ceq++] = (i+1) - (j+1) + n * x[idx_row] - n;
             
             if (verbose)
                 std::cout << i << " - " << j << " = " << matrix[i][j] 
@@ -161,8 +192,9 @@ bool test_compute_idx(bool verbose = false) {
     // check equality
     if (check != c) {
         std::cout << "compute_idx function applied to row & column sums failed!\n";
-        return 1;
+        return true;
     }
+    return false;
 }
 
 int main()

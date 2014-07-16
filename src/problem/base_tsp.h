@@ -98,8 +98,9 @@ class __PAGMO_VISIBLE base_tsp: public base
              * The default constructor
              * This constructs a 3-cities symmetric problem (naive TSP) 
              * with matrix [[0,1,1][1,0,1][1,1,0]]
+             * base(n*(n-1), n*(n-1), 1, 2*n, (n-1)*(n-2), 0.0)
              */
-            base_tsp(): base(3*(3-1), 3*(3-1), 1, 2*3, 0, 0.0), m_n_vertices(3) 
+            base_tsp(): base(6, 6, 1, 6, 2, 0.0), m_n_vertices(3) 
             {            
                 tsp_vertex from, to;
                 
@@ -129,7 +130,9 @@ class __PAGMO_VISIBLE base_tsp: public base
                         boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
                         boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
                         1, 
-                        2*boost::num_vertices(graph), 0, 0.0
+                        2*boost::num_vertices(graph),
+                        (boost::num_vertices(graph)-1)*(boost::num_vertices(graph)-2),
+                        0.0
                     ),
                     m_n_vertices(boost::num_vertices(graph)),
                     m_graph(graph)
@@ -147,7 +150,9 @@ class __PAGMO_VISIBLE base_tsp: public base
                         count_vertices(weights)*(count_vertices(weights)-1), 
                         count_vertices(weights)*(count_vertices(weights)-1), 
                         1, 
-                        2*count_vertices(weights), 0, 0.0
+                        2*count_vertices(weights), 
+                        (count_vertices(weights)-1)*(count_vertices(weights)-2), 
+                        0.0
                     ), 
                     m_n_vertices(count_vertices(weights)) 
             {
@@ -195,14 +200,6 @@ class __PAGMO_VISIBLE base_tsp: public base
             static void convert_graph_to_vector2D(tsp_graph const&, vector2D<double>&);
             
             /**
-             * TODO: is this needed? When? Asymetric problems have not symmetric matrices as defined in http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/
-             * SUGGESTION: remove
-             * FLORIN: this is needed since the matrix might not be square (only happens for asymmetric or inconsistent symmetric files)
-             *          and that is due to the way the edges are written inside the files.
-             *          The conversion functions add the additional missing rows or columns in order to make the matrix square.
-             *          e.g. by sparse i mean that if there are N vertices and there are no edges going out for vertex N, 
-             *          then the matrix will NOT have a column / row for that particular vertex
-             * 
              * Checks the maximum dimensions for both width and height.
              * The 'matrix' might not be square.
              * Returns the number of vertices in the 2D vector,

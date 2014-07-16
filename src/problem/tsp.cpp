@@ -92,15 +92,30 @@ namespace pagmo { namespace problem {
      */
     void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const {
         size_t n = get_n_vertices();
+        size_t ceq = (n-1)*(n-2);
         
         for (size_t i = 0; i < n; i++) {
            for (size_t j = 0; j < n; j++) {
-               decision_vector::size_type row = compute_idx(i, j, n);
-               decision_vector::size_type column = compute_idx(j, i, n);
-               c[i] += x[compute_idx(i, j, n)];
-               c[i+n] += x[compute_idx(j, i, n)];
+               if(i==j) continue; // ignoring main diagonal
+               
+               decision_vector::size_type rows = compute_idx(i, j, n);
+               decision_vector::size_type cols = compute_idx(j, i, n);
+               
+               // equalities
+               c[i] += x[rows];
+               c[i+n] += x[cols];
+               
+               // inequalities ( ignoring first row & column)
+               if(i != 0 && j != 0) 
+                   c[ceq++] = (i+1) - (j+1) + n * x[rows] - n;
            }
         }
+        
+        // subtracting -1 from equalities, and 1 for equalities < 0
+        for (size_t i = 0; i < c.size(); ++i)
+            if (i < 2*n) c[i]-=1;
+            else // inequalities
+                if (c[i] < 0 ) c[i] = 1;
     }
 
     /// Extra human readable info for the problem.
