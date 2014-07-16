@@ -44,13 +44,36 @@ namespace pagmo { namespace problem {
  * shortest possible tour that visits each city exactly once.
  *
  * TSP can be modeled as a graph, such that cities are the graph's vertices, 
- * paths are the graph's edges, and a path's distance is the edge's length. 
+ * paths are the graph's edges, and a path's distance is the edge's weight. 
  * A TSP tour becomes a Hamiltonian cycle, and the optimal TSP tour is the 
  * shortest Hamiltonian cycle.
- *
- * TODO: rewrite here description of the optimization problem
- *
- * @see http://en.wikipedia.org/wiki/Travelling_salesman_problem
+ * In the symmetric TSP, the distance between two cities is the same in 
+ * each opposite direction, forming an undirected graph. 
+ * This symmetry halves the number of possible solutions. 
+ * In the asymmetric TSP, paths may not exist in both directions 
+ * or the distances might be different, forming a directed graph.
+ * The problem is formulated as an integer linear programming optimization.
+ * 
+ * Each vertex is labeled with an index number and n is the total number of vertices.
+ * 
+ * X_{i,j} is the square binary matrix, with X_{i,j} = 1 if there is an edge
+ * between city i and city j, otherwise X_{i,j} = 0;
+ * 
+ * C_{i,j} is the square adjacency matrix containing the distances between
+ * city i and city j, with i and j in [0, n]. If the problem is symmetric,
+ * then the matrix is symmetric, meaning it's equal to it's transpose.
+ * For i = [1,n] u_i is an artificial variable.
+ * 
+ * Then the TSP can be written as follows:
+ * 
+ *      minimize SUM_i^n SUM_j^n C_{i,j} * X_{i,j}
+ * where
+ *      i!=j and i, j in [0, n]
+ * with 
+ *      0 <= X_{i,j} <= 1
+ *      u_i from Z e.g. {.., -2, -1, 0, 1, 2, ..}
+ *      sum_i^n X_{i,j} = sum_j^n X_{i,j} = 1 where i!=j 
+ *      u_i - u_j + n * X_{i,j} <= n - 1 where i <= i!j <= n
  *
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
