@@ -118,23 +118,6 @@ int main()
 	best_tests.push_back(make_struct(problem::sch().clone()));
 	best_tests.push_back(make_struct(problem::schwefel(dimension).clone()));
 	best_tests.push_back(make_struct(problem::snopt_toyprob().clone()));
-        
-        //----- Test TSP -----//
-        best_tests.push_back(make_struct(problem::tsp().clone())); // empty test
-        
-        static std::default_random_engine rengine(time(NULL)); // seed software PRNG
-        static std::uniform_real_distribution<> distr(0, 1); // range
-        static int no_vertices = rand() % 100 + 10; // between 10 and 100
-        static std::vector<std::vector<double> > matrnd(no_vertices, std::vector<double>(no_vertices, 0));
-        for (int i = 0; i < no_vertices; ++i) {
-            for (int j = 0; j < no_vertices; ++j) {
-                if (i == j) 
-                    matrnd[i][j] = 0;
-                else
-                    matrnd[i][j] = distr(rengine);
-            }
-        }
-	best_tests.push_back(make_struct(problem::tsp(matrnd).clone()));
 
 	//----- Test ZDT -----//
 	for(int i=1; i<=6;i++) {

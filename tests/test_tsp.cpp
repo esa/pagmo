@@ -199,8 +199,9 @@ bool test_compute_idx(bool verbose = false) {
 
 int main()
 {
-    if (!test_conversion(100, 10, 20, true)) return 1;
-    if (!test_compute_idx(true)) return 1;
+    if (test_conversion(100, 10, 50, false)) return 1;
+    if (test_compute_idx(true)) return 1;
     
+    // all iz well
     return 0;
 }
