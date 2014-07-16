@@ -113,9 +113,9 @@ namespace pagmo { namespace problem {
         
         // subtracting -1 from equalities, and 1 for equalities < 0
         for (size_t i = 0; i < c.size(); ++i)
-            if (i < 2*n) c[i]-=1;
-            else // inequalities
-                if (c[i] < 0 ) c[i] = 1;
+            if (i < 2*n-1) c[i]-=1;
+//            else // inequalities
+//                if (c[i] < 0) c[i] = 0;
     }
 
     /// Extra human readable info for the problem.
