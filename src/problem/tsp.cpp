@@ -36,54 +36,7 @@
 #include <boost/graph/graphviz.hpp>
 
 namespace pagmo { namespace problem {
-
-//    static vector2D<double> const default_weights = {
-//        {0, 1,              2,              3,              4},
-//        {1, 0,              2.236067,       4,              4.123105},
-//        {2, 2.236067,       0,              3.605551,       6},
-//        {3, 4,              3.605551,       0,              5},
-//        {4, 4.123105,       6,              5,              0}
-//    };
-    /// Default constructor.
-    /**
-     * This constructor will build a TSP instance with 5 cities in the following positions:
-     * - city 1: ( 0,    0)
-     * - city 2: ( 1,    0)
-     * - city 3: ( 0,    2)
-     * - city 4: (-3,    0)
-     * - city 5: ( 0,   -4)
-     */
-//    tsp::tsp(): base_tsp(1) {        
-//        set_graph(default_weights);
-//        m_weights = default_weights;
-//        set_lb(0); set_ub(1); 
-//}
     
-    /// Constructor from boost graph object
-   
-    /**
-     * Initialize the number of vertices and the BGL tsp_graph
-     * @param[in] boost graph object containing weights between vertices.
-     */
-//    tsp::tsp(tsp_graph const& graph){
-//        set_graph(graph);
-//        base_tsp::convert_graph_to_vector2D(graph, m_weights);
-//        set_lb(0);
-//        set_ub(1);
-//    }
-
-    /// Constructor from vectors and maximum weight.
-    /**
-     * Initialize weights between vertices (city distances) from the matrix.
-     * @param[in] weights vector of distances between cities
-     */
-//    tsp::tsp(vector2D<double> const& weights): base_tsp(base_tsp::count_vertices(weights)) {
-//        set_graph(weights);
-//        m_weights = weights;
-//        set_lb(0);
-//        set_ub(1);
-//    }
-
     /// Clone method.
     base_ptr tsp::clone() const
     {
@@ -91,11 +44,17 @@ namespace pagmo { namespace problem {
     }
     
     /// Computes the index 
-    /** Returns the index in the chromosome for a binary matrix 
-     * containing edges between vertices
+    /** 
+     * Returns the index in the decision vector corresponding to the concatenated 
+     * rows of a square matrix, containing the edges between vertices.
+     * @param[in] i row
+     * @param[in] j column
+     * @param[in] n total number of vertices
      */
-    decision_vector::size_type tsp::compute_idx(const std::vector<int>::size_type i, const std::vector<int>::size_type j) const {
-        return i*(get_n_vertices()-1) + (j>i)?j-1:j;
+    size_t tsp::compute_idx(size_t const i, size_t const j, size_t const n) {
+        //int idx_row = i*(n-1)   + j         - (j>i? 1:0);
+        //int idx_col = i         + j*(n-1)   - (j>i? 1:0);
+        return i*(n-1) + j - (j>i? 1:0);
     };
     
     /// Implementation of the objective function
@@ -110,21 +69,16 @@ namespace pagmo { namespace problem {
      * @param[in] x decision vector
      */
     void tsp::objfun_impl(fitness_vector &f, decision_vector const& x) const {
-        size_t n = get_n_vertices();
-        // dim = n^2 - n (matrix - diagonal)
+        size_t n = get_n_vertices();        
         
         pagmo_assert(f.size() == 1);
         pagmo_assert(x.size() == get_dimension() && x.size() == n * (n - 1));
         
         f[0]= 0;
-//        size_t k = 0; 
         for (size_t i = 0; i < n; i++) {
             for (size_t j = 0; j < n; j++) {
-                if(i==j) { /*++k;*/ continue; }
-                
-//                size_t index = i * n + j - k;
-                decision_vector::size_type index = compute_idx(i, j);
-                f[0] += m_weights[i][j] * x[index];
+                if(i==j) continue;
+                f[0] += m_weights[i][j] * x[compute_idx(i, j, n)];
             }
         }       
     }
@@ -139,34 +93,14 @@ namespace pagmo { namespace problem {
     void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const {
         size_t n = get_n_vertices();
         
-        constraint_vector::size_type k = 0;
-        
         for (size_t i = 0; i < n; i++) {
            for (size_t j = 0; j < n; j++) {
-               decision_vector::size_type row = compute_idx(i, j);
-               decision_vector::size_type column = compute_idx(j, i);
-               c[i*n + j] += x[row];
-               c[i + j*n] += x[column];
+               decision_vector::size_type row = compute_idx(i, j, n);
+               decision_vector::size_type column = compute_idx(j, i, n);
+               c[i] += x[compute_idx(i, j, n)];
+               c[i+n] += x[compute_idx(j, i, n)];
            }
         }
-        
-//        size_t row = 0;
-//        size_t k = 0;
-//        for (size_t i = 0; i < n-1; i++) {
-//            for (size_t j = 0; j < n*2-1; j += (n-1) ) {
-//                row++;
-//
-//                // row sums
-//                c[k] += x[j / (n-1) + i * n];
-//                if ( row % (n-1) == 0 ) ++k;
-//
-//                // column sums
-//                c[i+n] += x[i+j];
-//            }
-//        }
-//        // pagmo needs c(x)-1
-//        for (size_t i = 0; i < 2*n-1; ++i)
-//            c[i] -= 1; // figure out how to do this in previous loops
     }
 
     /// Extra human readable info for the problem.

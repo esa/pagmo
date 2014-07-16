@@ -32,8 +32,6 @@
 
 namespace pagmo{ namespace problem {
 
-//TODO: are you using all these typedefs. Please check and if not remove
-// FLORIN: removed unused typedefs
 /// Boost graph type (could also be added to types.h, for now it only has scope here.
 /**
  * std::vector (vecS) are fastest for iterators: http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/using_adjacency_list.html
@@ -45,6 +43,7 @@ typedef boost::property<boost::vertex_index_t, int
     /*, boost::property<boost::vertex_name_t, std::string> */> tsp_vertex_properties;
 typedef boost::property<boost::edge_index_t, int, // used for external properties
         boost::property<boost::edge_weight_t, double> > tsp_edge_properties;
+
 /* Graph Type, internal containers for edges and lists */
 typedef boost::adjacency_list<  
             boost::setS, // disallow parallel edges
@@ -53,6 +52,7 @@ typedef boost::adjacency_list<
             tsp_vertex_properties, 
             tsp_edge_properties
         > tsp_graph;
+
 /* Graph specific typedefs */
 typedef boost::graph_traits<tsp_graph>::vertex_descriptor tsp_vertex;
 typedef boost::graph_traits<tsp_graph>::edge_descriptor tsp_edge;
@@ -96,10 +96,11 @@ class __PAGMO_VISIBLE base_tsp: public base
     public:
             /**
              * The default constructor
-             * TODO: implementation. This constructs a 3-cities symmetric problem (naive TSP) with matrix [[0,1,1][1,0,1][1,1,0]]
+             * This constructs a 3-cities symmetric problem (naive TSP) 
+             * with matrix [[0,1,1][1,0,1][1,1,0]]
              */
-            base_tsp(): base(3*(3-1), 3*(3-1), 1, 2*3, 0, 0.0), m_n_vertices(3) {            
-//                tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), m_graph);
+            base_tsp(): base(3*(3-1), 3*(3-1), 1, 2*3, 0, 0.0), m_n_vertices(3) 
+            {            
                 tsp_vertex from, to;
                 
                 boost::add_vertex(0, m_graph);
@@ -109,35 +110,29 @@ class __PAGMO_VISIBLE base_tsp: public base
                 for (size_t i = 0; i < 3; ++i) {
                     from = boost::vertex(i, m_graph);
                     for (size_t j = 0 ; j < 3; ++j) {
-                        if(i == j) continue;
+                        if(i == j) continue; // no connections from a vertex to self
                         to = boost::vertex(j, m_graph);
                         // create an edge connecting those two vertices
-//                        link = (
-                                boost::add_edge(from, to, m_graph);
-//                                ).first;
-                        // add weight property to the edge
-//                        weights[link] = 1.0;
+                        boost::add_edge(from, to, m_graph);
                     }
                 }
                 set_lb(0);
                 set_ub(1);
             };
             
-//          base_tsp(int n): base(n*(n-1), n*(n-1), 1, 2*n, 0, 0.0), m_n_vertices(n) {};
-            
             /**
              * Constructor from a tsp_graph object
-             * TODO: implement (SUGGESTION: the implementation is now in tsp.h, move the implementation here)
              * @param[in] tsp_graph
              */
-            base_tsp(tsp_graph const& graph): base(
-                                                    boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
-                                                    boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
-                                                    1, 
-                                                    2*boost::num_vertices(graph), 0, 0.0
-                                                ),
-                                                m_n_vertices(boost::num_vertices(graph)),
-                                                m_graph(graph)
+            base_tsp(tsp_graph const& graph): 
+                base(
+                        boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
+                        boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
+                        1, 
+                        2*boost::num_vertices(graph), 0, 0.0
+                    ),
+                    m_n_vertices(boost::num_vertices(graph)),
+                    m_graph(graph)
             {
                 set_lb(0);
                 set_ub(1);
@@ -145,16 +140,16 @@ class __PAGMO_VISIBLE base_tsp: public base
             
             /**
              * Constructor from a vector2D
-             * TODO: implement (SUGGESTION: the implementation is now in tsp.h, move the implementation here)
              * @param[in] vector2D
              */
-            base_tsp(vector2D<double> const& weights): base(
-                                                            count_vertices(weights)*(count_vertices(weights)-1), 
-                                                            count_vertices(weights)*(count_vertices(weights)-1), 
-                                                            1, 
-                                                            2*count_vertices(weights), 0, 0.0
-                                                        ), 
-                                                        m_n_vertices(count_vertices(weights)) 
+            base_tsp(vector2D<double> const& weights): 
+                base(
+                        count_vertices(weights)*(count_vertices(weights)-1), 
+                        count_vertices(weights)*(count_vertices(weights)-1), 
+                        1, 
+                        2*count_vertices(weights), 0, 0.0
+                    ), 
+                    m_n_vertices(count_vertices(weights)) 
             {
                 set_graph(weights);
                 set_lb(0);
@@ -171,7 +166,7 @@ class __PAGMO_VISIBLE base_tsp: public base
              * Setter for the m_graph
              * @param[in] tsp_graph
              */
-//            void set_graph(tsp_graph const&);
+            void set_graph(tsp_graph const&);
             
             /**
              * Setter for the m_graph
@@ -180,7 +175,6 @@ class __PAGMO_VISIBLE base_tsp: public base
             void set_graph(vector2D<double> const&);
             
             /**
-             * NOTE: name is changed
              * Returns the number of vertices in the graph
              */
             size_t const& get_n_vertices() const;
@@ -217,10 +211,7 @@ class __PAGMO_VISIBLE base_tsp: public base
              */
             static size_t count_vertices(vector2D<double> const&);
            
-    private: 
-    		/*
-    		NOTE: m_n_vertices was missing
-    		*/
+    private:
             friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive &ar, const unsigned int)
@@ -234,7 +225,6 @@ class __PAGMO_VISIBLE base_tsp: public base
             /**
              * The number of vertices in the graph.
              * Stored here for not recomputing
-             * NOTE: name changed
              */
             const size_t m_n_vertices;
             /**

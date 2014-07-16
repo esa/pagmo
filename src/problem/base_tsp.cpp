@@ -28,12 +28,10 @@ namespace pagmo { namespace problem {
         /// Public
         tsp_graph const& base_tsp::get_graph() const { return m_graph; }
         
-//        void base_tsp::set_graph(tsp_graph const& new_graph) { m_graph = new_graph; }
+        void base_tsp::set_graph(tsp_graph const& new_graph) { m_graph = new_graph; }
         
         void base_tsp::set_graph(vector2D<double> const& matrix) {
-//            tsp_graph new_graph;
             convert_vector2D_to_graph(matrix, m_graph);
-//            m_graph = new_graph;
         }
         
         size_t const& base_tsp::get_n_vertices() const { return m_n_vertices; }

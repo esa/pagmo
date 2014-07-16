@@ -80,29 +80,25 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE tsp: public base_tsp
 {
     public:
-            /*NOTE: here you can call the  relevant base_tsp constructor */
             tsp(): base_tsp() {};
             tsp(tsp_graph const& graph): base_tsp(graph) {};
             tsp(vector2D<double> const& weights): base_tsp(weights) {};
             base_ptr clone() const;
             std::string get_name() const;
+            // public so we can test it
+            static size_t compute_idx(size_t const i, size_t const j, size_t const n);
             
     protected:
-            /*Formal definition of the objective function and equality/inequality constraints must be taken from 
-            * http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
-            * TODO: implement
-            */
+            /**
+             * Formal definition of the objective function and equality/inequality constraints taken from 
+             * http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
+             */
             void objfun_impl(fitness_vector &, decision_vector const&) const;
             void compute_constraints_impl(constraint_vector &, decision_vector const&) const;
             
-            /*TODO: implement using i*(m_n_vertices-1) + (j>i)?j-1:j and use it in objfun_impl and compute_constraints_impl*/
-            decision_vector::size_type compute_idx(const std::vector<int>::size_type i, const std::vector<int>::size_type j) const;
-            
             std::string human_readable_extra() const;
-
             
     private:
-            /*NOTE: serialization of const data member added*/
             friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive &ar, const unsigned int)
