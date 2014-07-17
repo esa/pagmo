@@ -51,8 +51,8 @@ Then, the TSP can be written as follows
         
 For more information visit: http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
 
-Instantiating a TSP Problem (from weights or tsplib)
-##########
+Instantiating a TSP problem from weights
+########################################
 
 Here we give two examples on how to instantiate a TSP problem from a weights matrix
 or a TSPLIB XML file http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/
@@ -122,8 +122,11 @@ Now, if you didn't read the wikipedia page and were wondering about the numbers,
         
         \text{Inequality constraints dimension} = (n-1)(n-2) = 2 * 1 = 2
 
+Instantiating a TSP problem from TSPLIB XML
+###########################################
 
-In this second example we will be loading an TSPLIB XML file from the current folder.
+In this second example we will be loading an TSPLIB XML file from the current folder (pwd in linux).
+
 In order to load an XML file, we use the utility function PyGMO.util.tsp.read_tsplib('file.xml')
 which returns a weights matrix (list of list) such as the one defined above.
 
@@ -171,7 +174,7 @@ And finally, the output for printing the TSP problem instance:
 	Global dimension:			182
 	Integer dimension:			182
 	Fitness dimension:			1
-	Constraints dimension:			180
+	Constraints dimension:			184
 	Inequality constraints dimension:	156
 	Lower bounds: [0, 0, ..., 0]
 	Upper bounds: [1, 1, ..., 1]
