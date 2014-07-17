@@ -130,7 +130,7 @@ class __PAGMO_VISIBLE base_tsp: public base
                         boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
                         boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
                         1, 
-                        boost::num_vertices(graph)*(boost::num_vertices(graph)-1)-2,
+                        boost::num_vertices(graph)*(boost::num_vertices(graph)-1)+2,
                         (boost::num_vertices(graph)-1)*(boost::num_vertices(graph)-2),
                         0.0
                     ),
@@ -149,8 +149,8 @@ class __PAGMO_VISIBLE base_tsp: public base
                 base(
                         count_vertices(weights)*(count_vertices(weights)-1), 
                         count_vertices(weights)*(count_vertices(weights)-1), 
-                        1, 
-                        count_vertices(weights)*(count_vertices(weights)-1)-2,
+                        1,
+                        count_vertices(weights)*(count_vertices(weights)-1)+2,
                         (count_vertices(weights)-1)*(count_vertices(weights)-2), 
                         0.0
                     ), 

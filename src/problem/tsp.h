@@ -73,7 +73,7 @@ namespace pagmo { namespace problem {
  *      0 <= X_{i,j} <= 1
  *      u_i from Z e.g. {.., -2, -1, 0, 1, 2, ..}
  *      sum_i^n X_{i,j} = sum_j^n X_{i,j} = 1 where i!=j 
- *      u_i - u_j + n * X_{i,j} <= n - 1 where i <= i!j <= n
+ *      u_i - u_j + n * X_{i,j} <= n - 1 where i <= i!=j <= n
  *
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
