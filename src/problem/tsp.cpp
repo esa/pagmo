@@ -36,13 +36,92 @@
 #include <boost/graph/graphviz.hpp>
 
 namespace pagmo { namespace problem {
-    
+
+    tsp::tsp() : base_tsp(), m_weights(graph2matrix(get_graph()))
+    {
+    }
+
+    tsp::tsp(const std::vector<std::vector<double> >& weights) : base_tsp(matrix2graph(weights)), m_weights(weights)
+    {
+    }
+
+    tsp::tsp(const tsp_graph& graph) : base_tsp(graph), m_weights(graph2matrix(get_graph())) {
+    }
+
     /// Clone method.
     base_ptr tsp::clone() const
     {
         return base_ptr(new tsp(*this));
     }
+
+    const std::vector<std::vector<double> >& tsp::get_weights() const 
+    {
+        return m_weights;
+    }
     
+    tsp_graph tsp::matrix2graph(const std::vector<std::vector<double> >& matrix) {
+        tsp_graph retval;
+        tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), retval);
+        tsp_vertex from, to;
+        tsp_edge link;
+        
+        // add vertices first 
+        /* Checking if a vertex exists with no vertices inserted causes segfault
+         * so we have to iterate 1st to get total number of vertices
+         * then iterate again to insert them ... bummer
+         * Couldn't figure out how to do it all in 2 for loops
+         */
+        size_t no_vertices = matrix.size();
+        for (size_t v = 0; v < no_vertices; ++v)
+            boost::add_vertex(v, retval);
+        
+        // add edges and weights
+        for (size_t i = 0; i < no_vertices; ++i) {
+
+            /* uncomment this and it's segfault
+             * don't do this check and the logic is wrong
+             */ 
+            from = boost::vertex(i, retval);
+//                if (from == tsp_graph::null_vertex())
+//                    from = boost::add_vertex(i, the_graph);
+            
+            for (size_t j = 0 ; j < no_vertices; ++j) {
+                // we don't allow connections to self
+                if(i == j) continue;
+                
+                to = boost::vertex(j, retval);
+                // create destination vertex only if not existent
+                // for some reason this works, but is not enough
+//                    if (to == tsp_graph::null_vertex())
+//                        to = boost::add_vertex(j, the_graph);
+                
+                // create an edge connecting those two vertices
+                link = (boost::add_edge(from, to, retval)).first;
+                // add weight property to the edge
+                weights[link] = matrix.at(i).at(j);
+            }
+        }
+        return retval;
+    }
+    
+    std::vector<std::vector<double> > tsp::graph2matrix(const tsp_graph & graph) {
+        size_t n_vertex = boost::num_vertices(graph);
+        std::vector<double> row(n_vertex,0.0);
+        std::vector<std::vector<double> > retval(n_vertex,row);
+        tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), graph);
+        tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), graph);
+        tsp_edge_range_t e_it = boost::edges(graph);
+        
+        for (e_it = boost::edges(graph); e_it.first != e_it.second; ++e_it.first) {
+            int i = vtx_idx[boost::source(*e_it.first, graph)];
+            int j = vtx_idx[boost::target(*e_it.first, graph)];
+            retval[i][i] = 0;
+            retval[i][j] = weights[*e_it.first];
+        }
+        return retval;
+    }  
+
+
     /// Computes the index 
     /** 
      * Returns the index in the decision vector corresponding to the concatenated 
@@ -66,7 +145,7 @@ namespace pagmo { namespace problem {
      * with the diagonal elements skipped since they're always zero because
      * in a route you can't go from one vertex to itself.
      * @param[out] f fitness vector
-     * @param[in] x decision vector
+     * @param[in] x decision vector``
      */
     void tsp::objfun_impl(fitness_vector &f, decision_vector const& x) const {
         size_t n = get_n_vertices();        

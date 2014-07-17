@@ -28,11 +28,11 @@
 
 using namespace pagmo;
 
-problem::vector2D<double> generate_random_vector2D(int dimension, bool verbose = false) {
+std::vector<std::vector<double> > generate_random_matrix(int dimension, bool verbose = false) {
     std::default_random_engine rengine(time(NULL)); // seed software PRNG
     std::uniform_real_distribution<> distr(0, 1); // range
     
-    problem::vector2D<double> random_2D(dimension, std::vector<double>(dimension, 0));
+    std::vector<std::vector<double> > random_2D(dimension, std::vector<double>(dimension, 0));
 
     if (verbose) std::cout << "Two dimensional matrix created:";
     
@@ -67,24 +67,22 @@ bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = fals
     for (int i = 0; i < repeat; ++i) {
         // create random 2d vector and output it to console
         int no_vertices = rand() % u_bounds + l_bounds; // between l_b and u_b
-        problem::vector2D<double> original( generate_random_vector2D(no_vertices, verbose) );
+        std::vector<std::vector<double> > original( generate_random_matrix(no_vertices, verbose) );
 
         // instantiate a tsp problem, vector constructor is called
-        pagmo::problem::tsp tsprob(original);
+        pagmo::problem::tsp prob(original);
 
         // output the graph structure, conversion done internally
         if (verbose)
-            std::cout << tsprob.human_readable();
+            std::cout << prob.human_readable();
 
         // get the converted graph
-        problem::tsp_graph graph = tsprob.get_graph();
+        problem::tsp_graph graph = prob.get_graph();
 
-        // convert back to vector2D
-        problem::vector2D<double> converted(no_vertices, std::vector<double>(no_vertices, 0));
-        pagmo::problem::base_tsp::convert_graph_to_vector2D(graph, converted);
+        pagmo::problem::tsp new_prob(graph);
 
         // check equality
-        if (original != converted) {
+        if (prob.get_weights() != new_prob.get_weights() ) {
             std::cout << "vector2D to boost graph to vector2D conversion failed!\n";
             return true;
         }
@@ -92,115 +90,10 @@ bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = fals
     return false;
 }
 
-/**
- * This tests the compute_idx function, which returns the index in the
- * one dimensional vector of concatenated rows of a matrix (vector2D)
- * For testing we instantiate a matrix with 4 rows and then compute the
- * sum for the columns and rows, skipping elements from the main diagonal.
- * 
- * Create test matrix with values from 0 to n^2-1
- * matrix = 
- * ______________
- * | 0  1  2  3 |->  1 +  2 +  3 = 6
- * | 4  5  6  7 |->  4 +  6 +  7 = 17
- * | 8  9 10 11 |->  8 +  9 + 11 = 28
- * |12 13 14 15 |-> 12 + 13 + 14 = 39
- * |_|__|__|__|_|
- *   |--|--|--|--->  4 +  8 + 12 = 24
- *      |--|--|--->  1 +  9 + 13 = 23
- *         |--|--->  2 +  6 + 14 = 22
- *            |--->  3 +  7 + 11 = 21
- * 
- * then v = {1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14}, where |v| = n*(n-1) = 12
- * 
- * and c = {6, 17, 28, 39, 24, 23, 22, 21, 0, 0, 0, 0, 0, 0}, 
- *      where |c!=0| = 2*n = 8
- * 
- * Inequalities: length = (n-1)(n-2)
- * 
- * c[in] = ui - uj + n*x_{i,j} - n
- * 
- *   |uj 1  2  3  4
- * __|_____________
- * ui|
- * 1 |   -  -  -  -
- * 2 |   -  -  6  7
- * 3 |   -  9  - 11
- * 4 |   - 13 14  -
- * 
- * 2 - 3 + 4 *  6 - 4 = 19
- * 2 - 4 + 4 *  7 - 4 = 22
- * 3 - 2 + 4 *  9 - 4 = 33
- * 3 - 4 + 4 * 11 - 4 = 39
- * 4 - 2 + 4 * 13 - 4 = 50
- * 4 - 3 + 4 * 14 - 4 = 53
- * 
- * now c = {6, 17, 28, 39, 24, 23, 22, 21, 18, 22, 33, 39, 50, 53},
- *      where |c| = 2*n + (n-1)*(n-2) = 14
- * 
- * @param[in] verbose - prints matrix, indexes and resulting c
- */
-bool test_compute_idx(bool verbose = false) {
-    int n = 4; // the number of vertices for the square matrix
-    int ceq = 2*n; // the number of equality constraints
-    problem::vector2D<int> matrix(n, std::vector<int>(n, 0));
-    std::vector<int> x(n*(n-1), 0);
-    std::vector<int> c(2*n + (n-1)*(n-2), 0);
-    // create check, must be finally equal to c
-    std::vector<int> check = {6, 17, 28, 39, 24, 23, 22, 21, 19, 22, 33, 39, 50, 53};
-    
-    int k = 0;
-    // create matrix and v
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            matrix[i][j] = i*n + j;
-            if (i!=j) 
-                x[k++] = matrix[i][j];
-        }
-    }
-    
-    // compute row and col sums
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            if(i==j) continue; // ignoring main diagonal
-
-            int idx_row = problem::tsp::compute_idx(i, j, n);
-            int idx_col = problem::tsp::compute_idx(j, i, n);
-
-            // equalities
-            c[i  ] += x[idx_row];
-            c[i+n] += x[idx_col];
-            
-            // inequalities ( ignoring first row & column )
-            if(i != 0 && j != 0)
-                c[ceq++] = (i+1) - (j+1) + n * x[idx_row] - n;
-            
-            if (verbose)
-                std::cout << i << " - " << j << " = " << matrix[i][j] 
-                            << " \t idx_row: " << idx_row
-                            << " \t v[idx_row]: " << x[idx_row]    
-                            << " \t idx_col: " << idx_col
-                            << " \t v[idx_col]: " << x[idx_col]
-                            << std::endl;
-        }
-    }
-    
-    if (verbose)
-        for (int i = 0; i < (int)c.size(); ++i)
-            std::cout << c[i] << " ";
-    
-    // check equality
-    if (check != c) {
-        std::cout << "compute_idx function applied to row & column sums failed!\n";
-        return true;
-    }
-    return false;
-}
 
 int main()
 {
     if (test_conversion(100, 10, 50, false)) return 1;
-    if (test_compute_idx(true)) return 1;
     
     // all iz well
     return 0;

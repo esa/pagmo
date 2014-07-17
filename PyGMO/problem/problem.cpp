@@ -365,7 +365,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("pretty", &problem::string_match::pretty);
 
 	// Travelling salesman problem
-	problem_wrapper<problem::tsp>("tsp","Travelling salesman problem")
+	problem_wrapper<problem::tsp>("tsp","Travelling salesman problem (TSP and ATSP)")
 		.def(init<const std::vector<std::vector<double> > &>());
 
 	// SCH

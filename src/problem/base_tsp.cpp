@@ -25,86 +25,75 @@
 #include "base_tsp.h"
 
 namespace pagmo { namespace problem {
-        /// Public
-        tsp_graph const& base_tsp::get_graph() const { return m_graph; }
-        
-        void base_tsp::set_graph(tsp_graph const& new_graph) { m_graph = new_graph; }
-        
-        void base_tsp::set_graph(vector2D<double> const& matrix) {
-            convert_vector2D_to_graph(matrix, m_graph);
-        }
-        
-        size_t const& base_tsp::get_n_vertices() const { return m_n_vertices; }
-        
-        void base_tsp::convert_vector2D_to_graph(vector2D<double> const& the_vector, tsp_graph& the_graph) {
-            tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), the_graph);
-            tsp_vertex from, to;
-            tsp_edge link;
-            
-            // add vertices first 
-            /* Checking if a vertex exists with no vertices inserted causes segfault
-             * so we have to iterate 1st to get total number of vertices
-             * then iterate again to insert them ... bummer
-             * Couldn't figure out how to do it all in 2 for loops
-             */
-            int no_vertices = count_vertices(the_vector);
-            for (int v = 0; v < no_vertices; ++v)
-                boost::add_vertex(v, the_graph);
-            
-            // add edges and weights
-            for (size_t i = 0; i < the_vector.size(); ++i) {
 
-                /* uncomment this and it's segfault
-                 * don't do this check and the logic is wrong
-                 */ 
-                from = boost::vertex(i, the_graph);
-//                if (from == tsp_graph::null_vertex())
-//                    from = boost::add_vertex(i, the_graph);
-                
-                for (size_t j = 0 ; j < (the_vector.at(i)).size(); ++j) {
-                    // we don't allow connections to self
-                    if(i == j) continue;
-                    
-                    to = boost::vertex(j, the_graph);
-                    // create destination vertex only if not existent
-                    // for some reason this works, but is not enough
-//                    if (to == tsp_graph::null_vertex())
-//                        to = boost::add_vertex(j, the_graph);
-                    
-                    // create an edge connecting those two vertices
-                    link = (boost::add_edge(from, to, the_graph)).first;
-                    // add weight property to the edge
-                    weights[link] = the_vector.at(i).at(j);
-                }
+    /**
+     * The default constructor
+     * This constructs a 3-cities symmetric problem (naive TSP) 
+     * with weight matrix [[0,1,1][1,0,1][1,1,0]]
+     */
+    base_tsp::base_tsp(): base(6, 6, 1, 8, 2, 0.0), m_n_vertices(3), m_graph() //NOTE: we changed the number of constraints as you wrongly set it to 6 not 8
+    {            
+        tsp_vertex from, to;
+        
+        boost::add_vertex(0, m_graph);
+        boost::add_vertex(1, m_graph);
+        boost::add_vertex(2, m_graph);
+        
+        for (size_t i = 0; i < 3; ++i) {
+            from = boost::vertex(i, m_graph);
+            for (size_t j = 0 ; j < 3; ++j) {
+                if(i == j) continue; // no connections from a vertex to self
+                to = boost::vertex(j, m_graph);
+                // create an edge connecting those two vertices
+                boost::add_edge(from, to, m_graph);
+                // TODO: Explicitly set the edge weight to 1.
             }
         }
-        
-        void base_tsp::convert_graph_to_vector2D(tsp_graph const& the_graph, vector2D<double>& the_vector) {
-            tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
-            tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
-            tsp_edge_range_t e_it = boost::edges(the_graph);
-            
-            for (e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
-                int i = vtx_idx[boost::source(*e_it.first, the_graph)];
-                int j = vtx_idx[boost::target(*e_it.first, the_graph)];
-                the_vector[i][i] = 0;
-                the_vector[i][j] = weights[*e_it.first];
-            }
-        }
-        
-        size_t base_tsp::count_vertices(vector2D<double> const& the_vector) {
-            unsigned int maxRow = the_vector.size();
-            unsigned int maxCol = 0;
-            vector2D<double>::const_iterator row;
-            for (row = the_vector.begin(); row != the_vector.end(); ++row)
-                if(row->size() > maxCol)
-                    maxCol = row->size();
-            
-            return (int)(maxRow > maxCol ? maxRow : maxCol);
-        }
-        
-        /// Protected
-        
-        /// Private
+        set_lb(0);
+        set_ub(1);
+    }
+
+    /**
+     * Constructor from a tsp_graph object
+     * @param[in] tsp_graph
+     */
+    base_tsp::base_tsp(tsp_graph const& graph): 
+        base(
+            boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
+            boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
+            1, 
+            boost::num_vertices(graph)*(boost::num_vertices(graph)-1)+2,  //NOTE: this was changed to +2 (you wrongly set it to -2)
+            (boost::num_vertices(graph)-1)*(boost::num_vertices(graph)-2),
+            0.0
+        ),
+        m_n_vertices(boost::num_vertices(graph)),
+        m_graph(graph)
+    {
+        set_lb(0);
+        set_ub(1);
+    }
+
+    /**
+     * Getter for the m_graph
+     * @return reference to the m_graph of type tsp_graph
+     */
+    tsp_graph const& base_tsp::get_graph() const { return m_graph; }
+    
+    /**
+     * Setter for the m_graph
+     * @param[in] tsp_graph
+     */
+    void base_tsp::set_graph(tsp_graph const& new_graph)
+    { 
+        m_graph = new_graph;
+        m_n_vertices = boost::num_vertices(m_graph);
+    }
+    /**
+     * Getter for the m_n_vertices
+     * @return Number of vertices in the graph
+     */
+    size_t const& base_tsp::get_n_vertices() const { return m_n_vertices; }
+    
+
 
 }} //namespaces

@@ -26,9 +26,10 @@
 #define PAGMO_PROBLEM_BASE_TSP_H
 
 #include "base.h"
+
 #include <vector>
 #include <boost/graph/graphviz.hpp>
-//#include "graph_helper.hpp"
+
 
 namespace pagmo{ namespace problem {
 
@@ -73,10 +74,6 @@ typedef std::pair<tsp_edge_iter, tsp_edge_iter> tsp_edge_range_t;
 
 typedef boost::iterator_property_map<double*, tsp_edge_map_index, double, double&> tsp_ext_weight_iterator;
 
-/// Shortened version of the 2D vector type
-template <typename T>
-using vector2D = typename std::vector<std::vector<T> >;
-
 /// Base TSP.
 /**
  * This is a base class for Traveling Salesman Problems. Encoding of the chromosome is as in
@@ -94,142 +91,24 @@ using vector2D = typename std::vector<std::vector<T> >;
 class __PAGMO_VISIBLE base_tsp: public base
 {
     public:
-            /**
-             * The default constructor
-             * This constructs a 3-cities symmetric problem (naive TSP) 
-             * with matrix [[0,1,1][1,0,1][1,1,0]]
-             * base(n*(n-1), n*(n-1), 1, 2*n, (n-1)*(n-2), 0.0)
-             */
-            base_tsp(): base(6, 6, 1, 6, 2, 0.0), m_n_vertices(3) 
-            {            
-                tsp_vertex from, to;
-                
-                boost::add_vertex(0, m_graph);
-                boost::add_vertex(1, m_graph);
-                boost::add_vertex(2, m_graph);
-                
-                for (size_t i = 0; i < 3; ++i) {
-                    from = boost::vertex(i, m_graph);
-                    for (size_t j = 0 ; j < 3; ++j) {
-                        if(i == j) continue; // no connections from a vertex to self
-                        to = boost::vertex(j, m_graph);
-                        // create an edge connecting those two vertices
-                        boost::add_edge(from, to, m_graph);
-                    }
-                }
-                set_lb(0);
-                set_ub(1);
-            };
-            
-            /**
-             * Constructor from a tsp_graph object
-             * @param[in] tsp_graph
-             */
-            base_tsp(tsp_graph const& graph): 
-                base(
-                        boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
-                        boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
-                        1, 
-                        boost::num_vertices(graph)*(boost::num_vertices(graph)-1)-2,
-                        (boost::num_vertices(graph)-1)*(boost::num_vertices(graph)-2),
-                        0.0
-                    ),
-                    m_n_vertices(boost::num_vertices(graph)),
-                    m_graph(graph)
-            {
-                set_lb(0);
-                set_ub(1);
-            };
-            
-            /**
-             * Constructor from a vector2D
-             * @param[in] vector2D
-             */
-            base_tsp(vector2D<double> const& weights): 
-                base(
-                        count_vertices(weights)*(count_vertices(weights)-1), 
-                        count_vertices(weights)*(count_vertices(weights)-1), 
-                        1, 
-                        count_vertices(weights)*(count_vertices(weights)-1)-2,
-                        (count_vertices(weights)-1)*(count_vertices(weights)-2), 
-                        0.0
-                    ), 
-                    m_n_vertices(count_vertices(weights)) 
-            {
-                set_graph(weights);
-                set_lb(0);
-                set_ub(1);
-            };
-            
-            /**
-             * Getter for the m_graph
-             * @return reference to the m_graph of type tsp_graph
-             */
-            tsp_graph const& get_graph() const;
-            
-            /**
-             * Setter for the m_graph
-             * @param[in] tsp_graph
-             */
-            void set_graph(tsp_graph const&);
-            
-            /**
-             * Setter for the m_graph
-             * @param[in] 2D vector of doubles
-             */
-            void set_graph(vector2D<double> const&);
-            
-            /**
-             * Returns the number of vertices in the graph
-             */
-            size_t const& get_n_vertices() const;
-            
-            /**
-             * Converts a 2D vector to a boost graph type tsp_graph
-             * @param[in] the vector2D of doubles
-             * @param[out] the tsp_graph adjacency list
-             */
-            static void convert_vector2D_to_graph(vector2D<double> const&, tsp_graph&);
-            
-            /**
-             * Converts a graph back to a vector2D
-             * @param[in] tsp_graph object
-             * @param[out] vector2D of doubles
-             * @return vector2D
-             */
-            static void convert_graph_to_vector2D(tsp_graph const&, vector2D<double>&);
-            
-            /**
-             * Checks the maximum dimensions for both width and height.
-             * The 'matrix' might not be square.
-             * Returns the number of vertices in the 2D vector,
-             * which is either max(row, col) for sparse matrices.
-             * @return number of vertices
-             */
-            static size_t count_vertices(vector2D<double> const&);
-           
+            base_tsp();
+            base_tsp(tsp_graph const& graph);    
+
+            const tsp_graph& get_graph() const;
+            void set_graph(const tsp_graph &);
+            const size_t& get_n_vertices() const;               
     private:
             friend class boost::serialization::access;
             template <class Archive>
             void serialize(Archive &ar, const unsigned int)
             {
                     ar & boost::serialization::base_object<base>(*this);
-                    ar & const_cast<tsp_graph& >(m_graph);
-                    ar & const_cast<size_t& >(m_n_vertices);
+                    ar & m_n_vertices;
+                    ar & m_graph;
             }
     
     private:
-            /**
-             * The number of vertices in the graph.
-             * Stored here for not recomputing
-             */
-            const size_t m_n_vertices;
-            /**
-             * NOTE FLORIN: can't have this as const, need to convert it
-             *                  from a matrix do a tsp_graph
-             * The boost graph, an adjacency list.
-             * Derived classes inherit this property
-             */
+            size_t m_n_vertices;
             tsp_graph m_graph;
 };
 

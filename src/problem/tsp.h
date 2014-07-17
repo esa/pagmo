@@ -80,34 +80,33 @@ namespace pagmo { namespace problem {
 class __PAGMO_VISIBLE tsp: public base_tsp
 {
     public:
-            tsp(): base_tsp() {};
-            tsp(tsp_graph const& graph): base_tsp(graph) {};
-            tsp(vector2D<double> const& weights): base_tsp(weights) {};
-            base_ptr clone() const;
-            std::string get_name() const;
-            // public so we can test it
-            static size_t compute_idx(size_t const i, size_t const j, size_t const n);
+        tsp();
+        tsp(const std::vector<std::vector<double> >& weights);
+        tsp(const tsp_graph& graph);
+        base_ptr clone() const;
+        std::string get_name() const;
+        const std::vector<std::vector<double> >& get_weights() const;
+        // public so we can test it
+        static size_t compute_idx(size_t const i, size_t const j, size_t const n);
+
             
     protected:
-            /**
-             * Formal definition of the objective function and equality/inequality constraints taken from 
-             * http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
-             */
-            void objfun_impl(fitness_vector &, decision_vector const&) const;
-            void compute_constraints_impl(constraint_vector &, decision_vector const&) const;
-            
-            std::string human_readable_extra() const;
-            
+        void objfun_impl(fitness_vector &, decision_vector const&) const;
+        void compute_constraints_impl(constraint_vector &, decision_vector const&) const;
+        std::string human_readable_extra() const;
     private:
-            friend class boost::serialization::access;
-            template <class Archive>
-            void serialize(Archive &ar, const unsigned int)
-            {
-                    ar & boost::serialization::base_object<base>(*this);
-                    ar & const_cast<vector2D<double>& >(m_weights);
-            }
+        static tsp_graph matrix2graph(const std::vector<std::vector<double> >&);
+        static std::vector<std::vector<double> > graph2matrix(const tsp_graph&);
+
+        friend class boost::serialization::access;
+        template <class Archive>
+        void serialize(Archive &ar, const unsigned int)
+        {
+                ar & boost::serialization::base_object<base>(*this);
+                ar & m_weights;
+        }
     private:        
-            const vector2D<double> m_weights;
+        std::vector<std::vector<double> > m_weights;
 
 };
 
