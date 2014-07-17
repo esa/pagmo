@@ -11,6 +11,7 @@ TSP can be modeled as a graph, such that cities are the graph's vertices,
 paths are the graph's edges, and a path's distance is the edge's weight. 
 A TSP tour becomes a Hamiltonian cycle, and the optimal TSP tour is the 
 shortest Hamiltonian cycle.
+
 In the symmetric TSP, the distance between two cities is the same in 
 each opposite direction, forming an undirected graph. 
 This symmetry halves the number of possible solutions. 
@@ -18,44 +19,48 @@ In the asymmetric TSP, paths may not exist in both directions
 or the distances might be different, forming a directed graph.
 Traveling salesman problems are formulated in PyGMO as integer linear 
 programming problems.
- 
 Each vertex is labeled with an index number, where n is the total number of vertices.
-
-X_{i,j} is the square binary matrix, with X_{i,j} = 1 if there is an edge
-between city i and city j, otherwise X_{i,j} = 0
-
-C_{i,j} is the square adjacency matrix containing the distances (weights)
-between city i and city j, with i and j in [0, n]. If the problem is symmetric,
-then the matrix is symmetric, meaning it's equal to it's transpose.
-For i = [1,n] u_i is an artificial variable which has to satisfy the inequality constraints.
-Then, the TSP can be written as follows
+:math:`X_{i,j}` is the square binary matrix, with 
 
 .. math::
 
-        \min \sum_{i=0}^n \sum_{j=0}^n C_{i,j} X_{i,j}
+        X_{i,j} = 
+        \begin{cases}
+            1, & \text{if path goes from city i to city j}\\
+            0, & \text{otherwise}
+        \end{cases}
 
-        \text{where}
+:math:`C_{i,j}` is the square adjacency matrix containing the distances (weights)
+between city i and city j, with i and j :math:`\in = \{1, 2, .., n\}`. 
+If the problem is symmetric, then the matrix is symmetric, meaning it's equal to it's transpose.
+For :math:`i = \{1, 2, .., n\} \quad u_i` is an artificial variable which has to satisfy the inequality constraints.
+Then, the TSP can be written as follows:
 
-        i \neq j \text{and} i, j \in [0, n]
+.. math::
 
-        \text{with}
+        \min \sum_{i=0, i \neq j}^n \sum_{j=0}^n C_{i,j} X_{i,j}
 
-        0 \le X_{i,j} \le 1
+        0 \le X_{i,j} \le 1 \quad i, j = \{1, 2, .., n\}
 
-        u_i \in \mathbb{Z}
+        u_i \in \mathbb{Z} \quad i = \{1, 2, .., n\}
 
-        \sum_{i=0}^n X_{i,j} = \sum_{j=0}^n X_{i,j} = 1 \text{where} i \neq j 
+        \sum_{i=0, i \neq j}^n X_{i,j} = 1 \quad j = \{1, 2, .., n\}
+        
+        \sum_{j=0, i \neq j}^n X_{i,j} = 1 \quad i = \{1, 2, .., n\}
 
-        u_i - u_j + n * X_{i,j} \le n - 1 \text{where} i \le i \neq j \le n
+        u_i - u_j + n * X_{i,j} \le n - 1 \quad i \le i \neq j \le n
 
         
 For more information visit: http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
 
-Instantiating a TSP problem from weights
-########################################
+Instantiating a TSP problem
+###########################
 
 Here we give two examples on how to instantiate a TSP problem from a weights matrix
 or a TSPLIB XML file http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/
+
+From weights
+------------
 
 The weights matrix is a two dimensional vector of doubles, e.g.
 
@@ -108,22 +113,21 @@ in our case the values 0, 4 and 8 are ignored.
         
 Now, if you didn't read the wikipedia page and were wondering about the numbers, here's whey they come from:
 
-.. math::
+Global dimension :math:`= n*n-n = n*(n-1) = 3 * 2 = 6`
 
-        \text{Global dimension} = n*n-n = n(n-1) = 3 * 2 = 6
-        
-        \text{Integer dimension} = n(n-1) = 3 * 2 = 6
-        
-        \text{Fitness dimension (max)} = 1 \in [0,1]
-        
-        \text{Constraints dimension (global)} = \text{Equality} + \text{Inequality} = 2n + (n-1)(n-2) = n*(n-1)+2 = 3 * 2 + 2 = 8
-        
-        \text{Equality constraints dimension} = 2n
-        
-        \text{Inequality constraints dimension} = (n-1)(n-2) = 2 * 1 = 2
+Integer dimension :math:`= n*(n-1) = 3 * 2 = 6`
 
-Instantiating a TSP problem from TSPLIB XML
-###########################################
+Fitness dimension (max) :math:`= 1 \in [0,1]`
+
+Constraints dimension (global) = Equality + Inequality :math:`= 2*n + (n-1)*(n-2) = n*(n-1)+2 = 3 * 2 + 2 = 8`
+
+Equality constraints dimension :math:`= 2*n`
+
+Inequality constraints dimension :math:`= (n-1)*(n-2) = 2 * 1 = 2`
+
+
+From TSPLIB XML
+---------------
 
 In this second example we will be loading an TSPLIB XML file from the current folder (pwd in linux).
 
