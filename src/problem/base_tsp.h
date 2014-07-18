@@ -95,9 +95,9 @@ class __PAGMO_VISIBLE base_tsp: public base
             base_tsp(tsp_graph const& graph);    
 
             const tsp_graph& get_graph() const;
-            void set_graph(const tsp_graph &);
             const size_t& get_n_vertices() const;               
             std::string human_readable_extra() const;
+
     private:
             friend class boost::serialization::access;
             template <class Archive>

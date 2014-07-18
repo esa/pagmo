@@ -80,15 +80,6 @@ namespace pagmo { namespace problem {
     tsp_graph const& base_tsp::get_graph() const { return m_graph; }
     
     /**
-     * Setter for the m_graph
-     * @param[in] tsp_graph
-     */
-    void base_tsp::set_graph(tsp_graph const& new_graph)
-    { 
-        m_graph = new_graph;
-        m_n_vertices = boost::num_vertices(m_graph);
-    }
-    /**
      * Getter for the m_n_vertices
      * @return Number of vertices in the graph
      */

@@ -8,7 +8,6 @@ Usage: tsp.py burma14.xml
 Author: Florin Schimbinschi (florinsch@gmail.com)
 """
 
-
 def read_tsplib(file_name):
     """
     This function parses a TSPLIB XML file and returns an [[Adjacency Matrix]]
@@ -95,26 +94,27 @@ def _symmetric_tril(mat):
 
 
 def _print_matrix(mat):
-    """
-    Prints an Adjacency Matrix to console.
+    import numpy
+    numpy.set_printoptions(linewidth=100)
+    numpy.set_printoptions(precision=3)
+    # this forces to print all elements on a long row, on the next line
+    # otherwise, center elements are snipped '...,' to fit line of 100
+    if show_all: 
+            numpy.set_printoptions(threshold='nan')
 
-    Args:
-        mat ([[]]): A square matrix.
-    """
-    print ' ',
-    for i in range(len(mat[1])):
-          print i,
-    print
-    for i, element in enumerate(mat):
-          print i, ''.join(str(element))
+    print numpy.array(mat)
+        
 
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
-            _print_matrix( _symmetric_tril( read_tsplib(sys.argv[1]) ))
-            #import PyGMO.problem
-            #tsp = PyGMO.problem.tsp( read_tsplib(sys.argv[1]) )
-            #print tsp
+            print '\nImported matrix:\n'
+            print_matrix( symmetric_tril( read_tsplib(sys.argv[1]) ))
+            import PyGMO.problem
+            tsp = PyGMO.problem.tsp( read_tsplib(sys.argv[1]) )
+            print '\nAn instance of a TSP from the above matrix\n'
+            print tsp
     else:
             print 'No file names given as argument.'
             print __doc__
+
