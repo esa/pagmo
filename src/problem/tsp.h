@@ -86,14 +86,11 @@ class __PAGMO_VISIBLE tsp: public base_tsp
         base_ptr clone() const;
         std::string get_name() const;
         const std::vector<std::vector<double> >& get_weights() const;
-        // public so we can test it
-        static size_t compute_idx(size_t const i, size_t const j, size_t const n);
-
             
     protected:
+        size_t compute_idx(size_t const i, size_t const j) const;
         void objfun_impl(fitness_vector &, decision_vector const&) const;
         void compute_constraints_impl(constraint_vector &, decision_vector const&) const;
-        std::string human_readable_extra() const;
     private:
         static tsp_graph matrix2graph(const std::vector<std::vector<double> >&);
         static std::vector<std::vector<double> > graph2matrix(const tsp_graph&);

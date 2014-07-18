@@ -92,8 +92,45 @@ namespace pagmo { namespace problem {
      * Getter for the m_n_vertices
      * @return Number of vertices in the graph
      */
-    size_t const& base_tsp::get_n_vertices() const { return m_n_vertices; }
-    
+    size_t const& base_tsp::get_n_vertices() const
+    { 
+        return m_n_vertices; 
+    }
 
+    /// Extra human readable info for the problem.
+    /**
+     * Will return a std::string containing a list of vertices and edges
+     */
+    std::string base_tsp::human_readable_extra() const {
+        tsp_graph const the_graph = get_graph();
+        
+        std::ostringstream oss;
+        oss << "The Boost Graph (Adjacency List): \n";// << the_graph << std::endl;
+
+        tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
+        tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
+
+        oss << "Vertices = { ";
+        
+        tsp_vertex_range_t v_it;
+        for (v_it = boost::vertices(the_graph); v_it.first != v_it.second; ++v_it.first)
+                oss << vtx_idx[*v_it.first] <<  " ";
+        oss << "}" << std::endl;
+        
+        oss << "Edges (Source, Target) = Weight : " << std::endl;
+        
+        int count = 0;
+        for (tsp_edge_range_t e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
+            int i = vtx_idx[boost::source(*e_it.first, the_graph)];
+            int j = vtx_idx[boost::target(*e_it.first, the_graph)];
+            oss << "(" << i << ", " << j<< ") = " << weights[*e_it.first] << std::endl;
+            count++;
+            if (count > 5) break;
+        }
+        oss << std::endl;
+        
+        return oss.str();
+    }
+    
 
 }} //namespaces

@@ -130,9 +130,9 @@ namespace pagmo { namespace problem {
      * @param[in] j column
      * @param[in] n total number of vertices
      */
-    size_t tsp::compute_idx(size_t const i, size_t const j, size_t const n) {
-        //int idx_row = i*(n-1)   + j         - (j>i? 1:0);
-        //int idx_col = i         + j*(n-1)   - (j>i? 1:0);
+    size_t tsp::compute_idx(size_t const i, size_t const j) const {
+        size_t n = get_n_vertices();    
+        pagmo_assert( i!=j && i<n && j<n);
         return i*(n-1) + j - (j>i? 1:0);
     };
     
@@ -149,15 +149,13 @@ namespace pagmo { namespace problem {
      */
     void tsp::objfun_impl(fitness_vector &f, decision_vector const& x) const {
         size_t n = get_n_vertices();        
-        
-        pagmo_assert(f.size() == 1);
-        pagmo_assert(x.size() == get_dimension() && x.size() == n * (n - 1));
+        pagmo_assert(x.size() == n * (n - 1));
         
         f[0]= 0;
         for (size_t i = 0; i < n; i++) {
             for (size_t j = 0; j < n; j++) {
                 if(i==j) continue;
-                f[0] += m_weights[i][j] * x[compute_idx(i, j, n)];
+                f[0] += m_weights[i][j] * x[compute_idx(i, j)];
             }
         }       
     }
@@ -171,69 +169,54 @@ namespace pagmo { namespace problem {
      */
     void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const {
         size_t n = get_n_vertices();
-        size_t ceq = (n-1)*(n-2);
-        
+
+        // 1 - We set the equality constraints
         for (size_t i = 0; i < n; i++) {
-           for (size_t j = 0; j < n; j++) {
-               if(i==j) continue; // ignoring main diagonal
-               
-               decision_vector::size_type rows = compute_idx(i, j, n);
-               decision_vector::size_type cols = compute_idx(j, i, n);
-               
-               // equalities
-               c[i] += x[rows];
-               c[i+n] += x[cols];
-               
-               // inequalities ( ignoring first row & column)
-               if(i != 0 && j != 0) 
-                   c[ceq++] = (i+1) - (j+1) + n * x[rows] - n;
-           }
+            c[i] = 0;
+            c[i+n] = 0;
+            for (size_t j = 0; j < n; j++) {
+                if(i==j) continue; // ignoring main diagonal
+                decision_vector::size_type rows = compute_idx(i, j);
+                decision_vector::size_type cols = compute_idx(j, i);
+                c[i] += x[rows];
+                c[i+n] += x[cols];
+            }
+            c[i] = c[i]-1;
+            c[i+n] = c[i+n]-1;
         }
-        
-        // subtracting -1 from equalities, and 1 for equalities < 0
-        for (size_t i = 0; i < c.size(); ++i)
-            if (i < 2*n-1) c[i]-=1;
-//            else // inequalities
-//                if (c[i] < 0) c[i] = 0;
-    }
 
-    /// Extra human readable info for the problem.
-    /**
-     * Will return a std::string containing a list of vertices and edges
-     */
-    std::string tsp::human_readable_extra() const {
-        tsp_graph const the_graph = get_graph();
-        
-        std::ostringstream oss;
-        oss << "The Boost Graph (Adjacency List): \n";// << the_graph << std::endl;
-//        boost::write_graphviz(oss, m_graph, boost::make_edge_attributes_writer( boost::get(boost::edge_weight_t(), m_graph) ) );
-        
-        tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
-        tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
-
-        oss << "Vertices = { ";
-        
-        tsp_vertex_range_t v_it;
-        for (v_it = boost::vertices(the_graph); v_it.first != v_it.second; ++v_it.first)
-                oss << vtx_idx[*v_it.first] <<  " ";
-        oss << "}" << std::endl;
-        
-        oss << "Edges (Source, Target) = Weight : " << std::endl;
-        
-        tsp_edge_range_t e_it = boost::edges(the_graph);
-        for (e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
-            int i = vtx_idx[boost::source(*e_it.first, the_graph)];
-            int j = vtx_idx[boost::target(*e_it.first, the_graph)];
-            oss << "(" << i << ", " << j<< ") = " << weights[*e_it.first] << std::endl;
+        //2 - We set the inequality constraints
+        //2.1 - First we compute the uj (see http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation)
+        //      we start always out tour from the first city, without loosing generality
+        size_t next_city = 0,current_city = 0;
+        std::vector<int> u(n);
+        for (size_t i = 0; i < n; i++) {
+            u[current_city] = i+1;
+            for (size_t j = 0; j < n; j++) 
+            {
+                if (current_city==j) continue;
+                if (x[compute_idx(current_city, j)] == 1) 
+                {
+                    next_city = j;
+                    break;
+                }
+            }
+            current_city = next_city;
         }
-        oss << std::endl;
-        
-        return oss.str();
+        int count=0;
+        for (size_t i = 1; i < n; i++) {
+            for (size_t j = 1; j < n; j++) 
+            {
+                if (i==j) continue;
+                c[2*n+count] = u[i]-u[j] + (n+1) * x[compute_idx(i, j)] - n;
+                count++;
+            }
+        }
     }
 
     std::string tsp::get_name() const 
     {
-        return "Traveling Salesman Problem";
+        return "Traveling Salesman Problem (TSP and ATSP)";
     }
 
 }} //namespaces
