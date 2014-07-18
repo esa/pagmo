@@ -93,7 +93,7 @@ def _symmetric_tril(mat):
     return mat.tolist()
 
 
-def _print_matrix(mat):
+def _print_matrix(mat, show_all = False):
     import numpy
     numpy.set_printoptions(linewidth=100)
     numpy.set_printoptions(precision=3)
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
             print '\nImported matrix:\n'
-            print_matrix( symmetric_tril( read_tsplib(sys.argv[1]) ))
+            _print_matrix( _symmetric_tril( read_tsplib(sys.argv[1]) ))
             import PyGMO.problem
             tsp = PyGMO.problem.tsp( read_tsplib(sys.argv[1]) )
             print '\nAn instance of a TSP from the above matrix\n'
