@@ -28,6 +28,12 @@
 
 using namespace pagmo;
 
+/**
+ * Generates a random square matrix with the number of vertices set to dimension.
+ * @param dimension - the number of vertices in the matrix
+ * @param verbose - prints the matrix to console if true
+ * @return a square adjacency matrix
+ */
 std::vector<std::vector<double> > generate_random_matrix(int dimension, bool verbose = false) {
     std::default_random_engine rengine(time(NULL)); // seed software PRNG
     std::uniform_real_distribution<> distr(0, 1); // range
@@ -56,8 +62,8 @@ std::vector<std::vector<double> > generate_random_matrix(int dimension, bool ver
 /*
  * This test creates a random vector<vector<double>> two dimensional vector,
  * then it instantiates a tsp object which loads the vector object.
- * It then internally converts the vector to a boost graph,
- * which is then returned and checked against the initial 2D vector.
+ * The internal graph is then returned and used to instantiate a new problem.
+ * The weights of the two tsp object matrices are then compared.
  * @param[in] repeat - the number of times to repeat the test
  * @param[in] l_bounds - the minimum random size of the square matrix
  * @param[in] u_bounds - the maximum random size of the square matrix
@@ -89,7 +95,6 @@ bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = fals
     }
     return false;
 }
-
 
 int main()
 {
