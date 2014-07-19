@@ -92,7 +92,7 @@ class __PAGMO_VISIBLE base_tsp: public base
 {
     public:
             base_tsp();
-            base_tsp(tsp_graph const& graph);    
+            base_tsp(tsp_graph const&);    
 
             const tsp_graph& get_graph() const;
             const size_t& get_n_vertices() const;               

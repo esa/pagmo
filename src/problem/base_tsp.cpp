@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include "base_tsp.h"
+#include "tsp.h"
 
 namespace pagmo { namespace problem {
 
@@ -31,9 +32,11 @@ namespace pagmo { namespace problem {
      * This constructs a 3-cities symmetric problem (naive TSP) 
      * with weight matrix [[0,1,1][1,0,1][1,1,0]]
      */
-    base_tsp::base_tsp(): base(6, 6, 1, 8, 2, 0.0), m_n_vertices(3), m_graph() //NOTE: we changed the number of constraints as you wrongly set it to 6 not 8
-    {            
+    base_tsp::base_tsp(): base(6, 6, 1, 8, 2, 0.0), m_n_vertices(3), m_graph()
+    {
         tsp_vertex from, to;
+        tsp_edge link;
+        tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), m_graph);
         
         boost::add_vertex(0, m_graph);
         boost::add_vertex(1, m_graph);
@@ -45,8 +48,9 @@ namespace pagmo { namespace problem {
                 if(i == j) continue; // no connections from a vertex to self
                 to = boost::vertex(j, m_graph);
                 // create an edge connecting those two vertices
-                boost::add_edge(from, to, m_graph);
-                // TODO: Explicitly set the edge weight to 1.
+                link = (boost::add_edge(from, to, m_graph)).first;
+                // add weight property to the edge
+                weights[link] = 1;
             }
         }
         set_lb(0);
@@ -62,7 +66,7 @@ namespace pagmo { namespace problem {
             boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
             boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
             1, 
-            boost::num_vertices(graph)*(boost::num_vertices(graph)-1)+2,  //NOTE: this was changed to +2 (you wrongly set it to -2)
+            boost::num_vertices(graph)*(boost::num_vertices(graph)-1)+2,
             (boost::num_vertices(graph)-1)*(boost::num_vertices(graph)-2),
             0.0
         ),
@@ -77,11 +81,14 @@ namespace pagmo { namespace problem {
      * Getter for the m_graph
      * @return reference to the m_graph of type tsp_graph
      */
-    tsp_graph const& base_tsp::get_graph() const { return m_graph; }
+    tsp_graph const& base_tsp::get_graph() const 
+    { 
+        return m_graph; 
+    }
     
     /**
      * Getter for the m_n_vertices
-     * @return Number of vertices in the graph
+     * @return reference to the number of vertices in the graph
      */
     size_t const& base_tsp::get_n_vertices() const
     { 
@@ -92,7 +99,8 @@ namespace pagmo { namespace problem {
     /**
      * Will return a std::string containing a list of vertices and edges
      */
-    std::string base_tsp::human_readable_extra() const {
+    std::string base_tsp::human_readable_extra() const 
+    {
         tsp_graph const the_graph = get_graph();
         
         std::ostringstream oss;
@@ -122,6 +130,6 @@ namespace pagmo { namespace problem {
         
         return oss.str();
     }
-    
 
+    
 }} //namespaces
