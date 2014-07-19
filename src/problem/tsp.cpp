@@ -194,12 +194,13 @@ namespace pagmo { namespace problem {
             
             for (size_t j = 0; j < matrix.at(i).size(); ++j) {
                 if (i==j) continue; // we don't care about the diagonal
-                // check if bidirectional
-                if ( 
-                    (matrix.at(i).at(j) != 0 && matrix.at(j).at(i) == 0)
-                    ||
-                    (matrix.at(j).at(i) != 0 && matrix.at(i).at(j) == 0)
-                   ) 
+                // check if bidirectional (no one ways)
+//                if ( 
+//                    (matrix.at(i).at(j) != 0 && matrix.at(j).at(i) == 0)
+//                    ||
+//                    (matrix.at(j).at(i) != 0 && matrix.at(i).at(j) == 0)
+//                   )
+                if (!matrix.at(i).at(j)) // bidirectional fully connected
                 {
                     std::cout << "\n The adjacency matrix is not bidirectional.\n";
                     // return false;
