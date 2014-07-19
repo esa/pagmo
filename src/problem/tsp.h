@@ -67,13 +67,22 @@ namespace pagmo { namespace problem {
  * Then the TSP can be written as follows:
  * 
  *      minimize SUM_i^n SUM_j^n C_{i,j} * X_{i,j}
+ * 
  * where
+ * 
  *      i!=j and i, j in [0, n]
+ * 
  * with 
+ * 
  *      0 <= X_{i,j} <= 1
+ * 
  *      u_i from Z e.g. {.., -2, -1, 0, 1, 2, ..}
+ * 
  *      sum_i^n X_{i,j} = sum_j^n X_{i,j} = 1 where i!=j 
+ * 
  *      u_i - u_j + n * X_{i,j} <= n - 1 where i <= i!=j <= n
+ *
+ * NOTE: Most of the TSPLIB problems are dense (e.g. fully connected graphs).
  *
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
@@ -81,16 +90,19 @@ class __PAGMO_VISIBLE tsp: public base_tsp
 {
     public:
         tsp();
-        tsp(const std::vector<std::vector<double> >& weights);
-        tsp(const tsp_graph& graph);
+        tsp(const std::vector<std::vector<double> >&);
+        tsp(const tsp_graph&);
         base_ptr clone() const;
         std::string get_name() const;
         const std::vector<std::vector<double> >& get_weights() const;
             
     protected:
-        size_t compute_idx(size_t const i, size_t const j) const;
-        void objfun_impl(fitness_vector &, decision_vector const&) const;
-        void compute_constraints_impl(constraint_vector &, decision_vector const&) const;
+        size_t compute_idx(const size_t, const size_t) const;
+        void check_matrix(const std::vector<std::vector<double> >&) const;
+        
+        void objfun_impl(fitness_vector&, const decision_vector&) const;
+        void compute_constraints_impl(constraint_vector&, const decision_vector&) const;
+        
     private:
         static tsp_graph matrix2graph(const std::vector<std::vector<double> >&);
         static std::vector<std::vector<double> > graph2matrix(const tsp_graph&);

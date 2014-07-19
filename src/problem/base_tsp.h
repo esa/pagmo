@@ -78,12 +78,10 @@ typedef boost::iterator_property_map<double*, tsp_edge_map_index, double, double
 /**
  * This is a base class for Traveling Salesman Problems. Encoding of the chromosome is as in
  * http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
- * m_graph is of type tsp_graph, defined above.
- * It is an adjacency list representing symmetric or assymmetric graphs, with edges representing cost/weight between vertices.
- * The internal properties of the boost graph are defined above in the tsp_edge_properties.
- * The only internal property for a vertice is its index.
- * All problems are considered to be directed graphs, since for undirected it's just a matter of storage space.
- * Most of the TSPLIB problems are dense (e.g. fully connected graphs).
+ * m_graph is of type tsp_graph, defined in base_tsp.h
+ * It is an adjacency list representing symmetric or assymmetric graphs, with edges 
+ * having internal property of weights, representing cost between vertices.
+ * The only internal property for a vertex is its index.
  *
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
@@ -92,7 +90,7 @@ class __PAGMO_VISIBLE base_tsp: public base
 {
     public:
             base_tsp();
-            base_tsp(tsp_graph const&);    
+            base_tsp(const tsp_graph&);    
 
             const tsp_graph& get_graph() const;
             const size_t& get_n_vertices() const;               

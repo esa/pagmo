@@ -37,15 +37,30 @@
 
 namespace pagmo { namespace problem {
 
-    tsp::tsp() : base_tsp(), m_weights(graph2matrix(get_graph()))
+    /**
+     * The default constructor, calls default for base_tsp
+     */
+    tsp::tsp(): base_tsp(), m_weights(graph2matrix(get_graph()))
     {
+        check_matrix(m_weights);
     }
 
-    tsp::tsp(const std::vector<std::vector<double> >& weights) : base_tsp(matrix2graph(weights)), m_weights(weights)
+    /**
+     * Constructor from adjacency matrix weights
+     * @param[in] weights
+     */
+    tsp::tsp(const std::vector<std::vector<double> >& weights): base_tsp(matrix2graph(weights)), m_weights(weights)
     {
+        check_matrix(m_weights);
     }
 
-    tsp::tsp(const tsp_graph& graph) : base_tsp(graph), m_weights(graph2matrix(get_graph())) {
+    /**
+     * Constructor from boost graph object
+     * @param[in] graph - tsp_graph
+     */
+    tsp::tsp(const tsp_graph& graph): base_tsp(graph), m_weights(graph2matrix(get_graph())) 
+    {
+        check_matrix(m_weights);
     }
 
     /// Clone method.
@@ -54,12 +69,26 @@ namespace pagmo { namespace problem {
         return base_ptr(new tsp(*this));
     }
 
+    /// Returns a reference to the adjacency matrix
+    /**
+     * After constructing the tsp object, the weights matrix is initialized.
+     * @return reference to the adjacency matrix
+     */
     const std::vector<std::vector<double> >& tsp::get_weights() const 
     {
         return m_weights;
     }
     
-    tsp_graph tsp::matrix2graph(const std::vector<std::vector<double> >& matrix) {
+    /// Converts a matrix to a boost graph
+    /**
+     * Converts an adjacency matrix (square two dimensional) to a boost graph
+     * object of type tsp_graph, setting the internal property for the weights
+     * to the values defined in the matrix.
+     * @param matrix std::vector<std::vector<double>> square matrix
+     * @return tsp_graph boost graph object with weights initialized from matrix
+     */
+    tsp_graph tsp::matrix2graph(const std::vector<std::vector<double> >& matrix) 
+    {
         tsp_graph retval;
         tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), retval);
         tsp_vertex from, to;
@@ -104,14 +133,21 @@ namespace pagmo { namespace problem {
         return retval;
     }
     
-    std::vector<std::vector<double> > tsp::graph2matrix(const tsp_graph & graph) {
+    /// Converts a boost graph to a matrix
+    /**
+     * Converts a boost graph to a matrix (two dimensional std::vector of doubles).
+     * The returned matrix is square and has the diagonal elements zeroed out.
+     * @param graph boost graph of type tsp_graph
+     * @return a two dimensional std::vector of doubles
+     */
+    std::vector<std::vector<double> > tsp::graph2matrix(const tsp_graph& graph) 
+    {
         size_t n_vertex = boost::num_vertices(graph);
-        std::vector<double> row(n_vertex,0.0);
-        std::vector<std::vector<double> > retval(n_vertex,row);
         tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), graph);
         tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), graph);
         tsp_edge_range_t e_it = boost::edges(graph);
         
+        std::vector<std::vector<double> > retval(n_vertex, std::vector<double>(n_vertex, 0.0));
         for (e_it = boost::edges(graph); e_it.first != e_it.second; ++e_it.first) {
             int i = vtx_idx[boost::source(*e_it.first, graph)];
             int j = vtx_idx[boost::target(*e_it.first, graph)];
@@ -119,22 +155,60 @@ namespace pagmo { namespace problem {
             retval[i][j] = weights[*e_it.first];
         }
         return retval;
-    }  
-
+    }
 
     /// Computes the index 
     /** 
      * Returns the index in the decision vector corresponding to the concatenated 
-     * rows of a square matrix, containing the edges between vertices.
+     * rows of a square matrix, which contains the edges between vertices.
      * @param[in] i row
      * @param[in] j column
-     * @param[in] n total number of vertices
      */
-    size_t tsp::compute_idx(size_t const i, size_t const j) const {
+    size_t tsp::compute_idx(const size_t i, const size_t j) const 
+    {
         size_t n = get_n_vertices();    
-        pagmo_assert( i!=j && i<n && j<n);
+        pagmo_assert( i!=j && i<n && j<n );
         return i*(n-1) + j - (j>i? 1:0);
     };
+    
+    /// Checks if we can instantiate a TSP or ATSP problem
+    /**
+     * Checks if a matrix (std::vector<std::vector<double>>) 
+     * is square or bidirectional (e.g. no one way links between vertices).
+     * If none of the two conditions are true, we can not have a tsp problem.
+     * @param matrix - the adjacency matrix (two dimensional std::vector)
+     * @throws std::exception - matrix is not square and/or bidirectional
+     */
+    void tsp::check_matrix(const std::vector<std::vector<double> > &matrix) const 
+    {   
+        size_t n_cols = matrix.size();
+        
+        for (size_t i = 0; i < n_cols; ++i) {
+            size_t n_rows = matrix.at(i).size();
+            // check if the matrix is square
+            if (n_rows != n_cols) {
+                std::cout << "\n The adjacency matrix is not square.\n";
+                // return false;
+                throw new std::exception;
+            }
+            
+            for (size_t j = 0; j < matrix.at(i).size(); ++j) {
+                if (i==j) continue; // we don't care about the diagonal
+                // check if bidirectional
+                if ( 
+                    (matrix.at(i).at(j) != 0 && matrix.at(j).at(i) == 0)
+                    ||
+                    (matrix.at(j).at(i) != 0 && matrix.at(i).at(j) == 0)
+                   ) 
+                {
+                    std::cout << "\n The adjacency matrix is not bidirectional.\n";
+                    // return false;
+                    throw new std::exception;
+                }
+            }
+        }
+        //return true;
+    }
     
     /// Implementation of the objective function
     /**
@@ -145,9 +219,10 @@ namespace pagmo { namespace problem {
      * with the diagonal elements skipped since they're always zero because
      * in a route you can't go from one vertex to itself.
      * @param[out] f fitness vector
-     * @param[in] x decision vector``
+     * @param[in] x decision vector
      */
-    void tsp::objfun_impl(fitness_vector &f, decision_vector const& x) const {
+    void tsp::objfun_impl(fitness_vector &f, const decision_vector& x) const 
+    {
         size_t n = get_n_vertices();        
         pagmo_assert(x.size() == n * (n - 1));
         
@@ -162,12 +237,16 @@ namespace pagmo { namespace problem {
 
     /// Constraint computation.
     /**
-     * The sum for rows and columns of the binary adjacency matrix
-     * has to be 0 for all rows and columns to be valid
+     * Computes the equality and inequality constraints for a decision vector
+     * and returns the |c| = n(n-1)+2 constraint vector with the concatenated
+     * equality constraints (n-1)(n-2) and inequality constraints.
+     * The equality constraints are ordered by row, then by sum.
+     * For pagmo, the final sum is set to -1.
      * @param[out] c constraint_vector
      * @param[in] x decision_vector
      */
-    void tsp::compute_constraints_impl(constraint_vector &c, decision_vector const& x) const {
+    void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
+    {
         size_t n = get_n_vertices();
 
         // 1 - We set the equality constraints

@@ -36,7 +36,7 @@ using namespace pagmo;
  */
 std::vector<std::vector<double> > generate_random_matrix(int dimension, bool verbose = false) {
     std::default_random_engine rengine(time(NULL)); // seed software PRNG
-    std::uniform_real_distribution<> distr(0, 1); // range
+    std::uniform_real_distribution<> distr(0.1, 1); // range
     
     std::vector<std::vector<double> > random_2D(dimension, std::vector<double>(dimension, 0));
 
@@ -96,9 +96,40 @@ bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = fals
     return false;
 }
 
+/**
+ * Tests whether the check_matrix function behaves correctly
+ * @return 
+ */
+bool test_check_matrix() 
+{
+    // tests bidirectional
+    std::vector<std::vector<double> > matrix1 = {
+        {0, 1, 2}, 
+        {1, 0, 0}, // supposed to be 1, 0, 1
+        {1, 1, 0}
+    };
+    
+    // tests square
+    std::vector<std::vector<double> > matrix2 = {
+        {0, 1, 0},
+        {1, 0, 1},
+        {1, 1} // should fail here
+    };
+    
+    try {
+//        pagmo::problem::tsp prob1(matrix1);
+        pagmo::problem::tsp prob2(matrix2);
+    } catch (std::exception) {
+        return true;
+    }
+    
+    return false;
+}
+
 int main()
 {
     if (test_conversion(100, 10, 50, false)) return 1;
+//    if (test_check_matrix()) return 1;
     
     // all iz well
     return 0;

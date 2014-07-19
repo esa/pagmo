@@ -61,7 +61,7 @@ namespace pagmo { namespace problem {
      * Constructor from a tsp_graph object
      * @param[in] tsp_graph
      */
-    base_tsp::base_tsp(tsp_graph const& graph): 
+    base_tsp::base_tsp(const tsp_graph& graph): 
         base(
             boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
             boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
@@ -81,7 +81,7 @@ namespace pagmo { namespace problem {
      * Getter for the m_graph
      * @return reference to the m_graph of type tsp_graph
      */
-    tsp_graph const& base_tsp::get_graph() const 
+    const tsp_graph& base_tsp::get_graph() const 
     { 
         return m_graph; 
     }
@@ -90,14 +90,14 @@ namespace pagmo { namespace problem {
      * Getter for the m_n_vertices
      * @return reference to the number of vertices in the graph
      */
-    size_t const& base_tsp::get_n_vertices() const
+    const size_t& base_tsp::get_n_vertices() const
     { 
         return m_n_vertices; 
     }
 
     /// Extra human readable info for the problem.
     /**
-     * Will return a std::string containing a list of vertices and edges
+     * @return a std::string containing a list of vertices and edges
      */
     std::string base_tsp::human_readable_extra() const 
     {
