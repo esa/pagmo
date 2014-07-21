@@ -10,4 +10,4 @@ CMakeCache.txt
 *.o
 *.pyc
 CMakeFiles/
-
+*.sublime*
