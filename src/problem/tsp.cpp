@@ -190,9 +190,9 @@ namespace pagmo { namespace problem {
                 pagmo_throw(value_error, "adjacency matrix is not square");
             
             for (size_t j = 0; j < matrix.at(i).size(); ++j) {
-                if (i == j && i!=0)
+                if (i == j && matrix.at(i).at(j) != 0)
                     pagmo_throw(value_error, "main diagonal elements must all be zeros");
-                if (!matrix.at(i).at(j)) // fully connected
+                if (i != j && !matrix.at(i).at(j)) // fully connected
                     pagmo_throw(value_error, "adjacency matrix is not bidirectional");
                 // check if bidirectional (no one ways), allows no connections
 //                if ( 
