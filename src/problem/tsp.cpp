@@ -186,29 +186,22 @@ namespace pagmo { namespace problem {
         for (size_t i = 0; i < n_cols; ++i) {
             size_t n_rows = matrix.at(i).size();
             // check if the matrix is square
-            if (n_rows != n_cols) {
-                std::cout << "\n The adjacency matrix is not square.\n";
-                // return false;
-                throw new std::exception;
-            }
+            if (n_rows != n_cols)
+                pagmo_throw(value_error, "adjacency matrix is not square");
             
             for (size_t j = 0; j < matrix.at(i).size(); ++j) {
-                if (i==j) continue; // we don't care about the diagonal
-                // check if bidirectional (no one ways)
+                if (i == j && i!=0)
+                    pagmo_throw(value_error, "main diagonal elements must all be zeros");
+                if (!matrix.at(i).at(j)) // fully connected
+                    pagmo_throw(value_error, "adjacency matrix is not bidirectional");
+                // check if bidirectional (no one ways), allows no connections
 //                if ( 
 //                    (matrix.at(i).at(j) != 0 && matrix.at(j).at(i) == 0)
 //                    ||
 //                    (matrix.at(j).at(i) != 0 && matrix.at(i).at(j) == 0)
 //                   )
-                if (!matrix.at(i).at(j)) // bidirectional fully connected
-                {
-                    std::cout << "\n The adjacency matrix is not bidirectional.\n";
-                    // return false;
-                    throw new std::exception;
-                }
             }
         }
-        //return true;
     }
     
     /// Implementation of the objective function
