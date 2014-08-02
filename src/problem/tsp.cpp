@@ -177,7 +177,7 @@ namespace pagmo { namespace problem {
      * is square or bidirectional (e.g. no one way links between vertices).
      * If none of the two conditions are true, we can not have a tsp problem.
      * @param matrix - the adjacency matrix (two dimensional std::vector)
-     * @throws std::exception - matrix is not square and/or bidirectional
+     * @throws pagmo_throw - matrix is not square and/or graph is not bidirectional
      */
     void tsp::check_matrix(const std::vector<std::vector<double> > &matrix) const 
     {   
@@ -189,17 +189,13 @@ namespace pagmo { namespace problem {
             if (n_rows != n_cols)
                 pagmo_throw(value_error, "adjacency matrix is not square");
             
-            for (size_t j = 0; j < matrix.at(i).size(); ++j) {
+            for (size_t j = 0; j < n_rows; ++j) {
                 if (i == j && matrix.at(i).at(j) != 0)
-                    pagmo_throw(value_error, "main diagonal elements must all be zeros");
+                    pagmo_throw(value_error, "main diagonal elements must all be zeros.");
                 if (i != j && !matrix.at(i).at(j)) // fully connected
-                    pagmo_throw(value_error, "adjacency matrix is not bidirectional");
-                // check if bidirectional (no one ways), allows no connections
-//                if ( 
-//                    (matrix.at(i).at(j) != 0 && matrix.at(j).at(i) == 0)
-//                    ||
-//                    (matrix.at(j).at(i) != 0 && matrix.at(i).at(j) == 0)
-//                   )
+                    pagmo_throw(value_error, "adjacency matrix contains zero values.");
+                if (i != j && !matrix.at(i).at(j) = matrix.at(i).at(j)) // fully connected
+                    pagmo_throw(value_error, "adjacency matrix contains NaN values.");                    
             }
         }
     }
