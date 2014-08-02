@@ -261,9 +261,9 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::bee_colony>("bee_colony","Artificial Bee Colony optimization (ABC) algorithm.")
 		.def(init<optional<int,int> >());
 
-	// Ant Colony Optimization (ACO). [planned in the future ....]
-	//algorithm_wrapper<algorithm::aco>("aco","Ant Colony Optimization (ACO) algorithm.")
-	//	.def(init<int,optional<double> >());
+	// Ant Colony Optimization (ACO)
+	algorithm_wrapper<algorithm::aco>("aco","Ant Colony Optimization (ACO) algorithm.")
+		.def(init<int,optional<double> >());
 	
 	// Firefly (FA). [Does not work!!!!!! The agorithm sucks!!!]
 	// algorithm_wrapper<algorithm::firefly>("firefly","Firefly optimization algorithm.")

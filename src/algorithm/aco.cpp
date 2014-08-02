@@ -22,249 +22,82 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <string>
-#include <vector>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "aco.h"
 
 namespace pagmo { namespace algorithm {
 
-/// Constructor.
-/**
- * Allows to specify in detail all the parameters of the algorithm.
- *
- * @param[in] iter number of iterations.
- * @param[in] rho evaporation rate
- * @throws value_error if number of iterations is negative or rho isn't in the [0,1] range.
- */
-aco::aco(int iter, double rho):base(),m_iter(iter),m_rho(rho) {
-	if (iter < 0) {
-		pagmo_throw(value_error,"number of iterations must be nonnegative");
-	}
-	if (rho < 0 || rho > 1) {
-		pagmo_throw(value_error,"rho must be in [0,1]");
-	}
-}
+    /// Constructor.
+    /**
+     * @param[in] number of cycles. Each cycle, the m ants complete a tour of n cities
+     */
+     //TODO initialize members. Add getter functions. Add checks on cycle (!=0) and rho (0<=rho<1). 
+     //     1-rho is the evaporation parameter. rho can be seen as the trail persistance
+    aco::aco(int cycle, int ants, double rho):base() 
+    {
+    }
 
-/// Clone method.
-base_ptr aco::clone() const
-{
-	return base_ptr(new aco(*this));
-}
+    /// Clone method.
+    base_ptr aco::clone() const
+    {
+            return base_ptr(new aco(*this));
+    }
 
-/// Evolve implementation.
-/**
- * Run the ACO algorithm for the number of generations specified in the constructors.
- *
- * @param[in,out] pop input/output pagmo::population to be evolved.
- */
+    /// Evolve implementation.
+    /**
+     * Run the ACO algorithm for the number of generations specified in the constructors.
+     *
+     * @param[in,out] pop input/output pagmo::population to be evolved.
+     */
 
-void aco::evolve(population &pop) const
-{
-	// Let's store some useful variables.
-	const problem::base_tsp &prob = dynamic_cast<const problem::base_tsp &>(pop.problem());
-	const problem::base::size_type prob_i_dimension = prob.get_i_dimension();
-	const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
-	const population::size_type NP =  pop.size();
+    void aco::evolve(population &pop) const
+    {
+        // Let's store some useful variables.
+        const problem::base_tsp &prob = dynamic_cast<const problem::base_tsp &>(pop.problem());
+        const problem::base::size_type prob_i_dimension = prob.get_i_dimension();
+        const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
+        const population::size_type NP =  pop.size();
 
-	double max_size = 0;
-	for(problem::base::size_type i = 0; i < prob_i_dimension; ++i) {
-		if(max_size < (ub[i] - lb[i])) {
-			max_size = ub[i] - lb[i];
-		}
-	}
-	const std::vector<decision_vector>::size_type nComponents = boost::numeric_cast<std::vector<decision_vector>::size_type>(max_size) + 1; 
+        //TODO: add check on the problem. The problem need to be an integer problem TSP like, single objective. The population size needs to be greater than 1 (at least 2 individuals are needed) 
+        //      add the check that the number of ants need to be greater than the population size.
 
-	//We perform some checks to determine wether the problem/population are suitable for ACO
-	if (prob_i_dimension == 0 ) {
-		pagmo_throw(value_error,"There is no integer part in the problem decision vector for ACO to optimise");
-	}
-
-	if ( prob.get_f_dimension() != 1 ) {
-		pagmo_throw(value_error,"The problem is not single objective and ACO is not suitable to solve it");
-	}
-
-	if (NP < 2) {
-		pagmo_throw(value_error,"for ACO at least 2 individuals in the population are needed");
-	}
-
-	// Get out if there is nothing to do.
-	if (m_iter == 0) {
-		return;
-	}
-
-	// Some vectors used during evolution are allocated here.
-	decision_vector dummy(prob_i_dimension,0);	//used for initialisation purposes
-	std::vector<decision_vector > X(NP,dummy);	//set of ant partial solutions
-	std::vector<fitness_vector> fit(NP);		//set of ant solutions fitness
-
-	fitness_vector tempA(prob.get_f_dimension(),0);	//used for initialisation purpouses
-	std::vector<fitness_vector> tempB(nComponents,tempA); //used for initialisation purpouses
-	std::vector<std::vector<fitness_vector> > tempC(nComponents,tempB); //used for initialisation purpouses
-	std::vector<std::vector<std::vector<fitness_vector> > > T(prob_i_dimension, tempC); //pheromone trail matrix 
-	std::vector<std::vector<std::vector<fitness_vector> > > eta = prob.get_heuristic_information_matrix(); //heuristic information matrix
-        //pagmo::problem::Graph eta = prob.get_heuristic_information_matrix(); // Boost graph object
-
-	// Copy the solutions and their fitness
-	for ( population::size_type i = 0; i<NP; i++ ) {
-		X[i]	=	pop.get_individual(i).cur_x;
-		fit[i]	=	pop.get_individual(i).cur_f;
-	}
-
-	//Create pheromone paths using actual solutions
-	for ( population::size_type i = 0; i<NP; i++ ) {
-		deposit_pheromone(T,X[i],fit[i], m_rho);
-	}
+        //TODO: first task, we have to deposit the initial pheromone along the edges of the graph. The pheromone can be deposited or from the information given by the initial population, uniformly or random.
+        //      Please prepare a protected function for this implementation. It needs to contain a switch between the three diffrent modes. 
+        //      You can chose to represent the pheromones on the edges as a graph or as a matrix. I strongly suggest the second one. 
+        //      You have to initialize a std::vector<std::vector<double> > containing the pheromone values. All these values must be positive  
+        //      Uniform: initialize every element of the matrix (diagonal excluded) to a costant value c = M/C where M is the number of ants and C is the value is the length of the round-trip 
+        //               obtained by applying the nearest-neighbour heuristic. This heuristic randomly selects a city and then creates a round-trip by always moving to the nearest city
+        //      Random: initialize every element of the matrix (diagonal excluded) with random value between 0 and 1
+        //      From population: use equation (1), (2), (3) from the paper enclosed in the email to update the elements of the matrix: tau_ij = rho*tau_ij + delta_tau_ij. Using
+        //                       as tau_ij on the right hand side the constant c value of the uniform case. Delta_tau_ij is computed as in equation (2)-(3)
 
 
-	std::vector<int> selection(NP,0); //next node selection for each individual
-	std::vector<fitness_vector> Ttemp(nComponents,tempA);
-	std::vector<fitness_vector> etaTemp(nComponents,tempA);
-	std::vector<bool> fComponentsTemp(nComponents,true);
-	std::vector<bool> fComponents(nComponents);
+        // Main ACO loop: stopping condition either maximum number of cycle reached or all ants make the same tour
+        for (int t = 0; t < m_cycle; ++t) {
 
-	// Main ACO loop
-	for (int t = 0; t < m_iter; ++t) {
-
-		//Select first node
-		// Since the first node doesn't have a predecessor we create new T and eta vector for each first vector i
-		// summing over all the j each T[i][j] 
-		for(std::vector<fitness_vector>::size_type i = 0; i < nComponents; ++i) {
-			for(std::vector<fitness_vector>::size_type j = 0; j < nComponents; ++j) {
-				Ttemp[i][0] += T[0][i][j][0];
-				etaTemp[i][0] += eta[0][i][j][0];
-			}
-		}
-
-		selection_probability(Ttemp, fComponentsTemp, etaTemp, selection, pop.problem());
-
-		for(population::size_type n=0; n < NP; ++n) {
-			X[n][0] = selection[n] + lb[0];
-		}
-	
-		//go ahead with all the other components
-		for(problem::base::size_type k = 1; k < prob_i_dimension; ++k) {
-			for(population::size_type n = 0; n < NP; ++n) {
-				feasible_components(fComponents, prob, X[n], k, lb[k], ub[k]);
-				std::vector<int> sel(1,0);
-				selection_probability(T[k][X[n][k-1]], fComponents, eta[k][X[n][k-1]], sel, pop.problem());
-				X[n][k] = sel[0] + lb[k];
-			}
-		}
-		for(population::size_type n=0; n < NP; ++n) {
-			pop.set_x(n,X[n]);
-			prob.objfun(fit[n], X[n]);
-			deposit_pheromone(T,X[n],fit[n], m_rho);
-		}
-	} // end of main ACO loop
-}
-
-/*
- * given a partial decision vector of size X.size() that has just the first xSize components filled (it means that the rest of the vector is not relevant)
- * write a fComonents boolean vector where fComponents[i] is true if X[xSize] =  "ith possible value for the component xSize" make
- * the vector X feasible (according to the first xSize+1 components)
- */
-void aco::feasible_components(std::vector<bool> &fComponents, const pagmo::problem::base_tsp &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub) {
-	decision_vector tmpX(xSize+1,0);
-	for(pagmo::problem::base::size_type i = 0; i < xSize; ++i) {
-		tmpX[i] = X[i];
-	}
-	int i = 0;
-	for (int n = boost::numeric_cast<int>(lb); i+n <= ub; ++i) {
-		tmpX[xSize] = i+n;
-		if (prob.check_partial_feasibility(tmpX)) {
-			fComponents[i] = true;
-		}
-		else {
-			fComponents[i] = false;
-		}
-	}
-}
-
-/*
- * Deposit pherormone on the trail. Pheromone is represented as the fitness of a solution. Each individual deposit an amount of pheromone
- * on its path (its solution) equal to the fitness of its solution
- */
-void aco::deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho) {
-	//evaporation
-	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < T.size(); ++k) {
-		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < T[0].size(); ++i) {
-			for(std::vector<fitness_vector>::size_type  j = 0; j < T[0][0].size(); ++j) {
-				T[k][i][j][0] = (1-rho) * T[k][i][j][0];
-			}
-		}
-	}
-
-	//Deposit pheromone according to current solutions
-	T[0][boost::numeric_cast<int>(X[0])][boost::numeric_cast<int>(X[1])][0] += rho*fit[0]; 
-	for (decision_vector::size_type i = 1; i < X.size(); ++i) {
-		T[i-1][boost::numeric_cast<int>(X[i-1])][boost::numeric_cast<int>(X[i])][0] += rho*fit[0]; 
-	}
-}
-
-//return a random integers according to the fitness probability vector in the selection vector
-void aco::selection_probability(std::vector<fitness_vector> &probability, std::vector<bool> &fComponents, std::vector<fitness_vector> &eta, std::vector<int> &selection, const pagmo::problem::base &prob) {
-		std::vector<fitness_vector>::size_type pSize = probability.size();
-		std::vector<double> selectionfitness(pSize), cumsum(pSize), cumsumTemp(pSize);
-		double r = 0;
-
-		fitness_vector worstfit(1, probability[0][0]);
-		fitness_vector tmpFit(1, probability[0][0]);
-		for (std::vector<fitness_vector>::size_type i = 0; i < pSize; ++i) {
-			tmpFit[0] = probability[i][0] * eta[i][0];
-			if (prob.compare_fitness(worstfit,tmpFit)) worstfit[0]=tmpFit[0];
-		}
-
-		for (std::vector<fitness_vector>::size_type i = 0; i < pSize; ++i) {
-			if(fComponents[i]) {
-				selectionfitness[i] = fabs(worstfit[0] - eta[i][0]*probability[i][0]) + 1.;
-			}
-			else {
-				selectionfitness[i] = 0;
-			}
-		}
-
-		// We build and normalise the cumulative sum
-		cumsumTemp[0] = selectionfitness[0];
-		for (std::vector<fitness_vector>::size_type i = 1; i< pSize; i++) {
-			cumsumTemp[i] = cumsumTemp[i - 1] + selectionfitness[i];
-		}
-		for (pagmo::population::size_type i = 0; i < pSize; i++) {
-			cumsum[i] = cumsumTemp[i]/cumsumTemp[pSize-1];
-		}
-
-		for (std::vector<double>::size_type i = 0; i < selection.size(); i++) {
-			r = rng_generator::get<rng_double>()();
-			for (pagmo::population::size_type j = 0; j < pSize; j++) {
-				if (cumsum[j] > r) {
-					selection[i] = j;
-					break;
-				}
-			}
-		}
-}
-
-/// Algorithm name
-std::string aco::get_name() const
-{
-	return "Ant Colony Optimization";
-}
+        } // end of main ACO loop
+    }
 
 
-/// Extra human readable algorithm info.
-/**
- * Will return a formatted string displaying the parameters of the algorithm.
- */
-std::string aco::human_readable_extra() const
-{
-	std::ostringstream s;
-	s << "iter:" << m_iter << ' ';
-	s << "rho:" << m_rho << ' ';
-	return s.str();
-}
+
+    /// Algorithm name
+    std::string aco::get_name() const
+    {
+        return "Simple Ant System";
+    }
+
+
+    /// Extra human readable algorithm info.
+    /**
+     * Will return a formatted string displaying the parameters of the algorithm.
+     */
+    std::string aco::human_readable_extra() const
+    {
+        std::ostringstream s;
+        s << "\nNumber of cycles: " << m_cycle
+            << "\nNumber of ants: " << m_ants
+            << "\nPheromone evaporation (Rho): " << m_rho << std::endl;
+        return s.str();
+    }
 
 }} //namespaces
 

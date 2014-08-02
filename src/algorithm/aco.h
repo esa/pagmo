@@ -26,55 +26,42 @@
 #define PAGMO_ALGORITHM_ACO_H
 
 #include "../config.h"
-#include "../problem/base_tsp.h"
+#include "../problem/tsp.h"
 #include "../serialization.h"
 #include "../population.h"
-#include "../exceptions.h"
-#include "../types.h"
 #include "base.h"
 
 namespace pagmo { namespace algorithm {
 
 /// Ant Colony Optimization (ACO)
 /**
- * \image html ant.png "Ant Colony Optimization"
- * \image latex ant.png  "Ant Colony Optimization" width=3cm
- * Ant colony optimization (ACO) is a population-based metaheuristic that 
- * can be used to find approximate solutions to difficult combinatorial optimization problems. 
- * This implementation of ACO works on any constrained integer problem that extends the base_tsp problem.
- *
- * NOTE: when called on mixed-integer problems ACO treats the continuous part as fixed and optimizes
- * the integer part.
- *
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
- *
- * @see http://www.scholarpedia.org/article/Ant_colony_optimization
+ Algorithm description
  */
-
 class __PAGMO_VISIBLE aco: public base
 {
-public:
-	aco(int iter = 1, double rho = 0.2);
-	base_ptr clone() const;
-	void evolve(population &) const;
-	std::string get_name() const;
-protected:
-	std::string human_readable_extra() const;
-private:
-	static void deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho);
-	static void selection_probability(std::vector<fitness_vector> &probability, std::vector<bool> &fComponents, std::vector<fitness_vector> &eta, std::vector<int> &selection, const pagmo::problem::base &prob);
-	static void feasible_components(std::vector<bool> &fComponents,const pagmo::problem::base_tsp &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub);
-	friend class boost::serialization::access;
-	template <class Archive>
-	void serialize(Archive &ar, const unsigned int)
-	{
-		ar & boost::serialization::base_object<base>(*this);
-		ar & const_cast<double &>(m_iter);
-		ar & const_cast<double &>(m_rho);
-	}
-	// Number of iterations
-	const double m_iter;
-	const double m_rho;
+    public:
+        aco(int cycle = 1, int ants = 100, double rho = 0.2);
+        base_ptr clone() const;
+        void evolve(population &) const;
+        std::string get_name() const;
+        
+    protected:
+        std::string human_readable_extra() const;
+        
+    private:
+        friend class boost::serialization::access;
+        template <class Archive>
+        void serialize(Archive &ar, const unsigned int)
+        {
+                ar & boost::serialization::base_object<base>(*this);
+                ar & m_cycle;
+                ar & m_ants;
+                ar & m_rho;
+        }
+
+        int m_cycle;
+        int m_ants;
+        double m_rho;
 };
 
 }} //namespaces

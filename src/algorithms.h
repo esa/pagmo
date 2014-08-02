@@ -48,7 +48,7 @@
 #include "algorithm/bee_colony.h"
 #include "algorithm/firefly.h"
 #include "algorithm/cmaes.h"
-//#include "algorithm/aco.h"
+#include "algorithm/aco.h"
 #include "algorithm/nsga2.h"
 #include "algorithm/vega.h"
 #include "algorithm/cstrs_co_evolution.h"
