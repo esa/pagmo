@@ -35,6 +35,7 @@ namespace pagmo { namespace algorithm {
     aco::aco(int cycle, int ants, double rho):base(), m_cycle(cycle), m_ants(ants), m_rho(rho)
     {
         if (cycle <= 0) pagmo_throw(value_error, "the number of cycles must be positive, non negative.");
+        if (ants <= 2) pagmo_throw(value_error, "there must be at least three ants in the colony.");
         if (rho < 0 || rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
     }
     
@@ -73,10 +74,81 @@ namespace pagmo { namespace algorithm {
     {
             return base_ptr(new aco(*this));
     }
+    
+    /// Initializes the pheromone levels randomly
+    /**
+     * Sets the pheromone levels of each edge from a random distribution (0,1)
+     * @param[in] dimension - the number of vertices in the graph
+     * @param[in] low - lower bound for random variable generation, default 0
+     * @param[in] high - upper bound for random variable generation, default 1
+     */
+    std::vector<std::vector<double> > aco::initialize_pheromone(int dimension, double low=0, double high=1) const 
+    {
+        std::default_random_engine rengine(time(NULL)); // seed software PRNG
+        std::uniform_real_distribution<double> distr(low, high); // range
+     
+        std::vector<std::vector<double> > pheromones(dimension, std::vector<double>(dimension, 0));
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                if (i==j) continue;
+                pheromones[i][j] = distr(rengine);
+            }
+        }
+        return pheromones;
+    }
+    
+    /// Initializes the pheromone levels uniformly.
+    /**
+     * Sets the pheromones levels of the edges in the matrix as uniform.
+     * Uniform: initialize every element of the matrix (diagonal excluded) 
+     * to a costant value c = M/C where M is the number of ants and 
+     * C is the value is the length of the round-trip obtained by applying 
+     * the nearest-neighbour heuristic which randomly selects a city and then 
+     * creates a round-trip by always moving to the nearest city.
+     * 
+     * @param[in] dimension - the number of vertices in the graph
+     * @param[in] matrix - the matrix containing the distances between vertices
+     */
+    std::vector<std::vector<double> > aco::initialize_pheromone(int dimension, std::vector<std::vector<double> > matrix) const 
+    {
+        std::vector<std::vector<double> > pheromones(dimension, std::vector<double>(dimension, 0));
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                if(i==j) continue;
+                pheromones[i][j] = m_ants / matrix.at(i).at(j);// * std::min_element(matrix.begin(), matrix.end());
+            }
+        }
+        return pheromones;
+    }
+    
+    /// Initializes the pheromone levels in the matrix according to the population.
+    /**
+     * Sets the pheromone levels in the matrix according to the population.
+     * 
+     * From population: use equation (1), (2), (3) from the paper enclosed 
+     * in the email to update the elements of the matrix: 
+     *  tau_ij = rho * tau_ij + delta_tau_ij. 
+     *  Using as tau_ij on the right hand side, the constant c value of the uniform case. 
+     * Delta_tau_ij is computed as in equation (2)-(3)
+     * 
+     * @param[in] dimension - the number of vertices in the graph
+     * @param[in] population
+     */
+    std::vector<std::vector<double> > aco::initialize_pheromone(int dimension, const population& pop) const 
+    {
+        std::vector<std::vector<double> > pheromones(dimension, std::vector<double>(dimension, 0));
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                if (i==j) continue;
+                pheromones[i][j] = 1;
+            }
+        }
+        return pheromones;
+    }
 
     /// Evolve implementation.
     /**
-     * Run the ACO algorithm for the number of generations specified in the constructors.
+     * Runs the ACO algorithm for the number of generations specified in the constructor.
      *
      * @param[in,out] pop input/output pagmo::population to be evolved.
      */
@@ -88,23 +160,15 @@ namespace pagmo { namespace algorithm {
         const decision_vector &lb = prob.get_lb(), &ub = prob.get_ub();
         const population::size_type NP =  pop.size();
 
-        //TODO: add check on the problem. The problem need to be an integer problem TSP like, single objective. The population size needs to be greater than 1 (at least 2 individuals are needed) 
-        //      add the check that the number of ants need to be greater than the population size.
+        //TODO: add check on the problem. The problem need to be an integer problem TSP like, single objective.
+        if (NP <= 1) pagmo_throw(value_error, "population size needs to be greater than one.");
+        if (m_ants <= NP) pagmo_throw(value_error, "the number of ants needs to be greater than the population size.");
 
-        //TODO: first task, we have to deposit the initial pheromone along the edges of the graph. The pheromone can be deposited or from the information given by the initial population, uniformly or random.
-        //      Please prepare a protected function for this implementation. It needs to contain a switch between the three diffrent modes. 
-        //      You can chose to represent the pheromones on the edges as a graph or as a matrix. I strongly suggest the second one. 
-        //      You have to initialize a std::vector<std::vector<double> > containing the pheromone values. All these values must be positive  
-        //      Uniform: initialize every element of the matrix (diagonal excluded) to a costant value c = M/C where M is the number of ants and C is the value is the length of the round-trip 
-        //               obtained by applying the nearest-neighbour heuristic. This heuristic randomly selects a city and then creates a round-trip by always moving to the nearest city
-        //      Random: initialize every element of the matrix (diagonal excluded) with random value between 0 and 1
-        //      From population: use equation (1), (2), (3) from the paper enclosed in the email to update the elements of the matrix: tau_ij = rho*tau_ij + delta_tau_ij. Using
-        //                       as tau_ij on the right hand side the constant c value of the uniform case. Delta_tau_ij is computed as in equation (2)-(3)
-
+        //TODO: first task, we have to deposit the initial pheromone along the edges of the graph.
 
         // Main ACO loop: stopping condition either maximum number of cycle reached or all ants make the same tour
         for (int t = 0; t < m_cycle; ++t) {
-
+            break;
         } // end of main ACO loop
     }
 
