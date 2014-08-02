@@ -41,6 +41,9 @@ class __PAGMO_VISIBLE aco: public base
 {
     public:
         aco(int cycle = 1, int ants = 100, double rho = 0.2);
+        int get_cycle() const;
+        int get_ants() const;
+        double get_rho() const;
         base_ptr clone() const;
         void evolve(population &) const;
         std::string get_name() const;

@@ -28,12 +28,44 @@ namespace pagmo { namespace algorithm {
 
     /// Constructor.
     /**
-     * @param[in] number of cycles. Each cycle, the m ants complete a tour of n cities
+     * @param[in] cycle - number of cycles. Each cycle, the m ants complete a tour of n cities.
+     * @param[in] ants - number of ants in the colony.
+     * @param[in] rho - each ant leaves a trail of pheromone which evaporates according to this constant.
      */
-     //TODO initialize members. Add getter functions. Add checks on cycle (!=0) and rho (0<=rho<1). 
-     //     1-rho is the evaporation parameter. rho can be seen as the trail persistance
-    aco::aco(int cycle, int ants, double rho):base() 
+    aco::aco(int cycle, int ants, double rho):base(), m_cycle(cycle), m_ants(ants), m_rho(rho)
     {
+        if (cycle <= 0) pagmo_throw(value_error, "the number of cycles must be positive, non negative.");
+        if (rho < 0 || rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
+    }
+    
+    /// Returns the number of cycles the algorithm is run
+    /**
+     * Returns the number of cycles the algorithm is run
+     * @return int m_cycle
+     */
+    int aco::get_cycle() const
+    {
+        return m_cycle;
+    }
+    
+    /// Returns the number of ants in the colony
+    /**
+     * Returns the number of ants in the colony
+     * @return int m_ants
+     */
+    int aco::get_ants() const
+    {
+        return m_ants;
+    }
+    
+    /// Returns Rho - the pheromone evaporation constant
+    /**
+     * Returns Rho - the pheromone evaporation constant
+     * @return double m_rho
+     */
+    double aco::get_rho() const
+    {
+        return m_rho;
     }
 
     /// Clone method.
@@ -48,7 +80,6 @@ namespace pagmo { namespace algorithm {
      *
      * @param[in,out] pop input/output pagmo::population to be evolved.
      */
-
     void aco::evolve(population &pop) const
     {
         // Let's store some useful variables.
@@ -77,14 +108,11 @@ namespace pagmo { namespace algorithm {
         } // end of main ACO loop
     }
 
-
-
     /// Algorithm name
     std::string aco::get_name() const
     {
         return "Simple Ant System";
     }
-
 
     /// Extra human readable algorithm info.
     /**
