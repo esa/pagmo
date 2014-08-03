@@ -50,8 +50,9 @@ class __PAGMO_VISIBLE aco: public base
         
     protected:
         std::string human_readable_extra() const;
+        std::vector<int> nn_trip(int, const std::vector<std::vector<double> >) const;
         std::vector<std::vector<double> > initialize_pheromone(int, double, double) const;
-        std::vector<std::vector<double> > initialize_pheromone(int, std::vector<std::vector<double> >) const;
+        std::vector<std::vector<double> > initialize_pheromone(int, const std::vector<std::vector<double> >) const;
         std::vector<std::vector<double> > initialize_pheromone(int, const population &) const;
         
     private:

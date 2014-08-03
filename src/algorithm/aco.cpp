@@ -35,8 +35,9 @@ namespace pagmo { namespace algorithm {
     aco::aco(int cycle, int ants, double rho):base(), m_cycle(cycle), m_ants(ants), m_rho(rho)
     {
         if (cycle <= 0) pagmo_throw(value_error, "the number of cycles must be positive, non negative.");
-        if (ants <= 2) pagmo_throw(value_error, "there must be at least three ants in the colony.");
         if (rho < 0 || rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
+        // if population must be at least 2 and ants > population => ants must be at least 3
+        if (ants <= 2) pagmo_throw(value_error, "there must be at least three ants in the colony.");
     }
     
     /// Returns the number of cycles the algorithm is run
@@ -75,6 +76,32 @@ namespace pagmo { namespace algorithm {
             return base_ptr(new aco(*this));
     }
     
+    /// Performs a greedy nearest neighbor traverse round-trip of a fully connected graph.
+    /**
+     * Returns a list of vertices (cities) in a graph, by always selecting 
+     * the nearest neighboring city. We assume that the adjacency matrix 
+     * is fully connected, e.g. there is a possible cycle starting from any city.
+     * 
+     * @param start - the initial position, has to also be the stop.
+     * @param matrix - the adjacency matrix containing the graph.
+     * @return a list of vertices according to the greedy traverse
+     */
+    std::vector<int> aco::nn_trip(int start, const std::vector<std::vector<double> > matrix) const
+    {
+        std::vector<int> visited;
+        std::vector<double> current = matrix.at(start);
+        while(visited.size() < matrix.size())
+        {
+            // get index of closest neighbor
+            int idx = std::distance(current.begin(), std::min_element(current.begin(), current.end()));
+            // push back in the list
+            visited.push_back(idx);
+            // select as current row in matrix, repeat
+            current = matrix.at(idx);
+        }
+        return visited;
+    }
+    
     /// Initializes the pheromone levels randomly
     /**
      * Sets the pheromone levels of each edge from a random distribution (0,1)
@@ -101,21 +128,30 @@ namespace pagmo { namespace algorithm {
     /**
      * Sets the pheromones levels of the edges in the matrix as uniform.
      * Uniform: initialize every element of the matrix (diagonal excluded) 
-     * to a costant value c = M/C where M is the number of ants and 
-     * C is the value is the length of the round-trip obtained by applying 
-     * the nearest-neighbour heuristic which randomly selects a city and then 
+     * to a constant value c = M/C where M is the number of ants and 
+     * C is the length of the round-trip obtained by applying 
+     * the nearest-neighbor heuristic which randomly selects a city and then 
      * creates a round-trip by always moving to the nearest city.
      * 
      * @param[in] dimension - the number of vertices in the graph
      * @param[in] matrix - the matrix containing the distances between vertices
      */
-    std::vector<std::vector<double> > aco::initialize_pheromone(int dimension, std::vector<std::vector<double> > matrix) const 
+    std::vector<std::vector<double> > aco::initialize_pheromone(int dimension, const std::vector<std::vector<double> > matrix) const 
     {
+        double C = 0;
+        // make a tour of the graph, starting randomly using a greedy nn search
+        std::vector<int> trip = nn_trip(rand() % dimension, matrix);
+        // compute the cost of the round-trip
+        for (int i = 0; i < (int)trip.size() - 1; ++i)
+            C += matrix.at(i).at(i+1);
+        C += matrix.at(trip.size()).at(0);
+        
+        // initialize pheromone matrix according to formula M/C
         std::vector<std::vector<double> > pheromones(dimension, std::vector<double>(dimension, 0));
         for (int i = 0; i < dimension; ++i) {
             for (int j = 0; j < dimension; ++j) {
                 if(i==j) continue;
-                pheromones[i][j] = m_ants / matrix.at(i).at(j);// * std::min_element(matrix.begin(), matrix.end());
+                pheromones[i][j] = m_ants / C;
             }
         }
         return pheromones;
