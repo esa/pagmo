@@ -164,9 +164,8 @@ namespace pagmo { namespace problem {
      * @param[in] i row
      * @param[in] j column
      */
-    size_t tsp::compute_idx(const size_t i, const size_t j) const 
+    size_t tsp::compute_idx(const size_t i, const size_t j, const size_t n) 
     {
-        size_t n = get_n_vertices();    
         pagmo_assert( i!=j && i<n && j<n );
         return i*(n-1) + j - (j>i? 1:0);
     };
@@ -220,7 +219,7 @@ namespace pagmo { namespace problem {
         for (size_t i = 0; i < n; i++) {
             for (size_t j = 0; j < n; j++) {
                 if(i==j) continue;
-                f[0] += m_weights[i][j] * x[compute_idx(i, j)];
+                f[0] += m_weights[i][j] * x[compute_idx(i, j, n)];
             }
         }       
     }
@@ -245,8 +244,8 @@ namespace pagmo { namespace problem {
             c[i+n] = 0;
             for (size_t j = 0; j < n; j++) {
                 if(i==j) continue; // ignoring main diagonal
-                decision_vector::size_type rows = compute_idx(i, j);
-                decision_vector::size_type cols = compute_idx(j, i);
+                decision_vector::size_type rows = compute_idx(i, j, n);
+                decision_vector::size_type cols = compute_idx(j, i, n);
                 c[i] += x[rows];
                 c[i+n] += x[cols];
             }
@@ -264,7 +263,7 @@ namespace pagmo { namespace problem {
             for (size_t j = 0; j < n; j++) 
             {
                 if (current_city==j) continue;
-                if (x[compute_idx(current_city, j)] == 1) 
+                if (x[compute_idx(current_city, j, n)] == 1) 
                 {
                     next_city = j;
                     break;
@@ -277,7 +276,7 @@ namespace pagmo { namespace problem {
             for (size_t j = 1; j < n; j++) 
             {
                 if (i==j) continue;
-                c[2*n+count] = u[i]-u[j] + (n+1) * x[compute_idx(i, j)] - n;
+                c[2*n+count] = u[i]-u[j] + (n+1) * x[compute_idx(i, j, n)] - n;
                 count++;
             }
         }

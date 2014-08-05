@@ -95,9 +95,9 @@ class __PAGMO_VISIBLE tsp: public base_tsp
         base_ptr clone() const;
         std::string get_name() const;
         const std::vector<std::vector<double> >& get_weights() const;
+        static size_t compute_idx(const size_t, const size_t, const size_t);
             
     protected:
-        size_t compute_idx(const size_t, const size_t) const;
         void check_matrix(const std::vector<std::vector<double> >&) const;
         
         void objfun_impl(fitness_vector&, const decision_vector&) const;
