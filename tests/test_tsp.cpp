@@ -36,7 +36,7 @@ using namespace pagmo;
  */
 std::vector<std::vector<double> > generate_random_matrix(int dimension, bool verbose = false) {
     std::default_random_engine rengine(time(NULL)); // seed software PRNG
-    std::uniform_real_distribution<> distr(0.1, 1); // range
+    std::uniform_real_distribution<double> distr(0.1, 1); // range
     
     std::vector<std::vector<double> > random_2D(dimension, std::vector<double>(dimension, 0));
 
