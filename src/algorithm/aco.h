@@ -50,12 +50,19 @@ class __PAGMO_VISIBLE aco: public base
         
     protected:
         std::string human_readable_extra() const;
-        std::vector<int> nn_trip(int, const std::vector<std::vector<double> >) const;
-        std::vector<std::vector<double> > initialize_pheromone(int, double, double) const;
-        std::vector<std::vector<double> > initialize_pheromone(int, const std::vector<std::vector<double> >) const;
-        std::vector<std::vector<double> > initialize_pheromone(int, const population &) const;
+        
+        void make_tour_consistent(std::vector<size_t>&) const;
+        
+        std::vector<size_t> greedy_nn_trip(size_t, const std::vector<std::vector<double> >) const;
+        
+        std::vector<std::vector<double> > initialize_pheromone(size_t) const;
+        std::vector<std::vector<double> > initialize_pheromone(size_t, double) const;
+        std::vector<std::vector<double> > initialize_pheromone(size_t, const std::vector<std::vector<double> >) const;
+//        void initialize_pheromone(int, const population&) const;
         
     private:
+        static std::vector<bool> list2decision_vector(const std::vector<size_t>);
+        
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
@@ -69,8 +76,6 @@ class __PAGMO_VISIBLE aco: public base
         int m_cycle;
         int m_ants;
         double m_rho;
-        
-        std::vector<std::vector<double> > m_pheromone;
 };
 
 }} //namespaces
