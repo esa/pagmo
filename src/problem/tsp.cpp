@@ -87,7 +87,7 @@ namespace pagmo { namespace problem {
      * @param matrix std::vector<std::vector<double>> square matrix
      * @return tsp_graph boost graph object with weights initialized from matrix
      */
-    tsp_graph tsp::matrix2graph(const std::vector<std::vector<double> >& matrix) 
+    tsp_graph tsp::matrix2graph(const std::vector<std::vector<double> > matrix) 
     {
         tsp_graph retval;
         tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), retval);
@@ -140,7 +140,7 @@ namespace pagmo { namespace problem {
      * @param graph boost graph of type tsp_graph
      * @return a two dimensional std::vector of doubles
      */
-    std::vector<std::vector<double> > tsp::graph2matrix(const tsp_graph& graph) 
+    std::vector<std::vector<double> > tsp::graph2matrix(const tsp_graph graph) 
     {
         size_t n_vertex = boost::num_vertices(graph);
         tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), graph);

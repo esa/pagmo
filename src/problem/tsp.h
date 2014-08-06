@@ -104,8 +104,8 @@ class __PAGMO_VISIBLE tsp: public base_tsp
         void compute_constraints_impl(constraint_vector&, const decision_vector&) const;
         
     private:
-        static tsp_graph matrix2graph(const std::vector<std::vector<double> >&);
-        static std::vector<std::vector<double> > graph2matrix(const tsp_graph&);
+        static tsp_graph matrix2graph(const std::vector<std::vector<double> >);
+        static std::vector<std::vector<double> > graph2matrix(const tsp_graph);
 
         friend class boost::serialization::access;
         template <class Archive>
