@@ -32,6 +32,25 @@ int main()
 {
     //if (test_simple() return 1;
     
+    pagmo::algorithm::aco simple(100, 100, 0.2);
+    
+    /**
+     *  | 0 1 2 3
+     * -|--------
+     * 0| 0 0 1 0
+     * 1| 0 0 0 1
+     * 2| 0 1 0 0
+     * 3| 1 0 0 0
+     * 
+     */        
+    
+    std::vector<size_t> list = {0, 2, 1, 3};
+    
+    decision_vector dec_orig = {};
+    decision_vector target = simple.list2decision_vector(list);
+    
+    //if(dec_orig != target) return 1;
+    
     // all iz well
     return 0;
 }

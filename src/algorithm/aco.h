@@ -60,12 +60,16 @@ class __PAGMO_VISIBLE aco: public base
 {
     public:
         aco(int cycle = 1, int ants = 100, double rho = 0.2);
-        int get_cycle() const;
+        int get_cycles() const;
         int get_ants() const;
         double get_rho() const;
         base_ptr clone() const;
         void evolve(population &) const;
         std::string get_name() const;
+        
+        void set_cycles(int);
+        
+        static decision_vector list2decision_vector(const std::vector<size_t>);
         
     protected:
         std::string human_readable_extra() const;
@@ -80,19 +84,17 @@ class __PAGMO_VISIBLE aco: public base
 //        void initialize_pheromone(int, const population&) const;
         
     private:
-        static std::vector<bool> list2decision_vector(const std::vector<size_t>);
-        
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
                 ar & boost::serialization::base_object<base>(*this);
-                ar & m_cycle;
+                ar & m_cycles;
                 ar & m_ants;
                 ar & m_rho;
         }
 
-        int m_cycle;
+        int m_cycles;
         int m_ants;
         double m_rho;
 };

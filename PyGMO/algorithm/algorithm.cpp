@@ -263,7 +263,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	// Ant Colony Optimization (ACO)
 	algorithm_wrapper<algorithm::aco>("aco","Ant Colony Optimization (ACO) algorithm.")
-		.def(init<int,optional<double> >());
+		.def(init<int,optional<double> >())
+		.add_property("gen",&algorithm::aco::get_cycles,&algorithm::aco::set_cycles);
 	
 	// Firefly (FA). [Does not work!!!!!! The agorithm sucks!!!]
 	// algorithm_wrapper<algorithm::firefly>("firefly","Firefly optimization algorithm.")

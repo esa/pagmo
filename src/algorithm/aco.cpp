@@ -32,7 +32,7 @@ namespace pagmo { namespace algorithm {
      * @param[in] ants - number of ants in the colony.
      * @param[in] rho - each ant leaves a trail of pheromone which evaporates according to this constant.
      */
-    aco::aco(int cycle, int ants, double rho):base(), m_cycle(cycle), m_ants(ants), m_rho(rho)
+    aco::aco(int cycle, int ants, double rho):base(), m_cycles(cycle), m_ants(ants), m_rho(rho)
     {
         if (cycle <= 0) pagmo_throw(value_error, "the number of cycles must be positive, non negative.");
         if (rho < 0 || rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
@@ -45,9 +45,9 @@ namespace pagmo { namespace algorithm {
      * Returns the number of cycles the algorithm is run
      * @return int m_cycle
      */
-    int aco::get_cycle() const
+    int aco::get_cycles() const
     {
-        return m_cycle;
+        return m_cycles;
     }
     
     /// Returns the number of ants in the colony.
@@ -68,6 +68,16 @@ namespace pagmo { namespace algorithm {
     double aco::get_rho() const
     {
         return m_rho;
+    }
+    
+    // Sets the number of cycles the algorithm runs for.
+    /**
+     * Setter for the m_cycle property
+     * @param cycles - int, the number of cycles
+     */
+    void aco::set_cycles(int cycles)
+    {
+        m_cycles = cycles;
     }
 
     /// Clone method.
@@ -103,19 +113,19 @@ namespace pagmo { namespace algorithm {
         return visited;
     }
     
-    std::vector<bool> aco::list2decision_vector(const std::vector<size_t> trip) 
+    decision_vector aco::list2decision_vector(const std::vector<size_t> trip) 
     {
         size_t n = *std::max_element(trip.begin(), trip.end());
         // by default there are no connections
-        std::vector<bool> decision_vector(n*(n-1), 0);
+        decision_vector dec_v(n*(n-1), 0);
         
         for (size_t i = 0; i < n; ++i) {
             for (size_t j = 0; j < n; ++j) {
                 if (i==j) continue;
-//                decision_vector.at( problem::tsp.compute_idx(i, j, n) ) = true;
+                dec_v.at( pagmo::problem::tsp::compute_idx(i, j, n) ) = 1;
             }
         }
-        return decision_vector;
+        return dec_v;
     }
     
     /// Initializes the pheromone levels randomly.
@@ -261,7 +271,7 @@ namespace pagmo { namespace algorithm {
         std::map<double, std::vector<size_t> > winners;
         
         // Main ACO loop: stops when either maximum number of cycles reached or (? all ants make the same tour )
-        for (int t = 0; t < m_cycle; ++t) {
+        for (int t = 0; t < m_cycles; ++t) {
             // deposit the initial pheromone along the edges of the graph
             std::vector<std::vector<double> > tau(initialize_pheromone(no_vertices, c));
             // set delta_tau to 0
@@ -295,17 +305,17 @@ namespace pagmo { namespace algorithm {
                 while (tabu.at(ant).size() < no_vertices) {
                     // for each round, keep only maximum probability and it's position
                     double max = 0; 
-                    size_t next = 0;
+                    size_t next = std::numeric_limits<size_t>::max();
                     
                     // compute transition probabilities for all valid vertices
                     for (size_t possible = 0; possible < no_vertices; ++possible) {
                         // already visited, skip vertex
                         if (std::find(tabu.at(ant).begin(), tabu.at(ant).end(), possible) != tabu.at(ant).end()) continue;
                         // not a valid transition, skip vertex (checking weights for 0 and NaNs)
-                        // this might be useless since problem::tsp.check_matrix does this already
+                        // this might be useless since problem::tsp::check_matrix does this already
                         if (weights.at(current).at(possible) == 0 || !weights.at(current).at(possible) == weights.at(current).at(possible)) continue;
                         
-                        // otherwise compute probability
+                        // otherwise compute probability (1)
                         double prob_next = ( pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta) ) / prob;
                         // keep track of maximum and it's position
                         if (max < prob_next)  {
@@ -314,7 +324,7 @@ namespace pagmo { namespace algorithm {
                         }
                     } // done searching for next transition
                     
-                    if (!next) { // we haven't found a possible next step for this ant
+                    if (next == std::numeric_limits<size_t>::max()) { // we haven't found a possible next step for this ant
                         // option 1. kill the ant (can't do it since m_ants is a member and this method is const)
                         // option 2. reinitialize ant (though others might already be several steps ahead)
                         // option 3. do something smart with this path (mark it or something)
@@ -360,13 +370,20 @@ namespace pagmo { namespace algorithm {
             make_tour_consistent(shortest_path);
             
             // if not true, it's not inserted, we have a duplicate key (hence cost, hence trip)
+            // we could give up /restart if duplicates becomes too big
             if(!winners.insert(std::make_pair(lowest_cost, shortest_path)).second)
                 ++duplicates;
             
         } // end of main ACO loop (cycles)
         
-        // do stuff with population & winners here
         // convert to decision vector
+        
+        
+        // Save the shortest path (winning ant) for the last n cycles in the population. 
+        // Where n is the number of individuals in the population. 
+        
+        
+        
         // convert costs according to lower and upper bounds
         (void)lb;
         (void)ub;
@@ -385,7 +402,7 @@ namespace pagmo { namespace algorithm {
     std::string aco::human_readable_extra() const
     {
         std::ostringstream s;
-        s << "\nNumber of cycles: " << m_cycle
+        s << "\nNumber of cycles: " << m_cycles
             << "\nNumber of ants: " << m_ants
             << "\nPheromone evaporation (Rho): " << m_rho << std::endl;
         return s.str();
