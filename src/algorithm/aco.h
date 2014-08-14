@@ -26,9 +26,9 @@
 #define PAGMO_ALGORITHM_ACO_H
 
 #include "../config.h"
-#include "../problem/tsp.h"
 #include "../serialization.h"
 #include "../population.h"
+#include "../problem/tsp.h"
 #include "base.h"
 
 namespace pagmo { namespace algorithm {

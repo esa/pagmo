@@ -25,14 +25,8 @@
 #ifndef PAGMO_PROBLEM_TSP_H
 #define PAGMO_PROBLEM_TSP_H
 
-#include <boost/numeric/conversion/cast.hpp>
-#include <cstddef>
-#include <string>
-#include <vector>
-
 #include "../config.h"
 #include "../serialization.h"
-#include "../types.h"
 #include "base_tsp.h"
 
 namespace pagmo { namespace problem {
