@@ -24,6 +24,15 @@
 
 #include "aco.h"
 
+// debug
+#define USE_DEBUG
+
+#ifdef USE_DEBUG
+#define Debug( x ) std::cout << x
+#else
+#define Debug( x ) 
+#endif
+
 namespace pagmo { namespace algorithm {
     
     /// Constructor.
@@ -113,19 +122,43 @@ namespace pagmo { namespace algorithm {
         return visited;
     }
     
-    decision_vector aco::list2decision_vector(const std::vector<size_t> trip) 
+    /// Enforces a rule for the starting position on the tours taken by the ants.
+    /**
+     * Selects the minimum index of a vertex and rotates elements around that 
+     * item in order to produce consistency of the same trip, by always starting
+     * from the vertex with the lowest index. e.g 3->4->1->2 becomes 1->2->3->4
+     * Complexity is linear O(n)
+     * 
+     * @param[in/out] trip - a vector of vertices (e.g. list of cities)
+     */
+    void aco::make_tour_consistent(std::vector<size_t>& trip) 
     {
-        size_t n = *std::max_element(trip.begin(), trip.end());
-        // by default there are no connections
-        decision_vector dec_v(n*(n-1), 0);
+        std::rotate(trip.begin(), std::min_element(trip.begin(), trip.end()), trip.end());
+    }
+    
+    /// Converts a tsp tour to a pagmo chromosome
+    /**
+     * Converts a tsp tour to a binary pagmo chromosome.
+     * @param[in] trip a vector representing the sequence of vertices visited
+     * @return decision vector - binary vector, see tsp::compute_idx
+     */
+    decision_vector aco::tour2chromosome(std::vector<size_t> trip) 
+    {
+        // make tour consistent (smallest element idx always first)
+        make_tour_consistent(trip);
         
-        for (size_t i = 0; i < n; ++i) {
-            for (size_t j = 0; j < n; ++j) {
-                if (i==j) continue;
-                dec_v.at( pagmo::problem::tsp::compute_idx(i, j, n) ) = 1;
-            }
+        // figure out the size of the matrix
+        size_t n = *std::max_element(trip.begin(), trip.end()) + 1;
+        // by default there are no connections
+        decision_vector chromosome(n*(n-1), 0);
+        
+        // iterate through the vector and create chromosome
+        for (size_t k = 0; k < trip.size() - 1; ++k) {
+            chromosome.at( problem::tsp::compute_idx(trip.at(k), trip.at(k+1), n) ) = 1;
         }
-        return dec_v;
+        chromosome.at( problem::tsp::compute_idx(trip.back(), trip.front(), n) ) = 1;
+        
+        return chromosome;
     }
     
     /// Initializes the pheromone levels randomly.
@@ -223,20 +256,7 @@ namespace pagmo { namespace algorithm {
 
     
     
-    /// Enforces a rule for the starting position on the tours taken by the ants.
-    /**
-     * Selects the minimum index of a vertex and rotates elements around that 
-     * item in order to produce consistency of the same trip, by always starting
-     * from the vertex with the lowest index. e.g 3->4->1->2 becomes 1->2->3->4
-     * Complexity is linear O(n)
-     * 
-     * @param[in/out] trip - a vector of vertices (e.g. list of cities)
-     */
-    void aco::make_tour_consistent(std::vector<size_t>& trip) const 
-    {
-        std::rotate(trip.begin(), std::min_element(trip.begin(), trip.end()), trip.end());
-    }
-
+    
     /// Evolve implementation.
     /**
      * Runs the ACO algorithm for the number of generations specified in the constructor.
@@ -245,7 +265,8 @@ namespace pagmo { namespace algorithm {
      */
     void aco::evolve(population &pop) const
     {
-        // Configuration parameters, maybe put somewhere else? make members, set params for constructor?
+        // Configuration parameters, maybe put them somewhere else?
+        // Values taken from paper
         const double alpha = 1;
         const double beta = 5;
         const double c = 0.00001;
@@ -253,14 +274,14 @@ namespace pagmo { namespace algorithm {
         
         // Let's store some useful variables.
         const problem::tsp &tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
-//        const std::vector<std::vector<double> > weights (tsp_prob.get_weights());
         const std::vector<std::vector<double> > &weights = tsp_prob.get_weights();
-        const problem::base::size_type no_vertices = tsp_prob.get_i_dimension();
+        const problem::base::size_type dim = tsp_prob.get_i_dimension();
         const decision_vector &lb = tsp_prob.get_lb(), &ub = tsp_prob.get_ub();
         const population::size_type NP = pop.size();
+        const problem::base::size_type no_vertices = tsp_prob.get_n_vertices();
 
         //TODO: add check on the problem. The problem needs to be an integer problem TSP like, single objective.
-        if (NP <= 1) pagmo_throw(value_error, "population size needs to be greater than one.");
+        if (NP <= 1) pagmo_throw(value_error, "population size must be greater than one.");
         if (m_ants <= static_cast<int>(NP)) pagmo_throw(value_error, "the number of ants needs to be greater than the population size.");
 
         // keep a counter for duplicate items, we might want to terminate early and/or reinitialize
@@ -282,11 +303,11 @@ namespace pagmo { namespace algorithm {
             
             // initialize the starting point using a random uniform distribution
             std::default_random_engine generator(time(NULL));
-            std::uniform_int_distribution<size_t> dist(0, no_vertices);
+            std::uniform_int_distribution<size_t> dist(0, no_vertices - 1);
             std::vector<std::vector<size_t> > tabu(m_ants);
-            for (int k = 0; k < m_ants; ++k)
-                tabu.at(k).at(0) = dist(generator);
-
+            for (int k = 0; k < m_ants ; ++k)
+                tabu.at(k).push_back(dist(generator));
+                       
             /**
              *                      tau_{i,j}^alpha * eta_{i,j}^beta            (1)
              * p_{i,j}^k = ----------------------------------------------------
@@ -294,12 +315,15 @@ namespace pagmo { namespace algorithm {
              */
             // compute shortest paths and costs
             for (int ant = 0; ant < m_ants; ++ant) {
+                Debug("\n ant #" << ant << ": ");
+                
                 // keep a sum of probabilities for all ants (2)
                 // initialize to smallest possible positive value to avoid division by zero
                 double prob = std::numeric_limits<double>::min();
                 
                 // get the starting position according to initialization
                 size_t current = tabu.at(ant).at(0);
+                Debug(" start -> " << current << " -> ");
                 
                 // keep moving until all vertices are visited
                 while (tabu.at(ant).size() < no_vertices) {
@@ -318,19 +342,18 @@ namespace pagmo { namespace algorithm {
                         // otherwise compute probability (1)
                         double prob_next = ( pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta) ) / prob;
                         // keep track of maximum and it's position
-                        if (max < prob_next)  {
+                        if (max < prob_next) {
                             max = prob_next;
                             next = possible;
                         }
                     } // done searching for next transition
                     
                     if (next == std::numeric_limits<size_t>::max()) { // we haven't found a possible next step for this ant
-                        // option 1. kill the ant (can't do it since m_ants is a member and this method is const)
-                        // option 2. reinitialize ant (though others might already be several steps ahead)
-                        // option 3. do something smart with this path (mark it or something)
-                        // option 4. stop searching paths for this ant, consider it stuck:
+                        // stop searching for this ant, consider it stuck (set cost to infinity)
+                        cost.at(ant) = std::numeric_limits<double>::max();
                         break; //use goto?
                     }
+                    Debug(next << " ");
                     
                     // remember visited vertices for each ant
                     tabu.at(ant).push_back(next);
@@ -344,12 +367,20 @@ namespace pagmo { namespace algorithm {
                     
                     // move to next vertex
                     current = next;
-                } // done with tabu list, we should now have a complete trip
+                } // done with tabu list, we only need to make the round trip
                 
-                // update \delta \tau_{i,j} (this sums over all ants)
-//                for (size_t i = 0; i < no_vertices - 1; ++i)
-//                    delta_tau.at( tabu.at(ant).at(i) ).at( tabu.at(ant).at(i+1) ) += cost.at(ant)/Q;
-
+                // check to see if it's a valid transition
+                size_t last = tabu.at(ant).back();
+                size_t first = tabu.at(ant).front();
+                if (weights.at(last).at(first) == 0 || !weights.at(last).at(first) == weights.at(last).at(first)) {
+                    // set cost to infinity if we can't do a round-trip
+                    cost.at(ant) = std::numeric_limits<double>::max();
+                    continue;
+                } else { // add the cost from last to first(init)
+                    cost.at(ant) += weights.at(last).at(first);
+                }
+                
+                Debug(" cost: " << cost.at(ant));
             } // finished with all ants, a new cycle can start from here
             
             // update pheromone trail: \tau(t+1) = \tau(t) * rho + \delta \tau_{i,j}
@@ -367,26 +398,32 @@ namespace pagmo { namespace algorithm {
             std::vector<size_t> shortest_path = tabu.at( std::distance(cost.begin(), low_it) );
             
             // optional step, linear takes O(n), rotate around minimum to have consistent paths
-            make_tour_consistent(shortest_path);
+//            make_tour_consistent(shortest_path);
+            
+            Debug("\ncycle " << t << " score: " << lowest_cost << " trip: " << shortest_path);
             
             // if not true, it's not inserted, we have a duplicate key (hence cost, hence trip)
-            // we could give up /restart if duplicates becomes too big
-            if(!winners.insert(std::make_pair(lowest_cost, shortest_path)).second)
+            if(!winners.insert(std::pair<double, std::vector<size_t> >(lowest_cost, shortest_path)).second) {
                 ++duplicates;
+            } else {
+                // convert to decision vector and 
+                // Save the shortest path (winning ant) for the last n cycles in the population. 
+                // Where n is the number of individuals in the population. 
+                pop.set_x(t, tour2chromosome(shortest_path));
+            }
             
+            // stop cycles when there are 10% duplicates
+//            if (duplicates > static_cast<size_t>(m_ants * 0.1))
+//                break;
         } // end of main ACO loop (cycles)
         
-        // convert to decision vector
+        Debug("\n # duplicates: " << duplicates << " and # winners: " << winners.size());
+        Debug("\n cost (altered): " << winners.begin()->first << " tour: " << winners.begin()->second);
         
-        
-        // Save the shortest path (winning ant) for the last n cycles in the population. 
-        // Where n is the number of individuals in the population. 
-        
-        
-        
-        // convert costs according to lower and upper bounds
+        // do something with these?
         (void)lb;
         (void)ub;
+        (void)dim;
     }
 
     /// Algorithm name

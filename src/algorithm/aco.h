@@ -69,12 +69,12 @@ class __PAGMO_VISIBLE aco: public base
         
         void set_cycles(int);
         
-        static decision_vector list2decision_vector(const std::vector<size_t>);
+        static decision_vector tour2chromosome(std::vector<size_t>);
         
     protected:
         std::string human_readable_extra() const;
         
-        void make_tour_consistent(std::vector<size_t>&) const;
+        static void make_tour_consistent(std::vector<size_t>&);
         
         std::vector<size_t> greedy_nn_trip(size_t, const std::vector<std::vector<double> >) const;
         
