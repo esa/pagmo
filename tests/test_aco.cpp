@@ -79,7 +79,9 @@ int main()
     simple.evolve(pop);
     
     // print the champion
-    std::cout << pop.champion();
+//    std::cout << pop.champion();
+    if(pop.champion().f[0] != 3877)
+        return 1;
     
     /*
 from PyGMO.problem import tsp

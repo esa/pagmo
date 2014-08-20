@@ -25,7 +25,7 @@
 #include "aco.h"
 
 // debug
-#define USE_DEBUG
+//#define USE_DEBUG
 
 #ifdef USE_DEBUG
 #define Debug( x ) std::cout << x
