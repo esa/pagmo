@@ -22,10 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <deque>
+
 #include "aco.h"
 
 // debug
-//#define USE_DEBUG
+#define USE_DEBUG
 
 #ifdef USE_DEBUG
 #define Debug( x ) std::cout << x
@@ -279,6 +281,10 @@ namespace pagmo { namespace algorithm {
         const decision_vector &lb = tsp_prob.get_lb(), &ub = tsp_prob.get_ub();
         const population::size_type NP = pop.size();
         const problem::base::size_type no_vertices = tsp_prob.get_n_vertices();
+        
+        // random engine for ant init
+        std::default_random_engine generator(time(NULL));
+        std::uniform_int_distribution<size_t> dist(0, no_vertices - 1);
 
         //TODO: add check on the problem. The problem needs to be an integer problem TSP like, single objective.
         if (NP <= 1) pagmo_throw(value_error, "population size must be greater than one.");
@@ -295,15 +301,14 @@ namespace pagmo { namespace algorithm {
         for (int t = 0; t < m_cycles; ++t) {
             // deposit the initial pheromone along the edges of the graph
             std::vector<std::vector<double> > tau(initialize_pheromone(no_vertices, c));
+            
             // set delta_tau to 0
             std::vector<std::vector<double> > delta_tau(no_vertices, std::vector<double>(no_vertices, 0));
             
-            // initialize the cost vector to 0
-            std::vector<double> cost(m_ants, 0);
+            // initialize the tour length to 0
+            std::vector<double> tour_length(m_ants, 0);
             
-            // initialize the starting point using a random uniform distribution
-            std::default_random_engine generator(time(NULL));
-            std::uniform_int_distribution<size_t> dist(0, no_vertices - 1);
+            // set the starting point for each ant using a random uniform distribution
             std::vector<std::vector<size_t> > tabu(m_ants);
             for (int k = 0; k < m_ants ; ++k)
                 tabu.at(k).push_back(dist(generator));
@@ -312,23 +317,25 @@ namespace pagmo { namespace algorithm {
              *                      tau_{i,j}^alpha * eta_{i,j}^beta            (1)
              * p_{i,j}^k = ----------------------------------------------------
              *              sum_{tabu_k} (tau_{i,k}^alpha * eta_{i,k}^beta)     (2)
+             * 
+             * where eta_{i,j} = 1/weights_{i,j}
              */
             // compute shortest paths and costs
             for (int ant = 0; ant < m_ants; ++ant) {
-                Debug("\n ant #" << ant << ": ");
-                
-                // keep a sum of probabilities for all ants (2)
-                // initialize to smallest possible positive value to avoid division by zero
-                double prob = std::numeric_limits<double>::min();
+//                Debug("\n ant #" << ant << ": ");
                 
                 // get the starting position according to initialization
                 size_t current = tabu.at(ant).at(0);
-                Debug(" start -> " << current << " -> ");
+//                Debug(" start -> " << current);
+
+                // keep a sum of probabilities for all ants (2)
+                // initialize to smallest possible positive value to avoid division by zero
+                double prob_sum = std::numeric_limits<double>::min();
                 
                 // keep moving until all vertices are visited
                 while (tabu.at(ant).size() < no_vertices) {
                     // for each round, keep only maximum probability and it's position
-                    double max = 0; 
+                    double prob_max = 0; 
                     size_t next = std::numeric_limits<size_t>::max();
                     
                     // compute transition probabilities for all valid vertices
@@ -340,30 +347,32 @@ namespace pagmo { namespace algorithm {
                         if (weights.at(current).at(possible) == 0 || !weights.at(current).at(possible) == weights.at(current).at(possible)) continue;
                         
                         // otherwise compute probability (1)
-                        double prob_next = ( pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta) ) / prob;
+                        double prob_next = ( pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta) ) / prob_sum;
                         // keep track of maximum and it's position
-                        if (max < prob_next) {
-                            max = prob_next;
+                        if (prob_max < prob_next) {
+                            prob_max = prob_next;
                             next = possible;
                         }
                     } // done searching for next transition
                     
                     if (next == std::numeric_limits<size_t>::max()) { // we haven't found a possible next step for this ant
                         // stop searching for this ant, consider it stuck (set cost to infinity)
-                        cost.at(ant) = std::numeric_limits<double>::max();
+                        tour_length.at(ant) = std::numeric_limits<double>::max();
                         break; //use goto?
                     }
-                    Debug(next << " ");
+//                    Debug(next << " ");
                     
                     // remember visited vertices for each ant
                     tabu.at(ant).push_back(next);
+                    
                     // remember the total cost for each ant
-                    cost.at(ant) += weights.at(current).at(next)/Q;
-                    // remember sum of probabilities (2)
-                    prob += max;
+                    tour_length.at(ant) += weights.at(current).at(next);
                     
                     // update \delta \tau_{i,j} (this sums over all ants)
-                    delta_tau.at(current).at(next) += cost.at(ant)/Q;
+                    delta_tau.at(current).at(next) += Q/tour_length.at(ant);
+                    
+                    // remember sum of probabilities (2)
+                    prob_sum += prob_max;
                     
                     // move to next vertex
                     current = next;
@@ -374,13 +383,13 @@ namespace pagmo { namespace algorithm {
                 size_t first = tabu.at(ant).front();
                 if (weights.at(last).at(first) == 0 || !weights.at(last).at(first) == weights.at(last).at(first)) {
                     // set cost to infinity if we can't do a round-trip
-                    cost.at(ant) = std::numeric_limits<double>::max();
+                    tour_length.at(ant) = std::numeric_limits<double>::max();
                     continue;
-                } else { // add the cost from last to first(init)
-                    cost.at(ant) += weights.at(last).at(first);
+                } else { // add the cost from last to first (init)
+                    tour_length.at(ant) += weights.at(last).at(first);
                 }
                 
-                Debug(" cost: " << cost.at(ant));
+//                Debug("stop => cost: " << tour_length.at(ant));
             } // finished with all ants, a new cycle can start from here
             
             // update pheromone trail: \tau(t+1) = \tau(t) * rho + \delta \tau_{i,j}
@@ -393,14 +402,16 @@ namespace pagmo { namespace algorithm {
             delta_tau = temp;
             
             // store cost and path for the winner ant
-            std::vector<double>::iterator low_it = std::min_element(cost.begin(), cost.end());
+            std::vector<double>::iterator low_it = std::min_element(tour_length.begin(), tour_length.end());
             double lowest_cost = *low_it;
-            std::vector<size_t> shortest_path = tabu.at( std::distance(cost.begin(), low_it) );
+            std::vector<size_t> shortest_path = tabu.at( std::distance(tour_length.begin(), low_it) );
             
+            Debug(print_histogram(tour_length));               
+
             // optional step, linear takes O(n), rotate around minimum to have consistent paths
-//            make_tour_consistent(shortest_path);
+            make_tour_consistent(shortest_path);
             
-            Debug("\ncycle " << t << " score: " << lowest_cost << " trip: " << shortest_path);
+            Debug("\n Finished cycle " << t << "\t Score: " << lowest_cost << " Tour: " << shortest_path);
             
             // if not true, it's not inserted, we have a duplicate key (hence cost, hence trip)
             if(!winners.insert(std::pair<double, std::vector<size_t> >(lowest_cost, shortest_path)).second) {
@@ -418,7 +429,7 @@ namespace pagmo { namespace algorithm {
         } // end of main ACO loop (cycles)
         
         Debug("\n # duplicates: " << duplicates << " and # winners: " << winners.size());
-        Debug("\n cost (altered): " << winners.begin()->first << " tour: " << winners.begin()->second);
+        Debug("\n Lowest Cost: " << winners.begin()->first << " Tour: " << winners.begin()->second);
         
         // do something with these?
         (void)lb;
@@ -445,6 +456,35 @@ namespace pagmo { namespace algorithm {
         return s.str();
     }
 
+    /// Prints a histogram of a fitness tour
+    /**
+     * Prints a histogram of the fitness tour.
+     * Each line is a unique fitness (cost) value for a tour.
+     * @param tour - the tour vector containing costs
+     * @return a string of the output
+     */
+    std::string aco::print_histogram(std::vector<double> tour) const
+    {
+        std::stringstream out;
+        out << "\n\nHistogram (no tours / cost bin)\n";
+        std::sort(tour.begin(), tour.end());
+        std::vector<double>::iterator it;
+        it = std::unique(tour.begin(), tour.end());
+        std::vector<double> uniq(tour.begin(), it);        
+        std::vector<int> histo(uniq.size(), 0);
+        
+        for (size_t i = 0; i < uniq.size(); ++i) {
+            for (size_t j = 0 ; j < tour.size(); ++j)
+                if (uniq[i] == tour[j])
+                    histo[i]++;
+        }
+        
+        for (size_t k = 0; k < histo.size(); ++k)
+            out << uniq[k] << " " <<  std::string(histo[k], '#') << std::endl;
+        
+        return out.str();
+    }
+    
 }} //namespaces
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::aco)

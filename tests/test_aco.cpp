@@ -31,7 +31,7 @@ using namespace pagmo;
 int main()
 {
     // create an instance of aco
-    pagmo::algorithm::aco simple(300, 150, 0.2);
+    pagmo::algorithm::aco simple(500, 250, 0.2);
     
     /** example of conversion from list to chromosome
      * 
@@ -52,7 +52,7 @@ int main()
         return 1;
     }
     
-    // create a tsp problem matrix (symmetric)
+    // create a tsp problem matrix (symmetric) burma14 optimal = 3323
     std::vector<std::vector<double> > burma14 = {
         {    0.0,	153.0,	510.0,	 706.0,	  966.0,	581.0,	455.0,	 70.0,	160.0,	 372.0,	157.0,	567.0,	342.0,	398.0},
         {  153.0,	  0.0,	422.0,	 664.0,	  997.0,	598.0,	507.0,	197.0,	311.0,	 479.0,	310.0,	581.0,	417.0,	376.0},
@@ -73,14 +73,14 @@ int main()
     pagmo::problem::tsp prob(burma14);
     
     // create a population
-    pagmo::population pop(prob, 100);
+    pagmo::population pop(prob, 200);
     
     // run the evolution method
     simple.evolve(pop);
     
     // print the champion
-//    std::cout << pop.champion();
-    if(pop.champion().f[0] != 3877)
+    std::cout << pop.champion();
+    if(pop.champion().f[0] != 3841)
         return 1;
     
     /*

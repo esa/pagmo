@@ -74,6 +74,9 @@ class __PAGMO_VISIBLE aco: public base
         static decision_vector tour2chromosome(std::vector<size_t>);
         
     protected:
+        
+        std::string print_histogram(std::vector<double>) const;
+        
         std::string human_readable_extra() const;
         
         static void make_tour_consistent(std::vector<size_t>&);
