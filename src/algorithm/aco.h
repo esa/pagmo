@@ -53,6 +53,8 @@ namespace pagmo { namespace algorithm {
  * starting points and the process is repeated.
  * 
  * This class is the Simple Ant System algorithm.
+ * Other variants: Elitist Ant System, Rank-Based Ant System, Max-Min Ant System, Ant Colony System.
+ * See: http://books.google.at/books?id=_aefcpY8GiEC&hl=en
  * 
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
