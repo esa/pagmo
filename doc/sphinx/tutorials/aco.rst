@@ -190,5 +190,33 @@ And finally, the output for printing the TSP problem instance:
         (0, 1) = 153.0
         # [..snip..]
         (13, 12) = 247.0
+        
+Solving Using Ant Colony System
+###############################
+
+Here we solve the 
+
+.. code-block:: python
+
+from PyGMO import *
+from PyGMO.util import tsp as tsputil
+# importing tsp file
+xml = tsputil.read_tsplib('ulysses22.xml')
+
+# instantiatng a tsp problem
+prob = problem.tsp(xml)
+
+# creating population
+pop = population(prob, 100)
+
+# here we select the Simple Ant Colony System
+algo = algorithm.aco(90, 150)
+
+# call the evolve method
+result = algo.evolve(pop)
+
+# print the result
+print result.champion
+
 
 
