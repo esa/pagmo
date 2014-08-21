@@ -209,14 +209,14 @@ prob = problem.tsp(xml)
 # creating population
 pop = population(prob, 100)
 
-# here we select the Simple Ant Colony System
+# Simple Ant Colony System, 90 cycles and 150 ants
 algo = algorithm.aco(90, 150)
 
 # call the evolve method
 result = algo.evolve(pop)
 
-# print the result
-print result.champion
+# print the resulting fitness
+print result.champion.f
 
 
 
