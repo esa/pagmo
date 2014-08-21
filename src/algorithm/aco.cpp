@@ -27,12 +27,19 @@
 #include "aco.h"
 
 // debug
-#define USE_DEBUG
+//#define USE_DEBUG
+//#define USE_DEBUG_ALL
 
 #ifdef USE_DEBUG
 #define Debug( x ) std::cout << x
 #else
 #define Debug( x ) 
+#endif
+
+#ifdef USE_DEBUG_ALL
+#define Debugv( x ) std::cout << x
+#else
+#define Debugv( x ) 
 #endif
 
 namespace pagmo { namespace algorithm {
@@ -271,7 +278,7 @@ namespace pagmo { namespace algorithm {
         // Values taken from paper
         const double alpha = 1;
         const double beta = 5;
-        const double c = 0.00001;
+        const double c = 0.01;
         const double Q = 100;
         
         // Let's store some useful variables.
@@ -316,27 +323,26 @@ namespace pagmo { namespace algorithm {
             /**
              *                      tau_{i,j}^alpha * eta_{i,j}^beta            (1)
              * p_{i,j}^k = ----------------------------------------------------
-             *              sum_{tabu_k} (tau_{i,k}^alpha * eta_{i,k}^beta)     (2)
+             *              sum_{allowed k} (tau_{i,k}^alpha * eta_{i,k}^beta)  (2)
              * 
              * where eta_{i,j} = 1/weights_{i,j}
              */
             // compute shortest paths and costs
             for (int ant = 0; ant < m_ants; ++ant) {
-//                Debug("\n ant #" << ant << ": ");
+                Debugv("\n ant #" << ant << ": ");
                 
                 // get the starting position according to initialization
                 size_t current = tabu.at(ant).at(0);
-//                Debug(" start -> " << current);
-
-                // keep a sum of probabilities for all ants (2)
-                // initialize to smallest possible positive value to avoid division by zero
-                double prob_sum = std::numeric_limits<double>::min();
+                Debugv(" start -> " << current);
                 
                 // keep moving until all vertices are visited
                 while (tabu.at(ant).size() < no_vertices) {
                     // for each round, keep only maximum probability and it's position
                     double prob_max = 0; 
                     size_t next = std::numeric_limits<size_t>::max();
+                    
+//                    double prob_denominator = 0;
+//                    std::vector<double> prob_next(no_vertices, 0);
                     
                     // compute transition probabilities for all valid vertices
                     for (size_t possible = 0; possible < no_vertices; ++possible) {
@@ -346,8 +352,12 @@ namespace pagmo { namespace algorithm {
                         // this might be useless since problem::tsp::check_matrix does this already
                         if (weights.at(current).at(possible) == 0 || !weights.at(current).at(possible) == weights.at(current).at(possible)) continue;
                         
-                        // otherwise compute probability (1)
-                        double prob_next = ( pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta) ) / prob_sum;
+                        // otherwise compute probability
+                        double prob_next = pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta);
+                        
+//                        prob_next.at(possible) = pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta);
+//                        prob_denominator += prob_next.at(possible);
+                        
                         // keep track of maximum and it's position
                         if (prob_max < prob_next) {
                             prob_max = prob_next;
@@ -355,12 +365,17 @@ namespace pagmo { namespace algorithm {
                         }
                     } // done searching for next transition
                     
+                    // the denominator doesn't really make any difference
+//                    for (size_t possible = 0; possible < no_vertices; ++possible)
+//                        prob_next.at(possible) /= prob_denominator;
+//                    next = std::distance(prob_next.begin(), std::max_element(prob_next.begin(), prob_next.end()));
+                    
                     if (next == std::numeric_limits<size_t>::max()) { // we haven't found a possible next step for this ant
                         // stop searching for this ant, consider it stuck (set cost to infinity)
                         tour_length.at(ant) = std::numeric_limits<double>::max();
                         break; //use goto?
                     }
-//                    Debug(next << " ");
+                    Debugv(next << " ");
                     
                     // remember visited vertices for each ant
                     tabu.at(ant).push_back(next);
@@ -370,9 +385,6 @@ namespace pagmo { namespace algorithm {
                     
                     // update \delta \tau_{i,j} (this sums over all ants)
                     delta_tau.at(current).at(next) += Q/tour_length.at(ant);
-                    
-                    // remember sum of probabilities (2)
-                    prob_sum += prob_max;
                     
                     // move to next vertex
                     current = next;
@@ -387,20 +399,23 @@ namespace pagmo { namespace algorithm {
                     continue;
                 } else { // add the cost from last to first (init)
                     tour_length.at(ant) += weights.at(last).at(first);
+                    delta_tau.at(last).at(first) += Q/tour_length.at(ant);
                 }
                 
-//                Debug("stop => cost: " << tour_length.at(ant));
+                Debugv("stop => cost: " << tour_length.at(ant));
             } // finished with all ants, a new cycle can start from here
             
             // update pheromone trail: \tau(t+1) = \tau(t) * rho + \delta \tau_{i,j}
-            for (size_t i = 0; i < no_vertices; ++i)
+            for (size_t i = 0; i < no_vertices; ++i) 
                 for(size_t j = 0; j < no_vertices; ++j)
                     tau.at(i).at(j) = tau.at(i).at(j) * m_rho + delta_tau.at(i).at(j);
+            
+//            std::cout << print_tau(tau);
             
             // reset \delta \tau_{i,j} to 0
             std::vector<std::vector<double> > temp(no_vertices, std::vector<double>(no_vertices, 0));
             delta_tau = temp;
-            
+                        
             // store cost and path for the winner ant
             std::vector<double>::iterator low_it = std::min_element(tour_length.begin(), tour_length.end());
             double lowest_cost = *low_it;
@@ -484,6 +499,20 @@ namespace pagmo { namespace algorithm {
         
         return out.str();
     }
+    
+    /// Clears the screen and prints the pheromone matrix
+    std::string aco::print_tau(std::vector<std::vector<double> > tau) const 
+    {
+        std::stringstream out;
+        system("clear");
+        for (size_t i = 0; i < tau.size(); ++i) {
+            out << "\n";
+            for(size_t j = 0; j < tau.at(i).size(); ++j)
+                out << std::fixed << std::setprecision(2)<< tau.at(i).at(j) << "\t";
+        }
+        return out.str();
+    }
+
     
 }} //namespaces
 

@@ -76,6 +76,7 @@ class __PAGMO_VISIBLE aco: public base
     protected:
         
         std::string print_histogram(std::vector<double>) const;
+        std::string print_tau(std::vector<std::vector<double> >) const;
         
         std::string human_readable_extra() const;
         
