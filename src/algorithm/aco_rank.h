@@ -22,18 +22,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_ACO_H
-#define PAGMO_ALGORITHM_ACO_H
+#ifndef PAGMO_ALGORITHM_ACO_RANK_H
+#define PAGMO_ALGORITHM_ACO_RANK_H
 
 #include "../config.h"
 #include "../serialization.h"
 #include "../population.h"
 #include "../problem/tsp.h"
+#include "aco_elite.h"
 #include "base.h"
 
 namespace pagmo { namespace algorithm {
 
-/// Ant Colony Optimization (ACO) - Simple Ant System
+/// Ant Colony Optimization (ACO) - Rank-based Ant System
 /**
  * All ACO algorithms can be characterized by three parameters as follows: 
  * - Number of ants N > 0;
@@ -51,55 +52,19 @@ namespace pagmo { namespace algorithm {
  * a list of valid tours from the ants that have managed to complete a tour,
  * the shortest tour is remembered and the ants are re-initialized in different
  * starting points and the process is repeated.
- * 
- * This class is the Simple Ant System algorithm.
- * Other variants: Elitist Ant System, Rank-Based Ant System, Max-Min Ant System, Ant Colony System.
+ *
  * See: http://books.google.at/books?id=_aefcpY8GiEC&hl=en
  * 
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
-
-// contains a cost and a list of vertices
-typedef std::pair<double, std::vector<size_t> > aco_tour;
-    
-class __PAGMO_VISIBLE aco: public base
+class __PAGMO_VISIBLE aco_rank: public aco_elite
 {
     public:
-        aco(int cycle = 100, int ants = 100, double rho = 0.5);
-        int get_cycles() const;
-        int get_ants() const;
-        double get_rho() const;
-        double get_alpha() const;
-        double get_beta() const;
-        std::vector<double> get_lambda() const;
-        
-        double get_l_branching(double, const std::vector<std::vector<double> >&) const;
-        std::string get_name() const;
-        
-        void set_cycles(int);
-        void set_alhpa(double);
-        void set_beta(double);
+        aco_rank(int cycle = 100, int ants = 100, double rho = 0.5, double e = 0.1 );
         
         base_ptr clone() const;
         void evolve(population &) const;
-        
-    protected:
-        std::vector<std::vector<double> > initialize_pheromone(size_t) const;
-        std::vector<std::vector<double> > initialize_pheromone(size_t, double) const;
-        std::vector<std::vector<double> > initialize_pheromone(size_t, const std::vector<std::vector<double> >) const;
-//        void initialize_pheromone(int, const population&) const;
-        
-        aco_tour forage(const size_t, const std::vector<std::vector<double> >&, const std::vector<std::vector<double> >&) const;
-        
-        std::vector<size_t> greedy_nn_trip(size_t, const std::vector<std::vector<double> >) const;
-        
-        static decision_vector tour2chromosome(const std::vector<size_t>);
-        static void make_tour_consistent(std::vector<size_t>&);
-        
-        std::string human_readable_extra() const;
-        
-        std::string print_histogram(std::vector<double>) const;
-        std::string print_tau(const std::vector<std::vector<double> >&) const;
+        std::string get_name() const;
         
     private:
         friend class boost::serialization::access;
@@ -110,25 +75,17 @@ class __PAGMO_VISIBLE aco: public base
                 ar & m_cycles;
                 ar & m_ants;
                 ar & m_rho;
-                ar & m_alpha;
-                ar & m_beta;
+                ar & m_e;
         }
 
         int m_cycles;
         int m_ants;
         double m_rho;
-        // alpha and beta would look better as parameters for evolve
-        // alas! can't do that
-        double m_alpha;
-        double m_beta;
-        // stores the lambda branching factor for all cycles
-        // to be plotted in python using the getter
-        // mutable because it needs to be changed in evolve which is virtual const
-        mutable std::vector<double> m_lambda;
+        double m_e;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::aco)
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::aco_rank)
 
-#endif // PAGMO_ALGORITHM_ACO_H
+#endif // PAGMO_ALGORITHM_ACO_RANK_H

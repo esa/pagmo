@@ -29,30 +29,16 @@
 using namespace pagmo;
 
 int main()
-{
-    // create an instance of aco
-    pagmo::algorithm::aco simple(1500, 250, 0.5);
-    
-    /** example of conversion from list to chromosome
-     * 
-     *  | 0 1 2
-     * -|------
-     * 0| - 0 1
-     * 1| 1 - 0
-     * 2| 0 1 -
-     * 
-     * 0 2 1 => -01 1-0 01-
-     */        
-    
-    std::vector<size_t> list = {0, 2, 1};
-    decision_vector dec_target = {0,1, 1,0, 0,1};
-    
-    if(dec_target != simple.tour2chromosome(list)) {
-        std::cout << "the conversion from list to chromosome is incorrect!\n";
-        return 1;
-    }
-
+{   
     // create a tsp problem matrix (symmetric) ulysses22
+    /**
+     * NAME : ulysses22.opt.tour 
+     * TYPE : TOUR
+     * COMMENT : Optimal solution of ulysses22 (7013)
+     * DIMENSION : 22
+     * 
+     * 1, 14, 13, 12, 7, 6, 15, 5, 11, 9, 10, 19, 20, 21, 16, 3, 2, 17, 22, 4, 18, 8 
+     */
     std::vector<std::vector<double> > ulysses22 = {
 {    0.0, 509.0, 501.0, 312.0,1019.0, 736.0, 656.0,  60.0,1039.0, 726.0,2314.0, 479.0, 448.0, 479.0,  619.0, 150.0, 342.0, 323.0, 635.0, 604.0, 596.0, 202.0 },
 {  509.0,   0.0, 126.0, 474.0,1526.0,1226.0,1133.0, 532.0,1449.0,1122.0,2789.0, 958.0, 941.0, 978.0, 1127.0, 542.0, 246.0, 510.0,1047.0,1021.0,1010.0, 364.0 },
@@ -83,38 +69,24 @@ int main()
     // create a population
     pagmo::population pop(prob, 200);
     
+    // create an instance of aco simple
+    pagmo::algorithm::aco acs(1000, 250, 0.5);
+    
     // run the evolution method
-    simple.evolve(pop);
+    acs.evolve(pop);
     
     // print the champion
     std::cout << pop.champion().f << std::endl;
 //    if(pop.champion().f[0] != 7013)
 //        return 1;
     
-    /*
-     * 
-     * NAME : ulysses22.opt.tour 
-     * TYPE : TOUR
-     * COMMENT : Optimal solution of ulysses22 (7013)
-     * DIMENSION : 22
-     * TOUR_SECTION 
-     * 
-     * 1, 14, 13, 12, 7, 6, 15, 5, 11, 9, 10, 19, 20, 21, 16, 3, 2, 17, 22, 4, 18, 8 
-      
-     * [0, 15, 12, 13, 11, 6, 5, 14, 4, 19, 20, 18, 9, 8, 10, 2, 1, 16, 21, 3, 17, 7]
-     
-from PyGMO.problem import tsp
-from PyGMO.algorithm import aco
-from PyGMO import population
-from PyGMO.util import tsp as tsputil
-xml = tsputil.read_tsplib('ulysses22.xml')
-prob = tsp(xml)
-pop = population(prob, 100)
-algo = aco(90, 150)
-result = algo.evolve(pop)
-print result.champion
-    */
-    
+//    pagmo::algorithm::aco_elite ace(1000, 250, 0.5, 0.2);
+//    
+//    pop.reinit();
+//    ace.evolve(pop);
+//    
+//    std::cout << pop.champion().f << std::endl;
+          
     // all iz well
     return 0;
 }

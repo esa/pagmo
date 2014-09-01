@@ -22,25 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <deque>
-
 #include "aco.h"
-
-// debug
-//#define USE_DEBUG
-//#define USE_DEBUG_ALL
-
-#ifdef USE_DEBUG
-#define Debug( x ) std::cout << x
-#else
-#define Debug( x ) 
-#endif
-
-#ifdef USE_DEBUG_ALL
-#define Debugv( x ) std::cout << x
-#else
-#define Debugv( x ) 
-#endif
 
 namespace pagmo { namespace algorithm {
     
@@ -56,6 +38,8 @@ namespace pagmo { namespace algorithm {
         if (rho < 0 || rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
         // if population must be at least 2 and ants > population => ants must be at least 3
         if (ants <= 2) pagmo_throw(value_error, "there must be at least three ants in the colony.");
+        m_alpha = 1;
+        m_beta = 2;
     }
     
     /// Returns the number of cycles the algorithm is run.
@@ -88,6 +72,12 @@ namespace pagmo { namespace algorithm {
         return m_rho;
     }
     
+    /// Returns the vector of lambdas for each cycle.
+    std::vector<double> aco::get_lambda() const
+    {
+        return m_lambda;
+    }
+
     // Sets the number of cycles the algorithm runs for.
     /**
      * Setter for the m_cycle property
@@ -275,19 +265,14 @@ namespace pagmo { namespace algorithm {
     void aco::evolve(population &pop) const
     {
         // Configuration parameters, maybe put them somewhere else?
-        // Values taken from paper
-        const double alpha = 1;
-        const double beta = 5;
-        const double c = 0.01;
-        const double Q = 100;
+        const double c = 0.1;
+        const double Q = 1;
         
         // Let's store some useful variables.
         const problem::tsp &tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
         const std::vector<std::vector<double> > &weights = tsp_prob.get_weights();
-        const problem::base::size_type dim = tsp_prob.get_i_dimension();
-        const decision_vector &lb = tsp_prob.get_lb(), &ub = tsp_prob.get_ub();
-        const population::size_type NP = pop.size();
         const problem::base::size_type no_vertices = tsp_prob.get_n_vertices();
+        population::size_type NP = pop.size();
         
         // random engine for ant init
         std::default_random_engine generator(time(NULL));
@@ -296,162 +281,169 @@ namespace pagmo { namespace algorithm {
         //TODO: add check on the problem. The problem needs to be an integer problem TSP like, single objective.
         if (NP <= 1) pagmo_throw(value_error, "population size must be greater than one.");
         if (m_ants <= static_cast<int>(NP)) pagmo_throw(value_error, "the number of ants needs to be greater than the population size.");
-
-        // keep a counter for duplicate items, we might want to terminate early and/or reinitialize
-        size_t duplicates = 0;
         
-        // for each cycle, store a map of the lowest cost and the cities visited
-        // we get solutions ordered for free, though maps have O(log(n)) insertion/delete and lookup time
-        std::map<double, std::vector<size_t> > winners;
+        // deposit the initial pheromone along the edges of the graph
+        std::vector<std::vector<double> > tau(initialize_pheromone(no_vertices, c));
         
-        // Main ACO loop: stops when either maximum number of cycles reached or (? all ants make the same tour )
-        for (int t = 0; t < m_cycles; ++t) {
-            // deposit the initial pheromone along the edges of the graph
-            std::vector<std::vector<double> > tau(initialize_pheromone(no_vertices, c));
-            
-            // set delta_tau to 0
+        // Main ACO loop: stops when either maximum number of cycles reached or all ants make the same tour
+        for (int t = 0; t < m_cycles; ++t) {    
+            // (re)set delta_tau to 0
             std::vector<std::vector<double> > delta_tau(no_vertices, std::vector<double>(no_vertices, 0));
             
-            // initialize the tour length to 0
+            // set the tour length to 0 for all ants
             std::vector<double> tour_length(m_ants, 0);
             
             // set the starting point for each ant using a random uniform distribution
-            std::vector<std::vector<size_t> > tabu(m_ants);
+            std::vector<std::vector<size_t> > tour(m_ants);
             for (int k = 0; k < m_ants ; ++k)
-                tabu.at(k).push_back(dist(generator));
-                       
-            /**
-             *                      tau_{i,j}^alpha * eta_{i,j}^beta            (1)
-             * p_{i,j}^k = ----------------------------------------------------
-             *              sum_{allowed k} (tau_{i,k}^alpha * eta_{i,k}^beta)  (2)
-             * 
-             * where eta_{i,j} = 1/weights_{i,j}
-             */
-            // compute shortest paths and costs
-            for (int ant = 0; ant < m_ants; ++ant) {
-                Debugv("\n ant #" << ant << ": ");
+                tour.at(k).push_back(dist(generator));
+
+            // compute shortest paths and costs for all ants
+            for (int ant = 0; ant < m_ants; ++ant) {                
+                // launch an ant for this starting position (make round-trip)
+                aco_tour this_tour = forage(tour.at(ant).at(0), weights, tau);
+                tour_length.at(ant) = this_tour.first;
+                tour.at(ant) = this_tour.second;
                 
-                // get the starting position according to initialization
-                size_t current = tabu.at(ant).at(0);
-                Debugv(" start -> " << current);
-                
-                // keep moving until all vertices are visited
-                while (tabu.at(ant).size() < no_vertices) {
-                    // for each round, keep only maximum probability and it's position
-                    double prob_max = 0; 
-                    size_t next = std::numeric_limits<size_t>::max();
-                    
-//                    double prob_denominator = 0;
-//                    std::vector<double> prob_next(no_vertices, 0);
-                    
-                    // compute transition probabilities for all valid vertices
-                    for (size_t possible = 0; possible < no_vertices; ++possible) {
-                        // already visited, skip vertex
-                        if (std::find(tabu.at(ant).begin(), tabu.at(ant).end(), possible) != tabu.at(ant).end()) continue;
-                        // not a valid transition, skip vertex (checking weights for 0 and NaNs)
-                        // this might be useless since problem::tsp::check_matrix does this already
-                        if (weights.at(current).at(possible) == 0 || !weights.at(current).at(possible) == weights.at(current).at(possible)) continue;
-                        
-                        // otherwise compute probability
-                        double prob_next = pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta);
-                        
-//                        prob_next.at(possible) = pow(tau.at(current).at(possible), alpha) * pow(1/weights.at(current).at(possible), beta);
-//                        prob_denominator += prob_next.at(possible);
-                        
-                        // keep track of maximum and it's position
-                        if (prob_max < prob_next) {
-                            prob_max = prob_next;
-                            next = possible;
-                        }
-                    } // done searching for next transition
-                    
-                    // the denominator doesn't really make any difference
-//                    for (size_t possible = 0; possible < no_vertices; ++possible)
-//                        prob_next.at(possible) /= prob_denominator;
-//                    next = std::distance(prob_next.begin(), std::max_element(prob_next.begin(), prob_next.end()));
-                    
-                    if (next == std::numeric_limits<size_t>::max()) { // we haven't found a possible next step for this ant
-                        // stop searching for this ant, consider it stuck (set cost to infinity)
-                        tour_length.at(ant) = std::numeric_limits<double>::max();
-                        break; //use goto?
-                    }
-                    Debugv(next << " ");
-                    
-                    // remember visited vertices for each ant
-                    tabu.at(ant).push_back(next);
-                    
-                    // remember the total cost for each ant
-                    tour_length.at(ant) += weights.at(current).at(next);
-                    
-                    // update \delta \tau_{i,j} (this sums over all ants)
-                    delta_tau.at(current).at(next) += Q/tour_length.at(ant);
-                    
-                    // move to next vertex
-                    current = next;
-                } // done with tabu list, we only need to make the round trip
-                
-                // check to see if it's a valid transition
-                size_t last = tabu.at(ant).back();
-                size_t first = tabu.at(ant).front();
-                if (weights.at(last).at(first) == 0 || !weights.at(last).at(first) == weights.at(last).at(first)) {
-                    // set cost to infinity if we can't do a round-trip
-                    tour_length.at(ant) = std::numeric_limits<double>::max();
-                    continue;
-                } else { // add the cost from last to first (init)
-                    tour_length.at(ant) += weights.at(last).at(first);
-                    delta_tau.at(last).at(first) += Q/tour_length.at(ant);
+                // update delta_tau and compute lambda branching factor
+                for (size_t i = 0; i < tour.at(ant).size() - 1; ++i) {
+                    size_t from = tour.at(ant).at(i), to = tour.at(ant).at(i+1);
+                    delta_tau.at(from).at(to) += Q/tour_length.at(ant);
                 }
+                delta_tau.at( tour.at(ant).back() ).at( tour.at(ant).front() ) += Q/tour_length.at(ant);
                 
-                Debugv("stop => cost: " << tour_length.at(ant));
-            } // finished with all ants, a new cycle can start from here
+            } // finished with all ants, cycle computations can be performed
             
-            // update pheromone trail: \tau(t+1) = \tau(t) * rho + \delta \tau_{i,j}
-            for (size_t i = 0; i < no_vertices; ++i) 
-                for(size_t j = 0; j < no_vertices; ++j)
-                    tau.at(i).at(j) = tau.at(i).at(j) * m_rho + delta_tau.at(i).at(j);
-            
-//            std::cout << print_tau(tau);
-            
-            // reset \delta \tau_{i,j} to 0
-            std::vector<std::vector<double> > temp(no_vertices, std::vector<double>(no_vertices, 0));
-            delta_tau = temp;
-                        
-            // store cost and path for the winner ant
+            // search for lowest cost and get corresponding tour after this cycle
             std::vector<double>::iterator low_it = std::min_element(tour_length.begin(), tour_length.end());
             double lowest_cost = *low_it;
-            std::vector<size_t> shortest_path = tabu.at( std::distance(tour_length.begin(), low_it) );
+            std::vector<size_t> shortest_path = tour.at( std::distance(tour_length.begin(), low_it) );
             
-            Debug(print_histogram(tour_length));               
-
-            // optional step, linear takes O(n), rotate around minimum to have consistent paths
+            // update pheromone matrix
+            for (size_t i = 0; i < tau.size(); ++i) 
+                for (size_t j = 0; j < tau.size(); ++j)
+                    tau.at(i).at(j) = tau.at(i).at(j) * m_rho + delta_tau.at(i).at(j);
+            
+            // make tour consistent
             make_tour_consistent(shortest_path);
+            //convert to decision vector and 
+            // save the shortest path or the last n cycles in the population. 
+            // where n is the number of individuals in the population. 
+            pop.set_x(t/m_ants, tour2chromosome(shortest_path));
             
-            Debug("\n Finished cycle " << t << "\t Score: " << lowest_cost << " Tour: " << shortest_path);
+            // store lambdas
+            m_lambda.push_back( get_l_branching(0.5, tau) );
+//            
+//            // stop cycles if we're close to three and 2nd derrivative's close to 0
+            if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2))  )
+                break;
             
-            // if not true, it's not inserted, we have a duplicate key (hence cost, hence trip)
-            if(!winners.insert(std::pair<double, std::vector<size_t> >(lowest_cost, shortest_path)).second) {
-                ++duplicates;
-            } else {
-                // convert to decision vector and 
-                // Save the shortest path (winning ant) for the last n cycles in the population. 
-                // Where n is the number of individuals in the population. 
-                pop.set_x(t, tour2chromosome(shortest_path));
-            }
-            
-            // stop cycles when there are 10% duplicates
-//            if (duplicates > static_cast<size_t>(m_ants * 0.1))
-//                break;
+            // Debug stuff
+//            system("clear");
+//            std::cout << print_histogram(tour_length);
+//            std::cout << print_tau(tau);
+//            std::cout << "\n Finished cycle " << t+1 << "\t Score: " << lowest_cost << " Tour: " << shortest_path;
         } // end of main ACO loop (cycles)
         
-        Debug("\n # duplicates: " << duplicates << " and # winners: " << winners.size());
-        Debug("\n Lowest Cost: " << winners.begin()->first << " Tour: " << winners.begin()->second);
-        
-        // do something with these?
-        (void)lb;
-        (void)ub;
-        (void)dim;
     }
+    
+    /// Computes the average lambda branching factor
+    /**
+     * Computes and returns the average lambda branching factor
+     * 
+     * avg lambda = sum( lambda_ij )
+     * lambda_ij = sum ( tau_ij >= min(tau_i) + lambda ( max(tau_i) - min(tau_i) ) )
+     * 
+     * @param[in] tau - the pheromone matrix
+     * @return - the average lambda branching factor
+     */
+    double aco::get_l_branching(double lambda, const std::vector<std::vector<double> >& tau) const
+    {
+        double avg_lambda = 0;
+        size_t no_vertices = tau.size();
+        for (size_t i = 0; i < no_vertices; ++i) {
+            auto min_max = std::minmax_element(tau.at(i).begin(), tau.at(i).end());
+            double min = *min_max.first, max = *min_max.second;
+            
+            avg_lambda += std::count_if(tau.at(i).begin(), tau.at(i).end(), std::bind1st(std::less<double>(), min + lambda * (max - min)));
+        }
+        return avg_lambda / static_cast<double>(no_vertices);
+    }
+    
+    /// Performs a round-trip from a given starting vertex
+    /**
+     * Makes one round-trip given a starting position and a weight matrix
+     * 
+     *                      tau_{i,j}^alpha * eta_{i,j}^beta            (1)
+     * p_{i,j}^k = ----------------------------------------------------
+     *              sum_{allowed k} (tau_{i,k}^alpha * eta_{i,k}^beta)  (2)
+     * 
+     * where eta_{i,j} = 1/weights_{i,j}
+     * 
+     * @param[in] start - the starting vertice
+     * @param[in] weights - the weights matrix
+     * @return std::pair of :
+     *      double - the cost of the round-trip tour
+     *      std::vector<size_t> - the list of vertices in the order visited
+     */
+    aco_tour aco::forage(const size_t start, const std::vector<std::vector<double> >& weights, const std::vector<std::vector<double> >& tau) const
+    {
+        // init tour with starting position
+        std::vector<size_t> tour(1, start);
+        // init length to max (infinity)
+        double tour_length = std::numeric_limits<double>::max();
+        
+        // get number of vertices
+        size_t no_vertices = weights.size();
+        
+        size_t current = tour.front();
+        // keep moving until all vertices are visited
+        while (tour.size() < no_vertices) {
+            // for each round, keep only maximum probability and it's position
+            double prob_max = 0; 
+            size_t next = std::numeric_limits<size_t>::max();
 
+            // compute transition probabilities for all valid vertices
+            for (size_t possible = 0; possible < no_vertices; ++possible) {
+                // already visited, skip vertex
+                if ( std::find(tour.begin(), tour.end(), possible) != tour.end() ) continue;
+                // not a valid transition, skip vertex (checking weights for 0)
+                if ( !weights.at(current).at(possible) ) continue;
+
+                // otherwise compute probability, denominator in formula is irrelevant
+                double prob_next = pow(tau.at(current).at(possible), m_alpha) * pow(1/weights.at(current).at(possible), m_beta);
+
+                // keep track of maximum and it's position
+                if (prob_max < prob_next) {
+                    prob_max = prob_next;
+                    next = possible;
+                }
+            } // done searching for next transition
+
+            // if we haven't found a possible next step for this ant, return max (infinity)
+            if ( next == std::numeric_limits<size_t>::max() )
+                return std::make_pair(std::numeric_limits<double>::max(), tour);
+
+            // remember visited vertices for each ant
+            tour.push_back(next);
+
+            // remember the total cost for each ant
+            tour_length += weights.at(current).at(next);
+
+            // move to next vertex
+            current = next;
+        } // done with tour list
+        
+        // compute the round trip cost, if round-trip possible
+        if ( weights.at(tour.back()).at(tour.front()) != 0 )         
+            tour_length += weights.at(tour.back()).at(tour.front());
+        else
+            return std::make_pair(std::numeric_limits<double>::max(), tour);
+        
+        // return cost and tour
+        return std::make_pair(tour_length, tour);
+    }
+    
     /// Algorithm name
     std::string aco::get_name() const
     {
@@ -500,20 +492,20 @@ namespace pagmo { namespace algorithm {
         return out.str();
     }
     
-    /// Clears the screen and prints the pheromone matrix
-    std::string aco::print_tau(std::vector<std::vector<double> > tau) const 
+    /// Prints a pheromone matrix
+    std::string aco::print_tau(const std::vector<std::vector<double> >& tau) const 
     {
         std::stringstream out;
-        system("clear");
+        out << "\n";
         for (size_t i = 0; i < tau.size(); ++i) {
             out << "\n";
             for(size_t j = 0; j < tau.at(i).size(); ++j)
-                out << std::fixed << std::setprecision(2)<< tau.at(i).at(j) << "\t";
+                out << std::scientific << std::setprecision(1) << tau.at(i).at(j) << " ";
         }
+        out << "\n";
         return out.str();
     }
 
-    
 }} //namespaces
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::aco)

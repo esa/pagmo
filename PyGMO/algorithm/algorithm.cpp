@@ -262,7 +262,15 @@ BOOST_PYTHON_MODULE(_algorithm) {
 		.def(init<optional<int,int> >());
 
 	// Ant Colony Optimization (ACO)
-	algorithm_wrapper<algorithm::aco>("aco","Ant Colony Optimization (ACO) algorithm.")
+	algorithm_wrapper<algorithm::aco>("aco","Simple Ant Colony Optimization (ACO) algorithm.")
+		.def(init<int,optional<double> >())
+		.add_property("gen",&algorithm::aco::get_cycles,&algorithm::aco::set_cycles);
+        
+        algorithm_wrapper<algorithm::aco_elite>("aco_elite"," Elite Ant Colony Optimization (ACO) algorithm.")
+		.def(init<int,optional<double> >())
+		.add_property("gen",&algorithm::aco::get_cycles,&algorithm::aco::set_cycles);
+        
+        algorithm_wrapper<algorithm::aco_rank>("aco_rank","Rank-based Ant Colony Optimization (ACO) algorithm.")
 		.def(init<int,optional<double> >())
 		.add_property("gen",&algorithm::aco::get_cycles,&algorithm::aco::set_cycles);
 	
