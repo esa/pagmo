@@ -149,13 +149,6 @@ namespace pagmo { namespace algorithm {
             // where n is the number of individuals in the population. 
             pop.set_x(t/m_ants, tour2chromosome(shortest_path));
             
-            // store lambdas
-            m_lambda.push_back( get_l_branching(0.5, tau) );
-//            
-//            // stop cycles if we're close to three and F'(x) -> 0 
-//            if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2))  )
-//                break;
-            
             // Debug stuff
 //            system("clear");
 //            std::cout << print_histogram(tour_length);
