@@ -59,8 +59,27 @@ namespace pagmo { namespace algorithm {
  * @author Florin Schimbinschi (florinsch@gmail.com)
  */
 
-// contains a cost and a list of vertices
-typedef std::pair<double, std::vector<size_t> > aco_tour;
+// ACO Tours are stored in this format
+struct aco_tour 
+{
+    // properties
+    double length;
+    std::vector<size_t> tour;
+    // constructors (single items required for find)
+    aco_tour() : length(std::numeric_limits<double>::max()), tour(std::vector<size_t>()) {}
+    aco_tour(double l) : length(l), tour(std::vector<size_t>()) {}
+    aco_tour(const std::vector<size_t>& t) : length(std::numeric_limits<double>::max()), tour(t) {}
+    aco_tour(double l, const std::vector<size_t>& t) : length(l), tour(t) {}
+    // operator for sorting / finding minimum / unique
+    bool operator < (const aco_tour& t) const { return length < t.length; }
+    bool operator == (const aco_tour& t) const { return length == t.length; } 
+    aco_tour& operator = (const aco_tour& a) { length = a.length; tour = a.tour; return *this; }
+};
+//std::ostream& operator << (std::ostream& s, const aco_tour &t) 
+//{
+//    s << t.length ;//<< "tour: " <<  t.tour << std::endl;
+//    return s;
+//}
     
 class __PAGMO_VISIBLE aco: public base
 {
@@ -118,7 +137,7 @@ class __PAGMO_VISIBLE aco: public base
         int m_ants;
         double m_rho;
         // alpha and beta would look better as parameters for evolve
-        // alas! can't do that
+        // alas! can't do that since its virtual
         double m_alpha;
         double m_beta;
         // stores the lambda branching factor for all cycles

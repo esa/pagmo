@@ -272,7 +272,7 @@ namespace pagmo { namespace algorithm {
         const problem::tsp &tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
         const std::vector<std::vector<double> > &weights = tsp_prob.get_weights();
         const problem::base::size_type no_vertices = tsp_prob.get_n_vertices();
-        population::size_type NP = pop.size();
+        size_t NP = pop.size();
         
         // random engine for ant init
         std::default_random_engine generator(time(NULL));
@@ -290,34 +290,27 @@ namespace pagmo { namespace algorithm {
             // (re)set delta_tau to 0
             std::vector<std::vector<double> > delta_tau(no_vertices, std::vector<double>(no_vertices, 0));
             
-            // set the tour length to 0 for all ants
-            std::vector<double> tour_length(m_ants, 0);
-            
-            // set the starting point for each ant using a random uniform distribution
-            std::vector<std::vector<size_t> > tour(m_ants);
-            for (int k = 0; k < m_ants ; ++k)
-                tour.at(k).push_back(dist(generator));
+            // keep all the ant tours for one cycle here
+            std::vector<aco_tour> ant_tours(m_ants);
 
             // compute shortest paths and costs for all ants
             for (int ant = 0; ant < m_ants; ++ant) {                
-                // launch an ant for this starting position (make round-trip)
-                aco_tour this_tour = forage(tour.at(ant).at(0), weights, tau);
-                tour_length.at(ant) = this_tour.first;
-                tour.at(ant) = this_tour.second;
+                // launch an ant and make a round-trip from a random starting position
+                ant_tours.at(ant) = forage(dist(generator), weights, tau);
                 
-                // update delta_tau and compute lambda branching factor
-                for (size_t i = 0; i < tour.at(ant).size() - 1; ++i) {
-                    size_t from = tour.at(ant).at(i), to = tour.at(ant).at(i+1);
-                    delta_tau.at(from).at(to) += Q/tour_length.at(ant);
+                // update delta_tau
+                for (size_t i = 0; i < ant_tours.at(ant).tour.size() - 1; ++i) {
+                    size_t from = ant_tours.at(ant).tour.at(i), to = ant_tours.at(ant).tour.at(i+1);
+                    delta_tau.at(from).at(to) += Q/ant_tours.at(ant).length;
                 }
-                delta_tau.at( tour.at(ant).back() ).at( tour.at(ant).front() ) += Q/tour_length.at(ant);
+                delta_tau.at( ant_tours.at(ant).tour.back() ).at( ant_tours.at(ant).tour.front() ) += Q/ant_tours.at(ant).length;
                 
             } // finished with all ants, cycle computations can be performed
             
             // search for lowest cost and get corresponding tour after this cycle
-            std::vector<double>::iterator low_it = std::min_element(tour_length.begin(), tour_length.end());
-            double lowest_cost = *low_it;
-            std::vector<size_t> shortest_path = tour.at( std::distance(tour_length.begin(), low_it) );
+            std::vector<aco_tour>::iterator low_it = std::min_element(ant_tours.begin(), ant_tours.end());
+            double lowest_cost = (*low_it).length;
+            std::vector<size_t> shortest_path = ant_tours.at( std::distance(ant_tours.begin(), low_it) ).tour;
             
             // update pheromone matrix
             for (size_t i = 0; i < tau.size(); ++i) 
@@ -329,18 +322,18 @@ namespace pagmo { namespace algorithm {
             //convert to decision vector and 
             // save the shortest path or the last n cycles in the population. 
             // where n is the number of individuals in the population. 
-            pop.set_x(t/m_ants, tour2chromosome(shortest_path));
+            pop.set_x( NP > 0 ? --NP : pop.size()-1 , tour2chromosome(shortest_path));
             
             // store lambdas
             m_lambda.push_back( get_l_branching(0.5, tau) );
-//            
-//            // stop cycles if we're close to three and 2nd derrivative's close to 0
-            if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2))  )
+            
+            // stop cycles if we're close to three and f'(x) -> 0
+            if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2)) )
                 break;
             
             // Debug stuff
 //            system("clear");
-//            std::cout << print_histogram(tour_length);
+//            std::cout << print_histogram(ant_tours);
 //            std::cout << print_tau(tau);
 //            std::cout << "\n Finished cycle " << t+1 << "\t Score: " << lowest_cost << " Tour: " << shortest_path;
         } // end of main ACO loop (cycles)
@@ -382,12 +375,10 @@ namespace pagmo { namespace algorithm {
      * 
      * @param[in] start - the starting vertice
      * @param[in] weights - the weights matrix
-     * @return std::pair of :
-     *      double - the cost of the round-trip tour
-     *      std::vector<size_t> - the list of vertices in the order visited
+     * @return aco_tour
      */
     aco_tour aco::forage(const size_t start, const std::vector<std::vector<double> >& weights, const std::vector<std::vector<double> >& tau) const
-    {
+    {       
         // init tour with starting position
         std::vector<size_t> tour(1, start);
         // init length to max (infinity)
@@ -422,7 +413,7 @@ namespace pagmo { namespace algorithm {
 
             // if we haven't found a possible next step for this ant, return max (infinity)
             if ( next == std::numeric_limits<size_t>::max() )
-                return std::make_pair(std::numeric_limits<double>::max(), tour);
+                break; // jumps to end
 
             // remember visited vertices for each ant
             tour.push_back(next);
@@ -438,10 +429,10 @@ namespace pagmo { namespace algorithm {
         if ( weights.at(tour.back()).at(tour.front()) != 0 )         
             tour_length += weights.at(tour.back()).at(tour.front());
         else
-            return std::make_pair(std::numeric_limits<double>::max(), tour);
+            return aco_tour(std::numeric_limits<double>::max(), tour);
         
         // return cost and tour
-        return std::make_pair(tour_length, tour);
+        return aco_tour(tour_length, tour);
     }
     
     /// Algorithm name

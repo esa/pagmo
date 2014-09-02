@@ -70,7 +70,7 @@ int main()
     pagmo::population pop(prob, 200);
     
     // create an instance of aco simple
-    pagmo::algorithm::aco acs(1000, 250, 0.5);
+    pagmo::algorithm::aco_rank acs(1000, 250, 0.5, 0.9);
     
     // run the evolution method
     acs.evolve(pop);
