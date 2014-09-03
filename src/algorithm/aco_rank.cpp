@@ -109,14 +109,11 @@ namespace pagmo { namespace algorithm {
             // sort lowest to highest
             std::set<aco_tour> unique_sorted (ant_tours.begin(), ant_tours.end());
             double no_ranks = unique_sorted.size();
-//            std::cout << no_ranks << " --- \n"; // there are no duplicates ?!
             
             // update and reinforce delta_tau according to rank (decreasing)
             for (int ant = 0; ant < m_ants; ++ant) {
                 std::set<aco_tour>::iterator foundit = unique_sorted.find(ant_tours.at(ant).length);
                 double weight = (no_ranks - std::distance(unique_sorted.begin(), foundit))/no_ranks;
-                
-//                std::cout << weight << std::endl;
                 
                 for (size_t i = 0; i < ant_tours.at(ant).tour.size() - 1; ++i) {
                     size_t from = ant_tours.at(ant).tour.at(i), to = ant_tours.at(ant).tour.at(i+1);
@@ -125,7 +122,7 @@ namespace pagmo { namespace algorithm {
                 delta_tau.at( ant_tours.at(ant).tour.back() ).at( ant_tours.at(ant).tour.front() ) += ( weight * m_e * Q/ant_tours.at(ant).length );
             }
             
-            // reinforce delta_tau with elite ant (shortest tour)
+            // reinforce delta_tau with elite ant -  (shortest tour) AGAIN
 //            aco_tour shortest_path = *unique_sorted.begin();
 //            for (size_t i = 0; i < shortest_path.tour.size() - 1; ++i) {
 //                size_t from = shortest_path.tour.at(i), to = shortest_path.tour.at(i+1);

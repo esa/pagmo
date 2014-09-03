@@ -77,10 +77,9 @@ struct aco_tour
 };
 //std::ostream& operator << (std::ostream& s, const aco_tour &t) 
 //{
-//    s << t.length ;//<< "tour: " <<  t.tour << std::endl;
-//    return s;
+//    return s << t.length ;//<< "tour: " <<  t.tour << std::endl;
 //}
-    
+
 class __PAGMO_VISIBLE aco: public base
 {
     public:

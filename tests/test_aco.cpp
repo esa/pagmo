@@ -69,23 +69,20 @@ int main()
     // create a population
     pagmo::population pop(prob, 200);
     
-    // create an instance of aco simple
-    pagmo::algorithm::aco_rank acs(1000, 250, 0.5, 0.9);
+    // create instances of aco problems
+    pagmo::algorithm::aco acs(1000, 250, 0.5);
+    pagmo::algorithm::aco_elite ac_elite(1000, 250, 0.5, 0.9);
+    pagmo::algorithm::aco_rank ac_rank(1000, 250, 0.5, 0.9);
     
     // run the evolution method
     acs.evolve(pop);
+    std::cout << "Simple:\t" << pop.champion().f << std::endl;
     
-    // print the champion
-    std::cout << pop.champion().f << std::endl;
-//    if(pop.champion().f[0] != 7013)
-//        return 1;
+    ac_elite.evolve(pop);
+    std::cout << "Elite:\t" << pop.champion().f << std::endl;
     
-//    pagmo::algorithm::aco_elite ace(1000, 250, 0.5, 0.2);
-//    
-//    pop.reinit();
-//    ace.evolve(pop);
-//    
-//    std::cout << pop.champion().f << std::endl;
+    ac_rank.evolve(pop);
+    std::cout << "Rank:\t" << pop.champion().f << std::endl;
           
     // all iz well
     return 0;

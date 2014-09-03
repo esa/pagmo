@@ -25,12 +25,7 @@
 #ifndef PAGMO_ALGORITHM_ACO_ELITE_H
 #define PAGMO_ALGORITHM_ACO_ELITE_H
 
-#include "../config.h"
-#include "../serialization.h"
-#include "../population.h"
-#include "../problem/tsp.h"
 #include "aco.h"
-#include "base.h"
 
 namespace pagmo { namespace algorithm {
 

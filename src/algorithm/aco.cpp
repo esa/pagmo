@@ -382,7 +382,7 @@ namespace pagmo { namespace algorithm {
         // init tour with starting position
         std::vector<size_t> tour(1, start);
         // init length to max (infinity)
-        double tour_length = std::numeric_limits<double>::max();
+        double tour_length = 0;
         
         // get number of vertices
         size_t no_vertices = weights.size();
@@ -413,7 +413,7 @@ namespace pagmo { namespace algorithm {
 
             // if we haven't found a possible next step for this ant, return max (infinity)
             if ( next == std::numeric_limits<size_t>::max() )
-                break; // jumps to end
+                return aco_tour(std::numeric_limits<double>::max(), tour);
 
             // remember visited vertices for each ant
             tour.push_back(next);

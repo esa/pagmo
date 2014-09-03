@@ -187,7 +187,7 @@ namespace pagmo { namespace algorithm {
         s << "\nNumber of cycles: " << m_cycles
             << "\nNumber of ants: " << m_ants
             << "\nPheromone evaporation (Rho): " << m_rho
-            << "\nElite constant: " << m_e << std::endl;
+            << "\nElite constant (e): " << m_e << std::endl;
         return s.str();
     }
 
