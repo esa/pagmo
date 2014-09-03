@@ -22,25 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <vector>
-
 #include "aco_elite.h"
-
-// debug
-//#define USE_DEBUG
-//#define USE_DEBUG_ALL
-
-#ifdef USE_DEBUG
-#define Debug( x ) std::cout << x
-#else
-#define Debug( x ) 
-#endif
-
-#ifdef USE_DEBUG_ALL
-#define Debugv( x ) std::cout << x
-#else
-#define Debugv( x ) 
-#endif
 
 namespace pagmo { namespace algorithm {
     

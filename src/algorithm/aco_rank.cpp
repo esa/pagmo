@@ -24,22 +24,6 @@
 
 #include "aco_rank.h"
 
-// debug
-//#define USE_DEBUG
-//#define USE_DEBUG_ALL
-
-#ifdef USE_DEBUG
-#define Debug( x ) std::cout << x
-#else
-#define Debug( x ) 
-#endif
-
-#ifdef USE_DEBUG_ALL
-#define Debugv( x ) std::cout << x
-#else
-#define Debugv( x ) 
-#endif
-
 namespace pagmo { namespace algorithm {
     
     /// Constructor.
