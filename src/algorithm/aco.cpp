@@ -309,7 +309,6 @@ namespace pagmo { namespace algorithm {
             
             // search for lowest cost and get corresponding tour after this cycle
             std::vector<aco_tour>::iterator low_it = std::min_element(ant_tours.begin(), ant_tours.end());
-            double lowest_cost = (*low_it).length;
             std::vector<size_t> shortest_path = ant_tours.at( std::distance(ant_tours.begin(), low_it) ).tour;
             
             // update pheromone matrix
@@ -331,11 +330,10 @@ namespace pagmo { namespace algorithm {
             if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2)) )
                 break;
             
-            // Debug stuff
 //            system("clear");
 //            std::cout << print_histogram(ant_tours);
 //            std::cout << print_tau(tau);
-//            std::cout << "\n Finished cycle " << t+1 << "\t Score: " << lowest_cost << " Tour: " << shortest_path;
+//            std::cout << "\n Finished cycle " << t+1 << "\t Score: " << (*low_it).length << " Tour: " << shortest_path;
         } // end of main ACO loop (cycles)
         
     }

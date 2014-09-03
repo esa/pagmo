@@ -83,6 +83,7 @@ class __PAGMO_VISIBLE aco_elite: public aco
         int m_ants;
         double m_rho;
         double m_e;
+        mutable std::vector<double> m_lambda;
 };
 
 }} //namespaces

@@ -83,9 +83,7 @@ namespace pagmo { namespace algorithm {
         const problem::tsp &tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
         const std::vector<std::vector<double> > &weights = tsp_prob.get_weights();
         const problem::base::size_type no_vertices = tsp_prob.get_n_vertices();
-        size_t NP = pop.size();
-        
-        std::vector<double> lambda;
+        size_t NP = pop.size();        
         
         // random engine for ant init
         std::default_random_engine generator(time(NULL));
@@ -145,9 +143,11 @@ namespace pagmo { namespace algorithm {
             pop.set_x( NP > 0 ? --NP : pop.size()-1 , tour2chromosome(shortest_path));
             
             
-            lambda.push_back( get_l_branching(0.5, tau) );
+            // store lambdas
+            m_lambda.push_back( get_l_branching(0.5, tau) );
+            
             // stop cycles if we're close to three and f'(x) -> 0
-            if (t > m_cycles/4 && lambda.at(t) < 4 && abs(lambda.at(t) - lambda.at(t-2)) )
+            if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2)) )
                 break;
         } // end of main ACO loop (cycles)
         

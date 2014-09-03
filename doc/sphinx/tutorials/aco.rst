@@ -194,14 +194,15 @@ And finally, the output for printing the TSP problem instance:
 Solving Using Ant Colony System
 ###############################
 
-Here we solve the 
+Here we solve the kroA100.xml file from TSPLIB
+and show the final shortest distance found.
 
 .. code-block:: python
 
 from PyGMO import *
 from PyGMO.util import tsp as tsputil
 # importing tsp file
-xml = tsputil.read_tsplib('ulysses22.xml')
+xml = tsputil.read_tsplib('kroA100.xml')
 
 # instantiatng a tsp problem
 prob = problem.tsp(xml)
@@ -209,14 +210,21 @@ prob = problem.tsp(xml)
 # creating population
 pop = population(prob, 100)
 
-# Simple Ant Colony System, 90 cycles and 150 ants
-algo = algorithm.aco(90, 150)
+# Ant Colony System 1000 cycles and 150 ants
+# simple, elite and rank-based
+algo1 = algorithm.aco(1000, 150)
+algo2 = algorithm.aco_elite(1000, 150)
+algo3 = algorithm.aco_rank(1000, 150)
 
 # call the evolve method
-result = algo.evolve(pop)
+result1 = algo1.evolve(pop)
+result2 = algo2.evolve(pop)
+result3 = algo3.evolve(pop)
 
 # print the resulting fitness
-print result.champion.f
+print result1.champion.f
+print result2.champion.f
+print result3.champion.f
 
 
 

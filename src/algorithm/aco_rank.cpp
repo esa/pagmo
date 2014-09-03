@@ -65,8 +65,6 @@ namespace pagmo { namespace algorithm {
         const problem::base::size_type no_vertices = tsp_prob.get_n_vertices();
         size_t NP = pop.size();
         
-        std::vector<double> lambda;
-        
         // random engine for ant init
         std::default_random_engine generator(time(NULL));
         std::uniform_int_distribution<size_t> dist(0, no_vertices - 1);
@@ -106,13 +104,14 @@ namespace pagmo { namespace algorithm {
                 delta_tau.at( ant_tours.at(ant).tour.back() ).at( ant_tours.at(ant).tour.front() ) += ( weight * m_e * Q/ant_tours.at(ant).length );
             }
             
-            // reinforce delta_tau with elite ant -  (shortest tour) AGAIN
-//            aco_tour shortest_path = *unique_sorted.begin();
-//            for (size_t i = 0; i < shortest_path.tour.size() - 1; ++i) {
-//                size_t from = shortest_path.tour.at(i), to = shortest_path.tour.at(i+1);
-//                delta_tau.at(from).at(to) += (m_e * Q/shortest_path.length);
-//            }
-//            delta_tau.at(shortest_path.tour.back()).at(shortest_path.tour.front()) += (m_e * Q/shortest_path.length);
+            /** reinforce delta_tau with elite ant -  (shortest tour) AGAIN
+            aco_tour shortest_path = *unique_sorted.begin();
+            for (size_t i = 0; i < shortest_path.tour.size() - 1; ++i) {
+                size_t from = shortest_path.tour.at(i), to = shortest_path.tour.at(i+1);
+                delta_tau.at(from).at(to) += (m_e * Q/shortest_path.length);
+            }
+            delta_tau.at(shortest_path.tour.back()).at(shortest_path.tour.front()) += (m_e * Q/shortest_path.length);
+            */
             
             // update pheromone matrix
             for (size_t i = 0; i < tau.size(); ++i) 
@@ -126,10 +125,11 @@ namespace pagmo { namespace algorithm {
             // where n is the number of individuals in the population. 
             pop.set_x( NP > 0 ? --NP : pop.size()-1 , tour2chromosome(ant_tours.front().tour));
             
+            // store lambdas
+            m_lambda.push_back( get_l_branching(0.5, tau) );
             
-            lambda.push_back( get_l_branching(0.5, tau) );
             // stop cycles if we're close to three and f'(x) -> 0
-            if (t > m_cycles/4 && lambda.at(t) < 4 && abs(lambda.at(t) - lambda.at(t-2)) )
+            if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2)) )
                 break;
         } // end of main ACO loop (cycles)
         
