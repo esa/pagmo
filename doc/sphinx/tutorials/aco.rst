@@ -87,7 +87,7 @@ and print the instantiated tsp problem to console:
         print tsp_instance
 
 And the resulting TSP problem looks like this. Again, notice there are no
-connections between a vertice and itself, regardless of what we put in the main diagonal,
+connections between a vertex and itself, regardless of what we put in the main diagonal,
 in our case the values 0, 4 and 8 are ignored.
 
 .. code-block:: python
@@ -174,7 +174,7 @@ And finally, the output for printing the TSP problem instance:
 
 .. code-block:: python
 
-        Problem name: Traveling Salesman Problem
+    Problem name: Traveling Salesman Problem
 	Global dimension:			182
 	Integer dimension:			182
 	Fitness dimension:			1
@@ -191,40 +191,175 @@ And finally, the output for printing the TSP problem instance:
         # [..snip..]
         (13, 12) = 247.0
         
-Solving Using Ant Colony System
-###############################
+Solving Using Ant Colony Optimization
+#####################################
 
-Here we solve the kroA100.xml file from TSPLIB
-and show the final shortest distance found.
+Here we solve the 'kroA100.xml' problem file from TSPLIB,
+using three variants of Ant Colony Optimization algorithms.
+
+Simple Ant Colony
+-----------------
+
+In Ant Colony Optimization algorithms, ants are randomly placed in various 
+starting positions at each cycle start. As each ant travels, it deposits pheromone.
+Ants decide which path to take according to the distance between vertices (edges)
+and the amount of pheromone deposited on each edge.
+
+The balance between distance and pheromone is controlled by two parameters, alpha and beta.
+When an ant makes a decision between taking edge A or B, the probability of the transition is:
+p(next|current) = ( pheromone(next, current) ^ alpha * 1/distance(next, current) ^ beta) ) / Sum of all possibilities
+
+Since shorter paths are traversed more often, more pheromone is deposited on them,
+thus on the long term the greedy strategy converges to an optimum.
+To allow the algorithm to explore the search space as much as possible, 
+we force the pheromone to evaporate using a constant rho, as time passes.
+
+We run the algorithm for 1000 cycles to allow it to converge.
+The number of ants is usually set equal to the number of cities, in our case 100.
+Rho, the third argument, controls how fast the pheromone evaporates as time passes.
 
 .. code-block:: python
 
-from PyGMO import *
-from PyGMO.util import tsp as tsputil
-# importing tsp file
-xml = tsputil.read_tsplib('kroA100.xml')
+    from PyGMO import *
+    from PyGMO.util import tsp as tsputil
 
-# instantiatng a tsp problem
-prob = problem.tsp(xml)
+    # Importing tsp file
+    xml = tsputil.read_tsplib('kroA100.xml')
 
-# creating population
-pop = population(prob, 100)
+    # Instantiatng a tsp problem
+    prob = problem.tsp(xml)
 
-# Ant Colony System 1000 cycles and 150 ants
-# simple, elite and rank-based
-algo1 = algorithm.aco(1000, 150)
-algo2 = algorithm.aco_elite(1000, 150)
-algo3 = algorithm.aco_rank(1000, 150)
+    # Creating population of 99 individuals.
+    # The number of ants must be greater than the population.
+    pop = population(prob, 99)
 
-# call the evolve method
-result1 = algo1.evolve(pop)
-result2 = algo2.evolve(pop)
-result3 = algo3.evolve(pop)
+    # ---- Instantiating a Simple Ant Colony System ----
+    # We run the algorithm for 1000 cycles to allow it to converge.
+    # This parameter is the only one required, the others are optional.
+    # The complete constructor signature is: aco(no_cycles, no_ants, rho, alpha, beta)
+    #
+    # The number of ants is usually set equal to the number of cities, in our case 100.
+    # Rho, the third argument, controls how fast the pheromone evaporates as time passes.
 
-# print the resulting fitness
-print result1.champion.f
-print result2.champion.f
-print result3.champion.f
+    algo_simple = algorithm.aco(1000, 100, 0.5)
+
+    # Aditionally, all these properties have getters and setters.
+    print algo_simple.gen
+    print algo_simple.ants
+    print algo_simple.rho
+
+    # We haven't talked yet about alpha and beta.
+    # These two parameters control the way that ants make local decisions,
+    # as a compromise between the length of an edge versus the amount of pheromone deposited on it.
+    # When an ant makes a decision between taking edge A or B, the probability of the transition is:
+    # p(next) = ( pheromone(A, B) ^ alpha * 1/distance(A,B) ^ beta) ) / Sum of all possibilities
+    #
+    # Let's explicitly call the setters for these two.
+    # Good values are usually 1 for alpha and between 2 and 5 for beta
+    algo_simple.alpha = 1
+    algo_simple.beta = 2
+
+    # To actually run the algorithm, we call the evolve method
+    result_simple = algo_simple.evolve(pop)
+
+    # The champion contains the fitness, which is the length of the shortest tour
+    print result_simple.champion.f
 
 
+Elite Ant Colony
+-----------------
+
+In this variant, the best ant deposits additional pheromone in each cycle.
+This amount is set as parameter 'e' which is usually set equal to the number of ants.
+Since the best ant (shortest distance traveled) deposits much more pheromone, 
+it increases the likelihood that other ants will take the same path on the next cycles. 
+Remember alpha and beta from Simple ACO. These along with the initialization of the
+pheromone influence how fast and accurate the algorithm will converge.
+
+
+.. code-block:: python
+
+    from PyGMO import *
+    from PyGMO.util import tsp as tsputil
+
+    # Importing tsp file
+    xml = tsputil.read_tsplib('kroA100.xml')
+
+    # Instantiatng a tsp problem
+    prob = problem.tsp(xml)
+
+    # Creating population of 99 individuals.
+    # The number of ants must be greater than the population.
+    pop = population(prob, 99)
+
+    # ---- Instantiating an Elite Ant Colony System
+    # In this variant, the best ant for each cycle deposits additional pheromone.
+    # This amount is set as parameter 'e' which is usually set equal to the number of ants.
+    algo_elite = algorithm.aco_elite(1000, 100, 0.5, 100)
+
+    # The elite constant also has setters and getters
+    print algo_elite.e
+
+    # We run the evolve method
+    result_elite = algo_elite.evolve(pop)
+
+    # The champion contains the fitness, which is the length of the shortest tour
+    # Since the best ant deposits much more pheromone, it increases the likelihood that
+    # other ants will take the same path on next runs. Remember alpha and beta from Simple ACO.
+    # We print the whole details for the champion. 
+    # Note that the tour is in binary (chromosome) format.
+    print result_elite.champion
+
+Rank-Based Ant Colony
+---------------------
+
+In rank-based ACO the idea is similar to the Elite ACO. In addition,
+each ant deposits an amount of pheromone which is proportional to it's rank.
+The shorter an ant makes a tour, the better it's rank, the more pheromone it deposits.
+
+Typically this form of algorithm has a constant integer which controls the number of ranks. 
+In our implementation, the number of ranks is equal to the number of unique solutions (tour lengths found) in each cycle.
+In this case, the elite constant 'e' controls how much pheromone each ant deposits.
+The best ant(s) deposit 100% of 'e' while the worst does not deposit any.
+In other words, the best ants behave just like in the elite ant colony,
+while the other ants deposit according to this formula: 
+percentage(ant) = (no_ranks - tour_distance(ant) )/no_ranks
+Where no_ranks is the number of unique solutions found in a cycle.
+
+
+.. code-block:: python
+
+    from PyGMO import *
+    from PyGMO.util import tsp as tsputil
+
+    # Importing tsp file
+    xml = tsputil.read_tsplib('kroA100.xml')
+
+    # Instantiatng a tsp problem
+    prob = problem.tsp(xml)
+
+    # Creating population of 99 individuals.
+    # The number of ants must be greater than the population.
+    pop = population(prob, 99)
+
+    # ---- Instantiating an Rank-based Ant Colony System
+    # Each ant deposits an amount of pheromone which is proportional
+    # to it's rank (length of tour) that it has performed.
+    # In other words, the shorter the tour, the more pheromone an ant deposits.
+    # The elite constant 'e' controls how much pheromone each ant deposits.
+    # The best ant(s) deposit 100% 'e' while the worst does not deposit any.
+    # We need to specify the number of cycles in order to instantiate any ACO algorithm.
+
+    algo_rank = algorithm.aco_rank(1000)
+
+    # Let's set the parameters using the setters in this case.
+    algo_rank.ants = 100
+    algo_rank.rho = 0.3
+    algo_rank.e = 150
+
+    # Running the evolve method
+    result_rank = algo_rank.evolve(pop)
+
+    # Print the results
+    print result_rank.champion.f
 
