@@ -82,37 +82,44 @@ struct aco_tour
 
 class __PAGMO_VISIBLE aco: public base
 {
-    public:
-        aco(int cycle = 100, int ants = 100, double rho = 0.5);
+public:
+        aco(int cycles = 100, int ants = 100, double rho = 0.5, double alpha = 1, double beta = 2);
+        void init_checks() const ;
+        
         int get_cycles() const;
-        int get_ants() const;
-        double get_rho() const;
-        double get_alpha() const;
-        double get_beta() const;
-        std::vector<double> get_lambda() const;
-        
-        double get_l_branching(double, const std::vector<std::vector<double> >&) const;
-        std::string get_name() const;
-        
         void set_cycles(int);
-        void set_alhpa(double);
+        
+        int get_ants() const;
+        void set_ants(int);
+        
+        double get_rho() const;
+        void set_rho(double);
+        
+        double get_alpha() const;
+        void set_alpha(double);
+        
+        double get_beta() const;
         void set_beta(double);
         
-        base_ptr clone() const;
-        void evolve(population &) const;
+        std::vector<double> get_lambda() const;
+        
+        virtual base_ptr clone() const;
+        virtual std::string get_name() const;
+        virtual void evolve(population &) const;
         
     protected:
         std::vector<std::vector<double> > initialize_pheromone(size_t) const;
         std::vector<std::vector<double> > initialize_pheromone(size_t, double) const;
-        std::vector<std::vector<double> > initialize_pheromone(size_t, const std::vector<std::vector<double> >) const;
-//        void initialize_pheromone(int, const population&) const;
+        std::vector<std::vector<double> > initialize_pheromone(size_t, const std::vector<std::vector<double> >&) const;
+        std::vector<std::vector<double> > initialize_pheromone(size_t, const population&) const;
         
         aco_tour forage(const size_t, const std::vector<std::vector<double> >&, const std::vector<std::vector<double> >&) const;
         
         std::vector<size_t> greedy_nn_trip(size_t, const std::vector<std::vector<double> >) const;
         
-        static decision_vector tour2chromosome(const std::vector<size_t>);
+        static decision_vector tour2chromosome(std::vector<size_t>);
         static void make_tour_consistent(std::vector<size_t>&);
+        static double get_l_branching(double lambda, const std::vector<std::vector<double> >&);
         
         std::string human_readable_extra() const;
         

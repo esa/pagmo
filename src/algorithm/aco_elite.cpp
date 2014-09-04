@@ -33,12 +33,9 @@ namespace pagmo { namespace algorithm {
      * @param[in] rho - each ant leaves a trail of pheromone which evaporates according to this constant.
      * @param[in] e - each elite ant leaves a stronger trail of pheromone. this constant influences the quantity.
      */
-    aco_elite::aco_elite(int cycle, int ants, double rho, double e):m_cycles(cycle), m_ants(ants), m_rho(rho), m_e(e)
+    aco_elite::aco_elite(int cycles, int ants, double rho, double alpha, double beta, double e): m_cycles(cycles), m_ants(ants), m_rho(rho), m_alpha(alpha), m_beta(beta), m_e(e)
     {
-        if (cycle <= 0) pagmo_throw(value_error, "the number of cycles must be positive, non negative.");
-        if (rho < 0 || rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
-        // if population must be at least 2 and ants > population => ants must be at least 3
-        if (ants <= 2) pagmo_throw(value_error, "there must be at least three ants in the colony.");
+        init_checks();
     }
     
     /// Returns the constant for trail boost of the elite ants.
@@ -83,7 +80,7 @@ namespace pagmo { namespace algorithm {
         const problem::tsp &tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
         const std::vector<std::vector<double> > &weights = tsp_prob.get_weights();
         const problem::base::size_type no_vertices = tsp_prob.get_n_vertices();
-        size_t NP = pop.size();        
+        size_t NP = pop.size();
         
         // random engine for ant init
         std::default_random_engine generator(time(NULL));
@@ -136,15 +133,15 @@ namespace pagmo { namespace algorithm {
                     tau.at(i).at(j) = tau.at(i).at(j) * m_rho + delta_tau.at(i).at(j);
             
             // make tour consistent
-            make_tour_consistent(shortest_path);
+            aco::make_tour_consistent(shortest_path);
             //convert to decision vector and 
             // save the shortest path or the last n cycles in the population. 
             // where n is the number of individuals in the population. 
-            pop.set_x( NP > 0 ? --NP : pop.size()-1 , tour2chromosome(shortest_path));
+            pop.set_x( NP > 0 ? --NP : pop.size()-1 , aco::tour2chromosome(shortest_path));
             
             
             // store lambdas
-            m_lambda.push_back( get_l_branching(0.5, tau) );
+            m_lambda.push_back( aco::get_l_branching(0.5, tau) );
             
             // stop cycles if we're close to three and f'(x) -> 0
             if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2)) )
@@ -153,7 +150,7 @@ namespace pagmo { namespace algorithm {
         
     }
 
-    /// Algorithm name
+    /// Algorithm name.
     std::string aco_elite::get_name() const
     {
         return "Elitist Ant System";

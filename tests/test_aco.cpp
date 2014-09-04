@@ -71,8 +71,8 @@ int main()
     
     // create instances of aco problems
     pagmo::algorithm::aco acs(1000, 250, 0.5);
-    pagmo::algorithm::aco_elite ac_elite(1000, 250, 0.5, 0.9);
-    pagmo::algorithm::aco_rank ac_rank(1000, 250, 0.5, 0.9);
+    pagmo::algorithm::aco_elite ac_elite(1000, 250, 0.5, 1, 2, 0.9);
+    pagmo::algorithm::aco_rank ac_rank(1000, 250, 0.5, 1, 2, 0.9);
     
     // run the evolution method
     acs.evolve(pop);

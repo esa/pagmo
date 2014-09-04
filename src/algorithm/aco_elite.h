@@ -56,7 +56,8 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE aco_elite: public aco
 {
     public:
-        aco_elite(int cycle = 100, int ants = 100, double rho = 0.5, double e = 0.1 );
+        aco_elite(int cycles = 100, int ants = 100, double rho = 0.5, double alpha = 1, double beta = 2, double e = 0.5);
+        
         double get_e() const;
         void set_e(double);
         
@@ -76,12 +77,16 @@ class __PAGMO_VISIBLE aco_elite: public aco
                 ar & m_cycles;
                 ar & m_ants;
                 ar & m_rho;
+                ar & m_alpha;
+                ar & m_beta;
                 ar & m_e;
         }
 
         int m_cycles;
         int m_ants;
         double m_rho;
+        double m_alpha;
+        double m_beta;
         double m_e;
         mutable std::vector<double> m_lambda;
 };

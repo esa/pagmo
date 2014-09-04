@@ -200,23 +200,22 @@ using three variants of Ant Colony Optimization algorithms.
 Simple Ant Colony
 -----------------
 
-In Ant Colony Optimization algorithms, ants are randomly placed in various 
+In Ant Colony Optimization algorithms, ants are randomly placed in randomly 
 starting positions at each cycle start. As each ant travels, it deposits pheromone.
 Ants decide which path to take according to the distance between vertices (edges)
-and the amount of pheromone deposited on each edge.
+and the amount of pheromone deposited on each edge. Initially this is set to a small constant.
 
 The balance between distance and pheromone is controlled by two parameters, alpha and beta.
-When an ant makes a decision between taking edge A or B, the probability of the transition is:
+When an ant makes a decision between the current edge and the next, the probability of the transition is:
 p(next|current) = ( pheromone(next, current) ^ alpha * 1/distance(next, current) ^ beta) ) / Sum of all possibilities
 
 Since shorter paths are traversed more often, more pheromone is deposited on them,
-thus on the long term the greedy strategy converges to an optimum.
+thus on the long term this greedy strategy converges to an optimum.
 To allow the algorithm to explore the search space as much as possible, 
-we force the pheromone to evaporate using a constant rho, as time passes.
+we force the pheromone to evaporate, as time passes, using a constant rho.
 
 We run the algorithm for 1000 cycles to allow it to converge.
 The number of ants is usually set equal to the number of cities, in our case 100.
-Rho, the third argument, controls how fast the pheromone evaporates as time passes.
 
 .. code-block:: python
 

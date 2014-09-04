@@ -33,12 +33,9 @@ namespace pagmo { namespace algorithm {
      * @param[in] rho - each ant leaves a trail of pheromone which evaporates according to this constant.
      * @param[in] e - each elite ant leaves a stronger trail of pheromone. this constant influences the quantity.
      */
-    aco_rank::aco_rank(int cycle, int ants, double rho, double e):m_cycles(cycle), m_ants(ants), m_rho(rho), m_e(e)
+    aco_rank::aco_rank(int cycles, int ants, double rho, double alpha, double beta, double e): m_cycles(cycles), m_ants(ants), m_rho(rho), m_alpha(alpha), m_beta(beta), m_e(e)
     {
-        if (cycle <= 0) pagmo_throw(value_error, "the number of cycles must be positive, non negative.");
-        if (rho < 0 || rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
-        // if population must be at least 2 and ants > population => ants must be at least 3
-        if (ants <= 2) pagmo_throw(value_error, "there must be at least three ants in the colony.");
+        init_checks();
     }
     
     /// Clone method.

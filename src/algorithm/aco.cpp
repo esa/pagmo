@@ -26,20 +26,20 @@
 
 namespace pagmo { namespace algorithm {
     
-    /// Constructor.
-    /**
-     * @param[in] cycle - number of cycles. Each cycle, the m ants complete a tour of n cities.
-     * @param[in] ants - number of ants in the colony.
-     * @param[in] rho - each ant leaves a trail of pheromone which evaporates according to this constant.
-     */
-    aco::aco(int cycle, int ants, double rho):base(), m_cycles(cycle), m_ants(ants), m_rho(rho)
+    /// Constructors.
+    aco::aco(int cycles, int ants, double rho, double alpha, double beta) : base(), m_cycles(cycles), m_ants(ants), m_rho(rho), m_alpha(alpha), m_beta(beta)
     {
-        if (cycle <= 0) pagmo_throw(value_error, "the number of cycles must be positive, non negative.");
-        if (rho < 0 || rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
+        init_checks();
+    }
+    
+    /// Performs constructor checks for the initial properties.
+    void aco::init_checks() const
+    {
+        if (m_cycles <= 0) pagmo_throw(value_error, "the number of cycles must be positive.");
+        if (m_rho < 0 || m_rho >= 1) pagmo_throw(value_error, "the pheromone evaporation constant (rho) must be in [0, 1).");
         // if population must be at least 2 and ants > population => ants must be at least 3
-        if (ants <= 2) pagmo_throw(value_error, "there must be at least three ants in the colony.");
-        m_alpha = 1;
-        m_beta = 2;
+        if (m_ants <= 2) pagmo_throw(value_error, "there must be at least three ants in the colony.");
+        if (m_alpha <= 0 || m_beta <= 0) pagmo_throw(value_error, "alpha and beta parameters must be greater than or equal to 1.");
     }
     
     /// Returns the number of cycles the algorithm is run.
@@ -52,6 +52,12 @@ namespace pagmo { namespace algorithm {
         return m_cycles;
     }
     
+    /// Sets the number of cycles the algorithm runs for.
+    void aco::set_cycles(int cycles)
+    {
+        m_cycles = cycles;
+    }
+    
     /// Returns the number of ants in the colony.
     /**
      * Returns the number of ants in the colony
@@ -60,6 +66,12 @@ namespace pagmo { namespace algorithm {
     int aco::get_ants() const
     {
         return m_ants;
+    }
+    
+    /// Setter for the number of ants.
+    void aco::set_ants(int ants)
+    {
+        m_ants = ants;
     }
     
     /// Returns Rho - the pheromone evaporation constant.
@@ -72,20 +84,48 @@ namespace pagmo { namespace algorithm {
         return m_rho;
     }
     
+    /// Setter for the evaporation constant (rho).
+    void aco::set_rho(double rho)
+    {
+        m_rho = rho;
+    }
+    
+    /// Returns Alpha
+    /**
+     * Returns Alpha (weight for pheromone)
+     * @return double m_alpha
+     */
+    double aco::get_alpha() const
+    {
+        return m_alpha;
+    }
+    
+    /// Setter for alpha (weight for pheromone).
+    void aco::set_alpha(double alpha)
+    {
+        m_alpha = alpha;
+    }
+    
+    /// Returns Beta.
+    /**
+     * Returns Beta (weight for distance matrix)
+     * @return double m_beta
+     */
+    double aco::get_beta() const
+    {
+        return m_beta;
+    }
+    
+    /// Setter for beta (weight for distance matrix).
+    void aco::set_beta(double beta)
+    {
+        m_beta = beta;
+    }
+    
     /// Returns the vector of lambdas for each cycle.
     std::vector<double> aco::get_lambda() const
     {
         return m_lambda;
-    }
-
-    // Sets the number of cycles the algorithm runs for.
-    /**
-     * Setter for the m_cycle property
-     * @param cycles - int, the number of cycles
-     */
-    void aco::set_cycles(int cycles)
-    {
-        m_cycles = cycles;
     }
 
     /// Clone method.
@@ -119,45 +159,6 @@ namespace pagmo { namespace algorithm {
             current = matrix.at(idx);
         }
         return visited;
-    }
-    
-    /// Enforces a rule for the starting position on the tours taken by the ants.
-    /**
-     * Selects the minimum index of a vertex and rotates elements around that 
-     * item in order to produce consistency of the same trip, by always starting
-     * from the vertex with the lowest index. e.g 3->4->1->2 becomes 1->2->3->4
-     * Complexity is linear O(n)
-     * 
-     * @param[in/out] trip - a vector of vertices (e.g. list of cities)
-     */
-    void aco::make_tour_consistent(std::vector<size_t>& trip) 
-    {
-        std::rotate(trip.begin(), std::min_element(trip.begin(), trip.end()), trip.end());
-    }
-    
-    /// Converts a tsp tour to a pagmo chromosome
-    /**
-     * Converts a tsp tour to a binary pagmo chromosome.
-     * @param[in] trip a vector representing the sequence of vertices visited
-     * @return decision vector - binary vector, see tsp::compute_idx
-     */
-    decision_vector aco::tour2chromosome(std::vector<size_t> trip) 
-    {
-        // make tour consistent (smallest element idx always first)
-        make_tour_consistent(trip);
-        
-        // figure out the size of the matrix
-        size_t n = *std::max_element(trip.begin(), trip.end()) + 1;
-        // by default there are no connections
-        decision_vector chromosome(n*(n-1), 0);
-        
-        // iterate through the vector and create chromosome
-        for (size_t k = 0; k < trip.size() - 1; ++k) {
-            chromosome.at( problem::tsp::compute_idx(trip.at(k), trip.at(k+1), n) ) = 1;
-        }
-        chromosome.at( problem::tsp::compute_idx(trip.back(), trip.front(), n) ) = 1;
-        
-        return chromosome;
     }
     
     /// Initializes the pheromone levels randomly.
@@ -214,7 +215,7 @@ namespace pagmo { namespace algorithm {
      * @param[in] dimension - the number of vertices in the graph
      * @param[in] matrix - the matrix containing the distances between vertices
      */
-    std::vector<std::vector<double> > aco::initialize_pheromone(size_t dim, const std::vector<std::vector<double> > matrix) const
+    std::vector<std::vector<double> > aco::initialize_pheromone(size_t dim, const std::vector<std::vector<double> >& matrix) const
     {   
         std::vector<std::vector<double> > pheromones (dim, std::vector<double>(dim, 0));
         // traverse starting from all vertices
@@ -240,21 +241,52 @@ namespace pagmo { namespace algorithm {
      * @param[in] dimension - the number of vertices in the graph
      * @param[in] population
      */
-//    void aco::initialize_pheromone(int dimension, const population& pop) 
-//    {
-//        for (int i = 0; i < dimension; ++i) {
-//            for (int j = 0; j < dimension; ++j) {
-//                if (i==j) continue;
-//                // compute distance to nearest neighbor
-////                double C = *std::min_element(x.begin(), x.end());
-//                // initialize pheromones
-//                m_pheromone[i][j] = m_rho;
-//            }
-//        }
-//    }
-
+    std::vector<std::vector<double> > aco::initialize_pheromone(size_t dim, const population& pop) const
+    {
+        //TODO: write this
+        std::vector<std::vector<double> > out(dim, std::vector<double>(dim, 0));
+        (void)pop;
+        return out;
+    }
     
+        /// Enforces a rule for the starting position on the tours taken by the ants.
+    /**
+     * Selects the minimum index of a vertex and rotates elements around that 
+     * item in order to produce consistency of the same trip, by always starting
+     * from the vertex with the lowest index. e.g 3->4->1->2 becomes 1->2->3->4
+     * Complexity is linear O(n)
+     * 
+     * @param[in/out] trip - a vector of vertices (e.g. list of cities)
+     */
+    void aco::make_tour_consistent(std::vector<size_t>& trip) 
+    {
+        std::rotate(trip.begin(), std::min_element(trip.begin(), trip.end()), trip.end());
+    }
     
+    /// Converts a tsp tour to a pagmo chromosome
+    /**
+     * Converts a tsp tour to a binary pagmo chromosome.
+     * @param[in] trip a vector representing the sequence of vertices visited
+     * @return decision vector - binary vector, see tsp::compute_idx
+     */
+    decision_vector aco::tour2chromosome(std::vector<size_t> trip) 
+    {
+        // make tour consistent (smallest element idx always first)
+        aco::make_tour_consistent(trip);
+        
+        // figure out the size of the matrix
+        size_t n = *std::max_element(trip.begin(), trip.end()) + 1;
+        // by default there are no connections
+        decision_vector chromosome(n*(n-1), 0);
+        
+        // iterate through the vector and create chromosome
+        for (size_t k = 0; k < trip.size() - 1; ++k) {
+            chromosome.at( problem::tsp::compute_idx(trip.at(k), trip.at(k+1), n) ) = 1;
+        }
+        chromosome.at( problem::tsp::compute_idx(trip.back(), trip.front(), n) ) = 1;
+        
+        return chromosome;
+    }
     
     /// Evolve implementation.
     /**
@@ -317,14 +349,14 @@ namespace pagmo { namespace algorithm {
                     tau.at(i).at(j) = tau.at(i).at(j) * m_rho + delta_tau.at(i).at(j);
             
             // make tour consistent
-            make_tour_consistent(shortest_path);
+            aco::make_tour_consistent(shortest_path);
             //convert to decision vector and 
             // save the shortest path or the last n cycles in the population. 
             // where n is the number of individuals in the population. 
             pop.set_x( NP > 0 ? --NP : pop.size()-1 , tour2chromosome(shortest_path));
             
             // store lambdas
-            m_lambda.push_back( get_l_branching(0.5, tau) );
+            m_lambda.push_back( aco::get_l_branching(0.5, tau) );
             
             // stop cycles if we're close to three and f'(x) -> 0
             if (t > m_cycles/4 && m_lambda.at(t) < 4 && abs(m_lambda.at(t) - m_lambda.at(t-2)) )
@@ -348,7 +380,7 @@ namespace pagmo { namespace algorithm {
      * @param[in] tau - the pheromone matrix
      * @return - the average lambda branching factor
      */
-    double aco::get_l_branching(double lambda, const std::vector<std::vector<double> >& tau) const
+    double aco::get_l_branching(double lambda, const std::vector<std::vector<double> >& tau)
     {
         double avg_lambda = 0;
         size_t no_vertices = tau.size();
@@ -433,7 +465,7 @@ namespace pagmo { namespace algorithm {
         return aco_tour(tour_length, tour);
     }
     
-    /// Algorithm name
+    /// Algorithm name.
     std::string aco::get_name() const
     {
         return "Simple Ant System";
@@ -452,7 +484,7 @@ namespace pagmo { namespace algorithm {
         return s.str();
     }
 
-    /// Prints a histogram of a fitness tour
+    /// Prints a histogram of a tour
     /**
      * Prints a histogram of the fitness tour.
      * Each line is a unique fitness (cost) value for a tour.
