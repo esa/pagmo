@@ -593,8 +593,8 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("betas",&problem::mga_part::get_betas, &problem::mga_part::set_betas,"bounds on the beta angles for the different legs")
 		.add_property("rps",&problem::mga_part::get_rps, &problem::mga_part::set_rps,"bounds on the periplanet heights for the different legs");
 
-	problem_wrapper<problem::mga_target_event>("mga_target_event", "A part of the gtoc7 problem")
-		.def(init< optional <kep_toolbox::planet_ptr, kep_toolbox::planet_ptr, kep_toolbox::epoch, double, bool > >());
+	//problem_wrapper<problem::mga_target_event>("mga_target_event", "A part of the gtoc7 problem")
+	//	.def(init< optional <kep_toolbox::planet_ptr, kep_toolbox::planet_ptr, kep_toolbox::epoch, double, bool > >());
 
 #endif
 

@@ -159,7 +159,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_incipit.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_incipit_cstrs.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_part.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_target_event.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_target_event.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/mga_dsm.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/misc4Tandem.cpp
