@@ -1,8 +1,13 @@
-Using the Analysis module
-=========================
+.. _analysis_unconstrained_problem:
 
-In this example we will show how to launch the tests included in the :class:`analysis<PyGMO.util.analysis>` class.
+================================================================
+Analysis of the Fitness Landscape
+================================================================
 
+In this tutorial we want to show how to use the lanscape anlaysis module Dr. PyGMO for the analysis of the fitness function.
+
+Instantiate Analysis Module
+---------------------------
 First, we need to instantiate the analysis class as follows:
 
 .. code-block:: python
@@ -31,7 +36,7 @@ It is also an option to instantiate the class with an existing population object
 Tests on fitness functions
 --------------------------
 
-Now we can start launching some of the :ref:`tests<analysis_tests>`. We will launch all of those that
+Now we can start launching some of the analysis. We will launch all of those that
 make sense for a 2-objective unconstrained problem.
 
 .. code-block:: python
@@ -107,7 +112,7 @@ The output should be something like this:
 	*X-PCP plot obj.1 :    <figure_2.png>
 	*X-PCP plot obj.2 :    <figure_3.png>
 
-.. image:: ../images/examples/ex7_fdistr.png
+.. image:: ../images/tutorials/analysis_fdistr.png
 
 .. code-block:: none
 
@@ -161,7 +166,7 @@ The output should be something like this:
 	*Objective Gradient/Jacobian PCP plot : <figure_5.png>
 	*Objective Gradient/Jacobian PCP plot (inverted) : <figure_6.png>
 
-.. image:: ../images/examples/ex7_fsens.png
+.. image:: ../images/tutorials/analysis_fsens.png
 
 .. code-block:: none
 
@@ -216,7 +221,7 @@ The output should be something like this:
 	*Cluster PCP plot (cluster n.3) : <figure_10.png>
 	*Cluster scatter plot (dimensions [1, 2]) : <figure_11.png>
 
-.. image:: ../images/examples/ex7_ls.png
+.. image:: ../images/tutorials/analysis_ls.png
 
 .. code-block:: none
 
@@ -231,130 +236,4 @@ The output should be something like this:
 	     [  1.0    0.277  ]
 	     [ 0.277    1.0   ]
 
-Tests on constraint functions
------------------------------
-Now we will add a new instance and perform some test on the constraints of a single-objective constrained problem. We will choose problem g05 of the cec2006 database, and perform the constraint-related tests. We will pick 1000 points via latin hypersquare sampling (lhs) this time.
-
-.. code-block:: python
-
-	from PyGMO import *
-
-	prob=problem.cec2006(5)
-	inspector=util.analysis(prob,1000,'lhs',output_to_file=True)
-
-	inspector.c_feasibility()
-	inspector.c_linearity()
-	inspector.c_regression(degree=[1,1,2,2],interaction=[False,True,False,True])
-	inspector.c_sensitivity()
-
-The output will look like this:
-
-.. code-block:: none
-
-	===============================================================================
-		                           ANALYSIS                                    
-	===============================================================================
-	-------------------------------------------------------------------------------
-	PROBLEM PROPERTIES
-	-------------------------------------------------------------------------------
-	Problem name: CEC2006 - g5
-		Global dimension:			4
-		Integer dimension:			0
-		Fitness dimension:			1
-		Constraints dimension:			5
-		Inequality constraints dimension:	2
-		Lower bounds: [0, 0, -0.55000000000000004, -0.55000000000000004]
-		Upper bounds: [1200, 1200, 0.55000000000000004, 0.55000000000000004]
-		Constraints tolerance: [0.0001, 0.0001, 0.0001, 0, 0]
-
-	-------------------------------------------------------------------------------
-	SAMPLED [1000] POINTS VIA lhs METHOD FOR THE SUBSEQUENT TESTS
-	-------------------------------------------------------------------------------
-	C-FEASIBILITY
-	-------------------------------------------------------------------------------
-	Constraint h_1 :
-	     Effectiveness >=0 :                 [0.416]
-	     Effectiveness <=0 :                 [0.584]
-	     Number of feasible points found :   [0]
-	Constraint h_2 :
-	     Effectiveness >=0 :                 [0.388]
-	     Effectiveness <=0 :                 [0.612]
-	     Number of feasible points found :   [0]
-	Constraint h_3 :
-	     Effectiveness >=0 :                 [0.879]
-	     Effectiveness <=0 :                 [0.121]
-	     Number of feasible points found :   [0]
-	Constraint g_1 : 
-	     Effectiveness >0 :                  [0.128]
-	     Redundancy wrt. all other ic :      [0.0]
-	     Number of feasible points found :   [872]
-	Constraint g_2 : 
-	     Effectiveness >0 :                  [0.124]
-	     Redundancy wrt. all other ic :      [0.0]
-	     Number of feasible points found :   [876]
-	Pairwise redundancy (ic) :
-	_____|   g1   |   g2   |
-	 g1  |  1.0   |  0.0   |
-	 g2  |  0.0   |  1.0   |
-	-------------------------------------------------------------------------------
-	C-LINEARITY
-	-------------------------------------------------------------------------------
-	Number of pairs of points used :         [1000]
-		      CONSTRAINT         PROBABILITY OF LINEARITY
-		         h_1                     [0.005]         
-		         h_2                     [0.005]         
-		         h_3                     [0.003]         
-		         g_1                      [1.0]          
-		         g_2                      [1.0]          
-	-------------------------------------------------------------------------------
-	C-REGRESSION
-	-------------------------------------------------------------------------------
-	CONSTRAINT h_1 :
-	 DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-	   1        126286.466      0.999     0.999      0.006      0.999      0.006    
-	  1(i)      126286.466      0.999     0.999      0.006      0.999      0.006    
-	   2        348689.605       1.0       1.0       0.002       1.0       0.002    
-	  2(i)      348689.605       1.0       1.0       0.002       1.0       0.002    
-	CONSTRAINT h_2 :
-	 DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-	   1        47625.385       0.998     0.998       0.01      0.998       0.01    
-	  1(i)      47625.385       0.998     0.998       0.01      0.998       0.01    
-	   2        292418.74        1.0       1.0       0.002       1.0       0.002    
-	  2(i)      292418.74        1.0       1.0       0.002       1.0       0.002    
-	CONSTRAINT h_3 :
-	 DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-	   1        51587.224       0.998     0.998      0.011      0.998      0.012    
-	  1(i)      51587.224       0.998     0.998      0.011      0.998      0.012    
-	   2        223152.687       1.0       1.0       0.003       1.0       0.003    
-	  2(i)      223152.687       1.0       1.0       0.003       1.0       0.003    
-	CONSTRAINT g_1 :
-	 DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-	   1         2.6e+31         1.0       1.0      1.0e-15      1.0     1.086e-15  
-	  1(i)       2.6e+31         1.0       1.0      1.0e-15      1.0     1.086e-15  
-	   2        3.907e+30        1.0       1.0     2.581e-15     1.0     2.557e-15  
-	  2(i)      3.907e+30        1.0       1.0     2.581e-15     1.0     2.557e-15  
-	CONSTRAINT g_2 :
-	 DEGREE         F*            R2      R2adj       RMSE      R2pred   PRESS-RMSE
-	   1        1.792e+31        1.0       1.0     1.205e-15     1.0     1.135e-15  
-	  1(i)      1.792e+31        1.0       1.0     1.205e-15     1.0     1.135e-15  
-	   2        2.322e+30        1.0       1.0     3.347e-15     1.0     3.493e-15  
-	  2(i)      2.322e+30        1.0       1.0     3.347e-15     1.0     3.493e-15  
-	-------------------------------------------------------------------------------
-	C-SENSITIVITY 
-	-------------------------------------------------------------------------------
-	CONSTRAINT g_1 :
-	  Percentiles :             |    0    |    25   |    50   |    75   |   100   |
-	     Gradient norm :        |  0.608  |   0.68  |  0.702  |  0.721  |  0.731  |
-	    |dFx|_max/|dFx|_min :   |   inf   |   inf   |   inf   |   inf   |   inf   |
-	     Gradient sparsity :            [0.4]
-	CONSTRAINT g_2 :
-	  Percentiles :             |    0    |    25   |    50   |    75   |   100   |
-	     Gradient norm :        |  0.477  |  0.696  |  0.751  |  0.776  |  0.793  |
-	    |dFx|_max/|dFx|_min :   |   inf   |   inf   |   inf   |   inf   |   inf   |
-	     Gradient sparsity :            [0.4]
-	*Constraints Gradient/Jacobian sparsity plot : <figure_1.png>
-	*Constraint Gradient/Jacobian PCP plot : <figure_2.png>
-	*Constraint Gradient/Jacobian PCP plot (inverted) : <figure_3.png>
-
-.. image:: ../images/examples/ex7_cstrs.png
 
