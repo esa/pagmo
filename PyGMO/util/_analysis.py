@@ -1711,13 +1711,13 @@ class analysis:
                 print ("Constraint h_"+str(c+1)+" :",file=output)
                 print ("     Effectiveness >=0 :                ",[round(1-results[c][0]+results[c][1],round_to)],file=output)
                 print ("     Effectiveness <=0 :                ",[round(results[c][0],round_to)],file=output)
-                print ("     Number of feasible points found :  ",[int(results[c][1]*self.npoints)],file=output)
+                print ("     Number of feasible points found :  ",[int(round(results[c][1]*self.npoints,0))],file=output)
             for c in range(-self.ic_dim,0):
                 print ("Constraint g_"+str(c+self.ic_dim+1)+" : ",file=output)
                 print ("     Effectiveness >0 :                 ",[round(1-results[c][0],round_to)],file=output)
                 if self.ic_dim>1:
                     print ("     Redundancy wrt. all other ic :     ",[round(redundancy[0][c],round_to)],file=output)
-                print ("     Number of feasible points found :  ",[int(results[c][0]*self.npoints)],file=output)  
+                print ("     Number of feasible points found :  ",[int(round(results[c][0]*self.npoints,0))],file=output)  
             if self.ic_dim>1:
                 print ("Pairwise redundancy (ic) :",file=output)
                 print ("_____|",end='',file=output)
