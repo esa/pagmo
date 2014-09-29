@@ -22,6 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+//#include <boost/graph/graph_concepts.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <sstream>
 #include <string>
@@ -31,157 +32,261 @@
 
 #include "../exceptions.h"
 #include "../types.h"
-#include "base.h"
 #include "tsp.h"
+#include <boost/graph/graphviz.hpp>
 
 namespace pagmo { namespace problem {
 
-static const double default_weights[5][5] = {
-	{0,1,2,3,4},
-	{1,0,2.236067,4,4.123105},
-	{2,2.236067,0,3.605551,6},
-	{3,4,3.605551,0,5},
-	{4,4.123105,6,5,0}
-};
+    /**
+     * The default constructor, calls default for base_tsp
+     */
+    tsp::tsp(): base_tsp(), m_weights(graph2matrix(get_graph()))
+    {
+        check_matrix(m_weights);
+    }
 
-/// Default constructor.
-/**
- * This constructor will build a TSP instance with 5 cities in the following positions:
- *
- * - city 1: (0,0)
- * - city 2: (1,0)
- * - city 3: (0,2)
- * - city 4: (-3,0)
- * - city 5: (0,-4)
- */
-tsp::tsp():base_aco(5,1,0)
-{
-	m_weights.resize(5);
-	for (int i = 0; i < 5; ++i) {
-		m_weights[i].resize(5);
-		for (int j = 0; j < 5; ++j) {
-			m_weights[i][j] = default_weights[i][j];
-		}
-	}
-	set_lb(0);
-	set_ub(4); //number of nodes in the graph -1 (we count from 0)
-	set_heuristic_information_matrix();
-}
+    /**
+     * Constructor from adjacency matrix weights
+     * @param[in] weights
+     */
+    tsp::tsp(const std::vector<std::vector<double> >& weights): base_tsp(matrix2graph(weights)), m_weights(weights)
+    {
+        check_matrix(m_weights);
+    }
 
-/// Constructor from vectors and maximum weight.
-/**
- * Initialize weights of the edges (city distances) from the matrix.
- *
- * @param[in] weights matrix of distances between cities.
- */
-tsp::tsp(const std::vector<std::vector<double> > &weights):
-	base_aco(boost::numeric_cast<int>(weights[0].size()),1,0), m_weights(weights) {
-	
-	//Check weights matrix
-	for(problem::base_aco::size_type i = 0; i < m_weights.size(); ++i) {
-		if (m_weights[i].size() != m_weights.size()) {
-			pagmo_throw(value_error,"Weights matrix must be a square matrix!");		
-		}
-		if(m_weights[i][i] != 0) {
-			pagmo_throw(value_error,"Weights matrix must have 0's on the diagonal!");
-		}
-		for (problem::base_aco::size_type j = 0; j < m_weights[i].size(); ++j) {
-			if(m_weights[i][j] != m_weights[j][i]) {
-				pagmo_throw(value_error,"Weights matrix must be a simmetric matrix!");	
-			}
-		}
-	}
+    /**
+     * Constructor from boost graph object
+     * @param[in] graph - tsp_graph
+     */
+    tsp::tsp(const tsp_graph& graph): base_tsp(graph), m_weights(graph2matrix(get_graph())) 
+    {
+        check_matrix(m_weights);
+    }
 
-	set_lb(0);
-	set_ub(weights[0].size()-1); //number of nodes in the graph -1 (we count from 0)
-	set_heuristic_information_matrix();
-}
+    /// Clone method.
+    base_ptr tsp::clone() const
+    {
+        return base_ptr(new tsp(*this));
+    }
 
+    /// Returns a reference to the adjacency matrix
+    /**
+     * After constructing the tsp object, the weights matrix is initialized.
+     * @return reference to the adjacency matrix
+     */
+    const std::vector<std::vector<double> >& tsp::get_weights() const 
+    {
+        return m_weights;
+    }
+    
+    /// Converts a matrix to a boost graph
+    /**
+     * Converts an adjacency matrix (square two dimensional) to a boost graph
+     * object of type tsp_graph, setting the internal property for the weights
+     * to the values defined in the matrix.
+     * @param matrix std::vector<std::vector<double>> square matrix
+     * @return tsp_graph boost graph object with weights initialized from matrix
+     */
+    tsp_graph tsp::matrix2graph(const std::vector<std::vector<double> > matrix) 
+    {
+        tsp_graph retval;
+        tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), retval);
+        tsp_vertex from, to;
+        tsp_edge link;
+        
+        // add vertices first 
+        /* Checking if a vertex exists with no vertices inserted causes segfault
+         * so we have to iterate 1st to get total number of vertices
+         * then iterate again to insert them ... bummer
+         * Couldn't figure out how to do it all in 2 for loops
+         */
+        size_t no_vertices = matrix.size();
+        for (size_t v = 0; v < no_vertices; ++v)
+            boost::add_vertex(v, retval);
+        
+        // add edges and weights
+        for (size_t i = 0; i < no_vertices; ++i) {
 
-/** For tsp eta[k][i][j] represents the cost of having the node j in position k of the path and the node i in position k+1. 
- *  this represents the weight of the edge between i and j (distance from city i and j) and doesn't depends from k.
- */
-void tsp::set_heuristic_information_matrix() {
-	//allocates the memory for eta.
-	create_heuristic_information_matrix();
+            /* uncomment this and it's segfault
+             * don't do this check and the logic is wrong
+             */ 
+            from = boost::vertex(i, retval);
+//                if (from == tsp_graph::null_vertex())
+//                    from = boost::add_vertex(i, the_graph);
+            
+            for (size_t j = 0 ; j < no_vertices; ++j) {
+                // we don't allow connections to self
+                if(i == j) continue;
+                
+                to = boost::vertex(j, retval);
+                // create destination vertex only if not existent
+                // for some reason this works, but is not enough
+//                    if (to == tsp_graph::null_vertex())
+//                        to = boost::add_vertex(j, the_graph);
+                
+                // create an edge connecting those two vertices
+                link = (boost::add_edge(from, to, retval)).first;
+                // add weight property to the edge
+                weights[link] = matrix.at(i).at(j);
+            }
+        }
+        return retval;
+    }
+    
+    /// Converts a boost graph to a matrix
+    /**
+     * Converts a boost graph to a matrix (two dimensional std::vector of doubles).
+     * The returned matrix is square and has the diagonal elements zeroed out.
+     * @param graph boost graph of type tsp_graph
+     * @return a two dimensional std::vector of doubles
+     */
+    std::vector<std::vector<double> > tsp::graph2matrix(const tsp_graph graph) 
+    {
+        size_t n_vertex = boost::num_vertices(graph);
+        tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), graph);
+        tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), graph);
+        tsp_edge_range_t e_it = boost::edges(graph);
+        
+        std::vector<std::vector<double> > retval(n_vertex, std::vector<double>(n_vertex, 0.0));
+        for (e_it = boost::edges(graph); e_it.first != e_it.second; ++e_it.first) {
+            int i = vtx_idx[boost::source(*e_it.first, graph)];
+            int j = vtx_idx[boost::target(*e_it.first, graph)];
+            retval[i][i] = 0;
+            retval[i][j] = weights[*e_it.first];
+        }
+        return retval;
+    }
 
-	for(std::vector<std::vector<std::vector<fitness_vector> > >::size_type k = 0; k < m_eta.size(); ++k) {
-		for(std::vector<std::vector<fitness_vector> >::size_type i=0; i < m_eta[0].size(); ++i) {
-			for(std::vector<fitness_vector>::size_type  j = 0; j < m_eta[0][0].size(); ++j) {
-					m_eta[k][i][j][0] = m_weights[i][j];
-			}
-		}
-	}
+    /// Computes the index 
+    /** 
+     * Returns the index in the decision vector corresponding to the concatenated 
+     * rows of a square matrix, which contains the edges between vertices.
+     * @param[in] i row
+     * @param[in] j column
+     */
+    size_t tsp::compute_idx(const size_t i, const size_t j, const size_t n) 
+    {
+        pagmo_assert( i!=j && i<n && j<n );
+        return i*(n-1) + j - (j>i? 1:0);
+    };
+    
+    /// Checks if we can instantiate a TSP or ATSP problem
+    /**
+     * Checks if a matrix (std::vector<std::vector<double>>) 
+     * is square or bidirectional (e.g. no one way links between vertices).
+     * If none of the two conditions are true, we can not have a tsp problem.
+     * @param matrix - the adjacency matrix (two dimensional std::vector)
+     * @throws pagmo_throw - matrix is not square and/or graph is not bidirectional
+     */
+    void tsp::check_matrix(const std::vector<std::vector<double> > &matrix) const 
+    {   
+        size_t n_cols = matrix.size();
+        
+        for (size_t i = 0; i < n_cols; ++i) {
+            size_t n_rows = matrix.at(i).size();
+            // check if the matrix is square
+            if (n_rows != n_cols)
+                pagmo_throw(value_error, "adjacency matrix is not square");
+            
+            for (size_t j = 0; j < n_rows; ++j) {
+                if (i == j && matrix.at(i).at(j) != 0)
+                    pagmo_throw(value_error, "main diagonal elements must all be zeros.");
+                if (i != j && !matrix.at(i).at(j)) // fully connected
+                    pagmo_throw(value_error, "adjacency matrix contains zero values.");
+                if (i != j && !matrix.at(i).at(j) == matrix.at(i).at(j)) // fully connected
+                    pagmo_throw(value_error, "adjacency matrix contains NaN values.");                    
+            }
+        }
+    }
+    
+    /// Implementation of the objective function
+    /**
+     * Computes the fitness vector associated to a decision vector.
+     * The fitness is defined as Sum_ij(w_ij * x_ij) 
+     * where w_ij are the weights defining the distances between the cities
+     * The decision vector x_ij is a concatenated binary adjacency matrix, 
+     * with the diagonal elements skipped since they're always zero because
+     * in a route you can't go from one vertex to itself.
+     * @param[out] f fitness vector
+     * @param[in] x decision vector
+     */
+    void tsp::objfun_impl(fitness_vector &f, const decision_vector& x) const 
+    {
+        size_t n = get_n_vertices();        
+        pagmo_assert(x.size() == n * (n - 1));
+        
+        f[0]= 0;
+        for (size_t i = 0; i < n; i++) {
+            for (size_t j = 0; j < n; j++) {
+                if(i==j) continue;
+                f[0] += m_weights[i][j] * x[compute_idx(i, j, n)];
+            }
+        }       
+    }
 
-}
-/*
- * Chek if a node appears two times in the solution. In that case the solution is not feasible
- */
-bool tsp::check_partial_feasibility(const decision_vector &x) const{
-	if (x.size() > get_i_dimension()) {
-		pagmo_throw(value_error,"Invalid chromosome length for partial feasibility check.");
-	}
+    /// Constraint computation.
+    /**
+     * Computes the equality and inequality constraints for a decision vector
+     * and returns the |c| = n(n-1)+2 constraint vector with the concatenated
+     * equality constraints (n-1)(n-2) and inequality constraints.
+     * The equality constraints are ordered by row, then by sum.
+     * For pagmo, the final sum is set to -1.
+     * @param[out] c constraint_vector
+     * @param[in] x decision_vector
+     */
+    void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
+    {
+        size_t n = get_n_vertices();
 
-	m_tmpDecisionVector = x;
-	std::sort(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end());
+        // 1 - We set the equality constraints
+        for (size_t i = 0; i < n; i++) {
+            c[i] = 0;
+            c[i+n] = 0;
+            for (size_t j = 0; j < n; j++) {
+                if(i==j) continue; // ignoring main diagonal
+                decision_vector::size_type rows = compute_idx(i, j, n);
+                decision_vector::size_type cols = compute_idx(j, i, n);
+                c[i] += x[rows];
+                c[i+n] += x[cols];
+            }
+            c[i] = c[i]-1;
+            c[i+n] = c[i+n]-1;
+        }
 
-	return 	std::unique(m_tmpDecisionVector.begin(), m_tmpDecisionVector.end()) == m_tmpDecisionVector.end();
+        //2 - We set the inequality constraints
+        //2.1 - First we compute the uj (see http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation)
+        //      we start always out tour from the first city, without loosing generality
+        size_t next_city = 0,current_city = 0;
+        std::vector<int> u(n);
+        for (size_t i = 0; i < n; i++) {
+            u[current_city] = i+1;
+            for (size_t j = 0; j < n; j++) 
+            {
+                if (current_city==j) continue;
+                if (x[compute_idx(current_city, j, n)] == 1) 
+                {
+                    next_city = j;
+                    break;
+                }
+            }
+            current_city = next_city;
+        }
+        int count=0;
+        for (size_t i = 1; i < n; i++) {
+            for (size_t j = 1; j < n; j++) 
+            {
+                if (i==j) continue;
+                c[2*n+count] = u[i]-u[j] + (n+1) * x[compute_idx(i, j, n)] - n;
+                count++;
+            }
+        }
+    }
 
-}
- 
+    std::string tsp::get_name() const 
+    {
+        return "Traveling Salesman Problem (TSP and ATSP)";
+    }
 
-/// Clone method.
-base_ptr tsp::clone() const
-{
-	return base_ptr(new tsp(*this));
-}
+}} //namespaces
 
-/// Implementation of the objective function.
-void tsp::objfun_impl(fitness_vector &f, const decision_vector &x) const
-{
-	pagmo_assert(f.size() == 1);
-	pagmo_assert(x.size() == get_dimension() && x.size() == m_weights[0].size());
-	f[0] = 0;
-	for (size_type i = 1; i < get_dimension(); ++i) {
-			f[0] += m_weights[boost::numeric_cast<int>(x[i-1])][boost::numeric_cast<int>(x[i])];
-	}
-	f[0] += m_weights[boost::numeric_cast<int>(x[get_dimension()-1])][boost::numeric_cast<int>(x[0])];
-}
-
-/// Re-implement constraint computation,
-//We check whether we have selected all the nodes (the decision vector has to be a permutation of the set of nodes).
-//The constraint is positive (not satisfied) if we have selected more than once the same node or equivalently not all 
-//the nodes have been selected
-void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector &x) const
-{
-	if (check_partial_feasibility(x)) {
-		c[0] = 0;
-	}
-	else {
-		c[0] = 1;
-	}
-}
-
-/// Extra human readable info for the problem.
-/**
- * Will return a formatted string containing the weights matrix.
- */
-std::string tsp::human_readable_extra() const
-{
-	std::ostringstream oss;
-	oss << "\nWeights Matrix: " << std::endl;
-	for(problem::base::size_type i=0; i < m_weights[0].size(); ++i) {
-		oss << "\t\t" << m_weights[i] << std::endl;
-	}
-	return oss.str();
-}
-
-std::string tsp::get_name() const
-{
-	return "Travelling Salesman Problem";
-}
-
-}
-}
-
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tsp)
+//BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tsp);

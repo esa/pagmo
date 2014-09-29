@@ -573,29 +573,29 @@ tsp._orig_init = tsp.__init__
 tsp.__init__ = _tsp_ctor
 
 
-def _knapsack_ctor(
-    self, values=[
-        1, 2, 3, 4, 5], weights=[
-        10, 40, 30, 50, 20], max_weight=100):
-    """
-    Constructs a 0-1 Knapsack Problem (Constrained Integer Single-Objective)
+#def _knapsack_ctor(
+#    self, values=[
+#        1, 2, 3, 4, 5], weights=[
+#        10, 40, 30, 50, 20], max_weight=100):
+#    """
+#    Constructs a 0-1 Knapsack Problem (Constrained Integer Single-Objective)
 
-    USAGE: problem.knapsack(values = [1,2,3,4,5], weights = [10, 40, 30, 50, 20], max_weight = 100)
+#    USAGE: problem.knapsack(values = [1,2,3,4,5], weights = [10, 40, 30, 50, 20], max_weight = 100)
 
-    * values: raw array of values
-    * weights: raw array of weights
-    * max_weight: maximum weight
-    """
+#    * values: raw array of values
+#    * weights: raw array of weights
+#    * max_weight: maximum weight
+#    """
 
-    # We construct the arg list for the original constructor exposed by
-    # boost_python
-    arg_list = []
-    arg_list.append(values)
-    arg_list.append(weights)
-    arg_list.append(max_weight)
-    self._orig_init(*arg_list)
-knapsack._orig_init = knapsack.__init__
-knapsack.__init__ = _knapsack_ctor
+#    # We construct the arg list for the original constructor exposed by
+#    # boost_python
+#    arg_list = []
+#    arg_list.append(values)
+#    arg_list.append(weights)
+#    arg_list.append(max_weight)
+#    self._orig_init(*arg_list)
+#knapsack._orig_init = knapsack.__init__
+#knapsack.__init__ = _knapsack_ctor
 
 
 def _inventory_ctor(self, weeks=4, sample_size=10, seed=0):

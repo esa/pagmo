@@ -33,7 +33,7 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "base_aco.h"
+#include "base_tsp.h"
 
 namespace pagmo { namespace problem {
 
@@ -59,14 +59,14 @@ namespace pagmo { namespace problem {
  * In PaGMO's terminology, this problem has global and integer dimensions equal to N, fitness dimension equal to 1, global and inequality constraints
  * dimensions equal to 1.
  * 
- * NOTE: this problem calls the virtual function base_aco::set_heuristic_information_matrix() in its constructor, hence it is advisable *not* to
+ * NOTE: this problem calls the virtual function base_tsp::set_heuristic_information_matrix() in its constructor, hence it is advisable *not* to
  * use this class as a base for another class. See http://www.artima.com/cppsource/nevercall.html for a discusssion.
  *
  * @see http://en.wikipedia.org/wiki/Knapsack_problem
  *
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
-class __PAGMO_VISIBLE knapsack: public base_aco
+class __PAGMO_VISIBLE knapsack: public base_tsp
 {
 	public:
 		knapsack();
@@ -81,7 +81,7 @@ class __PAGMO_VISIBLE knapsack: public base_aco
 		 * @param[in] max_weight maximum weight.
 		 */
 		template <std::size_t N>
-		knapsack(const double (&values)[N], const double (&weights)[N], const double &max_weight):base_aco(boost::numeric_cast<int>(N),1,1),
+		knapsack(const double (&values)[N], const double (&weights)[N], const double &max_weight):base_tsp(boost::numeric_cast<int>(N),1,1),
 			m_values(values,values + N),m_weights(weights,weights + N),m_max_weight(max_weight)
 		{
 			verify_init();
