@@ -22,77 +22,66 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_ACO_ELITE_H
-#define PAGMO_ALGORITHM_ACO_ELITE_H
+#ifndef PAGMO_ALGORITHM_INVEROVER_H
+#define PAGMO_ALGORITHM_INVEROVER_H
 
-#include "aco.h"
+#include "../config.h"
+#include "../serialization.h"
+#include "../population.h"
+#include "../problem/tsp.h"
+#include "base.h"
+#include <algorithm>
+
 
 namespace pagmo { namespace algorithm {
 
-/// Ant Colony Optimization (ACO) - Elitist Ant System
+/// Inver-Over Algorithm (IO)
 /**
- * All ACO algorithms can be characterized by three parameters as follows: 
- * - Number of ants N > 0;
- * The ants are randomly initialized to a starting point in the graph.
- * Each ant, as it travels deposits pheromone proportionally to the length of
- * it's tour along the graph. Pheromone is deposited only if the ant has made
- * a valid tour. An ant must visit all cities, to complete a valid tour.
+ * The Inver-Over algorithm is a state-of-the-art genetic algorithm for the Travelling Salesman Problem.
+ * It was designed by G. Tao and Z. Michalewicz in 1998.
  * 
- * - Pheromone evaporation level P \in (0, 1)
- * As time passes, the pheromone on the least (longest) tours traveled
- * evaporates according to a pheromone evaporation constant.
- * 
- * - Number of cycles C > 0;
- * After all ants are initialized, the pheromone levels are updated and we have
- * a list of valid tours from the ants that have managed to complete a tour,
- * the shortest tour is remembered and the ants are re-initialized in different
- * starting points and the process is repeated.
- * 
- * This class is the Elitist Ant System algorithm.
- * See: http://books.google.at/books?id=_aefcpY8GiEC&hl=en
- * 
- * @author Florin Schimbinschi (florinsch@gmail.com)
+ * Note: The algorithm was sightly changed (choice of the next city in a series of inverisons)
+ * since with this choice better performance (tour length, computational time) was observed.
+ *
+ * Note2: The algorithm contains a 2nd stopping criterion depending on the time (generation) an individual was
+ * improved. It is possible that more accurate solutions are obtained if this criterion is removed.
+ *
+ * Note3: The value for the population size is advised to be no smaller than 20.
+ * To not have premature convergence, values around 100 are observed to work well.
+ *
+ * @author Ingmar Getzner (ingmar.getzner@gmail.com)
  */
-class __PAGMO_VISIBLE aco_elite: public aco
+class __PAGMO_VISIBLE inverover: public base
 {
     public:
-        aco_elite(int cycles = 100, int ants = 100, double rho = 0.5, double alpha = 1, double beta = 2, double e = 0.5);
-        
-        double get_e() const;
-        void set_e(double);
-        
+        inverover(int gen = 500000, double ri = 0.05);
+
         base_ptr clone() const;
         void evolve(population &) const;
         std::string get_name() const;
-        
+	//void set_gen(int gen);
+	//int get_gen() const;
+	//void set_ri(double ri);
+	//double get_ri() const;
     protected:
-        std::string human_readable_extra() const;
-        
+	size_t compute_idx(const size_t,const size_t,const size_t);
+
     private:
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
                 ar & boost::serialization::base_object<base>(*this);
-                ar & m_cycles;
-                ar & m_ants;
-                ar & m_rho;
-                ar & m_alpha;
-                ar & m_beta;
-                ar & m_e;
+                ar & m_gen;
+                ar & m_ri;
         }
 
-        int m_cycles;
-        int m_ants;
-        double m_rho;
-        double m_alpha;
-        double m_beta;
-        double m_e;
-        mutable std::vector<double> m_lambda;
+        int m_gen;
+        double m_ri;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::aco_elite)
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::inverover)
 
-#endif // PAGMO_ALGORITHM_ACO_ELITE_H
+#endif // PAGMO_ALGORITHM_INVEROVER_H

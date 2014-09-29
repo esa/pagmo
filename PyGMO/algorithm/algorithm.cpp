@@ -265,34 +265,16 @@ BOOST_PYTHON_MODULE(_algorithm) {
 //        boost::python::class_<std::vector<double> >("PyVec")
 //            .def(boost::python::vector_indexing_suite<std::vector<double> >());
         
-	// Ant Colony Optimization (ACO)
-	algorithm_wrapper<algorithm::aco>("aco","Simple Ant Colony Optimization (ACO) algorithm.")
-		.def(init<int,optional<int, double, double, double> >())
-                .def("lambda",&algorithm::aco::get_lambda, "Returns a vector of branching factor evolution")
-                .add_property("gen",&algorithm::aco::get_cycles,&algorithm::aco::set_cycles)
-                .add_property("ants",&algorithm::aco::get_ants,&algorithm::aco::set_ants)
-                .add_property("rho",&algorithm::aco::get_rho,&algorithm::aco::set_rho)
-                .add_property("alpha",&algorithm::aco::get_alpha,&algorithm::aco::set_alpha)
-                .add_property("beta",&algorithm::aco::get_beta,&algorithm::aco::set_beta);
-        
-        algorithm_wrapper<algorithm::aco_elite>("aco_elite"," Elite Ant Colony Optimization (ACO) algorithm.")
-		.def(init<int,optional<int, double, double, double, double> >())
-		.add_property("gen",&algorithm::aco::get_cycles,&algorithm::aco::set_cycles)
-                .add_property("ants",&algorithm::aco::get_ants,&algorithm::aco::set_ants)
-                .add_property("rho",&algorithm::aco::get_rho,&algorithm::aco::set_rho)
-                .add_property("alpha",&algorithm::aco::get_alpha,&algorithm::aco::set_alpha)
-                .add_property("beta",&algorithm::aco::get_beta,&algorithm::aco::set_beta)
-                .add_property("e",&algorithm::aco_elite::get_e,&algorithm::aco_elite::set_e);
-        
-        algorithm_wrapper<algorithm::aco_rank>("aco_rank","Rank-based Ant Colony Optimization (ACO) algorithm.")
-		.def(init<int,optional<int, double, double, double, double> >())
-		.add_property("gen",&algorithm::aco::get_cycles,&algorithm::aco::set_cycles)
-                .add_property("ants",&algorithm::aco::get_ants,&algorithm::aco::set_ants)
-                .add_property("rho",&algorithm::aco::get_rho,&algorithm::aco::set_rho)
-                .add_property("alpha",&algorithm::aco::get_alpha,&algorithm::aco::set_alpha)
-                .add_property("beta",&algorithm::aco::get_beta,&algorithm::aco::set_beta)
-                .add_property("e",&algorithm::aco_elite::get_e,&algorithm::aco_elite::set_e);
-                        
+	//InverOver    
+        algorithm_wrapper<algorithm::inverover>("inverover","InverOver Genetic Algorithm.")
+		.def(init<optional<int, double> >());
+		//.add_property("gen",&algorithm::io::get_gen,&algorithm::io::set_gen)
+                //.add_property("ri",&algorithm::io::get_ri,&algorithm::io::set_ri);
+
+	//Nearest Neighbor Alg. (NN)  
+        algorithm_wrapper<algorithm::nn>("nn","Nearest Neighbor Algortihm.")
+		.def(init<optional<int> >());
+                
 	// Firefly (FA). [Does not work!!!!!! The agorithm sucks!!!]
 	// algorithm_wrapper<algorithm::firefly>("firefly","Firefly optimization algorithm.")
 	//	.def(init<int,optional<double, double, double> >());

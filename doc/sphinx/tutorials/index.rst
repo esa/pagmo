@@ -13,4 +13,4 @@ This is a collection of tutorials on PyGMO's basics:
    hypervolumes_in_PyGMO
    dealing_with_constraints_in_PyGMO
    racing
-   aco
+   tsp

@@ -16,9 +16,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/bee_colony.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/firefly.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/cmaes.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco_elite.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/algorithm/aco_rank.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/algorithm/inverover.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nn.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/nsga2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/moea_d.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/algorithm/sms_emoa.cpp

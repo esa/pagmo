@@ -22,70 +22,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_ACO_RANK_H
-#define PAGMO_ALGORITHM_ACO_RANK_H
+#ifndef PAGMO_ALGORITHM_IO_H
+#define PAGMO_ALGORITHM_IO_H
 
-#include "aco_elite.h"
+#include "../config.h"
+#include "../serialization.h"
+#include "../population.h"
+#include "../problem/tsp.h"
+#include "base.h"
+#include <algorithm>
+
 
 namespace pagmo { namespace algorithm {
 
-/// Ant Colony Optimization (ACO) - Rank-based Ant System
+/// Nearest Neighbor Algorithm (NN)
 /**
- * All ACO algorithms can be characterized by three parameters as follows: 
- * - Number of ants N > 0;
- * The ants are randomly initialized to a starting point in the graph.
- * Each ant, as it travels deposits pheromone proportionally to the length of
- * it's tour along the graph. Pheromone is deposited only if the ant has made
- * a valid tour. An ant must visit all cities, to complete a valid tour.
- * 
- * - Pheromone evaporation level P \in (0, 1)
- * As time passes, the pheromone on the least (longest) tours traveled
- * evaporates according to a pheromone evaporation constant.
- * 
- * - Number of cycles C > 0;
- * After all ants are initialized, the pheromone levels are updated and we have
- * a list of valid tours from the ants that have managed to complete a tour,
- * the shortest tour is remembered and the ants are re-initialized in different
- * starting points and the process is repeated.
+ * The Nearest Neighbor algorithm generates a tour starting either from a single, in the input, specified vertex
+ * or loops over all possible initial vertices, computes the corresponding tours and returns the shortest tour.
  *
- * See: http://books.google.at/books?id=_aefcpY8GiEC&hl=en
- * 
- * @author Florin Schimbinschi (florinsch@gmail.com)
+ * @author Ingmar Getzner (ingmar.getzner@gmail.com)
  */
-class __PAGMO_VISIBLE aco_rank: public aco_elite
+class __PAGMO_VISIBLE nn: public base
 {
     public:
-        aco_rank(int cycles = 100, int ants = 100, double rho = 0.5, double alpha =1 , double beta = 2, double e = 0.5);
-        
+        nn(int start_city = -1);
+
         base_ptr clone() const;
         void evolve(population &) const;
         std::string get_name() const;
-        
+
     private:
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
                 ar & boost::serialization::base_object<base>(*this);
-                ar & m_cycles;
-                ar & m_ants;
-                ar & m_rho;
-                ar & m_alpha;
-                ar & m_beta;
-                ar & m_e;
+                ar & m_start_city;
         }
 
-        int m_cycles;
-        int m_ants;
-        double m_rho;
-        double m_alpha;
-        double m_beta;
-        double m_e;
-        mutable std::vector<double> m_lambda;
+        int m_start_city;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::aco_rank)
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nn)
 
-#endif // PAGMO_ALGORITHM_ACO_RANK_H
+#endif // PAGMO_ALGORITHM_NN_H
