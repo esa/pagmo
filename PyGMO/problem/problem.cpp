@@ -309,10 +309,6 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::schwefel>("schwefel","Two-dimensional Schwefel function.")
 		.def(init<int>());
 
-	// Knapsack problem.
-	problem_wrapper<problem::knapsack>("knapsack","Classical 01 knapsack problem. Constructor from vector of values, vector of weights and maximum weight.")
-		.def(init<const std::vector<double> &, const std::vector<double> &, const double &>());
-
 	// Himmelblau's function.
 	problem_wrapper<problem::himmelblau>("himmelblau","Himmelblau's function.");
 	
@@ -364,9 +360,10 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const std::string &>())
 		.def("pretty", &problem::string_match::pretty);
 
-	// Traveling salesman problem
-	problem_wrapper<problem::tsp>("tsp","Traveling salesman problem")
-		.def(init<const std::vector<std::vector<double> > &>());
+	// Travelling salesman problem
+	problem_wrapper<problem::tsp>("tsp","Travelling salesman problem (TSP and ATSP)")
+		.def(init<const std::vector<std::vector<double> > &>())
+		.add_property("weights",make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
 
 	// SCH
 	problem_wrapper<problem::sch>("sch","Shaffer's study problem.");
@@ -473,12 +470,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const problem::base &,unsigned int, const double, unsigned int>())
 		.add_property("rho", &problem::robust::get_rho);
 
-
-    // Quadrature encoding problem
-    problem_wrapper<problem::quadrature_encoding>("quadrature_encoding", "Quadrature encoding problem")
-        .def(init<const problem::base &, const std::vector<decision_vector::size_type> &>())
-        .add_property("transform2old", &problem::quadrature_encoding::transform2old)
-        .add_property("transform2new", &problem::quadrature_encoding::transform2new);
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	// Asteroid Sample Return (also used fot human missions to asteroids)
