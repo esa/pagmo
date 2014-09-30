@@ -22,59 +22,66 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_ACO_H
-#define PAGMO_ALGORITHM_ACO_H
+#ifndef PAGMO_ALGORITHM_INVEROVER_H
+#define PAGMO_ALGORITHM_INVEROVER_H
 
 #include "../config.h"
-#include "../problem/base_aco.h"
 #include "../serialization.h"
-#include "../types.h"
+#include "../population.h"
+#include "../problem/tsp.h"
 #include "base.h"
+#include <algorithm>
+
 
 namespace pagmo { namespace algorithm {
 
-/// Ant Colony Optimization (ACO)
+/// Inver-Over Algorithm (IO)
 /**
- * \image html ant.png "Ant Colony Optimization"
- * \image latex ant.png  "Ant Colony Optimization" width=3cm
- * Ant colony optimization (ACO) is a population-based metaheuristic that can be used to find approximate solutions to difficult combinatorial optimization problems. This implementation of ACO works on any constrained integer problem that extends the base_aco problem.
+ * The Inver-Over algorithm is a state-of-the-art genetic algorithm for the Travelling Salesman Problem.
+ * It was designed by G. Tao and Z. Michalewicz in 1998.
+ * 
+ * Note: The algorithm was sightly changed (choice of the next city in a series of inverisons)
+ * since with this choice better performance (tour length, computational time) was observed.
  *
- * NOTE: when called on mixed-integer problems ACO treats the continuous part as fixed and optimizes
- * the integer part.
+ * Note2: The algorithm contains a 2nd stopping criterion depending on the time (generation) an individual was
+ * improved. It is possible that more accurate solutions are obtained if this criterion is removed.
  *
- * @author Andrea Mambrini (andrea.mambrini@gmail.com)
+ * Note3: The value for the population size is advised to be no smaller than 20.
+ * To not have premature convergence, values around 100 are observed to work well.
  *
- * @see http://www.scholarpedia.org/article/Ant_colony_optimization
+ * @author Ingmar Getzner (ingmar.getzner@gmail.com)
  */
-
-class __PAGMO_VISIBLE aco: public base
+class __PAGMO_VISIBLE inverover: public base
 {
-public:
-	aco(int iter = 1, double rho = 0.2);
-	base_ptr clone() const;
-	void evolve(population &) const;
-	std::string get_name() const;
-protected:
-	std::string human_readable_extra() const;
-private:
-	static void deposit_pheromone(std::vector<std::vector<std::vector<fitness_vector> > > &T, decision_vector &X, fitness_vector fit, double rho);
-	static void selection_probability(std::vector<fitness_vector> &probability, std::vector<bool> &fComponents, std::vector<fitness_vector> &eta, std::vector<int> &selection, const pagmo::problem::base &prob);
-	static void feasible_components(std::vector<bool> &fComponents,const pagmo::problem::base_aco &prob, decision_vector &X, problem::base::size_type xSize, double lb, double ub);
-	friend class boost::serialization::access;
-	template <class Archive>
-	void serialize(Archive &ar, const unsigned int)
-	{
-		ar & boost::serialization::base_object<base>(*this);
-		ar & const_cast<double &>(m_iter);
-		ar & const_cast<double &>(m_rho);
-	}
-	// Number of iterations
-	const double m_iter;
-	const double m_rho;
+    public:
+        inverover(int gen = 500000, double ri = 0.05);
+
+        base_ptr clone() const;
+        void evolve(population &) const;
+        std::string get_name() const;
+	//void set_gen(int gen);
+	//int get_gen() const;
+	//void set_ri(double ri);
+	//double get_ri() const;
+    protected:
+	size_t compute_idx(const size_t,const size_t,const size_t);
+
+    private:
+        friend class boost::serialization::access;
+        template <class Archive>
+        void serialize(Archive &ar, const unsigned int)
+        {
+                ar & boost::serialization::base_object<base>(*this);
+                ar & m_gen;
+                ar & m_ri;
+        }
+
+        int m_gen;
+        double m_ri;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::aco)
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::inverover)
 
-#endif // PAGMO_ALGORITHM_ACO_H
+#endif // PAGMO_ALGORITHM_INVEROVER_H

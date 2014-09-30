@@ -47,9 +47,6 @@ const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
 }
 #endif
 
-//knapsack
-static std::vector<double> a(11,30), b(11,10);
-static double c = 15;
 
 //laplace
 static const int default_sequence[5] = {3,2,2,1,5};
@@ -105,7 +102,6 @@ int main()
 	best_tests.push_back(make_struct(problem::himmelblau().clone()));
 	best_tests.push_back(make_struct(problem::string_match("e dai dai dai.....portiamolo a casa!!").clone()));
 	best_tests.push_back(make_struct(problem::inventory(7,8,1234).clone()));
-	best_tests.push_back(make_struct(problem::knapsack(a,b,c).clone()));
 	best_tests.push_back(make_struct(problem::kur(dimension).clone()));
 	best_tests.push_back(make_struct(problem::lennard_jones(dimension).clone()));
 	best_tests.push_back(make_struct(problem::levy5(dimension).clone()));
@@ -118,7 +114,6 @@ int main()
 	best_tests.push_back(make_struct(problem::sch().clone()));
 	best_tests.push_back(make_struct(problem::schwefel(dimension).clone()));
 	best_tests.push_back(make_struct(problem::snopt_toyprob().clone()));
-	best_tests.push_back(make_struct(problem::tsp().clone())); //TODO: define the tsp using a non-default weight-matrix
 
 	//----- Test ZDT -----//
 	for(int i=1; i<=6;i++) {
