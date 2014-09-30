@@ -421,7 +421,7 @@ MESSAGE(STATUS "Shared linker flags: " "${CMAKE_SHARED_LINKER_FLAGS}")
 # Link main to pagmo_static library.
 IF(BUILD_MAIN)
 	ADD_EXECUTABLE(main main.cpp)
-		TARGET_LINK_LIBRARIES(main pagmo_static ${MANDATORY_LIBRARIES})
+		TARGET_LINK_LIBRARIES(main ${MANDATORY_LIBRARIES} pagmo_static)
 ENDIF(BUILD_MAIN)
 
 IF(ENABLE_TESTS)

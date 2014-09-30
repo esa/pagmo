@@ -978,9 +978,8 @@ class analysis:
     def f_correlation(self,tc=0.95,tabs=0.1,round_to=3):
         """
         This function performs first dimensionality reduction via PCA on the fitness sample of
-        multi-objective problems following the algorithm proposed in the reference and **Returns**
-        the critical objectives picked. Also gives the user other informations about objective
-        function correlation for a possible eventual fitness dimensionality reduction.
+        multi-objective problems following the algorithm proposed in the reference. It also gives the user other informations about objective
+        function correlation for a possible fitness dimensionality reduction.
 
         **REF:** Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through Dimensionality
         Reduction for Certain Large-Dimensional Multi-Objective Optimization Problems, KanGAL
@@ -1011,7 +1010,7 @@ class analysis:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
         print ("--------------------------------------------------------------------------------",file=output)
-        print ("OBJECTIVE CORRELATION ",file=output)
+        print ("OBJECTIVES CORRELATION ",file=output)
         print ("--------------------------------------------------------------------------------",file=output)
         if self.f_dim==1:
             print ("This is a single-objective problem.",file=output)
@@ -2195,7 +2194,7 @@ class analysis:
           consider for the local search cluster scatter plot. Option 'all' will pick all dimensions.
           Option [] will not generate the scatter plot. Defaults to [].
         * sample_size: number of initial points to launch local searches from. If set to 0, all
-          points in sample are used. Defaults to 0.
+          points in sample are used, otherwise they are selected randomly in the initial set. Defaults to 0.
         * algo: algorithm object used in searches. For purposes, it should be a local optimisation
           algorithm. Defaults to algorithm.cs().
         * par: if True, an unconnected archipelago will be used for possible parallelization.
