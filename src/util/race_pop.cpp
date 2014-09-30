@@ -1,5 +1,5 @@
 #include "race_pop.h"
-#include "../problems.h"
+#include "../problem/ackley.h"
 #include "../problem/base_stochastic.h"
 
 #include <map>
