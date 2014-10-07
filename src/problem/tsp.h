@@ -105,7 +105,7 @@ class __PAGMO_VISIBLE tsp: public base_tsp
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
-                ar & boost::serialization::base_object<base>(*this);
+                ar & boost::serialization::base_object<base_tsp>(*this);
                 ar & m_weights;
         }
     private:        
