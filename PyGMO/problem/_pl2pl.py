@@ -58,16 +58,16 @@ class py_pl2pl(base):
         self.__Vinf_0 = Vinf_0 * 1000
         self.__Vinf_f = Vinf_f * 1000
         self.__leg = PyKEP.sims_flanagan.leg()
-        self.__leg.set_mu(PyKEP.MU_SUN)
+        self.__leg.set_mu(departure.mu_central_body)
         self.__leg.set_spacecraft(self.__sc)
         self.__nseg = nseg
         self.set_bounds(
-            [0, 10, self.__sc.mass / 10, -abs(self.__Vinf_0), -abs(self.
-                                                                   __Vinf_0), -abs(self.__Vinf_0), -abs(self.__Vinf_f), -abs(self.
-                                                                                                                             __Vinf_f), -abs(self.__Vinf_f)] + [-1] * 3 * nseg,
+            [0, 10, self.__sc.mass / 10, -abs(self.__Vinf_0),
+             -abs(self.__Vinf_0), -abs(self.__Vinf_0), -abs(self.__Vinf_f),
+             -abs(self.__Vinf_f), -abs(self.__Vinf_f)] + [-1] * 3 * nseg,
             [3000, 1500, self.__sc.mass, abs(self.__Vinf_0),
-             abs(self.__Vinf_0), abs(self.__Vinf_0), abs(self.__Vinf_f), abs(
-                 self.__Vinf_f), abs(self.__Vinf_f)] + [1] * 3 * nseg)
+             abs(self.__Vinf_0), abs(self.__Vinf_0), abs(self.__Vinf_f), 
+             abs(self.__Vinf_f), abs(self.__Vinf_f)] + [1] * 3 * nseg)
         self.__optimise4mass = optimise4mass
 
     def _objfun_impl(self, x):
