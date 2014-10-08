@@ -57,79 +57,38 @@ namespace pagmo
 // Give the possibility to disable stream overloads with appropriate #define.
 #ifndef PAGMO_NO_STD_VECTOR_STREAM_OVERLOADS
 
+#define PAGMO_MAX_OUTPUT_LENGTH 5
 namespace std
 {
-	/// Overload stream insertion operator for std::vector<double>.
-	inline ostream &operator<<(ostream &os, const vector<double> &v)
+	/// Overload stream insertion operator for std::vector<T>. It will only output the first
+	/// PAGMO_MAX_OUTPUT_LENGTH elements.
+	template < class T >
+	inline ostream &operator<<(ostream &os, const vector<T> &v)
 	{
-		os << '[';
-		for (std::vector<double>::size_type i = 0; i < v.size(); ++i) {
-			os << boost::lexical_cast<std::string>(v[i]);
-			if (i != v.size() - 1) {
-				os << ", ";
+		typename vector<T>::size_type len = v.size();
+		if (len < PAGMO_MAX_OUTPUT_LENGTH) 
+		{
+			os << '[';
+			for (typename std::vector<T>::size_type i = 0; i < v.size(); ++i) {
+				os << boost::lexical_cast<std::string>(v[i]);
+				if (i != v.size() - 1) {
+					os << ", ";
+				}
 			}
+			os << ']';
+		} else {
+			os << '[';
+			for (typename std::vector<T>::size_type i = 0; i < PAGMO_MAX_OUTPUT_LENGTH; ++i) {
+				os << boost::lexical_cast<std::string>(v[i]) << ", ";
+			}
+			os << " ... ]";
 		}
-		os << ']';
 		return os;
 	}
 
-	/// Overload stream insertion operator for std::vector<int>.
-	inline ostream &operator<<(ostream &os, const vector<int> &v)
-	{
-		os << '[';
-		for (std::vector<int>::size_type i = 0; i < v.size(); ++i) {
-			os << v[i];
-			if (i != v.size() - 1) {
-				os << ", ";
-			}
-		}
-		os << ']';
-		return os;
-	}
-
-	/// Overload stream insertion operator for std::vector<unsigned int>.
-	inline ostream &operator<<(ostream &os, const vector<unsigned int> &v)
-	{
-		os << '[';
-		for (std::vector<unsigned int>::size_type i = 0; i < v.size(); ++i) {
-			os << v[i];
-			if (i != v.size() - 1) {
-				os << ", ";
-			}
-		}
-		os << ']';
-		return os;
-	}
-
-	/// Overload stream insertion operator for std::vector<unsigned long int>.
-	inline ostream &operator<<(ostream &os, const vector<unsigned long int> &v)
-	{
-		os << '[';
-		for (std::vector<unsigned long int>::size_type i = 0; i < v.size(); ++i) {
-			os << v[i];
-			if (i != v.size() - 1) {
-				os << ", ";
-			}
-		}
-		os << ']';
-		return os;
-	}
 	
-	/// Overload stream insertion operator for std::vector<unsigned long long int>.
-	inline ostream &operator<<(ostream &os, const vector<unsigned long long int> &v)
-	{
-		os << '[';
-		for (std::vector<unsigned long long int>::size_type i = 0; i < v.size(); ++i) {
-			os << v[i];
-			if (i != v.size() - 1) {
-				os << ", ";
-			}
-		}
-		os << ']';
-		return os;
-	}
 }
-
+#undef PAGMO_MAX_OUTPUT_LENGTH
+#endif
 #endif
 
-#endif
