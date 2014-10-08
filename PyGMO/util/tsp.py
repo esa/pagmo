@@ -3,7 +3,7 @@
 The tsplib.py module imports TSPLIB XML Files and prints the resulting Adjacency Matrix.
 (http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/)
 
-Usage: tsp.py burma14.xml
+Usage: tsp.py <file_name>.xml
 
 Author: Florin Schimbinschi (florinsch@gmail.com)
 """

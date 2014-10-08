@@ -742,7 +742,7 @@ mga_part.plot_old = _mga_part_plot_old
 # Plot of concatenated fly-by legs
 
 
-def _part_plot(x, units, ax, seq, start_mjd2000, vinf_in):
+def _part_plot(x, units, axis, seq, start_mjd2000, vinf_in):
     """
     Plots the trajectory represented by a decision vector x = [beta,rp,eta,T] * N
     associated to a sequence seq, a start_mjd2000 and an incoming vinf_in
@@ -767,8 +767,8 @@ def _part_plot(x, units, ax, seq, start_mjd2000, vinf_in):
     for i, planet in enumerate(seq):
         t_P[i] = epoch(start_mjd2000 + sum(T[:i]))
         r_P[i], v_P[i] = planet.eph(t_P[i])
-        plot_planet(ax, planet, t0=t_P[i], color=(
-            0.8, 0.6, 0.8), legend=True, units = units)
+        plot_planet(planet, t0=t_P[i], color=(
+            0.8, 0.6, 0.8), legend=True, units = units, ax=axis)
 
     v_end_l = [a + b for a, b in zip(v_P[0], vinf_in)]
     # 4 - And we iterate on the legs
@@ -782,12 +782,12 @@ def _part_plot(x, units, ax, seq, start_mjd2000, vinf_in):
         # s/c propagation before the DSM
         r, v = propagate_lagrangian(
             r_P[i], v_out, x[4 * i + 2] * T[i] * DAY2SEC, common_mu)
-        plot_kepler(ax, r_P[i], v_out, x[4 * i + 2] * T[i] * DAY2SEC,
-                    common_mu, N=500, color='b', legend=False, units=units)
+        plot_kepler(r_P[i], v_out, x[4 * i + 2] * T[i] * DAY2SEC,
+                    common_mu, N=500, color='b', legend=False, units=units, ax=axis)
         # Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
         dt = (1 - x[4 * i + 2]) * T[i] * DAY2SEC
         l = lambert_problem(r, r_P[i + 1], dt, common_mu, False, False)
-        plot_lambert(ax, l, sol=0, color='r', legend=False, units=units, N=500)
+        plot_lambert(l, sol=0, color='r', legend=False, units=units, N=500, ax=axis)
         v_end_l = l.get_v2()[0]
         v_beg_l = l.get_v1()[0]
 
@@ -808,10 +808,10 @@ def _mga_part_plot(self, x):
 
     mpl.rcParams['legend.fontsize'] = 10
     fig = plt.figure()
-    ax = fig.gca(projection='3d', aspect='equal')
+    axis= fig.gca(projection='3d', aspect='equal')
 
     # Plots the central 'planet'star
-    ax.scatter(0, 0, 0, color='y')
+    axis.scatter(0, 0, 0, color='y')
 
     JR = 71492000.0
     seq = self.get_sequence()
@@ -883,15 +883,14 @@ def _mga_1dsm_tof_plot(self, x):
 
     mpl.rcParams['legend.fontsize'] = 10
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    ax.scatter(0, 0, 0, color='y')
+    axis = fig.gca(projection='3d')
+    axis.scatter(0, 0, 0, color='y')
 
     seq = self.get_sequence()
 
     # 2 - We plot the first leg
     r_P0, v_P0 = seq[0].eph(epoch(x[0]))
-    plot_planet(ax, seq[0], t0=epoch(x[0]), color=(
-        0.8, 0.6, 0.8), legend=True, units = AU)
+    plot_planet(seq[0], t0=epoch(x[0]), color=(0.8, 0.6, 0.8), legend=True, units = AU, ax=axis)
     r_P1, v_P1 = seq[1].eph(epoch(x[0] + x[5]))
     theta = 2 * pi * x[1]
     phi = acos(2 * x[2] - 1) - pi / 2
@@ -904,7 +903,6 @@ def _mga_1dsm_tof_plot(self, x):
     r, v = propagate_lagrangian(
         r_P0, v0, x[4] * x[5] * DAY2SEC, seq[0].mu_central_body)
     plot_kepler(
-        ax,
         r_P0,
         v0,
         x[4] *
@@ -914,15 +912,17 @@ def _mga_1dsm_tof_plot(self, x):
         N=100,
         color='b',
         legend=False,
-        units=AU)
+        units=AU,
+        ax=axis)
 
     # Lambert arc to reach seq[1]
     dt = (1 - x[4]) * x[5] * DAY2SEC
     l = lambert_problem(r, r_P1, dt, seq[0].mu_central_body)
-    plot_lambert(ax, l, sol=0, color='r', legend=False, units=AU)
+    plot_lambert(l, sol=0, color='r', legend=False, units=AU, ax=axis)
     v_end_l = l.get_v2()[0]
-
     vinf_in = [a - b for a, b in zip(v_end_l, v_P1)]
-    _part_plot(x[6:], AU, ax, seq[1:], x[0] + x[5], vinf_in)
-    return ax
+    _part_plot(x[6:], AU, axis, seq[1:], x[0] + x[5], vinf_in)
+    return axis
 mga_1dsm_tof.plot = _mga_1dsm_tof_plot
+
+del planet_js, planet_ss

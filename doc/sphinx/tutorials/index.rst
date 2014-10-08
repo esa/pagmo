@@ -14,3 +14,4 @@ This is a collection of tutorials on PyGMO's basics:
    dealing_with_constraints_in_PyGMO
    racing
    tsp
+   landscape_analysis_with_DrPyGMO

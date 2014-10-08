@@ -33,6 +33,7 @@
 
 #include "../config.h"
 #include "../exceptions.h"
+#include "../rng.h"
 
 namespace pagmo{ namespace util {
 
@@ -201,6 +202,64 @@ public:
 private:
 	halton m_generator;
 	project_2_simplex m_projector;
+};
+
+
+/// Sobol quasi-random point sequence
+/**
+ * Class that generates a quasi-random sequence of
+ * points in the unit hyper cube using the Sobol sequence.
+ * The code wraps original routines from the link below.
+ *
+ * @see http://people.sc.fsu.edu/~jburkardt/cpp_src/sobol/sobol.html
+ * @author c.ortega.absil@gmail.com
+*/
+class __PAGMO_VISIBLE sobol : public base
+{
+	public:
+		sobol(unsigned int dim, unsigned int count);
+		base_ptr clone() const;
+		std::vector<double> operator()();
+		std::vector<double> operator()(unsigned int n);
+	private:
+		int i8_bit_lo0 ( long long int n );
+		void i8_sobol ( unsigned int dim_num, long long int *seed, double quasi[ ] );
+	private:
+		unsigned int m_dim_num_save;
+		bool m_initialized;
+		long long int m_maxcol;
+		long long int m_seed_save;
+		double recipd;
+		long long int lastq[1111]; //1111 is maximum dimension.
+		long long int poly[1111];
+		long long int v[1111][62]; //2^62 is approx. limit of points requested.
+};
+
+/// Latin Hypercube Sampling
+/**
+ * Class that generates a latin hypersquare sampling
+ * in the unit hyper cube.
+ * The code wraps original routines from the link below.
+ *
+ * @see http://people.sc.fsu.edu/~jburkardt/cpp_src/latin_random/latin_random.html
+ * @author c.ortega.absil@gmail.com
+*/
+
+
+class __PAGMO_VISIBLE lhs : public base
+{
+	public:
+		lhs(unsigned int dim, unsigned int count);
+		base_ptr clone() const;
+		std::vector<double> operator()();
+		std::vector<double> operator()(unsigned int n);
+	private:
+		std::vector<double> latin_random ( unsigned int dim_num, unsigned int point_num);
+		unsigned int *perm_uniform ( unsigned int n);
+	private:
+		bool m_initialised;
+		std::vector<double> m_set;
+		unsigned int m_next;
 };
 
 }}} //namespace discrepancy

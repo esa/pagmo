@@ -2,11 +2,14 @@ PROJECT(PaGMO)
 
 ENABLE_TESTING()
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4.0)
-# Setup and include CMake modules.
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0.1)
+
+# List of directories to search for CMake modules.
+# Commands like include() and find_package() search for files in directories listed
+# by this variable before checking the default modules that come with CMake.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
 
-# We activate compiler dependent flags
+# We define compiler flags
 INCLUDE(CheckCXXCompilerFlag)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	CHECK_CXX_COMPILER_FLAG(-ftemplate-depth=256 CLANG_TEMPLATE_DEPTH)
@@ -35,11 +38,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		MESSAGE(STATUS "Enabling '-Wno-ignored-qualifiers' compiler flag.")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
-	# Add to the base flags extra warnings. Also, additional flags to turn off some GCC warnings that in practice clutter the compilation output.
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wnoexcept -Wdisabled-optimization")
 	# Suggested for multithreaded code.
 	ADD_DEFINITIONS(-D_REENTRANT)
-
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # using Intel C++
 	CHECK_CXX_COMPILER_FLAG(-mieee-fp INTEL_IEEE_COMPLIANT)

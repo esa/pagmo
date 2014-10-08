@@ -1,7 +1,6 @@
 Designing and optimizing interplanetary trajectories
 ====================================================
 
-
 PyGMO can be used to optimize spacecraft trajectories by using the MGA-1DSM
 problem. An instance of this problem contains the sequence of planets, you want to visit
 with your spacecraft as well as its launch window, its starting velocity and bounds for the time of flight.

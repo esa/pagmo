@@ -6,6 +6,7 @@ Examples
 This is a collection of examples on advanced uses of PyGMO.
 
 .. toctree::
+   :maxdepth: 1
 
    example1
    example2
@@ -13,3 +14,4 @@ This is a collection of examples on advanced uses of PyGMO.
    example4
    example5
    example6
+

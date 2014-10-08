@@ -77,7 +77,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
-#	${CMAKE_CURRENT_SOURCE_DIR}/problem/knapsack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/fon.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/pol.cpp

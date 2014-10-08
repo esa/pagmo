@@ -111,7 +111,6 @@ Common Name                        Name in PyGMO                             Com
 ================================== ========================================= ===========================================
 Golomb Ruler                       :class:`PyGMO.problem.golomb_ruler`
 Traveling Salesman                 :class:`PyGMO.problem.tsp`
-Knapsack                           :class:`PyGMO.problem.knapsack`
 ================================== ========================================= ===========================================
 
 Stochastic Objective Function
@@ -449,12 +448,6 @@ Detailed Documentation
 .. class:: PyGMO.problem.golomb_ruler
 
    .. automethod:: PyGMO.problem.golomb_ruler.__init__
-
------------------
-
-.. class:: PyGMO.problem.knapsack
-
-   .. automethod:: PyGMO.problem.knapsack.__init__
 
 -----------------
 

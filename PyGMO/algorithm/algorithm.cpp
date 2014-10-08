@@ -261,10 +261,6 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::bee_colony>("bee_colony","Artificial Bee Colony optimization (ABC) algorithm.")
 		.def(init<optional<int,int> >());
 
-        // to get lambda vector
-//        boost::python::class_<std::vector<double> >("PyVec")
-//            .def(boost::python::vector_indexing_suite<std::vector<double> >());
-        
 	//InverOver    
         algorithm_wrapper<algorithm::inverover>("inverover","InverOver Genetic Algorithm.")
 		.def(init<optional<int, double, pagmo::algorithm::inverover::initialization_type> >());

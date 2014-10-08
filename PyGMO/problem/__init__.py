@@ -573,31 +573,6 @@ tsp._orig_init = tsp.__init__
 tsp.__init__ = _tsp_ctor
 
 
-#def _knapsack_ctor(
-#    self, values=[
-#        1, 2, 3, 4, 5], weights=[
-#        10, 40, 30, 50, 20], max_weight=100):
-#    """
-#    Constructs a 0-1 Knapsack Problem (Constrained Integer Single-Objective)
-
-#    USAGE: problem.knapsack(values = [1,2,3,4,5], weights = [10, 40, 30, 50, 20], max_weight = 100)
-
-#    * values: raw array of values
-#    * weights: raw array of weights
-#    * max_weight: maximum weight
-#    """
-
-#    # We construct the arg list for the original constructor exposed by
-#    # boost_python
-#    arg_list = []
-#    arg_list.append(values)
-#    arg_list.append(weights)
-#    arg_list.append(max_weight)
-#    self._orig_init(*arg_list)
-#knapsack._orig_init = knapsack.__init__
-#knapsack.__init__ = _knapsack_ctor
-
-
 def _inventory_ctor(self, weeks=4, sample_size=10, seed=0):
     """
     Constructs an Inventory Problem (Stochastic Objective Function)
@@ -928,24 +903,3 @@ def _con2uncon_ctor(self, problem=None, method=None):
 con2uncon._orig_init = con2uncon.__init__
 con2uncon.__init__ = _con2uncon_ctor
 
-
-def _quadrature_encoding_ctor(self, problem=schwefel(1), idx=[0]):
-    """
-    Quadrature encoding problem. Transforms genes that encode angles to
-    quadrature encoding. The resulting problem has two genes (i,j) for every
-    tranformed gene (x) of the original problem:
-    i = sin(x)
-    j = cos(x)
-    The sin component remains at the position of the original gene. The cos
-    component is added to the end of the chromosome.
-
-    USAGE: problem.quadrature_encoding(problem=schwefel(1), idx=[0])
-
-    * problem: original problem
-    * idx: indices of genes in original chromosome to be transformed
-    """
-    arg_list = [problem, idx]
-    self._orig_init(*arg_list)
-
-quadrature_encoding._orig_init = quadrature_encoding.__init__
-quadrature_encoding.__init__ = _quadrature_encoding_ctor
