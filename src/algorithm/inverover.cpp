@@ -100,6 +100,17 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 	std::uniform_int_distribution<int> unif_Nvless1(0, Nv - 2);
 	std::uniform_real_distribution<double> unif_01(0,1);
 
+	//check if we have a symmetric problem (symmetric weight matrix)
+	bool is_sym = true;
+	for(size_t i = 0; i < Nv; i++){
+		for(size_t j = i+1; j < Nv; j++){
+			if(weights[i][j] != weights[j][i]){
+				is_sym = false;
+				goto end_loop;}
+		}
+	}
+	end_loop:	
+	
 	//create own local population
 	std::vector<std::vector<int> > my_pop(NP, std::vector<int>(Nv));
 
@@ -182,11 +193,21 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 			pagmo_throw(value_error,"Invalid initialization type");
 	}
 
+	//compute fitness of individuals (necessary if weight matrix is not symmetric)
+	std::vector<double>  fitness(NP, 0);
+	if(!is_sym){
+		for(size_t i=0; i < NP; i++){
+    			fitness[i] = weights[my_pop[i][Nv-1]][my_pop[i][0]];
+    			for(size_t k=1; k < Nv; k++){
+        			fitness[i] += weights[my_pop[i][k-1]][my_pop[i][k]];
+			}
+		}
+	}	
 	
 	std::vector<int> tmp_tour(Nv);
 	bool stop;
 	size_t rnd_num, i2, pos1_c1, pos1_c2, pos2_c1, pos2_c2; //pos2_c1 denotes the position of city1 in parent2
-	double fitness_change;
+	double fitness_change, fitness_tmp = 0;
 
 	//InverOver main loop
 	for(int iter = 0; iter < m_gen; iter++){
@@ -211,25 +232,43 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 				if(!stop){
 					
 					if(pos1_c1<pos1_c2){
-						fitness_change -= weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c1+1]] + weights[tmp_tour[pos1_c2]][tmp_tour[pos1_c2+1 - (pos1_c2+1 > Nv-1? Nv:0)]];
 						for(size_t l=0; l < (double (pos1_c2-pos1_c1-1)/2); l++){
 							std::swap(tmp_tour[pos1_c1+1+l],tmp_tour[pos1_c2-l]);}
-						fitness_change += weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c1+1]] + weights[tmp_tour[pos1_c2]][tmp_tour[pos1_c2+1 - (pos1_c2+1 > Nv-1? Nv:0)]];
+						if(is_sym){
+							fitness_change -= weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c2]] + weights[tmp_tour[pos1_c1+1]][tmp_tour[pos1_c2+1 - (pos1_c2+1 > Nv-1? Nv:0)]];
+							fitness_change += weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c1+1]] + weights[tmp_tour[pos1_c2]][tmp_tour[pos1_c2+1 - (pos1_c2+1 > Nv-1? Nv:0)]];
+						}
 					}
 					else{
 						//inverts the section from c1 to c2 (see documentation Note3)
-						fitness_change -= weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c1+1 - (pos1_c1+1 > Nv-1? Nv:0)]] + weights[tmp_tour[pos1_c2]][tmp_tour[pos1_c2+1]];
+						
 						for(size_t l=0; l < (double (Nv-(pos1_c1-pos1_c2)-1)/2); l++){
 							std::swap(tmp_tour[pos1_c1+1+l - (pos1_c1+1+l>Nv-1? Nv:0)],tmp_tour[pos1_c2-l + (pos1_c2<l? Nv:0)]);}
-						fitness_change += weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c1+1 - (pos1_c1+1 > Nv-1? Nv:0)]] + weights[tmp_tour[pos1_c2]][tmp_tour[pos1_c2+1]];
+						if(is_sym){
+							fitness_change -= weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c2]] + weights[tmp_tour[pos1_c1+1 - (pos1_c1+1 > Nv-1? Nv:0)]][tmp_tour[pos1_c2+1]];
+							fitness_change += weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c1+1 - (pos1_c1+1 > Nv-1? Nv:0)]] + weights[tmp_tour[pos1_c2]][tmp_tour[pos1_c2+1]];
+						}
 						
 					}
 					pos1_c1 = pos1_c2; //better performance than original Inver-Over (shorter tour in less time)
 				}
-			} //end of while loop (looping over a single indvidual)	
+			} //end of while loop (looping over a single indvidual)
+			if(!is_sym){ //compute fitness of the temporary tour
+    				fitness_tmp = weights[tmp_tour[Nv-1]][tmp_tour[0]];
+    				for(size_t k=1; k < Nv; k++){
+        				fitness_tmp += weights[tmp_tour[k-1]][tmp_tour[k]];
+				}
+				fitness_change = fitness_tmp - fitness[i1]; 
+			}
+	
 			if(fitness_change < 0){ //replace individual?
 				my_pop[i1] = tmp_tour;
+				if(!is_sym){
+					fitness[i1] = fitness_tmp;
+				}
 			}
+			
+			
 		} //end of loop over population
 	} //end of loop over generations
 
