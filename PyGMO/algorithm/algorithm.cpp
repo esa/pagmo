@@ -263,12 +263,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	//InverOver    
         algorithm_wrapper<algorithm::inverover>("inverover","InverOver Genetic Algorithm.")
-		.def(init<optional<int, double> >());
-		//.add_property("gen",&algorithm::io::get_gen,&algorithm::io::set_gen)
-                //.add_property("ri",&algorithm::io::get_ri,&algorithm::io::set_ri);
+		.def(init<optional<int, double, pagmo::algorithm::inverover::initialization_type> >());
 
 	//Nearest Neighbor Alg. (NN)  
-        algorithm_wrapper<algorithm::nn>("nn","Nearest Neighbor Algortihm.")
+        algorithm_wrapper<algorithm::nn_tsp>("nn_tsp","Nearest Neighbor Algortihm.")
 		.def(init<optional<int> >());
                 
 	// Firefly (FA). [Does not work!!!!!! The agorithm sucks!!!]

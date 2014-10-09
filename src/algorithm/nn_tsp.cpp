@@ -22,7 +22,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "nn.h"
+#include <algorithm>
+
+#include "../config.h"
+#include "../serialization.h"
+#include "../population.h"
+#include "../problem/tsp.h"
+#include "base.h"
+#include "nn_tsp.h"
 
 namespace pagmo { namespace algorithm {
     
@@ -33,37 +40,52 @@ namespace pagmo { namespace algorithm {
  * @param[in] start_city First City in the tour.
 */
 
-nn::nn(int start_city)
+nn_tsp::nn_tsp(int start_city)
 	:base(),m_start_city(start_city)
 {
 }
 
     
     /// Clone method.
-    base_ptr nn::clone() const
+    base_ptr nn_tsp::clone() const
     {
-	return base_ptr(new nn(*this));
+	return base_ptr(new nn_tsp(*this));
     }
     
     /// Evolve implementation.
     /**
-     * Runs the NN algorithm.
+     * Runs the NN_TSP algorithm.
      *
      * @param[in,out] pop input/output pagmo::population to be evolved.
      */
-    void nn::evolve(population &pop) const
+    void nn_tsp::evolve(population &pop) const
     {
-
+	const problem::tsp* tsp_prob_pt;
+	//check if problem is of type pagmo::problem::tsp
+	try
+	{
+        	const problem::tsp& tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
+		tsp_prob_pt = &tsp_prob;
+	}
+	catch (const std::bad_cast& e)
+	{
+		pagmo_throw(value_error,"Problem not of type pagmo::problem::tsp");
+	}
 	
-
         // Let's store some useful variables.
-        const problem::tsp &tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
-        const std::vector<std::vector<double> > &weights = tsp_prob.get_weights();
-        const problem::base::size_type Nv = tsp_prob.get_n_vertices();
+
+        const std::vector<std::vector<double> > &weights = tsp_prob_pt->get_weights();
+        const problem::base::size_type Nv = tsp_prob_pt->get_n_vertices();
 	 
 	//create individuals
 	std::vector<int> best_tour(Nv);
 	std::vector<int> new_tour(Nv);
+
+	//check input parameter
+	if (m_start_city < -1 || m_start_city > static_cast<int>(Nv-1)) {
+		pagmo_throw(value_error,"invalid value for the first vertex");
+	}
+
 	
 	size_t first_city, Nt;
 	if(m_start_city == -1){
@@ -75,14 +97,14 @@ nn::nn(int start_city)
 		Nt = m_start_city+1;
 	}
 
-	int Lbest_tour, Lnew_tour;
+	int length_best_tour, length_new_tour;
 	size_t nxt_city, min_idx;
 	std::vector<int> not_visited(Nv);
-	Lbest_tour = 0;
+	length_best_tour = 0;
 	
-	//NN main loop
+	//main loop
 	for (size_t i = first_city; i < Nt; i++) {
-		Lnew_tour = 0;
+		length_new_tour = 0;
 		for (size_t j = 0; j < Nv; j++) {
 			not_visited[j] = j;
 		}
@@ -97,15 +119,15 @@ nn::nn(int start_city)
 					nxt_city = not_visited[l];}
 			}
 			new_tour[j] = nxt_city;
-			Lnew_tour += weights[new_tour[j-1]][nxt_city];
+			length_new_tour += weights[new_tour[j-1]][nxt_city];
 			std::swap(not_visited[min_idx],not_visited[Nv-j-1]);
 		}
 		new_tour[Nv-1] = not_visited[0];
-		Lnew_tour += weights[new_tour[Nv-2]][new_tour[Nv-1]];
-		Lnew_tour += weights[new_tour[Nv-1]][new_tour[0]];
-		if(i == first_city || Lnew_tour < Lbest_tour){
+		length_new_tour += weights[new_tour[Nv-2]][new_tour[Nv-1]];
+		length_new_tour += weights[new_tour[Nv-1]][new_tour[0]];
+		if(i == first_city || length_new_tour < length_best_tour){
 			best_tour = new_tour;
-			Lbest_tour = Lnew_tour;
+			length_best_tour = length_new_tour;
 		}
 	}
 		
@@ -124,11 +146,11 @@ nn::nn(int start_city)
 
 	
     /// Algorithm name
-    std::string nn::get_name() const
+    std::string nn_tsp::get_name() const
     {
         return "Nearest neighbour algorithm";
     }
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nn)
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::nn_tsp)

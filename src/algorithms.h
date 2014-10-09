@@ -59,7 +59,7 @@
 #include "algorithm/nspso.h"
 #include "algorithm/spea2.h"
 #include "algorithm/inverover.h"
-#include "algorithm/nn.h"
+#include "algorithm/nn_tsp.h"
 
 // Hyper-heuristics
 #include "algorithm/mbh.h"

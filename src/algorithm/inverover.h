@@ -25,13 +25,13 @@
 #ifndef PAGMO_ALGORITHM_INVEROVER_H
 #define PAGMO_ALGORITHM_INVEROVER_H
 
+#include <algorithm>
+
 #include "../config.h"
 #include "../serialization.h"
 #include "../population.h"
 #include "../problem/tsp.h"
 #include "base.h"
-#include <algorithm>
-
 
 namespace pagmo { namespace algorithm {
 
@@ -43,41 +43,45 @@ namespace pagmo { namespace algorithm {
  * Note: The algorithm was sightly changed (choice of the next city in a series of inverisons)
  * since with this choice better performance (tour length, computational time) was observed.
  *
- * Note2: The algorithm contains a 2nd stopping criterion depending on the time (generation) an individual was
- * improved. It is possible that more accurate solutions are obtained if this criterion is removed.
- *
- * Note3: The value for the population size is advised to be no smaller than 20.
+ * Note2: The value for the population size is advised to be no smaller than 20.
  * To not have premature convergence, values around 100 are observed to work well.
+ *
+ * Note3: The inversion sequence for cases where city1 is later in the tour than city2 is
+ * chosen as in the original paper (city1 -> city2). Some papers invert the complementary part of the tour
+ * (city2 -> city1).
  *
  * @author Ingmar Getzner (ingmar.getzner@gmail.com)
  */
 class __PAGMO_VISIBLE inverover: public base
 {
-    public:
-        inverover(int gen = 500000, double ri = 0.05);
-
+public:
+	enum initialization_type
+	{
+		random = 0,
+		nn = 1
+	};
+	inverover(int gen = 10000, double ri = 0.05, initialization_type ini_type = random);
         base_ptr clone() const;
         void evolve(population &) const;
         std::string get_name() const;
-	//void set_gen(int gen);
-	//int get_gen() const;
-	//void set_ri(double ri);
-	//double get_ri() const;
-    protected:
-	size_t compute_idx(const size_t,const size_t,const size_t);
 
-    private:
+private:
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
                 ar & boost::serialization::base_object<base>(*this);
-                ar & m_gen;
-                ar & m_ri;
+		ar & const_cast<int &>(m_gen);
+		ar & const_cast<double &>(m_ri);
+		ar & m_ini_type;
         }
+	//Number of generations
+        const int m_gen;
+	//Mutation probalility
+        const double m_ri;
+	//Methode for initialization
+	initialization_type m_ini_type;
 
-        int m_gen;
-        double m_ri;
 };
 
 }} //namespaces
