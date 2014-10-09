@@ -2,7 +2,7 @@ PROJECT(PaGMO)
 
 ENABLE_TESTING()
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12.2)
 
 # List of directories to search for CMake modules.
 # Commands like include() and find_package() search for files in directories listed
