@@ -1,17 +1,13 @@
 #!/usr/bin/python
 """
-The tsplib.py module imports TSPLIB XML Files and prints the resulting Adjacency Matrix.
-(http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/)
-
-Usage: tsp.py <file_name>.xml
-
-Author: Florin Schimbinschi (florinsch@gmail.com)
+The tsplib.py module contains helper routines instantiate TSP problems.
 """
 
 def read_tsplib(file_name):
     """
-    This function parses a TSPLIB XML file and returns an [[Adjacency Matrix]]
-    containing costs from one vertex to another stored as double. M[i][j] = 3.141592
+    This function parses an XML file defining a TSP (from TSPLIB
+    http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/)
+    and returns the Adjacency Matrix that cna be then used to construct a PyGMO.problem.tsp
 
     Args:
             file_name (string): The XML file to be opened for parsing.
@@ -40,17 +36,6 @@ def read_tsplib(file_name):
     
     # get root
     root = tree.getroot()
-
-    # problem properties dictionary
-#        graph_props = dict()
-#        for child in root:
-#                graph_props[child.tag] = child.text
-#        del graph_props['graph'] # remove graph property
-#        graph_props['type'] = root.tag # add problem type
-    
-#        print 'Problem properties:'
-#        for prop, value in graph_props.items():
-#                print prop.capitalize(), '->', value
 
     # graph data (list of list: [[]])
     adj_mat = []
@@ -103,18 +88,3 @@ def _print_matrix(mat, show_all = False):
             numpy.set_printoptions(threshold='nan')
 
     print numpy.array(mat)
-        
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1:
-            print '\nImported matrix:\n'
-            _print_matrix( _symmetric_tril( read_tsplib(sys.argv[1]) ))
-            import PyGMO.problem
-            tsp = PyGMO.problem.tsp( read_tsplib(sys.argv[1]) )
-            print '\nAn instance of a TSP from the above matrix\n'
-            print tsp
-    else:
-            print 'No file names given as argument.'
-            print __doc__
-
