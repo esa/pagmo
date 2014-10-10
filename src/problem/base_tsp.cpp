@@ -81,7 +81,7 @@ namespace pagmo { namespace problem {
      * Getter for the m_graph
      * @return reference to the m_graph of type tsp_graph
      */
-    const tsp_graph& base_tsp::get_graph() const 
+    const base_tsp::tsp_graph& base_tsp::get_graph() const 
     { 
         return m_graph; 
     }
@@ -112,13 +112,21 @@ namespace pagmo { namespace problem {
         oss << "\tVertices = { ";
         
         tsp_vertex_range_t v_it;
+        int count = 0;
         for (v_it = boost::vertices(the_graph); v_it.first != v_it.second; ++v_it.first)
+        {
                 oss << vtx_idx[*v_it.first] <<  " ";
+                count++;
+                if (count > 5) {
+                oss << "... ";
+                    break;
+                }
+        }
         oss << "}" << std::endl;
         
-        oss << "\tEdges (Source, Target) = Weight : " << std::endl;
+        oss << "\tEdges (Source, Target) = Weight: " << std::endl;
         
-        int count = 0;
+        count =0;
         for (tsp_edge_range_t e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
             int i = vtx_idx[boost::source(*e_it.first, the_graph)];
             int j = vtx_idx[boost::target(*e_it.first, the_graph)];

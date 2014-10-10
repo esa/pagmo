@@ -35,47 +35,6 @@
 
 namespace pagmo{ namespace problem {
 
-/// Boost graph type (could also be added to types.h, for now it only has scope here.
-/**
- * std::vector (vecS) are fastest for iterators: http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/using_adjacency_list.html
- * External properties can also be added: http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/quick_tour.html
- * for hashmaps or other types, which are better for other operations.
- */
-/* Graph Internal Properties */    
-typedef boost::property<boost::vertex_index_t, int 
-    /*, boost::property<boost::vertex_name_t, std::string> */> tsp_vertex_properties;
-typedef boost::property<boost::edge_index_t, int, // used for external properties
-        boost::property<boost::edge_weight_t, double> > tsp_edge_properties;
-
-/* Graph Type, internal containers for edges and lists */
-typedef boost::adjacency_list<  
-            boost::setS, // disallow parallel edges
-            boost::listS, // vertex container
-            boost::directedS, // directed graph
-            tsp_vertex_properties, 
-            tsp_edge_properties
-        > tsp_graph;
-
-/* Graph specific typedefs */
-typedef boost::graph_traits<tsp_graph>::vertex_descriptor tsp_vertex;
-typedef boost::graph_traits<tsp_graph>::edge_descriptor tsp_edge;
-
-typedef boost::property_map<tsp_graph, boost::vertex_index_t>::type tsp_vertex_map_index;
-typedef boost::property_map<tsp_graph, boost::vertex_index_t>::const_type tsp_vertex_map_const_index;
-typedef boost::property_map<tsp_graph, boost::edge_weight_t>::type tsp_edge_map_weight;
-typedef boost::property_map<tsp_graph, boost::edge_weight_t>::const_type tsp_edge_map_const_weight;
-typedef boost::property_map<tsp_graph, boost::edge_index_t>::type tsp_edge_map_index;
-typedef boost::property_map<tsp_graph, boost::edge_index_t>::const_type tsp_edge_map_const_index;
-
-typedef boost::graph_traits<tsp_graph>::vertex_iterator tsp_vertex_iter;
-typedef boost::graph_traits<tsp_graph>::edge_iterator tsp_edge_iter;
-
-typedef std::pair<tsp_edge, tsp_edge> tsp_edge_pair;
-typedef std::pair<tsp_vertex_iter, tsp_vertex_iter> tsp_vertex_range_t;
-typedef std::pair<tsp_edge_iter, tsp_edge_iter> tsp_edge_range_t;
-
-typedef boost::iterator_property_map<double*, tsp_edge_map_index, double, double&> tsp_ext_weight_iterator;
-
 /// Base TSP.
 /**
  * This is a base class for Traveling Salesman Problems. Encoding of the chromosome is as in
@@ -90,6 +49,41 @@ typedef boost::iterator_property_map<double*, tsp_edge_map_index, double, double
 
 class __PAGMO_VISIBLE base_tsp: public base
 {
+    public:
+        /* Graph specific typedefs */
+        typedef boost::property<boost::vertex_index_t, int> tsp_vertex_properties;
+        typedef boost::property<boost::edge_index_t, int, 
+            boost::property<boost::edge_weight_t, double> > tsp_edge_properties;
+
+        /* The graph type */
+        typedef boost::adjacency_list<  
+                boost::setS, // disallow parallel edges
+                boost::listS, // vertex container
+                boost::directedS, // directed graph
+                tsp_vertex_properties, 
+                tsp_edge_properties
+            > tsp_graph;
+
+        /* More stuff BGL specific */
+        typedef boost::graph_traits<tsp_graph>::vertex_descriptor tsp_vertex;
+        typedef boost::graph_traits<tsp_graph>::edge_descriptor tsp_edge;
+
+        typedef boost::property_map<tsp_graph, boost::vertex_index_t>::type tsp_vertex_map_index;
+        typedef boost::property_map<tsp_graph, boost::vertex_index_t>::const_type tsp_vertex_map_const_index;
+        typedef boost::property_map<tsp_graph, boost::edge_weight_t>::type tsp_edge_map_weight;
+        typedef boost::property_map<tsp_graph, boost::edge_weight_t>::const_type tsp_edge_map_const_weight;
+        typedef boost::property_map<tsp_graph, boost::edge_index_t>::type tsp_edge_map_index;
+        typedef boost::property_map<tsp_graph, boost::edge_index_t>::const_type tsp_edge_map_const_index;
+
+        typedef boost::graph_traits<tsp_graph>::vertex_iterator tsp_vertex_iter;
+        typedef boost::graph_traits<tsp_graph>::edge_iterator tsp_edge_iter;
+
+        typedef std::pair<tsp_edge, tsp_edge> tsp_edge_pair;
+        typedef std::pair<tsp_vertex_iter, tsp_vertex_iter> tsp_vertex_range_t;
+        typedef std::pair<tsp_edge_iter, tsp_edge_iter> tsp_edge_range_t;
+
+        typedef boost::iterator_property_map<double*, tsp_edge_map_index, double, double&> tsp_ext_weight_iterator;
+
     public:
             base_tsp();
             base_tsp(const tsp_graph&);    

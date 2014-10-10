@@ -27,11 +27,11 @@ def read_tsplib(file_name):
     import xml.etree.ElementTree as ET
     try:
             tree = ET.parse(file_name)
-    except ET.ParseError, e:
-            print 'There was a problem parsing', fileName, ':\n', e
+    except ET.ParseError as e:
+            print('There was a problem parsing', fileName, ':\n', e)
             return
-    except IOError, e:
-            print 'There was a problem opening the file:\n', e
+    except IOError as e:
+            print('There was a problem opening the file:\n', e)
             return
     
     # get root
@@ -53,8 +53,8 @@ def read_tsplib(file_name):
             if symmetric:
                     adj_mat[idx_to+1].append(0) # set last diagonal element to 0
     except TypeError:
-            print 'One of the values of the graph attributes is not valid.'
-            print 'Hint:', idx_from, '->', idx_to, '=', edge.get('cost')
+            print('One of the values of the graph attributes is not valid.')
+            print('Hint:', idx_from, '->', idx_to, '=', edge.get('cost'))
             return
 
     return adj_mat
@@ -87,4 +87,4 @@ def _print_matrix(mat, show_all = False):
     if show_all: 
             numpy.set_printoptions(threshold='nan')
 
-    print numpy.array(mat)
+    print(numpy.array(mat))
