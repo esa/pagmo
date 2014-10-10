@@ -22,16 +22,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_ALGORITHM_IO_H
-#define PAGMO_ALGORITHM_IO_H
+#ifndef PAGMO_ALGORITHM_NN_TSP_H
+#define PAGMO_ALGORITHM_NN_TSP_H
+
+#include <algorithm>
 
 #include "../config.h"
 #include "../serialization.h"
 #include "../population.h"
 #include "../problem/tsp.h"
 #include "base.h"
-#include <algorithm>
-
 
 namespace pagmo { namespace algorithm {
 
@@ -42,10 +42,10 @@ namespace pagmo { namespace algorithm {
  *
  * @author Ingmar Getzner (ingmar.getzner@gmail.com)
  */
-class __PAGMO_VISIBLE nn: public base
+class __PAGMO_VISIBLE nn_tsp: public base
 {
     public:
-        nn(int start_city = -1);
+        nn_tsp(int start_city = -1);
 
         base_ptr clone() const;
         void evolve(population &) const;
@@ -57,14 +57,14 @@ class __PAGMO_VISIBLE nn: public base
         void serialize(Archive &ar, const unsigned int)
         {
                 ar & boost::serialization::base_object<base>(*this);
-                ar & m_start_city;
+                ar & const_cast<int &>(m_start_city);
         }
-
-        int m_start_city;
+	//first vertex in the tour
+        const int m_start_city;
 };
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nn)
+BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::nn_tsp)
 
-#endif // PAGMO_ALGORITHM_NN_H
+#endif // PAGMO_ALGORITHM_NN_TSP_H
