@@ -25,12 +25,13 @@
 #ifndef PAGMO_SERIALIZATION_H
 #define PAGMO_SERIALIZATION_H
 
+#include "adj_list_serialize_bug_fix.hpp"
+
 // Headers needed for serialization purposes.
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
-#include <boost/graph/adj_list_serialize.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>

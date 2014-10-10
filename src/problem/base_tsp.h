@@ -26,9 +26,11 @@
 #define PAGMO_PROBLEM_BASE_TSP_H
 
 #include "base.h"
+#include "../serialization.h"
 
 #include <vector>
 #include <boost/graph/graphviz.hpp>
+
 
 
 namespace pagmo{ namespace problem {
@@ -102,8 +104,8 @@ class __PAGMO_VISIBLE base_tsp: public base
             void serialize(Archive &ar, const unsigned int)
             {
                     ar & boost::serialization::base_object<base>(*this);
-                    ar & m_n_vertices;
                     ar & m_graph;
+                    m_n_vertices = boost::num_vertices(m_graph);
             }
     
     private:
@@ -112,5 +114,7 @@ class __PAGMO_VISIBLE base_tsp: public base
 };
 
 }} //namespaces
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_tsp)
 
 #endif // PAGMO_PROBLEM_BASE_TSP_H

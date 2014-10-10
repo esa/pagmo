@@ -106,7 +106,7 @@ class __PAGMO_VISIBLE tsp: public base_tsp
         void serialize(Archive &ar, const unsigned int)
         {
                 ar & boost::serialization::base_object<base_tsp>(*this);
-                ar & m_weights;
+                m_weights = graph2matrix(get_graph());
         }
     private:        
         std::vector<std::vector<double> > m_weights;
