@@ -23,8 +23,10 @@
  *****************************************************************************/
 #include <iostream>
 #include <iomanip>
+#include "boost/random.hpp"
+#include "boost/generator_iterator.hpp"
 
-#include "../src/pagmo.h"
+#include "../src/problem/tsp.h"
 
 using namespace pagmo;
 
@@ -35,9 +37,11 @@ using namespace pagmo;
  * @return a square adjacency matrix
  */
 std::vector<std::vector<double> > generate_random_matrix(int dimension, bool verbose = false) {
-    std::default_random_engine rengine(time(NULL)); // seed software PRNG
-    std::uniform_real_distribution<double> distr(0.1, 1); // range
-    
+
+    boost::lagged_fibonacci607 rng;
+    boost::uniform_real<double> uniform(0.0,1.0);
+    boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > distr(rng,uniform);
+   
     std::vector<std::vector<double> > random_2D(dimension, std::vector<double>(dimension, 0));
 
     if (verbose) std::cout << "Two dimensional matrix created:";
@@ -49,7 +53,7 @@ std::vector<std::vector<double> > generate_random_matrix(int dimension, bool ver
             if (i == j) 
                 random_2D[i][j] = 0;
             else
-                random_2D[i][j] = distr(rengine);
+                random_2D[i][j] = distr();
 
             if (verbose) std::cout << random_2D[i][j] << " \t "; 
         }
@@ -83,7 +87,7 @@ bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = fals
             std::cout << prob.human_readable();
 
         // get the converted graph
-        problem::tsp_graph graph = prob.get_graph();
+        problem::base_tsp::tsp_graph graph = prob.get_graph();
 
         pagmo::problem::tsp new_prob(graph);
 

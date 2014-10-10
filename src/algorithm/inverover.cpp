@@ -24,6 +24,9 @@
 
 #include <vector>
 #include <algorithm>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/uniform_real.hpp>
+#include <boost/random/variate_generator.hpp>
 
 #include "../config.h"
 #include "../serialization.h"
@@ -93,12 +96,16 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 		return;
 	}
 	
-        //create proability distributions
-        std::default_random_engine generator(time(NULL));
-	std::uniform_int_distribution<int> unif_NPless1(0, NP - 2);
-	std::uniform_int_distribution<int> unif_Nv(0, Nv - 1);
-	std::uniform_int_distribution<int> unif_Nvless1(0, Nv - 2);
-	std::uniform_real_distribution<double> unif_01(0,1);
+	// Initializing the random number generators
+	boost::uniform_real<double> uniform(0.0,1.0);
+	boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > unif_01(m_drng,uniform);
+	boost::uniform_int<int> NPless1(0, NP - 2);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_NPless1(m_urng,NPless1);
+	boost::uniform_int<int> Nv_(0, Nv - 1);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_Nv(m_urng,Nv_);
+	boost::uniform_int<int> NVless1(0, NP - 2);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_Nvless1(m_urng,NVless1);
+
 
 	//check if we have a symmetric problem (symmetric weight matrix)
 	bool is_sym = true;
@@ -148,11 +155,12 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 			int tmp;
 			size_t rnd_idx;
 			for (size_t j = 1; j < Nv-1; j++) {
-	        		std::uniform_int_distribution<int> dist(j, Nv - 1);
-
+	        		boost::uniform_int<int> dist_(j, Nv - 1);
+					boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > dist(m_urng,dist_);
+					
 				for (size_t ii = 0; ii < not_feasible.size(); ii++) {
 					i = not_feasible[ii];
-					rnd_idx = dist(generator);
+					rnd_idx = dist();
 					tmp = my_pop[i][j];
 					my_pop[i][j] = my_pop[i][rnd_idx];
 					my_pop[i][rnd_idx] = tmp;
@@ -172,7 +180,7 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 				for (size_t j = 0; j < Nv; j++) {
 					not_visited[j] = j;
 				}
-				my_pop[i][0] = unif_Nv(generator);
+				my_pop[i][0] = unif_Nv();
 				std::swap(not_visited[my_pop[i][0]],not_visited[Nv-1]);
 				for (size_t j = 1; j < Nv-1; j++) {
 					min_idx = 0;
@@ -214,15 +222,15 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 		for(size_t i1 = 0; i1 < NP; i1++){
 			fitness_change = 0;
 			tmp_tour = my_pop[i1];
-			pos1_c1 = unif_Nv(generator);
+			pos1_c1 = unif_Nv();
 			stop = false;
 			while(!stop){
-				if(unif_01(generator) < m_ri){
-					rnd_num = unif_Nvless1(generator);
+				if(unif_01() < m_ri){
+					rnd_num = unif_Nvless1();
 					pos1_c2 = (rnd_num == pos1_c1? Nv-1:rnd_num);
 				}
 				else{
-					i2 = unif_NPless1(generator);
+					i2 = unif_NPless1();
 					i2 = (i2 == i1? NP-1:i2);
 					pos2_c1 = std::find(my_pop[i2].begin(),my_pop[i2].end(),tmp_tour[pos1_c1])-my_pop[i2].begin();
 					pos2_c2 = (pos2_c1 == Nv-1? 0:pos2_c1+1);

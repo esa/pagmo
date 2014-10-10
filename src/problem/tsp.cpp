@@ -193,7 +193,7 @@ namespace pagmo { namespace problem {
                     pagmo_throw(value_error, "main diagonal elements must all be zeros.");
                 if (i != j && !matrix.at(i).at(j)) // fully connected
                     pagmo_throw(value_error, "adjacency matrix contains zero values.");
-                if (i != j && !matrix.at(i).at(j) == matrix.at(i).at(j)) // fully connected
+                if (i != j && (!matrix.at(i).at(j)) == matrix.at(i).at(j)) // fully connected
                     pagmo_throw(value_error, "adjacency matrix contains NaN values.");                    
             }
         }
