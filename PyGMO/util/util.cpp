@@ -249,11 +249,11 @@ BOOST_PYTHON_MODULE(_util) {
 		.def("set_seed", &racing::race_pop::set_seed, "Set the ground seed of the race");
 
 	// Required by race_algo
-	class_<std::vector<pagmo::algorithm::base_ptr> >("vector_of_algorithm_base_ptr")
-		.def(vector_indexing_suite<std::vector<pagmo::algorithm::base_ptr>, true>());
+	//class_<std::vector<pagmo::algorithm::base_ptr> >("vector_of_algorithm_base_ptr")
+	//	.def(vector_indexing_suite<std::vector<pagmo::algorithm::base_ptr>, true>());
 
-	class_<std::vector<pagmo::problem::base_ptr> >("vector_of_problem_base_ptr")
-		.def(vector_indexing_suite<std::vector<pagmo::problem::base_ptr>, true>());
+	//class_<std::vector<pagmo::problem::base_ptr> >("vector_of_problem_base_ptr")
+	//	.def(vector_indexing_suite<std::vector<pagmo::problem::base_ptr>, true>());
 
 	class_<racing::race_algo>("race_algo", init<const std::vector<pagmo::algorithm::base_ptr> &, const pagmo::problem::base &, unsigned int, unsigned int>())
 	.def(init<const std::vector<pagmo::algorithm::base_ptr> &, const std::vector<pagmo::problem::base_ptr> &, unsigned int, unsigned int>())

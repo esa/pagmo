@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from PyGMO.util._util import *
-from PyGMO.util._util.hv_algorithm import hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy, fpl
-from PyGMO.core._core import population
 from PyGMO.util._analysis import *
 from PyGMO.util._tsp import read_tsplib
 
@@ -22,11 +20,11 @@ hv_algorithm.__doc__ = """Module containing available algorithms for the hypervo
 """
 
 
-class HypervolumeValidation:
+class _HypervolumeValidation:
 
     """
     Utility class containing commonly raised errors.
-    Kept in once place to simplify the consistency of error messages across methods
+    Kept in one place to simplify the consistency of error messages across methods
     """
 
     # Raised when the reference point type is not a list or a tuple, e.g. r =
@@ -61,7 +59,7 @@ class HypervolumeValidation:
         "Hypervolume takes either exactly one unnamed argument or one keyword argument 'data_src' in the constructor")
 
     # types of hypervolume algorithms
-    types_hv_algo = (hv2d, hv3d, hv4d, wfg, bf_approx, bf_fpras, hoy, fpl)
+    types_hv_algo = (hv_algorithm.hv2d, hv_algorithm.hv3d, hv_algorithm.hv4d, hv_algorithm.wfg, hv_algorithm.bf_approx, hv_algorithm.bf_fpras, hv_algorithm.hoy, hv_algorithm.fpl)
 
     # allowed types for the refernce point
     types_rp = (list, tuple,)
@@ -111,11 +109,12 @@ def _hypervolume_ctor(self, data_src=None, verify=True, *args, **kwargs):
             hv = hypervolume(data_src = ((1,2),(2,3)), verify=False)
     """
     if not data_src or len(args) > 0 or len(kwargs) > 0:
-        raise HypervolumeValidation.err_hv_ctor_args
+        raise _HypervolumeValidation.err_hv_ctor_args
 
+    from PyGMO import population
     allowed_types = (population, list, tuple,)
     if not any(isinstance(data_src, T) for T in allowed_types):
-        raise HypervolumeValidation.err_hv_ctor_type
+        raise _HypervolumeValidation.err_hv_ctor_type
 
     args = []
     args.append(data_src)
@@ -123,7 +122,7 @@ def _hypervolume_ctor(self, data_src=None, verify=True, *args, **kwargs):
     try:
         return self._original_init(*args)
     except TypeError:
-        raise HypervolumeValidation.err_hv_ctor_type
+        raise _HypervolumeValidation.err_hv_ctor_type
 hypervolume._original_init = hypervolume.__init__
 hypervolume.__init__ = _hypervolume_ctor
 
@@ -143,11 +142,11 @@ def _hypervolume_compute(self, r=None, algorithm=None, *args, **kwargs):
         raise TypeError(
             "Incorrect combination of args/kwargs, type 'hypervolume.compute?' for usage")
 
-    r = HypervolumeValidation.handle_refpoint(self, r)
+    r = _HypervolumeValidationlidation.handle_refpoint(self, r)
     args = []
     args.append(r)
     if algorithm:
-        algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
+        algorithm = _HypervolumeValidation.validate_hv_algorithm(algorithm)
         args.append(algorithm)
     return self._original_compute(*args)
 
@@ -184,13 +183,13 @@ def _hypervolume_exclusive(
         raise TypeError(
             "individual index (p_idx) must be a non-negative integer")
 
-    r = HypervolumeValidation.handle_refpoint(self, r)
+    r = _HypervolumeValidation.handle_refpoint(self, r)
 
     args = []
     args.append(p_idx)
     args.append(r)
     if algorithm:
-        algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
+        algorithm = _HypervolumeValidation.validate_hv_algorithm(algorithm)
         args.append(algorithm)
     return self._original_exclusive(*args)
 
@@ -218,11 +217,11 @@ def _hypervolume_least_contributor(
     if len(args) > 0 or len(kwargs) > 0:
         raise TypeError(
             "Incorrect combination of args/kwargs, type 'hypervolume.least_contributor?' for usage")
-    r = HypervolumeValidation.handle_refpoint(self, r)
+    r = _HypervolumeValidation.handle_refpoint(self, r)
     args = []
     args.append(r)
     if algorithm:
-        algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
+        algorithm = _HypervolumeValidation.validate_hv_algorithm(algorithm)
         args.append(algorithm)
     return self._original_least_contributor(*args)
 
@@ -250,11 +249,11 @@ def _hypervolume_greatest_contributor(
     if len(args) > 0 or len(kwargs) > 0:
         raise TypeError(
             "Incorrect combination of args/kwargs, type 'hypervolume.greatest_contributor?' for usage")
-    r = HypervolumeValidation.handle_refpoint(self, r)
+    r = _HypervolumeValidation.handle_refpoint(self, r)
     args = []
     args.append(r)
     if algorithm:
-        algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
+        algorithm = _HypervolumeValidation.validate_hv_algorithm(algorithm)
         args.append(algorithm)
     return self._original_greatest_contributor(*args)
 
@@ -277,11 +276,11 @@ def _hypervolume_contributions(self, r=None, algorithm=None, *args, **kwargs):
     if len(args) > 0 or len(kwargs) > 0:
         raise TypeError(
             "Incorrect combination of args/kwargs, type 'hypervolume.contributions?' for usage")
-    r = HypervolumeValidation.handle_refpoint(self, r)
+    r = _HypervolumeValidation.handle_refpoint(self, r)
     args = []
     args.append(r)
     if algorithm:
-        algorithm = HypervolumeValidation.validate_hv_algorithm(algorithm)
+        algorithm = _HypervolumeValidation.validate_hv_algorithm(algorithm)
         args.append(algorithm)
     return self._original_contributions(*args)
 
@@ -359,8 +358,8 @@ def _hv2d_ctor(self):
             hv.least_contributor(r=refpoint, algorithm=hv_algorithm.hv2d())
     """
     return self._original_init()
-hv2d._original_init = hv2d.__init__
-hv2d.__init__ = _hv2d_ctor
+hv_algorithm.hv2d._original_init = hv_algorithm.hv2d.__init__
+hv_algorithm.hv2d.__init__ = _hv2d_ctor
 
 
 def _hv3d_ctor(self):
@@ -383,8 +382,8 @@ def _hv3d_ctor(self):
             hv.least_contributor(r=refpoint, algorithm=hv_algorithm.hv3d())
     """
     return self._original_init()
-hv3d._original_init = hv3d.__init__
-hv3d.__init__ = _hv3d_ctor
+hv_algorithm.hv3d._original_init = hv_algorithm.hv3d.__init__
+hv_algorithm.hv3d.__init__ = _hv3d_ctor
 
 
 def _hv4d_ctor(self):
@@ -404,8 +403,8 @@ def _hv4d_ctor(self):
             hv.least_contributor(r=refpoint, algorithm=hv_algorithm.hv4d())
     """
     return self._original_init()
-hv4d._original_init = hv4d.__init__
-hv4d.__init__ = _hv4d_ctor
+hv_algorithm.hv4d._original_init = hv_algorithm.hv4d.__init__
+hv_algorithm.hv4d.__init__ = _hv4d_ctor
 
 
 def _fpl_ctor(self):
@@ -422,8 +421,8 @@ def _fpl_ctor(self):
             hv.least_contributor(r=refpoint, algorithm=hv_algorithm.fpl())
     """
     return self._original_init()
-fpl._original_init = fpl.__init__
-fpl.__init__ = _fpl_ctor
+hv_algorithm.fpl._original_init = hv_algorithm.fpl.__init__
+hv_algorithm.fpl.__init__ = _fpl_ctor
 
 
 def _hoy_ctor(self):
@@ -444,8 +443,8 @@ def _hoy_ctor(self):
             hv.least_contributor(r=refpoint, algorithm=hv_algorithm.hoy())
     """
     return self._original_init()
-hoy._original_init = hoy.__init__
-hoy.__init__ = _hoy_ctor
+hv_algorithm.hoy._original_init = hv_algorithm.hoy.__init__
+hv_algorithm.hoy.__init__ = _hoy_ctor
 
 
 def _wfg_ctor(self, stop_dimension=2):
@@ -466,8 +465,8 @@ def _wfg_ctor(self, stop_dimension=2):
     args = []
     args.append(stop_dimension)
     return self._original_init(*args)
-wfg._original_init = wfg.__init__
-wfg.__init__ = _wfg_ctor
+hv_algorithm.wfg._original_init = hv_algorithm.wfg.__init__
+hv_algorithm.wfg.__init__ = _wfg_ctor
 
 
 def _bf_approx_ctor(
@@ -512,8 +511,8 @@ def _bf_approx_ctor(
     args.append(initial_delta_coeff)
     args.append(gamma)
     return self._original_init(*args)
-bf_approx._original_init = bf_approx.__init__
-bf_approx.__init__ = _bf_approx_ctor
+hv_algorithm.bf_approx._original_init = hv_algorithm.bf_approx.__init__
+hv_algorithm.bf_approx.__init__ = _bf_approx_ctor
 
 
 def _bf_fpras_ctor(self, eps=1e-2, delta=1e-2):
@@ -538,24 +537,24 @@ def _bf_fpras_ctor(self, eps=1e-2, delta=1e-2):
     args.append(eps)
     args.append(delta)
     return self._original_init(*args)
-bf_fpras._original_init = bf_fpras.__init__
-bf_fpras.__init__ = _bf_fpras_ctor
+hv_algorithm.bf_fpras._original_init = hv_algorithm.bf_fpras.__init__
+hv_algorithm.bf_fpras.__init__ = _bf_fpras_ctor
 
 
-def _race_pop_ctor(self, population=None, seed=0):
+def _race_pop_ctor(self, pop=None, seed=0):
     """
     Constructs a racing object responsible for racing individuals in a population
 
-    USAGE: race_pop(population, seed=0)
+    USAGE: race_pop(pop, seed=0)
 
-    * population: The population containint the individuals to be raced
+    * pop: The pop containing the individuals to be raced
     * seed: Seed of the racing object
 
     """
     # We set the defaults or the kwargs
     arg_list = []
-    if(population is not None):
-        arg_list.append(population)
+    if(pop is not None):
+        arg_list.append(pop)
     arg_list.append(seed)
     self._orig_init(*arg_list)
 
@@ -691,15 +690,15 @@ def _race_algo_ctor(self, algo_list, probs, pop_size=100, seed=0):
     # We set the defaults or the kwargs
     arg_list = []
 
-    algo_vec = vector_of_algorithm_base_ptr()
-    algo_vec.extend(algo_list)
-    arg_list.append(algo_vec)
+    #algo_vec = vector_of_algorithm_base_ptr()
+    #algo_vec.extend(algo_list)
+    arg_list.append(algo_list)
 
     try:
         l = len(probs)
-        prob_vec = vector_of_problem_base_ptr()
-        prob_vec.extend(probs)
-        arg_list.append(prob_vec)
+        #prob_vec = vector_of_problem_base_ptr()
+        #prob_vec.extend(probs)
+        arg_list.append(probs)
     except TypeError:
         arg_list.append(probs)
 

@@ -267,6 +267,8 @@ BOOST_PYTHON_MODULE(_core)
 	REGISTER_CONVERTER(std::vector<std::vector<int> >, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<std::vector<topology::base::vertices_size_type> >, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<base_island_ptr>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<pagmo::algorithm::base_ptr>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<pagmo::problem::base_ptr>, variable_capacity_policy);
 	
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 	REGISTER_CONVERTER(std::vector<kep_toolbox::planet_ptr>, variable_capacity_policy);

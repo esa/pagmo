@@ -1,5 +1,4 @@
-from __future__ import print_function
-from PyGMO import *
+from __future__ import print_function as _dummy
 
 class analysis:
     """
@@ -2164,7 +2163,7 @@ class analysis:
     ###################################################################################################################### 
 
     def local_search(self,clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=True,scatter_plot_dimensions=[],\
-        sample_size=0,algo=algorithm.cs(),decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio',\
+        sample_size=0,algo=None,decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio',\
         variance_ratio=0.9,k=0,single_cluster_tolerance=0.0001,kmax=0,round_to=3):
         """
         This function selects points from the sample and launches local searches using them as initial
@@ -2253,7 +2252,12 @@ class analysis:
         these functions store a great number of properties as class attributes. See ther respective
         entries for more information about these attributes.
         """
-        from numpy import percentile        
+        from numpy import percentile
+        from PyGMO import algorithm
+
+        if algo==None:
+            algo = algorithm.cs()
+
         if self.dir==None:
             output=None
         else:
@@ -2305,7 +2309,7 @@ class analysis:
 
 #LOCAL SEARCH
 
-    def _get_local_extrema(self,sample_size=0,algo=algorithm.cs(),par=True,decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio', warning=True):
+    def _get_local_extrema(self,sample_size=0,algo=None,par=True,decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio', warning=True):
         """
         Selects points from the sample and launches local searches using them as initial points.
 
@@ -2352,6 +2356,10 @@ class analysis:
         * analysis.local_f_dec[number of searches]: fitness value of points after con2mo in constraint
           and decompose in multi-objective problems. Used to rate and order clusters.\n
         """
+        from PyGMO import archipelago,island,population,algorithm
+        if algo == None:
+            algo=algorithm.cs()
+
         if self.npoints==0:
             raise ValueError(
                 "analysis._get_local_extrema: sampling first is necessary")
@@ -2359,7 +2367,6 @@ class analysis:
         if not isinstance(algo,algorithm._algorithm._base):
             raise ValueError(
                 "analysis._get_local_extrema: input a valid pygmo algorithm")
-        from PyGMO import archipelago,island,population
         try:
             from numpy.random import randint
             from numpy import array,ptp
