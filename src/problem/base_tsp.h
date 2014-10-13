@@ -27,6 +27,7 @@
 
 #include "base.h"
 #include "../serialization.h"
+#include "../population.h"
 
 #include <vector>
 #include <boost/graph/graphviz.hpp>
@@ -35,11 +36,14 @@
 
 namespace pagmo{ namespace problem {
 
+
+
+
 /// Base TSP.
 /**
  * This is a base class for Traveling Salesman Problems. Encoding of the chromosome is as in
  * http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
- * m_graph is of type tsp_graph, defined in base_tsp.h
+ *
  * It is an adjacency list representing symmetric or assymmetric graphs, with edges 
  * having internal property of weights, representing cost between vertices.
  * The only internal property for a vertex is its index.
@@ -89,7 +93,9 @@ class __PAGMO_VISIBLE base_tsp: public base
             base_tsp(const tsp_graph&);    
 
             const tsp_graph& get_graph() const;
-            const size_t& get_n_vertices() const;               
+            const size_t& get_n_vertices() const;              
+            std::vector<population::size_type > chromosome2cities(const pagmo::decision_vector &) const;
+            pagmo::decision_vector cities2chromosome(const std::vector<long unsigned int> &) const;
             std::string human_readable_extra() const;
 
     private:

@@ -22,8 +22,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#include <algorithm> 
+
 #include "base_tsp.h"
-#include "tsp.h"
 
 namespace pagmo { namespace problem {
 
@@ -75,6 +76,57 @@ namespace pagmo { namespace problem {
     {
         set_lb(0);
         set_ub(1);
+    }
+
+    /// Transforms a tsp chromosome into the sequence of city indexes
+    /**
+     * @param[in] x the chromosome that represents a city tour
+     * @return a vector containing the indices of the visited cities in the encoded order
+     */
+    std::vector<pagmo::population::size_type> base_tsp::chromosome2cities(const pagmo::decision_vector &x) const
+    {
+        if (feasibility_x(x)) 
+        {
+            std::vector<pagmo::population::size_type> retval(m_n_vertices,0);
+            pagmo::population::size_type next_city,cur_city = 0;
+            retval[0]=cur_city;
+            for(size_t j = 1; j < m_n_vertices; j++){
+                next_city = std::find(x.begin() + cur_city*(m_n_vertices-1), x.begin() + (cur_city+1)*(m_n_vertices-1),1) - (x.begin() + cur_city*(m_n_vertices-1));
+                std::cout << cur_city << ", " << next_city << ", " << (next_city <= cur_city) << std::endl;
+                next_city = next_city  + ( (next_city >= cur_city) ? 1:0 );
+                cur_city=next_city;
+                retval[j] = next_city;
+            }
+            return retval;
+        } else {
+            pagmo_throw(value_error,"chromosome is not compatible with the problem");
+        }
+    }
+
+    /// Transforms a permutation of city indexes into a tsp chromosome
+    /**
+     * @param[in] vities the chromosome that represents a city tour
+     * @return a vector containing the indices of the visited cities in the encoded order
+     */
+    pagmo::decision_vector base_tsp::cities2chromosome(const std::vector<population::size_type> &x) const
+    {
+        if (x.size() != m_n_vertices) 
+        {
+            pagmo_throw(value_error,"city indexes are of incompatible length");
+        }
+        std::vector<population::size_type> range(m_n_vertices);
+        std::iota(range.begin(),range.end(),0);
+        if (!std::is_permutation(x.begin(),x.end(),range.begin()) )
+        {
+            pagmo_throw(value_error,"city indexes are not a permutation of 0,1,2,3,....");
+        }
+        pagmo::decision_vector retval(m_n_vertices*(m_n_vertices-1),0);
+        for (std::vector<population::size_type>::size_type i=0; i<x.size()-1; ++i)
+        {
+            retval.at( x[i]*(m_n_vertices-1) + x[i+1] - (x[i+1]>=x[i]?1:0) ) = 1;
+        } 
+        retval[ x.at(x.size()-1)*(m_n_vertices-1) + x[0] + (x[0]>=x[x.size()-1]?1:0) ] = 1;
+        return retval;
     }
 
     /**
