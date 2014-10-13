@@ -365,7 +365,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const std::vector<std::vector<double> > &>())
 		.def("cities2chromosome", &problem::base_tsp::cities2chromosome)
 		.def("chromosome2cities", &problem::base_tsp::chromosome2cities)
-		.add_property("weights",make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
+		.add_property("weights", make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
 
 	// SCH
 	problem_wrapper<problem::sch>("sch","Shaffer's study problem.");

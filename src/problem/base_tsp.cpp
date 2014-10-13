@@ -96,7 +96,7 @@ namespace pagmo { namespace problem {
             }
             return retval;
         } else {
-            pagmo_throw(value_error,"chromosome is not compatible with the problem");
+            pagmo_throw(value_error,"chromosome is not feasible");
         }
     }
 
