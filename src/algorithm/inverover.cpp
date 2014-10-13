@@ -103,8 +103,8 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_NPless1(m_urng,NPless1);
 	boost::uniform_int<int> Nv_(0, Nv - 1);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_Nv(m_urng,Nv_);
-	boost::uniform_int<int> NVless1(0, NP - 2);
-	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_Nvless1(m_urng,NVless1);
+	boost::uniform_int<int> Nvless1(0, Nv - 2);
+	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_Nvless1(m_urng,Nvless1);
 
 
 	//check if we have a symmetric problem (symmetric weight matrix)

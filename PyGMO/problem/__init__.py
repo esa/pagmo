@@ -9,6 +9,7 @@ from PyGMO.problem._example import py_example_max
 from PyGMO.problem._example_stochastic import py_example_stochastic
 from PyGMO.problem._pl2pl import py_pl2pl
 from PyGMO.problem._mo import *
+from PyGMO.problem._tsp import *
 
 # If GTOP database support is active import interplanetary trajectory problems
 try:
@@ -554,23 +555,6 @@ def _golomb_ruler_ctor(self, order=5, length=10):
 golomb_ruler._orig_init = golomb_ruler.__init__
 golomb_ruler.__init__ = _golomb_ruler_ctor
 
-
-def _tsp_ctor(self, matrix=[[0, 1, 2], [1, 0, 5], [2, 5, 0]]):
-    """
-    Constructs a Travelling Salesman problem (Constrained Integer Single-Objective)
-
-    USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0])
-
-    * matrix: inter-city distances (symmetric matrix)
-    """
-
-    # We construct the arg list for the original constructor exposed by
-    # boost_python
-    arg_list = []
-    arg_list.append(matrix)
-    self._orig_init(*arg_list)
-tsp._orig_init = tsp.__init__
-tsp.__init__ = _tsp_ctor
 
 
 def _inventory_ctor(self, weeks=4, sample_size=10, seed=0):

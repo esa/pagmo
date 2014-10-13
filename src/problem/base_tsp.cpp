@@ -22,8 +22,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <algorithm> 
-
 #include "base_tsp.h"
 
 namespace pagmo { namespace problem {
@@ -92,7 +90,6 @@ namespace pagmo { namespace problem {
             retval[0]=cur_city;
             for(size_t j = 1; j < m_n_vertices; j++){
                 next_city = std::find(x.begin() + cur_city*(m_n_vertices-1), x.begin() + (cur_city+1)*(m_n_vertices-1),1) - (x.begin() + cur_city*(m_n_vertices-1));
-                std::cout << cur_city << ", " << next_city << ", " << (next_city <= cur_city) << std::endl;
                 next_city = next_city  + ( (next_city >= cur_city) ? 1:0 );
                 cur_city=next_city;
                 retval[j] = next_city;
@@ -115,7 +112,10 @@ namespace pagmo { namespace problem {
             pagmo_throw(value_error,"city indexes are of incompatible length");
         }
         std::vector<population::size_type> range(m_n_vertices);
-        std::iota(range.begin(),range.end(),0);
+        for (std::vector<population::size_type>::size_type i=0; i<range.size(); ++i) 
+        {
+            range[i]=i;
+        }
         if (!std::is_permutation(x.begin(),x.end(),range.begin()) )
         {
             pagmo_throw(value_error,"city indexes are not a permutation of 0,1,2,3,....");
