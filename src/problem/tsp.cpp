@@ -310,14 +310,14 @@ namespace pagmo { namespace problem {
 
     pagmo::decision_vector tsp::randomkeys2cities(const pagmo::decision_vector &x) const
     {
-        pagmo::decision_vector retval(m_n_cities);
-        std::vector<std::pair<double,int> > pairs(m_n_cities);
-        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
+        pagmo::decision_vector retval(x.size());
+        std::vector<std::pair<double,int> > pairs(x.size());
+        for (pagmo::decision_vector::size_type i=0;i<x.size();++i) {
             pairs[i].first = x[i];
             pairs[i].second = i;
         }
         std::sort(pairs.begin(),pairs.end(),comparator);
-        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
+        for (pagmo::decision_vector::size_type i=0;i<x.size();++i) {
             retval[i] = pairs[i].second;
         }
         return retval;
