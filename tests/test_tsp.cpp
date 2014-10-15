@@ -27,82 +27,102 @@
 #include "boost/generator_iterator.hpp"
 
 #include "../src/problem/tsp.h"
+#include "../src/population.h"
 
 using namespace pagmo;
 
 /**
- * Generates a random square matrix with the number of vertices set to dimension.
- * @param dimension - the number of vertices in the matrix
- * @param verbose - prints the matrix to console if true
+ * Generates a random square matrix dimension x dimension.
+ * @param dimension - the matrix dimension
  * @return a square adjacency matrix
  */
-std::vector<std::vector<double> > generate_random_matrix(int dimension, bool verbose = false) {
+std::vector<std::vector<double> > generate_random_matrix(int dimension, boost::lagged_fibonacci607 rng) {
 
-    boost::lagged_fibonacci607 rng;
     boost::uniform_real<double> uniform(0.0,1.0);
     boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_real<double> > distr(rng,uniform);
    
-    std::vector<std::vector<double> > random_2D(dimension, std::vector<double>(dimension, 0));
-
-    if (verbose) std::cout << "Two dimensional matrix created:";
-    
-    for (int i = 0; i < dimension; ++i) {
-        if (verbose) std::cout << std::endl;
-        
+    std::vector<std::vector<double> > retval(dimension, std::vector<double>(dimension, 0));
+  
+    for (int i = 0; i < dimension; ++i) {        
         for (int j = 0; j < dimension; ++j) {
             if (i == j) 
-                random_2D[i][j] = 0;
+                retval[i][j] = 0;
             else
-                random_2D[i][j] = distr();
-
-            if (verbose) std::cout << random_2D[i][j] << " \t "; 
+                retval[i][j] = distr();
         }
     }
-    if (verbose) std::cout << std::endl ;
-    
-    return random_2D;
+    return retval;
 }
 
 /*
- * This test creates a random vector<vector<double>> two dimensional vector,
- * then it instantiates a tsp object which loads the vector object.
- * The internal graph is then returned and used to instantiate a new problem.
- * The weights of the two tsp object matrices are then compared.
+ * This test creates three tsp problems (one per encoding type) and
+ * checks that objective function and feasibility is invariant across problem
+ * representation
+ *
  * @param[in] repeat - the number of times to repeat the test
  * @param[in] l_bounds - the minimum random size of the square matrix
  * @param[in] u_bounds - the maximum random size of the square matrix
  * @param[in] verbose - print matrix and converted to console
  */
-bool test_conversion(int repeat, int l_bounds, int u_bounds, bool verbose = false) {
+bool test_encodings_equivalence(int repeat, int l_bounds, int u_bounds, boost::lagged_fibonacci607 rng) 
+{
     for (int i = 0; i < repeat; ++i) {
         // create random 2d vector and output it to console
-        int no_vertices = rand() % u_bounds + l_bounds; // between l_b and u_b
-        std::vector<std::vector<double> > original( generate_random_matrix(no_vertices, verbose) );
+        boost::uniform_int<int> uniform(l_bounds,u_bounds);
+        boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_int<int> > distr(rng,uniform);
+        int n_cities = distr(); // between l_b and u_b
+        std::vector<std::vector<double> > weights( generate_random_matrix(n_cities,rng) );
 
-        // instantiate a tsp problem, vector constructor is called
-        pagmo::problem::tsp prob(original);
+        // instantiate a tsp problem for each of the available encodings
+        pagmo::problem::tsp prob_full(weights, pagmo::problem::tsp::FULL);
+        pagmo::problem::tsp prob_rk(weights, pagmo::problem::tsp::RANDOMKEYS);
+        pagmo::problem::tsp prob_cities(weights, pagmo::problem::tsp::CITIES);
 
-        // output the graph structure, conversion done internally
-        if (verbose)
-            std::cout << prob.human_readable();
+        pagmo::decision_vector tour_rk = population(prob_rk,1).get_individual(0).cur_x;
+        pagmo::decision_vector tour_cities = prob_rk.randomkeys2cities(tour_rk);
+        pagmo::decision_vector tour_full = prob_full.cities2full(tour_cities);
 
-        // get the converted graph
-        problem::base_tsp::tsp_graph graph = prob.get_graph();
-
-        pagmo::problem::tsp new_prob(graph);
+        pagmo::fitness_vector f_rk = prob_rk.objfun(tour_rk);
+        pagmo::fitness_vector f_cities = prob_cities.objfun(tour_cities);
+        pagmo::fitness_vector f_full = prob_full.objfun(tour_full);
 
         // check equality
-        if (prob.get_weights() != new_prob.get_weights() ) {
-            std::cout << "vector2D to boost graph to vector2D conversion failed!\n";
+        if ( (f_rk!=f_cities) || (f_rk!=f_full) ) {
+            std::cout << "fitness is different across encodings\n";
+            return true;
+        }
+        if ( (!prob_full.feasibility_x(tour_full)) || (!prob_cities.feasibility_x(tour_cities)) || (!prob_rk.feasibility_x(tour_rk)) ) 
+        {
+            std::cout << "feasibility is different across encodings\n";
             return true;
         }
     }
     return false;
 }
 
+bool test_encoding_transformations(int repeat, boost::lagged_fibonacci607 rng) 
+{
+    // create random 2d vector and output it to console
+    boost::uniform_int<int> uniform(3,50);
+    boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_int<int> > distr(rng,uniform);
+    int n_cities = distr(); // between l_b and u_b
+    std::vector<std::vector<double> > weights( generate_random_matrix(n_cities,rng) );
+
+    pagmo::problem::tsp prob_rk(weights, pagmo::problem::tsp::RANDOMKEYS);
+    pagmo::decision_vector tour_rk = population(prob_rk,1).get_individual(0).cur_x;
+
+    pagmo::fitness_vector f1 = prob_rk.objfun( tour_rk );
+    pagmo::fitness_vector f2 = prob_rk.objfun( prob_rk.cities2randomkeys(prob_rk.full2cities(prob_rk.cities2full(prob_rk.randomkeys2cities(tour_rk) ) ), tour_rk ) );
+
+    std::cout << f1 << f2 << std::endl;
+
+}
+
 int main()
 {
-    if (test_conversion(100, 10, 50, false)) return 1;
+    boost::lagged_fibonacci607 rng;
+    if (test_encodings_equivalence(100, 3, 50, rng)) return 1;
+    test_encoding_transformations(1,rng);
     
     // all iz well
     return 0;

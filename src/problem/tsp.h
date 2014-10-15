@@ -57,7 +57,7 @@ class __PAGMO_VISIBLE tsp: public base
             CITIES = 2      ///< The sum of the constraint violation is used as objective function of the transformed problem
         };
         tsp();
-        tsp(const std::vector<std::vector<double> >&, const encoding &); 
+        tsp(const std::vector<std::vector<double> >&, const encoding & = FULL); 
         base_ptr clone() const;
 
         const std::vector<std::vector<double> >& get_weights() const;
