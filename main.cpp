@@ -24,34 +24,16 @@
 
 #include <iostream>
 #include <iomanip>
-#include "src/pagmo.h"
+#include "src/problem/base_tsp.h"
 
 using namespace pagmo;
 
 // Example in C++ of the use of PaGMO 1.1.5
 int main()
 {
-	problem::tsp prob;
-	problem::tsp prob2;
-
-	{
-		std::ofstream ofs("test.ar");
-		// save data to archive
-		boost::archive::text_oarchive oa(ofs);
-		// write clss instance to archive
-		oa & prob;
-		// archive and stream closed when destructors are called
-		std::cout << prob << std::endl;
-	}
-
-	{
-		// create and open an archive for input
-		std::ifstream ifs("test.ar");
-		boost::archive::text_iarchive ia(ifs);
-		// read class state from archive
-		ia & prob2;
-		// archive and stream closed when destructors are called
-		std::cout << prob << std::endl;
-	}	
+	problem::base_tsp prob;
+	problem::base_tsp prob2;
+	std::cout << prob << std::endl;
+	
 	return 0;
 }

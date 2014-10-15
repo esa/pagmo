@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 #include "base_tsp.h"
+ #include "../population.h"
 
 namespace pagmo { namespace problem {
 
@@ -31,27 +32,16 @@ namespace pagmo { namespace problem {
      * This constructs a 3-cities symmetric problem (naive TSP) 
      * with weight matrix [[0,1,1][1,0,1][1,1,0]]
      */
-    base_tsp::base_tsp(): base(6, 6, 1, 8, 2, 0.0), m_n_vertices(3), m_graph()
+    base_tsp::base_tsp(): base(6, 6, 1, 8, 2, 0.0), m_n_cities(3), m_weights(), m_encoding(base_tsp::FULL)
     {
-        tsp_vertex from, to;
-        tsp_edge link;
-        tsp_edge_map_weight weights = boost::get(boost::edge_weight_t(), m_graph);
-        
-        boost::add_vertex(0, m_graph);
-        boost::add_vertex(1, m_graph);
-        boost::add_vertex(2, m_graph);
-        
-        for (size_t i = 0; i < 3; ++i) {
-            from = boost::vertex(i, m_graph);
-            for (size_t j = 0 ; j < 3; ++j) {
-                if(i == j) continue; // no connections from a vertex to self
-                to = boost::vertex(j, m_graph);
-                // create an edge connecting those two vertices
-                link = (boost::add_edge(from, to, m_graph)).first;
-                // add weight property to the edge
-                weights[link] = 1.23;
-            }
-        }
+        std::vector<double> dumb(3,0);
+        m_weights = std::vector<std::vector<double> > (3,dumb);
+        m_weights[0][1] = 1;
+        m_weights[0][2] = 1;
+        m_weights[2][1] = 1;
+        m_weights[1][0] = 1;
+        m_weights[2][0] = 1;
+        m_weights[1][2] = 1;
         set_lb(0);
         set_ub(1);
     }
@@ -60,20 +50,213 @@ namespace pagmo { namespace problem {
      * Constructor from a tsp_graph object
      * @param[in] tsp_graph
      */
-    base_tsp::base_tsp(const tsp_graph& graph): 
+    base_tsp::base_tsp(const std::vector<std::vector<double> >& weights, const encoding& encoding_): 
         base(
-            boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
-            boost::num_vertices(graph)*(boost::num_vertices(graph)-1), 
-            1, 
-            boost::num_vertices(graph)*(boost::num_vertices(graph)-1)+2,
-            (boost::num_vertices(graph)-1)*(boost::num_vertices(graph)-2),
-            0.0
-        ),
-        m_n_vertices(boost::num_vertices(graph)),
-        m_graph(graph)
+            base_tsp::compute_dimensions(weights[0].size(),encoding_)[0],
+            base_tsp::compute_dimensions(weights[0].size(),encoding_)[1],
+            base_tsp::compute_dimensions(weights[0].size(),encoding_)[2],
+            base_tsp::compute_dimensions(weights[0].size(),encoding_)[3],
+            base_tsp::compute_dimensions(weights[0].size(),encoding_)[4],
+            (double)base_tsp::compute_dimensions(weights[0].size(),encoding_)[5]
+        ), m_n_cities(weights[0].size()), m_weights(weights), m_encoding(encoding_)
     {
-        set_lb(0);
-        set_ub(1);
+        check_weights(m_weights);
+        switch( encoding_ ) {
+            case FULL:
+                set_lb(0);
+                set_ub(1);
+                break;
+            case RANDOMKEYS:
+                set_lb(0);
+                set_ub(1);
+                break;
+            case CITIES:
+                set_lb(0);
+                set_ub(m_n_cities-1);
+                break;
+        }
+    }
+
+    /// Clone method.
+    base_ptr base_tsp::clone() const
+    {
+        return base_ptr(new base_tsp(*this));
+    }
+
+    /// Checks if we can instantiate a TSP or ATSP problem
+    /**
+     * Checks if a matrix (std::vector<std::vector<double>>) 
+     * is square or bidirectional (e.g. no one way links between vertices).
+     * If none of the two conditions are true, we can not have a tsp problem.
+     * @param matrix - the adjacency matrix (two dimensional std::vector)
+     * @throws pagmo_throw - matrix is not square and/or graph is not bidirectional
+     */
+    void base_tsp::check_weights(const std::vector<std::vector<double> > &matrix) const 
+    {   
+        decision_vector::size_type n_cols = matrix.size();
+        
+        for (decision_vector::size_type i = 0; i < n_cols; ++i) {
+            decision_vector::size_type n_rows = matrix.at(i).size();
+            // check if the matrix is square
+            if (n_rows != n_cols)
+                pagmo_throw(value_error, "adjacency matrix is not square");
+            
+            for (size_t j = 0; j < n_rows; ++j) {
+                if (i == j && matrix.at(i).at(j) != 0)
+                    pagmo_throw(value_error, "main diagonal elements must all be zeros.");
+                if (i != j && !matrix.at(i).at(j)) // fully connected
+                    pagmo_throw(value_error, "adjacency matrix contains zero values.");
+                if (i != j && (!matrix.at(i).at(j)) == matrix.at(i).at(j)) // fully connected
+                    pagmo_throw(value_error, "adjacency matrix contains NaN values.");                    
+            }
+        }
+    }
+
+    boost::array<int, 6> base_tsp::compute_dimensions(decision_vector::size_type n_cities, encoding encoding_)
+    {
+        boost::array<int,6> retval;
+        switch( encoding_ ) {
+            case FULL:
+                retval[0] = n_cities*(n_cities-1);
+                retval[1] = n_cities*(n_cities-1);
+                retval[2] = 1;
+                retval[3] = n_cities*(n_cities-1)+2;
+                retval[4] = (n_cities-1)*(n_cities-2);
+                retval[5] = 0.0;
+                break;
+            case RANDOMKEYS:
+                retval[0] = n_cities;
+                retval[1] = 0;
+                retval[2] = 1;
+                retval[3] = 0;
+                retval[4] = 0;
+                retval[5] = 0.0;
+                break;
+            case CITIES:
+                retval[0] = n_cities;
+                retval[1] = n_cities;
+                retval[2] = 1;
+                retval[3] = 1;
+                retval[4] = 0;
+                retval[5] = 0.0;
+                break;
+        }
+        return retval;
+    }
+
+    /// Implementation of the objective function
+    /**
+     * Computes the fitness vector associated to a decision vector.
+     * The fitness is defined as Sum_ij(w_ij * x_ij) 
+     * where w_ij are the weights defining the distances between the cities
+     * The decision vector x_ij is a concatenated binary adjacency matrix, 
+     * with the diagonal elements skipped since they're always zero because
+     * in a route you can't go from one vertex to itself.
+     * @param[out] f fitness vector
+     * @param[in] x decision vector
+     */
+    void base_tsp::objfun_impl(fitness_vector &f, const decision_vector& x) const 
+    {
+        decision_vector tour;
+        f[0]=0;
+        switch( m_encoding ) {
+            case FULL:
+                tour = full2cities(x);
+                break;
+            case RANDOMKEYS:
+                tour = randomkeys2cities(x);
+                break;
+            case CITIES:
+                tour = x;
+                break;
+        }
+        for (decision_vector::size_type i=0; i<m_n_cities-1; ++i) {
+            f[0] += m_weights.at(tour.at(i)).at(tour.at(i+1));
+        }
+        f[0]+= m_weights.at(tour.at(m_n_cities-1)).at(tour.at(0));
+    }
+
+    size_t compute_idx(const size_t i, const size_t j, const size_t n) 
+    {
+        pagmo_assert( i!=j && i<n && j<n );
+        return i*(n-1) + j - (j>i? 1:0);
+    }
+
+    /// Constraint computation.
+    /**
+     * Computes the equality and inequality constraints for a decision vector
+     * and returns the |c| = n(n-1)+2 constraint vector with the concatenated
+     * equality constraints (n-1)(n-2) and inequality constraints.
+     * The equality constraints are ordered by row, then by sum.
+     * For pagmo, the final sum is set to -1.
+     * @param[out] c constraint_vector
+     * @param[in] x decision_vector
+     */
+    void base_tsp::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
+    {
+        decision_vector::size_type n = get_n_cities();
+
+        switch( m_encoding ) 
+        {
+            case FULL:
+            {
+                // 1 - We set the equality constraints
+                for (size_t i = 0; i < n; i++) {
+                    c[i] = 0;
+                    c[i+n] = 0;
+                    for (size_t j = 0; j < n; j++) {
+                        if(i==j) continue; // ignoring main diagonal
+                        decision_vector::size_type rows = compute_idx(i, j, n);
+                        decision_vector::size_type cols = compute_idx(j, i, n);
+                        c[i] += x[rows];
+                        c[i+n] += x[cols];
+                    }
+                    c[i] = c[i]-1;
+                    c[i+n] = c[i+n]-1;
+                }
+
+                //2 - We set the inequality constraints
+                //2.1 - First we compute the uj (see http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation)
+                //      we start always out tour from the first city, without loosing generality
+                size_t next_city = 0,current_city = 0;
+                std::vector<int> u(n);
+                for (size_t i = 0; i < n; i++) {
+                    u[current_city] = i+1;
+                    for (size_t j = 0; j < n; j++) 
+                    {
+                        if (current_city==j) continue;
+                        if (x[compute_idx(current_city, j, n)] == 1) 
+                        {
+                            next_city = j;
+                            break;
+                        }
+                    }
+                    current_city = next_city;
+                }
+                int count=0;
+                for (size_t i = 1; i < n; i++) {
+                    for (size_t j = 1; j < n; j++) 
+                    {
+                        if (i==j) continue;
+                        c[2*n+count] = u[i]-u[j] + (n+1) * x[compute_idx(i, j, n)] - n;
+                        count++;
+                    }
+                }
+                break;
+            }
+            case RANDOMKEYS:
+                break;
+            case CITIES:
+            {
+                std::vector<population::size_type> range(m_n_cities);
+                for (std::vector<population::size_type>::size_type i=0; i<range.size(); ++i) 
+                {
+                    range[i]=i;
+                }
+                c[0] = !std::is_permutation(x.begin(),x.end(),range.begin());
+                break;
+            }
+        }
     }
 
     /// Transforms a tsp chromosome into the sequence of city indexes
@@ -81,23 +264,24 @@ namespace pagmo { namespace problem {
      * @param[in] x the chromosome that represents a city tour
      * @return a vector containing the indices of the visited cities in the encoded order
      */
-    std::vector<pagmo::population::size_type> base_tsp::chromosome2cities(const pagmo::decision_vector &x) const
+    pagmo::decision_vector base_tsp::full2cities(const pagmo::decision_vector &x) const
     {
-        if (feasibility_x(x)) 
+        if (x.size() != (m_n_cities-1)*m_n_cities )
         {
-            std::vector<pagmo::population::size_type> retval(m_n_vertices,0);
-            pagmo::population::size_type next_city,cur_city = 0;
-            retval[0]=cur_city;
-            for(size_t j = 1; j < m_n_vertices; j++){
-                next_city = std::find(x.begin() + cur_city*(m_n_vertices-1), x.begin() + (cur_city+1)*(m_n_vertices-1),1) - (x.begin() + cur_city*(m_n_vertices-1));
-                next_city = next_city  + ( (next_city >= cur_city) ? 1:0 );
-                cur_city=next_city;
-                retval[j] = next_city;
-            }
-            return retval;
-        } else {
-            pagmo_throw(value_error,"chromosome is not feasible");
+            pagmo_throw(value_error,"input representation of a tsp solution (FULL encoding) has the wrong length");
         }
+
+        pagmo::decision_vector retval(m_n_cities,0);
+        pagmo::population::size_type next_city,cur_city = 0;
+        retval[0]=cur_city;
+        for(size_t j = 1; j < m_n_cities; j++){
+              pagmo::decision_vector::const_iterator iter = std::find(x.begin() + cur_city*(m_n_cities-1), x.begin() + (cur_city+1)*(m_n_cities-1),1);
+              next_city = iter - (x.begin() + cur_city*(m_n_cities-1));
+              next_city = next_city + ( (next_city >= cur_city) ? 1:0 );
+              cur_city=next_city;
+              retval.at(j) = std::min(next_city,m_n_cities-1); //the min is to prevent cases where the 1 is not found (unfeasible chromosomes) and thus the city _idx returned would be invalid
+        }
+        return retval;
     }
 
     /// Transforms a permutation of city indexes into a tsp chromosome
@@ -105,27 +289,66 @@ namespace pagmo { namespace problem {
      * @param[in] vities the chromosome that represents a city tour
      * @return a vector containing the indices of the visited cities in the encoded order
      */
-    pagmo::decision_vector base_tsp::cities2chromosome(const std::vector<population::size_type> &x) const
+    pagmo::decision_vector base_tsp::cities2full(const pagmo::decision_vector &x) const
     {
-        if (x.size() != m_n_vertices) 
+        if (x.size() != m_n_cities) 
         {
-            pagmo_throw(value_error,"city indexes are of incompatible length");
+            pagmo_throw(value_error,"input representation of a tsp solution (CITIES encoding) looks unfeasible [wrong length]");
         }
-        std::vector<population::size_type> range(m_n_vertices);
-        for (std::vector<population::size_type>::size_type i=0; i<range.size(); ++i) 
-        {
-            range[i]=i;
-        }
-        if (!std::is_permutation(x.begin(),x.end(),range.begin()) )
-        {
-            pagmo_throw(value_error,"city indexes are not a permutation of 0,1,2,3,....");
-        }
-        pagmo::decision_vector retval(m_n_vertices*(m_n_vertices-1),0);
+
+        pagmo::decision_vector retval(m_n_cities*(m_n_cities-1),0);
         for (std::vector<population::size_type>::size_type i=0; i<x.size()-1; ++i)
         {
-            retval.at( x[i]*(m_n_vertices-1) + x[i+1] - (x[i+1]>=x[i]?1:0) ) = 1;
+            retval[ x[i]*(m_n_cities-1) + x[i+1] - (x[i+1]>=x[i]?1:0) ] = 1;
         } 
-        retval[ x.at(x.size()-1)*(m_n_vertices-1) + x[0] + (x[0]>=x[x.size()-1]?1:0) ] = 1;
+        retval[ x[x.size()-1]*(m_n_cities-1) + x[0] - (x[0]>=x[x.size()-1]?1:0) ] = 1;
+        return retval;
+    }
+
+    bool comparator ( const std::pair<double,int>& l, const std::pair<double,int>& r)
+    { return l.first < r.first; }
+
+    pagmo::decision_vector base_tsp::randomkeys2cities(const pagmo::decision_vector &x) const
+    {
+        pagmo::decision_vector retval(m_n_cities);
+        std::vector<std::pair<double,int> > pairs(m_n_cities);
+        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
+            pairs[i].first = x[i];
+            pairs[i].second = i;
+        }
+        std::sort(pairs.begin(),pairs.end(),comparator);
+        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
+            retval[i] = pairs[i].second;
+        }
+        return retval;
+    }
+
+    pagmo::decision_vector base_tsp::cities2randomkeys(const pagmo::decision_vector &cities,const pagmo::decision_vector &orig_random_keys) const
+    {
+        if (cities.size() != orig_random_keys.size()) 
+        {
+            pagmo_throw(value_error,"the random keys original vector and the cities vector need to have the same length");
+        }
+        if (cities.size() != m_n_cities) 
+        {
+            pagmo_throw(value_error,"input representation of a tsp solution (CITIES encoding) looks unfeasible [wrong length]");
+        }
+        if ( (*std::max_element(cities.begin(),cities.end()) >= m_n_cities) || (*std::min_element(cities.begin(),cities.end()) < 0) )
+        {
+            pagmo_throw(value_error,"city indexes outside the allowed bounds");
+        }
+
+        pagmo::decision_vector retval(m_n_cities);
+        std::vector<std::pair<double,double> > pairs(m_n_cities);
+        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
+            pairs[i].second = cities[i];
+            pairs[i].first = orig_random_keys[i];
+        }
+
+        std::sort(pairs.begin(),pairs.end(),comparator);
+        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
+            retval[i] = pairs[cities[i]].first;
+        }
         return retval;
     }
 
@@ -133,18 +356,24 @@ namespace pagmo { namespace problem {
      * Getter for the m_graph
      * @return reference to the m_graph of type tsp_graph
      */
-    const base_tsp::tsp_graph& base_tsp::get_graph() const 
+    const std::vector<std::vector<double> >&  base_tsp::get_weights() const
     { 
-        return m_graph; 
+        return m_weights; 
     }
     
     /**
-     * Getter for the m_n_vertices
+     * Getter for the m_n_cities
      * @return reference to the number of vertices in the graph
      */
-    const size_t& base_tsp::get_n_vertices() const
+    const decision_vector::size_type& base_tsp::get_n_cities() const
     { 
-        return m_n_vertices; 
+        return m_n_cities; 
+    }
+
+/// Returns the name of the problem
+    std::string base_tsp::get_name() const
+    {
+        return "Travelling Salesman Problem (TSP-ATSP)";
     }
 
     /// Extra human readable info for the problem.
@@ -153,41 +382,30 @@ namespace pagmo { namespace problem {
      */
     std::string base_tsp::human_readable_extra() const 
     {
-        tsp_graph const the_graph = get_graph();
-        
         std::ostringstream oss;
-        oss << "\n\tThe Boost Graph (Adjacency List): \n";// << the_graph << std::endl;
-
-        tsp_vertex_map_const_index vtx_idx = boost::get(boost::vertex_index_t(), the_graph);
-        tsp_edge_map_const_weight weights = boost::get(boost::edge_weight_t(), the_graph);
-
-        oss << "\tVertices = { ";
-        
-        tsp_vertex_range_t v_it;
-        int count = 0;
-        for (v_it = boost::vertices(the_graph); v_it.first != v_it.second; ++v_it.first)
+        oss << "\n\tNumber of cities: " << m_n_cities << '\n';
+        oss << "\tEncoding: ";
+        switch( m_encoding ) {
+            case FULL:
+                oss << "FULL" << '\n';
+                break;
+            case RANDOMKEYS:
+                oss << "RANDOMKEYS" << '\n';
+                break;
+            case CITIES:
+                oss << "CITIES" << '\n';
+                break;
+        }
+        oss << "\tWeight Matrix: \n";
+        for (decision_vector::size_type i=0; i<m_n_cities; ++i)
         {
-                oss << vtx_idx[*v_it.first] <<  " ";
-                count++;
-                if (count > 5) {
-                oss << "... ";
-                    break;
-                }
+            oss << "\t\t" << m_weights[i] << '\n';
+            if (i>5)
+            {
+                oss << "\t\t..." << '\n';
+                break;
+            }
         }
-        oss << "}" << std::endl;
-        
-        oss << "\tEdges (Source, Target) = Weight: " << std::endl;
-        
-        count =0;
-        for (tsp_edge_range_t e_it = boost::edges(the_graph); e_it.first != e_it.second; ++e_it.first) {
-            int i = vtx_idx[boost::source(*e_it.first, the_graph)];
-            int j = vtx_idx[boost::target(*e_it.first, the_graph)];
-            oss << "\t(" << i << ", " << j<< ") = " << weights[*e_it.first] << std::endl;
-            count++;
-            if (count > 5) break;
-        }
-        oss << std::endl;
-        
         return oss.str();
     }
 

@@ -85,7 +85,7 @@ class __PAGMO_VISIBLE tsp: public base_tsp
     public:
         tsp();
         tsp(const std::vector<std::vector<double> >&);
-        tsp(const tsp_graph&);
+        //tsp(const tsp_graph&);
         base_ptr clone() const;
         std::string get_name() const;
         const std::vector<std::vector<double> >& get_weights() const;
@@ -98,15 +98,15 @@ class __PAGMO_VISIBLE tsp: public base_tsp
         void compute_constraints_impl(constraint_vector&, const decision_vector&) const;
         
     private:
-        static tsp_graph matrix2graph(const std::vector<std::vector<double> >);
-        static std::vector<std::vector<double> > graph2matrix(const tsp_graph);
+        //static tsp_graph matrix2graph(const std::vector<std::vector<double> >);
+        //static std::vector<std::vector<double> > graph2matrix(const tsp_graph);
 
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
                 ar & boost::serialization::base_object<base_tsp>(*this);
-                m_weights = graph2matrix(get_graph());
+                //m_weights = graph2matrix(get_graph());
         }
     private:        
         std::vector<std::vector<double> > m_weights;

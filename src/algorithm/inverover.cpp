@@ -89,7 +89,7 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 
         const population::size_type NP = pop.size();
 	const std::vector<std::vector<double> >& weights = tsp_prob_pt->get_weights();
-        const problem::base::size_type Nv = tsp_prob_pt->get_n_vertices();
+        const problem::base::size_type Nv = tsp_prob_pt->get_n_cities();
 
 	// Get out if there is nothing to do.
 	if (m_gen == 0) {

@@ -75,7 +75,7 @@ nn_tsp::nn_tsp(int start_city)
         // Let's store some useful variables.
 
         const std::vector<std::vector<double> > &weights = tsp_prob_pt->get_weights();
-        const problem::base::size_type Nv = tsp_prob_pt->get_n_vertices();
+        const problem::base::size_type Nv = tsp_prob_pt->get_n_cities();
 	 
 	//create individuals
 	std::vector<int> best_tour(Nv);

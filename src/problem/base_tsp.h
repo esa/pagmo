@@ -25,19 +25,13 @@
 #ifndef PAGMO_PROBLEM_BASE_TSP_H
 #define PAGMO_PROBLEM_BASE_TSP_H
 
+#include <boost/array.hpp>
+#include <vector>
+
 #include "base.h"
 #include "../serialization.h"
-#include "../population.h"
-
-#include <vector>
-#include <boost/graph/graphviz.hpp>
-
-
 
 namespace pagmo{ namespace problem {
-
-
-
 
 /// Base TSP.
 /**
@@ -48,73 +42,61 @@ namespace pagmo{ namespace problem {
  * having internal property of weights, representing cost between vertices.
  * The only internal property for a vertex is its index.
  *
- * @author Florin Schimbinschi (florinsch@gmail.com)
+ * @author Dario Izzo (dario.izzo@gmail.com)
+ * @author Annalisa Riccardi
+ * @author Florin
  */
 
 class __PAGMO_VISIBLE base_tsp: public base
 {
     public:
-        /* Graph specific typedefs */
-        typedef boost::property<boost::vertex_index_t, int> tsp_vertex_properties;
-        typedef boost::property<boost::edge_index_t, int, 
-            boost::property<boost::edge_weight_t, double> > tsp_edge_properties;
+        /// Mechanism used to transform the input problem
+        enum encoding {
+            RANDOMKEYS = 0, ///< The objective function of the original problem is used as objective function of the transformed problem
+            FULL = 1,       ///< The sum of the constraint violation is used as objective function of the transformed problem
+            CITIES = 2      ///< The sum of the constraint violation is used as objective function of the transformed problem
+        };
+        base_tsp();
+        base_tsp(const std::vector<std::vector<double> >&, const encoding &); 
+        base_ptr clone() const;
 
-        /* The graph type */
-        typedef boost::adjacency_list<  
-                boost::setS, // disallow parallel edges
-                boost::listS, // vertex container
-                boost::directedS, // directed graph
-                tsp_vertex_properties, 
-                tsp_edge_properties
-            > tsp_graph;
+        const std::vector<std::vector<double> >& get_weights() const;
+        const decision_vector::size_type& get_n_cities() const;
+        const encoding& get_encoding() const;  
 
-        /* More stuff BGL specific */
-        typedef boost::graph_traits<tsp_graph>::vertex_descriptor tsp_vertex;
-        typedef boost::graph_traits<tsp_graph>::edge_descriptor tsp_edge;
+        pagmo::decision_vector full2cities(const pagmo::decision_vector &) const;
+        pagmo::decision_vector cities2full(const pagmo::decision_vector &) const;
+        pagmo::decision_vector randomkeys2cities(const pagmo::decision_vector &) const;
+        pagmo::decision_vector cities2randomkeys(const pagmo::decision_vector &, const pagmo::decision_vector &) const;
 
-        typedef boost::property_map<tsp_graph, boost::vertex_index_t>::type tsp_vertex_map_index;
-        typedef boost::property_map<tsp_graph, boost::vertex_index_t>::const_type tsp_vertex_map_const_index;
-        typedef boost::property_map<tsp_graph, boost::edge_weight_t>::type tsp_edge_map_weight;
-        typedef boost::property_map<tsp_graph, boost::edge_weight_t>::const_type tsp_edge_map_const_weight;
-        typedef boost::property_map<tsp_graph, boost::edge_index_t>::type tsp_edge_map_index;
-        typedef boost::property_map<tsp_graph, boost::edge_index_t>::const_type tsp_edge_map_const_index;
-
-        typedef boost::graph_traits<tsp_graph>::vertex_iterator tsp_vertex_iter;
-        typedef boost::graph_traits<tsp_graph>::edge_iterator tsp_edge_iter;
-
-        typedef std::pair<tsp_edge, tsp_edge> tsp_edge_pair;
-        typedef std::pair<tsp_vertex_iter, tsp_vertex_iter> tsp_vertex_range_t;
-        typedef std::pair<tsp_edge_iter, tsp_edge_iter> tsp_edge_range_t;
-
-        typedef boost::iterator_property_map<double*, tsp_edge_map_index, double, double&> tsp_ext_weight_iterator;
-
-    public:
-            base_tsp();
-            base_tsp(const tsp_graph&);    
-
-            const tsp_graph& get_graph() const;
-            const size_t& get_n_vertices() const;              
-            std::vector<population::size_type > chromosome2cities(const pagmo::decision_vector &) const;
-            pagmo::decision_vector cities2chromosome(const std::vector<long unsigned int> &) const;
-            std::string human_readable_extra() const;
+        std::string get_name() const;
+        std::string human_readable_extra() const;
 
     private:
-            friend class boost::serialization::access;
-            template <class Archive>
-            void serialize(Archive &ar, const unsigned int)
-            {
-                    ar & boost::serialization::base_object<base>(*this);
-                    ar & m_graph;
-                    m_n_vertices = boost::num_vertices(m_graph);
-            }
+        static boost::array<int, 6> compute_dimensions(decision_vector::size_type n_cities, encoding);
+        void check_weights(const std::vector<std::vector<double> >&) const;
+
+        void objfun_impl(fitness_vector&, const decision_vector&) const;
+        void compute_constraints_impl(constraint_vector&, const decision_vector&) const;
+
+        friend class boost::serialization::access;
+        template <class Archive>
+        void serialize(Archive &ar, const unsigned int)
+        {
+            ar & boost::serialization::base_object<base>(*this);
+            ar & m_weights;
+            ar & const_cast<decision_vector::size_type &>(m_n_cities);
+            ar & const_cast<encoding &>(m_encoding);
+        }
     
     private:
-            size_t m_n_vertices;
-            tsp_graph m_graph;
+        const decision_vector::size_type m_n_cities;
+        std::vector<std::vector<double> > m_weights;
+        const encoding m_encoding;
 };
 
 }} //namespaces
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::problem::base_tsp)
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::base_tsp)
 
 #endif // PAGMO_PROBLEM_BASE_TSP_H
