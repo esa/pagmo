@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "base_tsp.h"
- #include "../population.h"
+#include "tsp.h"
+#include "../population.h"
 
 namespace pagmo { namespace problem {
 
@@ -32,7 +32,7 @@ namespace pagmo { namespace problem {
      * This constructs a 3-cities symmetric problem (naive TSP) 
      * with weight matrix [[0,1,1][1,0,1][1,1,0]]
      */
-    base_tsp::base_tsp(): base(6, 6, 1, 8, 2, 0.0), m_n_cities(3), m_weights(), m_encoding(base_tsp::FULL)
+    tsp::tsp(): base(6, 6, 1, 8, 2, 0.0), m_n_cities(3), m_weights(), m_encoding(tsp::FULL)
     {
         std::vector<double> dumb(3,0);
         m_weights = std::vector<std::vector<double> > (3,dumb);
@@ -50,14 +50,14 @@ namespace pagmo { namespace problem {
      * Constructor from a tsp_graph object
      * @param[in] tsp_graph
      */
-    base_tsp::base_tsp(const std::vector<std::vector<double> >& weights, const encoding& encoding_): 
+    tsp::tsp(const std::vector<std::vector<double> >& weights, const encoding& encoding_): 
         base(
-            base_tsp::compute_dimensions(weights[0].size(),encoding_)[0],
-            base_tsp::compute_dimensions(weights[0].size(),encoding_)[1],
-            base_tsp::compute_dimensions(weights[0].size(),encoding_)[2],
-            base_tsp::compute_dimensions(weights[0].size(),encoding_)[3],
-            base_tsp::compute_dimensions(weights[0].size(),encoding_)[4],
-            (double)base_tsp::compute_dimensions(weights[0].size(),encoding_)[5]
+            tsp::compute_dimensions(weights[0].size(),encoding_)[0],
+            tsp::compute_dimensions(weights[0].size(),encoding_)[1],
+            tsp::compute_dimensions(weights[0].size(),encoding_)[2],
+            tsp::compute_dimensions(weights[0].size(),encoding_)[3],
+            tsp::compute_dimensions(weights[0].size(),encoding_)[4],
+            (double)tsp::compute_dimensions(weights[0].size(),encoding_)[5]
         ), m_n_cities(weights[0].size()), m_weights(weights), m_encoding(encoding_)
     {
         check_weights(m_weights);
@@ -78,9 +78,9 @@ namespace pagmo { namespace problem {
     }
 
     /// Clone method.
-    base_ptr base_tsp::clone() const
+    base_ptr tsp::clone() const
     {
-        return base_ptr(new base_tsp(*this));
+        return base_ptr(new tsp(*this));
     }
 
     /// Checks if we can instantiate a TSP or ATSP problem
@@ -91,7 +91,7 @@ namespace pagmo { namespace problem {
      * @param matrix - the adjacency matrix (two dimensional std::vector)
      * @throws pagmo_throw - matrix is not square and/or graph is not bidirectional
      */
-    void base_tsp::check_weights(const std::vector<std::vector<double> > &matrix) const 
+    void tsp::check_weights(const std::vector<std::vector<double> > &matrix) const 
     {   
         decision_vector::size_type n_cols = matrix.size();
         
@@ -112,7 +112,7 @@ namespace pagmo { namespace problem {
         }
     }
 
-    boost::array<int, 6> base_tsp::compute_dimensions(decision_vector::size_type n_cities, encoding encoding_)
+    boost::array<int, 6> tsp::compute_dimensions(decision_vector::size_type n_cities, encoding encoding_)
     {
         boost::array<int,6> retval;
         switch( encoding_ ) {
@@ -155,7 +155,7 @@ namespace pagmo { namespace problem {
      * @param[out] f fitness vector
      * @param[in] x decision vector
      */
-    void base_tsp::objfun_impl(fitness_vector &f, const decision_vector& x) const 
+    void tsp::objfun_impl(fitness_vector &f, const decision_vector& x) const 
     {
         decision_vector tour;
         f[0]=0;
@@ -192,7 +192,7 @@ namespace pagmo { namespace problem {
      * @param[out] c constraint_vector
      * @param[in] x decision_vector
      */
-    void base_tsp::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
+    void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
     {
         decision_vector::size_type n = get_n_cities();
 
@@ -264,7 +264,7 @@ namespace pagmo { namespace problem {
      * @param[in] x the chromosome that represents a city tour
      * @return a vector containing the indices of the visited cities in the encoded order
      */
-    pagmo::decision_vector base_tsp::full2cities(const pagmo::decision_vector &x) const
+    pagmo::decision_vector tsp::full2cities(const pagmo::decision_vector &x) const
     {
         if (x.size() != (m_n_cities-1)*m_n_cities )
         {
@@ -289,7 +289,7 @@ namespace pagmo { namespace problem {
      * @param[in] vities the chromosome that represents a city tour
      * @return a vector containing the indices of the visited cities in the encoded order
      */
-    pagmo::decision_vector base_tsp::cities2full(const pagmo::decision_vector &x) const
+    pagmo::decision_vector tsp::cities2full(const pagmo::decision_vector &x) const
     {
         if (x.size() != m_n_cities) 
         {
@@ -308,7 +308,7 @@ namespace pagmo { namespace problem {
     bool comparator ( const std::pair<double,int>& l, const std::pair<double,int>& r)
     { return l.first < r.first; }
 
-    pagmo::decision_vector base_tsp::randomkeys2cities(const pagmo::decision_vector &x) const
+    pagmo::decision_vector tsp::randomkeys2cities(const pagmo::decision_vector &x) const
     {
         pagmo::decision_vector retval(m_n_cities);
         std::vector<std::pair<double,int> > pairs(m_n_cities);
@@ -323,7 +323,7 @@ namespace pagmo { namespace problem {
         return retval;
     }
 
-    pagmo::decision_vector base_tsp::cities2randomkeys(const pagmo::decision_vector &cities,const pagmo::decision_vector &orig_random_keys) const
+    pagmo::decision_vector tsp::cities2randomkeys(const pagmo::decision_vector &cities,const pagmo::decision_vector &orig_random_keys) const
     {
         if (cities.size() != orig_random_keys.size()) 
         {
@@ -356,7 +356,7 @@ namespace pagmo { namespace problem {
      * Getter for the m_graph
      * @return reference to the m_graph of type tsp_graph
      */
-    const std::vector<std::vector<double> >&  base_tsp::get_weights() const
+    const std::vector<std::vector<double> >&  tsp::get_weights() const
     { 
         return m_weights; 
     }
@@ -365,13 +365,13 @@ namespace pagmo { namespace problem {
      * Getter for the m_n_cities
      * @return reference to the number of vertices in the graph
      */
-    const decision_vector::size_type& base_tsp::get_n_cities() const
+    const decision_vector::size_type& tsp::get_n_cities() const
     { 
         return m_n_cities; 
     }
 
 /// Returns the name of the problem
-    std::string base_tsp::get_name() const
+    std::string tsp::get_name() const
     {
         return "Travelling Salesman Problem (TSP-ATSP)";
     }
@@ -380,7 +380,7 @@ namespace pagmo { namespace problem {
     /**
      * @return a std::string containing a list of vertices and edges
      */
-    std::string base_tsp::human_readable_extra() const 
+    std::string tsp::human_readable_extra() const 
     {
         std::ostringstream oss;
         oss << "\n\tNumber of cities: " << m_n_cities << '\n';

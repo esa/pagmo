@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_BASE_TSP_H
-#define PAGMO_PROBLEM_BASE_TSP_H
+#ifndef PAGMO_PROBLEM_tsp_H
+#define PAGMO_PROBLEM_tsp_H
 
 #include <boost/array.hpp>
 #include <vector>
@@ -47,7 +47,7 @@ namespace pagmo{ namespace problem {
  * @author Florin
  */
 
-class __PAGMO_VISIBLE base_tsp: public base
+class __PAGMO_VISIBLE tsp: public base
 {
     public:
         /// Mechanism used to transform the input problem
@@ -56,8 +56,8 @@ class __PAGMO_VISIBLE base_tsp: public base
             FULL = 1,       ///< The sum of the constraint violation is used as objective function of the transformed problem
             CITIES = 2      ///< The sum of the constraint violation is used as objective function of the transformed problem
         };
-        base_tsp();
-        base_tsp(const std::vector<std::vector<double> >&, const encoding &); 
+        tsp();
+        tsp(const std::vector<std::vector<double> >&, const encoding &); 
         base_ptr clone() const;
 
         const std::vector<std::vector<double> >& get_weights() const;
@@ -97,6 +97,6 @@ class __PAGMO_VISIBLE base_tsp: public base
 
 }} //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::base_tsp)
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp)
 
-#endif // PAGMO_PROBLEM_BASE_TSP_H
+#endif // PAGMO_PROBLEM_tsp_H

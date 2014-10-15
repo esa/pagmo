@@ -28,7 +28,6 @@
 // Header including all problems implemented in PaGMO.
 
 #include "problem/base.h"
-#include "problem/base_tsp.h"
 #include "problem/base_stochastic.h"
 #include "problem/base_dtlz.h"
 #include "problem/base_unc_mo.h"
@@ -77,6 +76,7 @@
 #include "problem/noisy.h"
 #include "problem/robust.h"
 #include "problem/con2uncon.h"
+#include "problem/tsp.h"
 
 // GSL problems.
 #ifdef PAGMO_ENABLE_GSL

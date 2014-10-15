@@ -360,20 +360,20 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const std::string &>())
 		.def("pretty", &problem::string_match::pretty);
 
-	// TSP encoding enums
-	enum_<problem::base_tsp::encoding>("_tsp_encoding")
-		.value("FULL", problem::base_tsp::FULL)
-		.value("RANDOMKEYS", problem::base_tsp::RANDOMKEYS)
-		.value("CITIES", problem::base_tsp::CITIES);
+	// Travelling salesman problem (TSP) encoding enums
+	enum_<problem::tsp::encoding>("_tsp_encoding")
+		.value("FULL", problem::tsp::FULL)
+		.value("RANDOMKEYS", problem::tsp::RANDOMKEYS)
+		.value("CITIES", problem::tsp::CITIES);
 
-	// Travelling salesman problem
-	problem_wrapper<problem::base_tsp>("tsp","Travelling salesman problem (TSP and ATSP)")
-		.def(init<const std::vector<std::vector<double> > &, const problem::base_tsp::encoding &>())
-		.def("full2cities", &problem::base_tsp::full2cities)
-		.def("cities2full", &problem::base_tsp::cities2full)
-		.def("randomkeys2cities", &problem::base_tsp::randomkeys2cities)
-		.def("cities2randomkeys", &problem::base_tsp::cities2randomkeys)
-		.add_property("weights", make_function(&problem::base_tsp::get_weights, return_value_policy<copy_const_reference>()));
+	// Travelling salesman problem (TSP)
+	problem_wrapper<problem::tsp>("tsp","Travelling salesman problem (TSP and ATSP)")
+		.def(init<const std::vector<std::vector<double> > &, const problem::tsp::encoding &>())
+		.def("full2cities", &problem::tsp::full2cities)
+		.def("cities2full", &problem::tsp::cities2full)
+		.def("randomkeys2cities", &problem::tsp::randomkeys2cities)
+		.def("cities2randomkeys", &problem::tsp::cities2randomkeys)
+		.add_property("weights", make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
 
 	// SCH
 	problem_wrapper<problem::sch>("sch","Shaffer's study problem.");

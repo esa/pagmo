@@ -24,15 +24,15 @@
 
 #include <iostream>
 #include <iomanip>
-#include "src/problem/base_tsp.h"
+#include "src/problem/tsp.h"
 
 using namespace pagmo;
 
 // Example in C++ of the use of PaGMO 1.1.5
 int main()
 {
-	problem::base_tsp prob;
-	problem::base_tsp prob2;
+	problem::tsp prob;
+	problem::tsp prob2;
 	std::cout << prob << std::endl;
 	
 	return 0;

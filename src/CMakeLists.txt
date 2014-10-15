@@ -52,7 +52,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_greedy_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/migration/hv_fair_r_policy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_stochastic.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_dtlz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/base_unc_mo.cpp
@@ -100,6 +99,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/noisy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/robust.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/con2uncon.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/ageing_clustered_ba.cpp
