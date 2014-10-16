@@ -46,51 +46,49 @@ nn_tsp::nn_tsp(int start_city)
 }
 
     
-    /// Clone method.
-    base_ptr nn_tsp::clone() const
-    {
-	return base_ptr(new nn_tsp(*this));
-    }
+/// Clone method.
+base_ptr nn_tsp::clone() const
+{
+return base_ptr(new nn_tsp(*this));
+}
     
-    /// Evolve implementation.
-    /**
-     * Runs the NN_TSP algorithm.
-     *
-     * @param[in,out] pop input/output pagmo::population to be evolved.
-     */
-    void nn_tsp::evolve(population &pop) const
-    {
-	const problem::tsp* tsp_prob_pt;
+/// Evolve implementation.
+/**
+ * Runs the NN_TSP algorithm.
+ *
+ * @param[in,out] pop input/output pagmo::population to be evolved.
+ */
+void nn_tsp::evolve(population &pop) const
+{
+	const problem::tsp* prob;
 	//check if problem is of type pagmo::problem::tsp
 	try
 	{
-        	const problem::tsp& tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
-		tsp_prob_pt = &tsp_prob;
+	    prob = &dynamic_cast<const problem::tsp &>(pop.problem());
 	}
 	catch (const std::bad_cast& e)
 	{
-		pagmo_throw(value_error,"Problem not of type pagmo::problem::tsp");
+		pagmo_throw(value_error,"Problem not of type pagmo::problem::tsp, nn_tsp can only be called on problem::tsp problems");
 	}
-	
-        // Let's store some useful variables.
 
-        const std::vector<std::vector<double> > &weights = tsp_prob_pt->get_weights();
-        const problem::base::size_type Nv = tsp_prob_pt->get_n_cities();
-	 
+	// Let's store some useful variables.
+	const std::vector<std::vector<double> > &weights = prob->get_weights();
+	const problem::base::size_type Nv = prob->get_n_cities();
+
 	//create individuals
-	std::vector<int> best_tour(Nv);
-	std::vector<int> new_tour(Nv);
+	decision_vector best_tour(Nv);
+	decision_vector new_tour(Nv);
 
 	//check input parameter
 	if (m_start_city < -1 || m_start_city > static_cast<int>(Nv-1)) {
 		pagmo_throw(value_error,"invalid value for the first vertex");
 	}
 
-	
+
 	size_t first_city, Nt;
 	if(m_start_city == -1){
 		first_city = 0;  
-      		Nt = Nv;
+	  		Nt = Nv;
 	}
 	else{
 		first_city = m_start_city; 
@@ -101,7 +99,7 @@ nn_tsp::nn_tsp(int start_city)
 	size_t nxt_city, min_idx;
 	std::vector<int> not_visited(Nv);
 	length_best_tour = 0;
-	
+
 	//main loop
 	for (size_t i = first_city; i < Nt; i++) {
 		length_new_tour = 0;
@@ -131,17 +129,21 @@ nn_tsp::nn_tsp(int start_city)
 		}
 	}
 		
-	
 	//change representation of tour
-	decision_vector individual(Nv*(Nv-1), 0);
-	for (size_t j = 0; j < Nv; j++) {
-		individual[(best_tour[j])*(Nv-1)+best_tour[(j+1>Nv-1? 0:j+1)] - (best_tour[(j+1>Nv-1? 0:j+1)]>best_tour[j]? 1:0)] = 1;
-	}
 	population::size_type best_idx = pop.get_best_idx();
-	pop.set_x(best_idx,individual);
+	switch( prob->get_encoding() ) {
+	    case problem::tsp::FULL:
+	        pop.set_x(best_idx,prob->cities2full(best_tour));
+	        break;
+	    case problem::tsp::RANDOMKEYS:
+	        pop.set_x(best_idx,prob->cities2randomkeys(best_tour,pop.get_individual(best_idx).cur_x));
+	        break;
+	    case problem::tsp::CITIES:
+	        pop.set_x(best_idx,best_tour);
+	        break;
+	}
 
-
-    } // end of evolve
+} // end of evolve
     
 
 	

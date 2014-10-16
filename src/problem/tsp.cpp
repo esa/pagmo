@@ -368,6 +368,15 @@ namespace pagmo { namespace problem {
     { 
         return m_weights; 
     }
+
+    /// Getter for m_encoding
+    /**
+     * @return reference to m_encoding
+     */
+    const tsp::encoding& tsp::get_encoding() const
+    { 
+        return m_encoding; 
+    }
     
     /// Getter for m_n_cities
     /**

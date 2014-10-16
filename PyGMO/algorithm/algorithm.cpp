@@ -266,8 +266,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	//	.def(init<optional<int, double, pagmo::algorithm::inverover::initialization_type> >());
 
 	//Nearest Neighbor Alg. (NN)  
-    //    algorithm_wrapper<algorithm::nn_tsp>("nn_tsp","Nearest Neighbor Algortihm.")
-	//	.def(init<optional<int> >());
+	algorithm_wrapper<algorithm::nn_tsp>("nn_tsp","Nearest Neighbor Algortihm.")
+	.def(init<optional<int> >());
                 
 	// Firefly (FA). [Does not work!!!!!! The agorithm sucks!!!]
 	// algorithm_wrapper<algorithm::firefly>("firefly","Firefly optimization algorithm.")

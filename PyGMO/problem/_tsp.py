@@ -34,7 +34,7 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
     # We construct the arg list for the original constructor exposed by
     # boost_python
     arg_list = []
-    arg_list.append(matrix)
+    arg_list.append(weights)
     if type == "full":
     	encoding_type = tsp.encoding.FULL
     elif type== "randomkeys":
