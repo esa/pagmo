@@ -73,23 +73,23 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
     void inverover::evolve(population &pop) const
     {
 
-	const problem::tsp* tsp_prob_pt;
+	const problem::tsp* prob;
 	//check if problem is of type pagmo::problem::tsp
 	try
 	{
-        	const problem::tsp& tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
-		tsp_prob_pt = &tsp_prob;
+		const problem::tsp& tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
+		prob = &tsp_prob;
 	}
 	catch (const std::bad_cast& e)
 	{
 		pagmo_throw(value_error,"Problem not of type pagmo::problem::tsp");
 	}
 	
-        // Let's store some useful variables.
+	// Let's store some useful variables.
 
-        const population::size_type NP = pop.size();
-	const std::vector<std::vector<double> >& weights = tsp_prob_pt->get_weights();
-        const problem::base::size_type Nv = tsp_prob_pt->get_n_cities();
+	const population::size_type NP = pop.size();
+	const std::vector<std::vector<double> >& weights = prob->get_weights();
+	const problem::base::size_type Nv = prob->get_n_cities();
 
 	// Get out if there is nothing to do.
 	if (m_gen == 0) {
@@ -109,37 +109,46 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 
 	//check if we have a symmetric problem (symmetric weight matrix)
 	bool is_sym = true;
-	for(size_t i = 0; i < Nv; i++){
-		for(size_t j = i+1; j < Nv; j++){
-			if(weights[i][j] != weights[j][i]){
+	for(size_t i = 0; i < Nv; i++)
+	{
+		for(size_t j = i+1; j < Nv; j++)
+		{
+			if(weights[i][j] != weights[j][i])
+			{
 				is_sym = false;
-				goto end_loop;}
+				goto end_loop;
+			}
 		}
 	}
 	end_loop:	
 	
 	//create own local population
-	std::vector<std::vector<int> > my_pop(NP, std::vector<int>(Nv));
+	std::vector<decision_vector> my_pop(NP, decision_vector(Nv));
 
 	//check if some individuals in the population that is passed as a function input are feasible.
 	bool feasible;
-	int next_city;
 	std::vector<int> not_feasible;
 	for (size_t i = 0; i < NP; i++) {
-		
-		feasible = tsp_prob_pt->feasibility_x(pop.get_individual(i).cur_x);
-		if(feasible){ //if feasible change representation of tour
-			my_pop[i][0] = 0;
-			for(size_t j = 1; j < Nv; j++){
-				next_city = std::find(pop.get_individual(i).cur_x.begin() + my_pop[i][j-1]*(Nv-1),pop.get_individual(i).cur_x.begin() + (my_pop[i][j-1]+1)*(Nv-1),1) -(pop.get_individual(i).cur_x.begin() + my_pop[i][j-1]*(Nv-1));
-				my_pop[i][j] = next_city + (next_city < my_pop[i][j-1]? 0:1);
+		feasible = prob->feasibility_x(pop.get_individual(i).cur_x);
+		if(feasible){ //if feasible store it in my_pop
+			switch( prob->get_encoding() ) {
+			    case problem::tsp::FULL:
+			        my_pop[i] = prob->full2cities(pop.get_individual(i).cur_x);
+			        break;
+			    case problem::tsp::RANDOMKEYS:
+			        my_pop[i] = prob->randomkeys2cities(pop.get_individual(i).cur_x);
+			        break;
+			    case problem::tsp::CITIES:
+			        my_pop[i] = pop.get_individual(i).cur_x;
+			        break;
 			}
 		}
-		else{
+		else
+		{
 			not_feasible.push_back(i);
 		}
-	}		
-	
+	}
+
 	//replace the not feasible individuals by feasible ones	
 	int i;		
 	switch (m_ini_type){
@@ -212,7 +221,7 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 		}
 	}	
 	
-	std::vector<int> tmp_tour(Nv);
+	decision_vector tmp_tour(Nv);
 	bool stop;
 	size_t rnd_num, i2, pos1_c1, pos1_c2, pos2_c1, pos2_c2; //pos2_c1 denotes the position of city1 in parent2
 	double fitness_change, fitness_tmp = 0;
@@ -282,13 +291,19 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 
 
 	//change representation of tour
-    	for (size_t i = 0; i < NP; i++) {
-		decision_vector individual(Nv*(Nv-1), 0);
-		for (size_t j = 0; j < Nv; j++) {
-			individual[(my_pop[i][j])*(Nv-1)+my_pop[i][(j+1>Nv-1? 0:j+1)] - (my_pop[i][(j+1>Nv-1? 0:j+1)]>my_pop[i][j]? 1:0)] = 1;
+    	for (size_t ii = 0; ii < NP; ii++) {
+			switch( prob->get_encoding() ) {
+			    case problem::tsp::FULL:
+			        pop.set_x(ii,prob->cities2full(my_pop[ii]));
+			        break;
+			    case problem::tsp::RANDOMKEYS:
+			        pop.set_x(ii,prob->cities2randomkeys(my_pop[ii],pop.get_individual(ii).cur_x));
+			        break;
+			    case problem::tsp::CITIES:
+			        pop.set_x(ii,my_pop[ii]);
+			        break;
+			}
 		}
-		pop.set_x(i,individual);
-	}
 
     } // end of evolve
     

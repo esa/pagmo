@@ -60,7 +60,7 @@ def _plot_tsp(self,x,pos=None,node_size=10,edge_color='r',edge_width=1,bias=None
 	# We extract few informations on the problem
 	weights = self.weights
 	n_cities = len(weights[0])
-	edgelist = self.chromosome2cities(x)
+	edgelist = self.randomkeys2cities(x)
 	edgelist = [(edgelist[i],edgelist[i+1]) for i in range(n_cities-1)] + [(edgelist[-1],edgelist[0])]
 	if bias==None:
 		bias = max([max(d) for d in weights])
