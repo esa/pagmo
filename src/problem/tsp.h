@@ -35,16 +35,27 @@ namespace pagmo{ namespace problem {
 
 /// Base TSP.
 /**
- * This is a base class for Traveling Salesman Problems. Encoding of the chromosome is as in
+ * This is a class representing Travelling Salesman Problems. 
+ * The problem encoding can be of three different types
+ *
+ * 1-CITIES
+ * This encoding represents the ids of the cities visited directly in the chromosome. It will
+ * thus create a constrained problem as only permutation of the cities ids are valid (e.g. [0,2,1,5,0] is not
+ * a valid chromosome)
+ *
+ * 2-RANDOMKEYS
+ * This encoding, first introduced in the paper
+ * Bean, J. C. (1994). Genetic algorithms and random keys for sequencing and optimization. ORSA journal on computing, 6(2), 154-160.
+ * creates a box constrained problem without any constraint. It essentially represents the tour as a sequence of doubles bounded in [0,1].
+ * The tour is reconstructed by the argsort of the sequence. (e.g. [0.34,0.12,0.76,0.03] -> [3,1,0,2])
+ *
+ * 3-FULL
+ * In the full encoding the TSP is represented as a integer linear programming problem. The details can be found in
  * http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
  *
- * It is an adjacency list representing symmetric or assymmetric graphs, with edges 
- * having internal property of weights, representing cost between vertices.
- * The only internal property for a vertex is its index.
  *
  * @author Dario Izzo (dario.izzo@gmail.com)
  * @author Annalisa Riccardi
- * @author Florin
  */
 
 class __PAGMO_VISIBLE tsp: public base
@@ -52,9 +63,9 @@ class __PAGMO_VISIBLE tsp: public base
     public:
         /// Mechanism used to transform the input problem
         enum encoding {
-            RANDOMKEYS = 0, ///< The objective function of the original problem is used as objective function of the transformed problem
-            FULL = 1,       ///< The sum of the constraint violation is used as objective function of the transformed problem
-            CITIES = 2      ///< The sum of the constraint violation is used as objective function of the transformed problem
+            RANDOMKEYS = 0, ///< The city tour is encoded as a vector of doubles in [0,1]. Results in an unconstrained box-bounded problem
+            FULL = 1,       ///< The TSP is encoded ads a linear integer programming problem
+            CITIES = 2      ///< The city teour is directly encoded in the chromosome as a sequence of cities ids.
         };
         tsp();
         tsp(const std::vector<std::vector<double> >&, const encoding & = FULL); 

@@ -27,10 +27,10 @@
 
 namespace pagmo { namespace problem {
 
+    /// Default constructor
     /**
-     * The default constructor
      * This constructs a 3-cities symmetric problem (naive TSP) 
-     * with weight matrix [[0,1,1][1,0,1][1,1,0]]
+     * with weight matrix [[0,1,1][1,0,1][1,1,0]] and FULL encoding
      */
     tsp::tsp(): base(6, 6, 1, 8, 2, 0.0), m_n_cities(3), m_weights(), m_encoding(tsp::FULL)
     {
@@ -46,9 +46,11 @@ namespace pagmo { namespace problem {
         set_ub(1);
     }
 
+    /// Constructor from weight matrix and encoding
     /**
-     * Constructor from a tsp_graph object
-     * @param[in] tsp_graph
+     * Constructs a TSP with the input weight matrix and the selected encoding
+     * @param[in] weights an std::vector of std::vector representing a square matrix.
+     * @param[in] encoding_ a pagmo::problem::tsp::encoding representing the chosen encoding
      */
     tsp::tsp(const std::vector<std::vector<double> >& weights, const encoding& encoding_): 
         base(
@@ -144,17 +146,6 @@ namespace pagmo { namespace problem {
         return retval;
     }
 
-    /// Implementation of the objective function
-    /**
-     * Computes the fitness vector associated to a decision vector.
-     * The fitness is defined as Sum_ij(w_ij * x_ij) 
-     * where w_ij are the weights defining the distances between the cities
-     * The decision vector x_ij is a concatenated binary adjacency matrix, 
-     * with the diagonal elements skipped since they're always zero because
-     * in a route you can't go from one vertex to itself.
-     * @param[out] f fitness vector
-     * @param[in] x decision vector
-     */
     void tsp::objfun_impl(fitness_vector &f, const decision_vector& x) const 
     {
         decision_vector tour;
@@ -182,16 +173,6 @@ namespace pagmo { namespace problem {
         return i*(n-1) + j - (j>i? 1:0);
     }
 
-    /// Constraint computation.
-    /**
-     * Computes the equality and inequality constraints for a decision vector
-     * and returns the |c| = n(n-1)+2 constraint vector with the concatenated
-     * equality constraints (n-1)(n-2) and inequality constraints.
-     * The equality constraints are ordered by row, then by sum.
-     * For pagmo, the final sum is set to -1.
-     * @param[out] c constraint_vector
-     * @param[in] x decision_vector
-     */
     void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
     {
         decision_vector::size_type n = get_n_cities();
@@ -259,10 +240,14 @@ namespace pagmo { namespace problem {
         }
     }
 
-    /// Transforms a tsp chromosome into the sequence of city indexes
+    /// From FULL to CITIES encoding
     /**
-     * @param[in] x the chromosome that represents a city tour
-     * @return a vector containing the indices of the visited cities in the encoded order
+     * Transforms a chromosome in the FULL encoding into a chromosome in the CITIES encoding.
+     * If the starting chromosome is unfeasible also the resulting chromosome in the CITIES encoding will be
+     * unfeasible.
+     *
+     * @param[in] x a chromosome in the FULL encoding
+     * @return a chromosome in the CITIES encoding
      */
     pagmo::decision_vector tsp::full2cities(const pagmo::decision_vector &x) const
     {
@@ -284,10 +269,14 @@ namespace pagmo { namespace problem {
         return retval;
     }
 
-    /// Transforms a permutation of city indexes into a tsp chromosome
+    /// From CITIES to FULL encoding
     /**
-     * @param[in] vities the chromosome that represents a city tour
-     * @return a vector containing the indices of the visited cities in the encoded order
+     * Transforms a chromosome in the CITIES encoding into a chromosome in the FULL encoding.
+     * If the starting chromosome is unfeasible also the resulting chromosome in the FULL encoding will be
+     * unfeasible.
+     *
+     * @param[in] x a chromosome in the CITIES encoding
+     * @return a chromosome in the FULL encoding
      */
     pagmo::decision_vector tsp::cities2full(const pagmo::decision_vector &x) const
     {
@@ -299,30 +288,54 @@ namespace pagmo { namespace problem {
         pagmo::decision_vector retval(m_n_cities*(m_n_cities-1),0);
         for (std::vector<population::size_type>::size_type i=0; i<x.size()-1; ++i)
         {
-            retval[ x[i]*(m_n_cities-1) + x[i+1] - (x[i+1]>=x[i]?1:0) ] = 1;
+            retval.at( x[i]*(m_n_cities-1) + x[i+1] - (x[i+1]>x[i]?1:0) ) = 1;
         } 
-        retval[ x[x.size()-1]*(m_n_cities-1) + x[0] - (x[0]>=x[x.size()-1]?1:0) ] = 1;
+        retval.at( x[x.size()-1]*(m_n_cities-1) + x[0] - (x[0]>x[x.size()-1]?1:0) ) = 1;
         return retval;
     }
 
     bool comparator ( const std::pair<double,int>& l, const std::pair<double,int>& r)
     { return l.first < r.first; }
 
+    /// From RANDOMKEYS to CITIES encoding
+    /**
+     * Transforms a chromosome in the RANDOMKEYS encoding into a chromosome in the CITIES encoding.
+     * If the starting chromosome is unfeasible also the resulting chromosome in the CITIES encoding will be
+     * unfeasible.
+     *
+     * @param[in] x a chromosome in the RANDOMKEYS encoding
+     * @return a chromosome in the CITIES encoding
+     */
+
     pagmo::decision_vector tsp::randomkeys2cities(const pagmo::decision_vector &x) const
     {
-        pagmo::decision_vector retval(x.size());
-        std::vector<std::pair<double,int> > pairs(x.size());
-        for (pagmo::decision_vector::size_type i=0;i<x.size();++i) {
+        if (x.size() != m_n_cities) 
+        {
+            pagmo_throw(value_error,"input representation of a tsp solution (RANDOMKEYS encoding) looks unfeasible [wrong length]");
+        }
+        pagmo::decision_vector retval(m_n_cities);
+        std::vector<std::pair<double,int> > pairs(m_n_cities);
+        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
             pairs[i].first = x[i];
             pairs[i].second = i;
         }
         std::sort(pairs.begin(),pairs.end(),comparator);
-        for (pagmo::decision_vector::size_type i=0;i<x.size();++i) {
+        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
             retval[i] = pairs[i].second;
         }
         return retval;
     }
 
+    /// From CITIES to RANDOMKEYS encoding
+    /**
+     * Transforms a chromosome in the CITIES encoding into a chromosome in the RANDOMKEYS encoding.
+     * If the starting chromosome is unfeasible, the resulting chromosome in the RANDOMKEYS encoding will contain zeros,
+     * and yet still be feasible. Its inversion using randomkeys2cities will result in a feasible tour.
+     *
+     * @param[in] x a chromosome in the CITIES encoding
+     * @param[in] orig_random_keys a chromosome in the RANDOMKEYS encoding. 
+     * @return a chromosome in the RANDOMKEYS encoding
+     */
     pagmo::decision_vector tsp::cities2randomkeys(const pagmo::decision_vector &cities,const pagmo::decision_vector &orig_random_keys) const
     {
         if (cities.size() != orig_random_keys.size()) 
@@ -338,39 +351,34 @@ namespace pagmo { namespace problem {
             pagmo_throw(value_error,"city indexes outside the allowed bounds");
         }
 
+        pagmo::decision_vector rk(orig_random_keys);
         pagmo::decision_vector retval(m_n_cities);
-        std::vector<std::pair<double,double> > pairs(m_n_cities);
+        std::sort(rk.begin(),rk.end());
         for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
-            pairs[i].second = cities[i];
-            pairs[i].first = orig_random_keys[i];
-        }
-
-        std::sort(pairs.begin(),pairs.end(),comparator);
-        for (pagmo::decision_vector::size_type i=0;i<m_n_cities;++i) {
-            retval[i] = pairs[cities[i]].first;
+            retval[cities[i]] = rk[i];
         }
         return retval;
     }
 
+    /// Getter for m_weights
     /**
-     * Getter for the m_graph
-     * @return reference to the m_graph of type tsp_graph
+     * @return reference to m_weights
      */
     const std::vector<std::vector<double> >&  tsp::get_weights() const
     { 
         return m_weights; 
     }
     
+    /// Getter for m_n_cities
     /**
-     * Getter for the m_n_cities
-     * @return reference to the number of vertices in the graph
+     * @return reference to m_n_cities
      */
     const decision_vector::size_type& tsp::get_n_cities() const
     { 
         return m_n_cities; 
     }
 
-/// Returns the name of the problem
+    /// Returns the problem name
     std::string tsp::get_name() const
     {
         return "Travelling Salesman Problem (TSP-ATSP)";

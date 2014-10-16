@@ -4,13 +4,31 @@ from PyGMO.problem._problem import tsp,_tsp_encoding
 # Renaming and placing the enums
 tsp.encoding = _tsp_encoding
 
-def _tsp_ctor(self, matrix=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
+def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
     """
-    Constructs a Travelling Salesman problem (Constrained Integer Single-Objective)
+		Constructs Travelling Salesman Problem (TSP or ATSP)
+		The problem encoding can be of three different types as selcted by the type kwarg
+	
+		1-"cities"
+		This encoding represents the ids of the cities visited directly in the chromosome. It will
+		thus create a constrained problem as only permutation of the cities ids are valid (e.g. [0,2,1,5,0] is not
+		a valid chromosome)
+	
+		2-"randomkeys"
+		This encoding, first introduced in the paper
+		Bean, J. C. (1994). Genetic algorithms and random keys for sequencing and optimization. ORSA journal on computing, 6(2), 154-160.
+		creates a box constrained problem without any constraint. It essentially represents the tour as a sequence of doubles bounded in [0,1].
+		The tour is reconstructed by the argsort of the sequence. (e.g. [0.34,0.12,0.76,0.03] -> [3,1,0,2])
+	
+		3-"full"
+		In the full encoding the TSP is represented as a integer linear programming problem. The details can be found in
+		http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
+		Constructs a Travelling Salesman problem (Constrained Integer Single-Objective)
 
-    USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0])
+		USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys")
 
-    * matrix: inter-city distances (symmetric matrix)
+		 * weights: Square matrix with zero diagonal entries containing the cities distances.
+		 * type: encoding type. One of "cities","randomkeys","full"
     """
 
     # We construct the arg list for the original constructor exposed by

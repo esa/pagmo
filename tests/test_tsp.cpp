@@ -100,29 +100,48 @@ bool test_encodings_equivalence(int repeat, int l_bounds, int u_bounds, boost::l
     return false;
 }
 
+
+/*
+ * This test creates three tsp problems (one per encoding type) and
+ * checks that objective function and feasibility is invariant across problem
+ * representation
+ *
+ * @param[in] repeat - the number of times to repeat the test
+ * @param[in] l_bounds - the minimum random size of the square matrix
+ * @param[in] u_bounds - the maximum random size of the square matrix
+ * @param[in] verbose - print matrix and converted to console
+ */
 bool test_encoding_transformations(int repeat, boost::lagged_fibonacci607 rng) 
 {
-    // create random 2d vector and output it to console
-    boost::uniform_int<int> uniform(3,50);
-    boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_int<int> > distr(rng,uniform);
-    int n_cities = distr(); // between l_b and u_b
-    std::vector<std::vector<double> > weights( generate_random_matrix(n_cities,rng) );
+    for (int i = 0; i < repeat; ++i) {
+        // create random 2d vector and output it to console
+        boost::uniform_int<int> uniform(3,50);
+        boost::variate_generator<boost::lagged_fibonacci607 &, boost::uniform_int<int> > distr(rng,uniform);
+        int n_cities = distr(); // between l_b and u_b
+        std::vector<std::vector<double> > weights( generate_random_matrix(n_cities,rng) );
 
-    pagmo::problem::tsp prob_rk(weights, pagmo::problem::tsp::RANDOMKEYS);
-    pagmo::decision_vector tour_rk = population(prob_rk,1).get_individual(0).cur_x;
+        pagmo::problem::tsp prob_rk(weights, pagmo::problem::tsp::RANDOMKEYS);
+        pagmo::decision_vector tour_rk = population(prob_rk,1).get_individual(0).cur_x;
 
-    pagmo::fitness_vector f1 = prob_rk.objfun( tour_rk );
-    pagmo::fitness_vector f2 = prob_rk.objfun( prob_rk.cities2randomkeys(prob_rk.full2cities(prob_rk.cities2full(prob_rk.randomkeys2cities(tour_rk) ) ), tour_rk ) );
-
-    std::cout << f1 << f2 << std::endl;
-
+        pagmo::fitness_vector f1 = prob_rk.objfun( tour_rk );
+        pagmo::fitness_vector f2 = prob_rk.objfun( prob_rk.cities2randomkeys(prob_rk.full2cities(prob_rk.cities2full(prob_rk.randomkeys2cities(tour_rk) ) ), tour_rk ) );
+        if (f1!=f2) 
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 int main()
 {
     boost::lagged_fibonacci607 rng;
+    std::cout << "Testing Encoding Equivalence: ";
     if (test_encodings_equivalence(100, 3, 50, rng)) return 1;
-    test_encoding_transformations(1,rng);
+    std::cout << "SUCCESS" << std::endl;
+    std::cout << "Testing Encoding Transformations: ";
+    if (test_encoding_transformations(100,rng)) return 1;
+    std::cout << "SUCCESS" << std::endl;
     
     // all iz well
     return 0;
