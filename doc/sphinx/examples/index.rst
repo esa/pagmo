@@ -14,4 +14,5 @@ This is a collection of examples on advanced uses of PyGMO.
    example4
    example5
    example6
+   example7
 

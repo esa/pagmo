@@ -88,3 +88,66 @@ def _print_matrix(mat, show_all = False):
             numpy.set_printoptions(threshold='nan')
 
     print(numpy.array(mat))
+
+from PyGMO import *
+
+
+
+def _three_impulse(pl1,pl2):
+    from math import cos,sqrt,sin
+    MU=pl1.mu_central_body
+
+    a1 = pl1.orbital_elements[0]
+    i1 = pl1.orbital_elements[2]
+    W1 = pl1.orbital_elements[3] 
+    e1 = pl1.orbital_elements[1]
+
+    a2 = pl2.orbital_elements[0]
+    i2 = pl2.orbital_elements[2]
+    W2 = pl2.orbital_elements[3] 
+    e2 = pl2.orbital_elements[1]
+        
+    ra1 = a1 * (1 + e1); # radius of apocenter starting orbit (km)
+    ra2 = a2 * (1 + e2); # radius of apocenter target orbit(km)
+    cosiREL = cos(i1)*cos(i2) + sin(i1)*sin(i2)*cos(W1)*cos(W2)+ sin(i1)*sin(i2)*sin(W1)*sin(W2);
+    if cosiREL > 1 or cosiREL < -1:
+        cosiREL = 1
+    rp2 = a2 * (1 - e2); # radius of apocenter target orbit(km)
+    rp1 = a1 * (1 - e1);
+
+    if ra1>ra2: #Strategy is Apocenter-Pericenter
+        Vi = sqrt(MU*(2/ra1-1/a1));
+        Vf = sqrt(MU*(2/ra1-2/(rp2+ra1)));
+        DV1 = sqrt(Vi**2+Vf**2-2*Vi*Vf*cosiREL);   #Change Inclination + pericenter change
+        DV2 = sqrt(MU) * abs(sqrt(2/rp2-2/(rp2+ra1))-sqrt(2/rp2-2/(rp2+ra2))); #Apocenter Change
+    else:  #(ra1<ra2) Strategy is Pericenter-Apocenter   
+        DV1 = sqrt(MU) * abs(sqrt(2/rp1-2/(rp1+ra1))-sqrt(2/rp1-2/(rp1+ra2))); #Apocenter Raise
+        Vi = sqrt(MU*(2/ra2-2/(rp1+ra2)));
+        Vf = sqrt(MU*(2/ra2-1/a2));
+        DV2 = sqrt(abs(Vi*Vi+Vf*Vf-2*Vi*Vf*cosiREL));   #Change Inclination + apocenter change
+    return DV1+DV2
+
+def tle2tsp(tlefilename, verbose=False):
+    from PyKEP import planet_tle
+    planet_list = []
+
+    with open(tlefilename,'r') as f:
+        for line in f:
+            line1 = f.next()[:69]
+            line2 = f.next()[:69]
+            planet_list.append( planet_tle(line1,line2) )
+
+    weights = []
+    for source_idx,source in enumerate(planet_list):
+        row = []
+        if verbose:
+            print("\rTrying source debris N.: {0}".format(source_idx))
+        count = 0
+        for target_idx,target in enumerate(planet_list):
+            if source == target:
+                row.append(0)
+            else:
+                dist = _three_impulse(source,target)
+                row.append(dist)
+        weights.append(row)
+    return weights
