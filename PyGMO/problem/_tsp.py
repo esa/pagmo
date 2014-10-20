@@ -54,13 +54,14 @@ def _plot_tsp(self,x,pos=None,node_size=10,edge_color='r',edge_width=1,bias=None
 		raise Exception("crhomosome is unfeasible")
 	from matplotlib import pyplot as plt
 	import networkx as nx
+	import numpy as np
 
 	fig = plt.gcf()
 
 	# We extract few informations on the problem
 	weights = self.weights
 	n_cities = len(weights[0])
-	edgelist = self.randomkeys2cities(x)
+	edgelist = x
 	edgelist = [(edgelist[i],edgelist[i+1]) for i in range(n_cities-1)] + [(edgelist[-1],edgelist[0])]
 	if bias==None:
 		bias = max([max(d) for d in weights])
@@ -76,12 +77,33 @@ def _plot_tsp(self,x,pos=None,node_size=10,edge_color='r',edge_width=1,bias=None
 			if i<=j: 
 				continue
 			G.add_edge(i,j,weight=bias/weights[i][j])
-
+	# We calculate the coordinates for a euclidian TSP (assuming symmetrie)
+	pos = {0: np.array([0,0]),1: np.array([weights[0][1],0])}
+	prob_is_eucl = True
+	nil_idx = 0 #first note that is not located in the line constructed by the first two notes
+	i = 2
+	while (i < n_cities and prob_is_eucl == True):
+		cos_alpha = 0.5*((weights[0][i]) ** 2 + (weights[0][1]) ** 2 - (weights[1][i]) ** 2) / (weights[0][i]*weights[0][1])
+		if (cos_alpha < -1 or 1 < cos_alpha):
+			prob_is_eucl = False
+		else:
+			pos[i] = np.array([weights[0][i]*cos_alpha,weights[0][i]*(1-cos_alpha**2)**(0.5)])
+			omega = 1
+			if abs(cos_alpha) != 1:
+				if nil_idx == 0:
+					nil_idx = i
+				elif abs(((pos[i][0]-pos[nil_idx][0])**2 + (pos[i][1]-pos[nil_idx][1])**2)**(0.5) - weights[i][nil_idx]) > 1e-08 * weights[i][nil_idx]:
+					omega = -1
+			pos[i][1] = omega*pos[i][1]
+			for j in range(2,i):
+				if abs(((pos[i][0]-pos[j][0])**2 + (pos[i][1]-pos[j][1])**2)**(0.5) - weights[i][j]) > 1e-08 * weights[i][j]:
+					prob_is_eucl = False
+		i += 1
 	# Now we draw the graph
- 	if pos==None:
+ 	if pos==None or prob_is_eucl == False:
  		pos = nx.layout.spring_layout(G)
 	nx.draw_networkx_nodes(G,pos=pos,node_size=10)
-	nx.draw_networkx_edges(G,pos,edgelist=edgelist,
+	nx.draw_networkx_edges(G,pos=pos,edgelist=edgelist,
                     width=edge_width,alpha=0.2,edge_color=edge_color)
 	fig.canvas.draw()
 	plt.show()
