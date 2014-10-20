@@ -128,6 +128,24 @@ def _three_impulse(pl1,pl2):
     return DV1+DV2
 
 def tle2tsp(tlefilename, verbose=False):
+    """
+    This function reads a Two-Line-Element file as taken from the NORAD database
+    http://www.celestrak.com/NORAD/elements/ and returns a matrix containing, in its 
+    i,j element, the DV cost of transferring from the i-th to the j-th orbit. It also returns a list 
+    of the object orbital elements.
+
+    The DV is computed as an approximation of the optimal three-impulse transfer which
+    holds for small eccentricities (as it neglects the difference in the argument of perigee)
+
+    USAGE: weights,el = util.tle2tsp(filename, verbose=True):
+
+    * filename: A string containin the file name (assumed to be in the working directory)
+    * verbose: Activates some screen output to show the progress.
+
+    * [out] -> weights
+    * [out] -> el a list containing the orbital elements of the TLE orbits (a,e,i,W,w,M) in SI units
+
+    """
     from PyKEP import planet_tle
     planet_list = []
 
@@ -138,6 +156,7 @@ def tle2tsp(tlefilename, verbose=False):
             planet_list.append( planet_tle(line1,line2) )
 
     weights = []
+    elements = []
     for source_idx,source in enumerate(planet_list):
         row = []
         if verbose:
@@ -150,4 +169,7 @@ def tle2tsp(tlefilename, verbose=False):
                 dist = _three_impulse(source,target)
                 row.append(dist)
         weights.append(row)
-    return weights
+    for source in planet_list:
+        elements.append(source.orbital_elements)
+
+    return weights,elements

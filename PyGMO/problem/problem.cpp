@@ -373,6 +373,7 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("cities2full", &problem::tsp::cities2full)
 		.def("randomkeys2cities", &problem::tsp::randomkeys2cities)
 		.def("cities2randomkeys", &problem::tsp::cities2randomkeys)
+		.add_property("encoding", make_function(&problem::tsp::get_encoding, return_value_policy<copy_const_reference>()))
 		.add_property("weights", make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
 
 	// SCH

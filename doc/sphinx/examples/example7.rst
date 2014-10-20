@@ -22,8 +22,8 @@ download the Two-Line-Element files of the selected debris. In this tutorial we 
 .. code-block:: python
 
 	from PyGMO import * 
-	fen = util.tle2tsp("fengyun.tle",verbose=True)
-	ir = util.tle2tsp("iridium33.tle")
+	fen, el = util.tle2tsp("fengyun.tle",verbose=True)
+	ir, el = util.tle2tsp("iridium33.tle")
 
 The variables fen and ir now contain the square matrix of distances between debris pieces. These are not euclidean distances as they are defined as the optimal :math:`\Delta V` needed to transfer between orbits during a randez-vous mission. The resulting TSP is symmetric but not metric. We can solve the TSP problem using, for example, the inver-over algorithm. We consider the IRIDIUM33 data
 
@@ -31,9 +31,11 @@ The variables fen and ir now contain the square matrix of distances between debr
 
 	from PyGMO import * 
 	prob = problem.tsp(ir,type='randomkeys')
-	algo=algorithm.inverover(30000)
+	algo = algorithm.inverover(30000)
 	pop = algo.evolve(pop)
-	pos = prob.plot(pop.champion.x,bias=10)
+	color = [item[3] if item[3]>5 else item[3]+6.28 for item in el] #Use this only for the IRIDIUM data
+	pos = prob.plot(pop.champion.x,bias=5,node_color=color,node_size=30)
+
 
 Note how we selected a randomkeys encoding for the TSP. This is not crucial in this case and any of the other encodings would hold identical results.
 
@@ -41,8 +43,8 @@ The visualization of the tour is then made using the plot method and results in 
 
 .. image:: ../images/examples/ex7_ir.png
 
-Optimal tour to remove all of the IRIDUM33 debris (369 cities). The average cost of one transfer between debris orbit is 142 m/s, the total cost of the tour is 52 km/s
+Optimal tour to remove all of the IRIDUM33 debris (369 cities). The average cost of one transfer between debris orbit is 142 m/s, the total cost of the tour is 52 km/s. The color shade indicates the debris RAAN (Right Ascension of the Ascending Node). As it clearly appears from this visualization, the optimal tour emerges to make use of a startegy we will call "RAAN walk". As the Iridium debris do not have an equally spaced RAAN spanning the all the possible values in [0, 2pi], but are rather clustered in one subinterval [5.5,7.2], the RAAN walk must be interrupted and a few expensive transfers must be made, at a certain point, to link distant orbits.
 
 .. image:: ../images/examples/ex7_fen.png
 
-Optimal tour to remove all of the FENGYUN 1C debris (2651 cities). The average cost of one transfer between debris orbit is 98 m/s, the total cost is a staggering 265 km/s.
+Optimal tour to remove all of the FENGYUN 1C debris (2651 cities). The average cost of one transfer between debris orbit is 98 m/s, the total cost is a staggering 265 km/s. The color shade indicates the debris RAAN. As it clearly appears from this visualization, the optimal tour is making use, again, of a RAAN walk. This time, though, as the debris RAAN is almost uniformly spread in the [0, 2pi] range, the tour is circular. Note that the sudden change of color from white to blue correspond, simply to the cut of the [0,2pi] range, so that 2pi+epsilon is mapped back to epsilon.

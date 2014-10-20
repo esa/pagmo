@@ -2,7 +2,7 @@ from PyGMO.problem._problem import tsp,_tsp_encoding
 
 
 # Renaming and placing the enums
-tsp.encoding = _tsp_encoding
+tsp.encoding_type = _tsp_encoding
 
 def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
     """
@@ -36,11 +36,11 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
     arg_list = []
     arg_list.append(weights)
     if type == "full":
-    	encoding_type = tsp.encoding.FULL
+    	encoding_type = tsp.encoding_type.FULL
     elif type== "randomkeys":
-    	encoding_type = tsp.encoding.RANDOMKEYS
+    	encoding_type = tsp.encoding_type.RANDOMKEYS
     elif type== "cities":
-    	encoding_type = tsp.encoding.CITIES
+    	encoding_type = tsp.encoding_type.CITIES
     else:
     	raise ValueError("Unrecognized encoding type")
 
@@ -49,18 +49,46 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
 tsp._orig_init = tsp.__init__
 tsp.__init__ = _tsp_ctor
 
-def _plot_tsp(self,x,pos=None,node_size=10,edge_color='r',edge_width=1,bias=None):
+def _plot_tsp(self,x, node_size=10, edge_color='r',
+				edge_width=1, bias=None, node_color=None, pos=None):
+	"""
+		Plots a tour represented in the chromosome x (using the same encoding of the self object)
+
+		USAGE: problem._plot_tsp(x, node_size=10, edge_color='r',
+				edge_width=1, bias=None, node_color=None, pos=None):
+
+		 * x: 			Crhomosome encoding the city tour.
+		 				The encoding type used must be the same as that of self
+		 * node_size:	size of the nodes in the graph visualization
+		 * edge_color:	size of the edges in the graph visualization
+		 * edge_width:	width of the edges in the graph visualization
+		 * bias:		when the graoh node positions are not used, the plot tries to use 
+		 				a spring model to place the nodes. The spring constants depend on this
+		 				bias parameter
+		 * node_color:	color of the nodes in the graph visualization
+		 * pos:			a dictionary containing the node positions (same format as networkx)
+	"""
+
+
 	if not (self.verify_x(x) and self.feasibility_x(x)):
 		raise Exception("crhomosome is unfeasible")
 	from matplotlib import pyplot as plt
 	import networkx as nx
+	from PyGMO.problem import tsp
 
 	fig = plt.gcf()
 
 	# We extract few informations on the problem
 	weights = self.weights
 	n_cities = len(weights[0])
-	edgelist = self.randomkeys2cities(x)
+	if self.encoding == tsp.encoding_type.RANDOMKEYS:
+		edgelist = self.randomkeys2cities(x)
+	elif self.encoding == tsp.encoding_type.CITIES:
+		edgelist = x
+	elif self.encoding == tsp.encoding_type.FULL:
+		edgelist = full2cities(x)
+
+	# We construct the list of edges (u,v) containing the indices of the cities visited 
 	edgelist = [(edgelist[i],edgelist[i+1]) for i in range(n_cities-1)] + [(edgelist[-1],edgelist[0])]
 	if bias==None:
 		bias = max([max(d) for d in weights])
@@ -80,7 +108,10 @@ def _plot_tsp(self,x,pos=None,node_size=10,edge_color='r',edge_width=1,bias=None
 	# Now we draw the graph
  	if pos==None:
  		pos = nx.layout.spring_layout(G)
-	nx.draw_networkx_nodes(G,pos=pos,node_size=10)
+ 	if node_color==None:
+ 		node_color=[0.4]*n_cities
+
+	nx.draw_networkx_nodes(G,pos=pos,node_size=node_size, cmap=plt.cm.Blues, node_color=node_color)
 	nx.draw_networkx_edges(G,pos,edgelist=edgelist,
                     width=edge_width,alpha=0.2,edge_color=edge_color)
 	fig.canvas.draw()
