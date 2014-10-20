@@ -2,7 +2,7 @@ from PyGMO.problem._problem import tsp,_tsp_encoding
 
 
 # Renaming and placing the enums
-tsp.encoding = _tsp_encoding
+tsp.encoding_type = _tsp_encoding
 
 def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
     """
@@ -36,11 +36,11 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
     arg_list = []
     arg_list.append(weights)
     if type == "full":
-    	encoding_type = tsp.encoding.FULL
+    	encoding_type = tsp.encoding_type.FULL
     elif type== "randomkeys":
-    	encoding_type = tsp.encoding.RANDOMKEYS
+    	encoding_type = tsp.encoding_type.RANDOMKEYS
     elif type== "cities":
-    	encoding_type = tsp.encoding.CITIES
+    	encoding_type = tsp.encoding_type.CITIES
     else:
     	raise ValueError("Unrecognized encoding type")
 
@@ -49,19 +49,47 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
 tsp._orig_init = tsp.__init__
 tsp.__init__ = _tsp_ctor
 
-def _plot_tsp(self,x,pos=None,node_size=10,edge_color='r',edge_width=1,bias=None):
+def _plot_tsp(self,x, node_size=10, edge_color='r',
+				edge_width=1, bias=None, node_color=None, pos=None):
+	"""
+		Plots a tour represented in the chromosome x (using the same encoding of the self object)
+
+		USAGE: problem._plot_tsp(x, node_size=10, edge_color='r',
+				edge_width=1, bias=None, node_color=None, pos=None):
+
+		 * x: 			Crhomosome encoding the city tour.
+		 				The encoding type used must be the same as that of self
+		 * node_size:	size of the nodes in the graph visualization
+		 * edge_color:	size of the edges in the graph visualization
+		 * edge_width:	width of the edges in the graph visualization
+		 * bias:		when the graoh node positions are not used, the plot tries to use 
+		 				a spring model to place the nodes. The spring constants depend on this
+		 				bias parameter
+		 * node_color:	color of the nodes in the graph visualization
+		 * pos:			a dictionary containing the node positions (same format as networkx)
+	"""
+
+
 	if not (self.verify_x(x) and self.feasibility_x(x)):
 		raise Exception("crhomosome is unfeasible")
 	from matplotlib import pyplot as plt
 	import networkx as nx
 	import numpy as np
+	from PyGMO.problem import tsp
 
 	fig = plt.gcf()
 
 	# We extract few informations on the problem
 	weights = self.weights
 	n_cities = len(weights[0])
-	edgelist = x
+	if self.encoding == tsp.encoding_type.RANDOMKEYS:
+		edgelist = self.randomkeys2cities(x)
+	elif self.encoding == tsp.encoding_type.CITIES:
+		edgelist = x
+	elif self.encoding == tsp.encoding_type.FULL:
+		edgelist = full2cities(x)
+
+	# We construct the list of edges (u,v) containing the indices of the cities visited
 	edgelist = [(edgelist[i],edgelist[i+1]) for i in range(n_cities-1)] + [(edgelist[-1],edgelist[0])]
 	if bias==None:
 		bias = max([max(d) for d in weights])
@@ -77,33 +105,45 @@ def _plot_tsp(self,x,pos=None,node_size=10,edge_color='r',edge_width=1,bias=None
 			if i<=j: 
 				continue
 			G.add_edge(i,j,weight=bias/weights[i][j])
-	# We calculate the coordinates for a euclidian TSP (assuming symmetrie)
-	pos = {0: np.array([0,0]),1: np.array([weights[0][1],0])}
-	prob_is_eucl = True
-	nil_idx = 0 #first note that is not located in the line constructed by the first two notes
-	i = 2
-	while (i < n_cities and prob_is_eucl == True):
-		cos_alpha = 0.5*((weights[0][i]) ** 2 + (weights[0][1]) ** 2 - (weights[1][i]) ** 2) / (weights[0][i]*weights[0][1])
-		if (cos_alpha < -1 or 1 < cos_alpha):
-			prob_is_eucl = False
-		else:
-			pos[i] = np.array([weights[0][i]*cos_alpha,weights[0][i]*(1-cos_alpha**2)**(0.5)])
-			omega = 1
-			if abs(cos_alpha) != 1:
-				if nil_idx == 0:
-					nil_idx = i
-				elif abs(((pos[i][0]-pos[nil_idx][0])**2 + (pos[i][1]-pos[nil_idx][1])**2)**(0.5) - weights[i][nil_idx]) > 1e-08 * weights[i][nil_idx]:
-					omega = -1
-			pos[i][1] = omega*pos[i][1]
-			for j in range(2,i):
-				if abs(((pos[i][0]-pos[j][0])**2 + (pos[i][1]-pos[j][1])**2)**(0.5) - weights[i][j]) > 1e-08 * weights[i][j]:
-					prob_is_eucl = False
-		i += 1
-	# Now we draw the graph
- 	if pos==None or prob_is_eucl == False:
- 		pos = nx.layout.spring_layout(G)
-	nx.draw_networkx_nodes(G,pos=pos,node_size=10)
-	nx.draw_networkx_edges(G,pos=pos,edgelist=edgelist,
+	# If no coordinates are passed as an input we try to calculate the coordinates for an euclidian TSP (assuming symmetrie)
+	if pos==None:
+		#assign the first two notes: note 0 and note 1, note 0 is chosen to be in the origin
+		pos = {0: np.array([0,0]),1: np.array([weights[0][1],0])}
+		#algorithm checks during computation of the coordinates if the problem is euclidian
+		prob_is_eucl = True
+ 		#we will have to store the first note that is not located in the line constructed by the initial two notes 0 and 1
+		nil_idx = -1
+		i = 2
+		while (i < n_cities and prob_is_eucl == True):
+			#we compute cos(alpha) where alpha is the angle enclosed by the edge (0,1) and (0,i)
+			cos_alpha = 0.5*((weights[0][i]) ** 2 + (weights[0][1]) ** 2 - (weights[1][i]) ** 2) / (weights[0][i]*weights[0][1])
+			if (cos_alpha < -1 or 1 < cos_alpha):
+				prob_is_eucl = False
+			else:
+				#computes one of the two possible positions for note i
+				pos[i] = np.array([weights[0][i]*cos_alpha,weights[0][i]*(1-cos_alpha**2)**(0.5)])
+				omega = 1
+				if abs(cos_alpha) != 1:
+					#as soon as one note is not aligned with edge (0,1) we have to orientate the plot
+					#the first note not aligned, named nil_idx, is chosen to have a positiv second coordinate - every following note is then oriented accordingly
+					if nil_idx == -1:
+						nil_idx = i
+					elif abs(((pos[i][0]-pos[nil_idx][0])**2 + (pos[i][1]-pos[nil_idx][1])**2)**(0.5) - weights[i][nil_idx]) > 1e-08 * weights[i][nil_idx]:
+						omega = -1
+				pos[i][1] = omega*pos[i][1] #orient note
+				#We have to check the distance to all the previous notes to decide if the problem is euclidian
+				for j in range(2,i):
+					if abs(((pos[i][0]-pos[j][0])**2 + (pos[i][1]-pos[j][1])**2)**(0.5) - weights[i][j]) > 1e-08 * weights[i][j]:
+						prob_is_eucl = False
+			i += 1
+		# In case of a non euclidian TSP we create a spring model
+		if prob_is_eucl == False: 
+			pos = nx.layout.spring_layout(G)
+ 	if node_color==None:
+ 		node_color=[0.4]*n_cities
+
+	nx.draw_networkx_nodes(G,pos=pos,node_size=node_size, cmap=plt.cm.Blues, node_color=node_color)
+	nx.draw_networkx_edges(G,pos,edgelist=edgelist,
                     width=edge_width,alpha=0.2,edge_color=edge_color)
 	fig.canvas.draw()
 	plt.show()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyGMO.util._util import *
 from PyGMO.util._analysis import *
-from PyGMO.util._tsp import read_tsplib
+from PyGMO.util._tsp import read_tsplib, tle2tsp
 
 __all__ = ['hypervolume', 'hv_algorithm', 'tsp']
 
