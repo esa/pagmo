@@ -27,11 +27,12 @@
 
 #include <boost/array.hpp>
 #include <vector>
+#include <string>
 
-#include "base.h"
+#include "./base.h"
 #include "../serialization.h"
 
-namespace pagmo{ namespace problem {
+namespace pagmo { namespace problem {
 
 /// Base TSP.
 /**
@@ -39,8 +40,8 @@ namespace pagmo{ namespace problem {
  * The problem encoding can be of three different types
  *
  * 1-CITIES
- * This encoding represents the ids of the cities visited directly in the chromosome. It will
- * thus create a constrained problem as only permutation of the cities ids are valid (e.g. [0,2,1,5,0] is not
+ * This encoding represents the ids of the cities visited directly in the chromosome. THis
+ * will create a constrained problem as only permutation of the cities ids are valid (e.g. [0,2,1,5,0] is not
  * a valid chromosome)
  *
  * 2-RANDOMKEYS
@@ -63,17 +64,17 @@ class __PAGMO_VISIBLE tsp: public base
     public:
         /// Mechanism used to transform the input problem
         enum encoding {
-            RANDOMKEYS = 0, ///< The city tour is encoded as a vector of doubles in [0,1]. Results in an unconstrained box-bounded problem
-            FULL = 1,       ///< The TSP is encoded ads a linear integer programming problem
-            CITIES = 2      ///< The city teour is directly encoded in the chromosome as a sequence of cities ids.
+            RANDOMKEYS = 0,  ///< The city tour is encoded as a vector of doubles in [0,1]. Results in an unconstrained box-bounded problem
+            FULL = 1,        ///< The TSP is encoded as a linear integer programming problem
+            CITIES = 2       ///< The city tour is directly encoded in the chromosome as a sequence of cities ids.
         };
         tsp();
-        tsp(const std::vector<std::vector<double> >&, const encoding & = FULL); 
+        tsp(const std::vector<std::vector<double> >&, const encoding & = FULL);
         base_ptr clone() const;
 
         const std::vector<std::vector<double> >& get_weights() const;
         const decision_vector::size_type& get_n_cities() const;
-        const encoding& get_encoding() const;  
+        const encoding& get_encoding() const;
 
         pagmo::decision_vector full2cities(const pagmo::decision_vector &) const;
         pagmo::decision_vector cities2full(const pagmo::decision_vector &) const;
@@ -99,15 +100,15 @@ class __PAGMO_VISIBLE tsp: public base
             ar & const_cast<decision_vector::size_type &>(m_n_cities);
             ar & const_cast<encoding &>(m_encoding);
         }
-    
+
     private:
         const decision_vector::size_type m_n_cities;
         std::vector<std::vector<double> > m_weights;
         const encoding m_encoding;
 };
 
-}} //namespaces
+}}  //namespaces
 
 BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp)
 
-#endif // PAGMO_PROBLEM_tsp_H
+#endif  //PAGMO_PROBLEM_tsp_H

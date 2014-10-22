@@ -233,17 +233,17 @@ class py_cmaes(base):
                         newpop[row, col] = lb[row] + \
                             random() * (ub[row] - lb[row])
 
-            #insert in population
+            # insert in population
             for i in range(lam):
                 idx = pop.get_worst_idx()
                 pop.set_x(idx, [newpop[j, i] for j in range(N)])
             counteval += lam
 
             # 2 - We extract the elite from this generation
-            #a = sorted(pop,lambda x,y: cmp(x.cur_f,y.cur_f))
+            # a = sorted(pop,lambda x,y: cmp(x.cur_f,y.cur_f))
             elite = [matrix(pop[idx].best_x).T for idx in pop.get_best_idx(mu)]
-            #elite = [matrix(ind.cur_x).T for ind in a]
-            #elite = elite[:mu]
+            # elite = [matrix(ind.cur_x).T for ind in a]
+            # elite = elite[:mu]
 
             # 3 - Compute the new elite mean storing the old one
             meanold = mean

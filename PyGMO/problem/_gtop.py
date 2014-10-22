@@ -776,7 +776,7 @@ def _part_plot(x, units, axis, seq, start_mjd2000, vinf_in):
         # Fly-by
         v_out = fb_prop(v_end_l,
                         v_P[i],
-						x[1 + 4 * i] * seq[i].radius,
+                        x[1 + 4 * i] * seq[i].radius,
                         x[4 * i],
                         seq[i].mu_self)
         # s/c propagation before the DSM
@@ -808,7 +808,7 @@ def _mga_part_plot(self, x):
 
     mpl.rcParams['legend.fontsize'] = 10
     fig = plt.figure()
-    axis= fig.gca(projection='3d', aspect='equal')
+    axis = fig.gca(projection='3d', aspect='equal')
 
     # Plots the central 'planet'star
     axis.scatter(0, 0, 0, color='y')

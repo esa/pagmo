@@ -485,9 +485,9 @@ def _pop_plot_pareto_fronts(
             0,
             0,
             0),
-    comp = [
-        0,
-        1],
+        comp = [
+            0,
+            1],
         symbol = 'o',
         size = 6,
         fronts=[]):

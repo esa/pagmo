@@ -556,7 +556,6 @@ golomb_ruler._orig_init = golomb_ruler.__init__
 golomb_ruler.__init__ = _golomb_ruler_ctor
 
 
-
 def _inventory_ctor(self, weeks=4, sample_size=10, seed=0):
     """
     Constructs an Inventory Problem (Stochastic Objective Function)
@@ -886,4 +885,3 @@ def _con2uncon_ctor(self, problem=None, method=None):
 
 con2uncon._orig_init = con2uncon.__init__
 con2uncon.__init__ = _con2uncon_ctor
-

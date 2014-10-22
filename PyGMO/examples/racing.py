@@ -138,8 +138,8 @@ def get_rank_sum_errors(
     pop_orig = population(prob_orig, pop_n)
 
     # Increase the level of difficulty
-    #algo = algorithm.pso(gen=50)
-    #pop_orig = algo.evolve(pop_orig)
+    # algo = algorithm.pso(gen=50)
+    # pop_orig = algo.evolve(pop_orig)
 
     # True ordering of the individuals
     winners_orig = pop_orig.get_best_idx(pop_n)
@@ -309,8 +309,8 @@ def run_varying_eval_budget(prob_orig):
 
 if __name__ == '__main__':
     prob_orig = problem.ackley(10)
-    #prob_orig = problem.cec2006(5)
-    #prob_orig = problem.zdt(1,10)
+    # prob_orig = problem.cec2006(5)
+    # prob_orig = problem.zdt(1,10)
 
     run_varying_noise(prob_orig)
     run_varying_initial_size(prob_orig)

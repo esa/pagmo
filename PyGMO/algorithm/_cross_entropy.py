@@ -122,7 +122,7 @@ class py_cross_entropy(base):
                 for i in range(1, n_elite):
                     C = C + (elite[i] - mu).T * \
                         (elite[i] - mu) * self.__weights[i]
-            #C = C / n_elite
+            # C = C / n_elite
 
             # 3 - We compute the new elite mean
             mu = elite[0] * self.__weights[0]
@@ -140,10 +140,6 @@ class py_cross_entropy(base):
                          for i in range(np)]
             variation = [[j[0, 0] for j in matr] for matr in variation]
 
-            #U = cholesky(C)
-            # for i in range(np):
-            #	y = normal(0,1,[dim,1])
-            #	variation[i] = (U*y).T
             for i, d_mu in enumerate(variation):
                 newpop[i] = mu + d_mu * self.__scale
                 pl.plot(newpop[i][0], newpop[i][1], 'ok')
@@ -162,7 +158,6 @@ class py_cross_entropy(base):
 
             # 6 - And perform reinsertion
             for i in range(np):
-                #idx = pop.get_worst_idx()
                 pop.set_x(i, newpop[i])
 
             # 7 - We print to screen if necessary

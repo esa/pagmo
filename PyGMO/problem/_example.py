@@ -49,9 +49,9 @@ class py_example_max(base):
     """
 
     def __init__(self):
-    # first we call the constructor of the base telling
-    # to PyGMO what kind of problem to expect (1 objective, 0 constraints
-    # etc...)
+        # first we call the constructor of the base telling
+        # to PyGMO what kind of problem to expect (1 objective, 0 constraints
+        # etc...)
         super(py_example_max, self).__init__(2)
 
         # sets the problem bounds

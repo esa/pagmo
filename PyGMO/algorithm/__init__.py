@@ -147,9 +147,9 @@ def _de_1220_ctor(
             8,
             9,
             10],
-    memory=False,
-    ftol=1e-6,
-    xtol=1e-6,
+        memory=False,
+        ftol=1e-6,
+        xtol=1e-6,
         screen_output=False):
     """
     Constructs a Differential Evolution algorithm (our own brew). Self adaptation on F, CR and mutation variant.:
@@ -868,27 +868,6 @@ def _sea_ctor(self, gen=100, limit=20):
     self._orig_init(*arg_list)
 sea._orig_init = sea.__init__
 sea.__init__ = _sea_ctor
-
-# def _firefly_ctor(self,**kwargs):
-#	"""
-#	Constructs a Firefly Algorithm
-#
-#	USAGE: algorithm.firefly(gen = 1, alpha = 0.01, beta = 1.0, gamma = 0.8)
-#
-#	* gen: number of 'generations'
-#	* alpha: width of the random vector (in [0,1])
-#	* beta: maximum attractiveness (in [0,1])
-#	* gamma: absorption coefficient (in [0,1])
-#	"""
-# We set the defaults or the kwargs
-#	arg_list=[]
-#	arg_list.append(kwargs.pop('gen', 1))
-#	arg_list.append(kwargs.pop('alpha', 20))
-#	arg_list.append(kwargs.pop('beta', 20))
-#	arg_list.append(kwargs.pop('gamma', 20))
-#	self._orig_init(*arg_list)
-#firefly._orig_init = firefly.__init__
-#firefly.__init__ = _firefly_ctor
 
 
 def _ms_ctor(self, algorithm=None, iter=1):

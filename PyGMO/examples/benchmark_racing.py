@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 import copy
 
-#stochastic_type = 'NOISY'
+# stochastic_type = 'NOISY'
 stochastic_type = 'ROBUST'
 base_problem = problem.ackley(10)
 
@@ -55,8 +55,6 @@ def start_experiment(
             base_problem, trials=1, rho=noise_level)
         prob_regular = problem.robust(
             base_problem, trials=nr_eval_per_x, rho=noise_level)
-        #prob_large_trials = problem.robust(prob_orig, trials = 500, rho = noise_level)
-        #prob_post_eval = post_eval(prob_large_trials, 5)
 
     prob_post_eval = post_eval(prob_single_eval, post_eval_n=500)
 
@@ -123,11 +121,11 @@ def start_experiment(
             # population
             pop = population(prob, pop_size, seed)
             pop = algo.evolve(pop)
-            #winner_idx = pop.race(1)[0][0];
-            #print("race winner", winner_idx, "vs champion idx", pop.get_best_idx())
-            #champion_true_fitness = prob_orig.objfun(pop[winner_idx].cur_x)
+            # winner_idx = pop.race(1)[0][0];
+            # print("race winner", winner_idx, "vs champion idx", pop.get_best_idx())
+            # champion_true_fitness = prob_orig.objfun(pop[winner_idx].cur_x)
             champion_true_fitness = prob_post_eval.objfun(pop.champion.x)[0]
-            #print('Final champion =', champion_true_fitness)
+            # print('Final champion =', champion_true_fitness)
             results.append(champion_true_fitness)
         print(results)
         post_evaluated_fitnesses.append(results)
@@ -168,7 +166,7 @@ def vary_nr_eval_per_x(default_params):
     prob_stat = '%s-%s' % (stochastic_type, base_problem.get_name())
     plt.title('%s\nPSO: With/without racing (fevals=%d) (%d trials)' %
               (prob_stat, pars['fevals_max'], pars['num_trials']))
-    #plt.savefig('%s-psogenracing-nr_eval_per_x.png' % prob_stat)
+    # plt.savefig('%s-psogenracing-nr_eval_per_x.png' % prob_stat)
 
 
 def vary_neighbourhood_size(default_params):
@@ -193,7 +191,7 @@ def vary_neighbourhood_size(default_params):
     prob_stat = '%s-%s' % (stochastic_type, base_problem.get_name())
     plt.title('%s\nPSO: With/without racing (fevals=%d) (%d trials)' %
               (prob_stat, pars['fevals_max'], pars['num_trials']))
-    #plt.savefig('%s-psogenracing-robust_neighbourhood_small.png' % prob_stat)
+    # plt.savefig('%s-psogenracing-robust_neighbourhood_small.png' % prob_stat)
 
 
 def vary_fevals_budget(num_trials=20, nr_eval_per_x=10, nb_size=0.5):
@@ -219,10 +217,10 @@ def vary_fevals_budget(num_trials=20, nr_eval_per_x=10, nb_size=0.5):
     plt.title(
         '%s\nPSO: With/without racing (neighbourhood size = %.2f) (%d trials)' %
         (prob_stat, pars['noise_level'], pars['num_trials']))
-    #plt.savefig('%s-psogenracing-robust_fevals.png' % prob_stat)
+    # plt.savefig('%s-psogenracing-robust_fevals.png' % prob_stat)
 
 if __name__ == '__main__':
-    #start_experiment(num_trials=20, pop_size=20, nr_eval_per_x=20, fevals_max=200000)
+    # start_experiment(num_trials=20, pop_size=20, nr_eval_per_x=20, fevals_max=200000)
 
     default_params = dict(
         num_trials=10,

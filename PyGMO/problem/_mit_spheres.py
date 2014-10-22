@@ -105,6 +105,6 @@ def visualize(self, world_states):
 
     time_lbl.visible = False
     r_lbl.visible = False
-    #del time_lbl
-    #del r_lbl
-    #del scene
+    # del time_lbl
+    # del r_lbl
+    # del scene

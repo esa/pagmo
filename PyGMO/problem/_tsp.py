@@ -104,7 +104,7 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
 
     # We construct the list of edges (u,v) containing
     # the indices of the cities visited
-    edgelist = [(edgelist[i], edgelist[i+1]) for i in range(n_cities-1)]
+    edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)]
     + [(edgelist[-1], edgelist[0])]
     if bias is None:
         bias = max([max(d) for d in weights])
@@ -121,7 +121,7 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
         for j in range(n_cities):
             if i <= j:
                 continue
-            G.add_edge(i, j, weight=bias/weights[i][j])
+            G.add_edge(i, j, weight=bias / weights[i][j])
 
     # If cities coordinates are not passed as an input we try to calculate
     # the coordinates for an euclidian TSP (assuming symmetric weights)
@@ -137,17 +137,17 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
         nil_idx = -1
         i = 2
         while (i < n_cities and prob_is_eucl is True):
-            #we compute cos(alpha) where alpha is the angle enclosed
+            # we compute cos(alpha) where alpha is the angle enclosed
             # by the edge (0,1) and (0,i)
-            cos_alpha = 0.5*((weights[0][i])**2+(weights[0][1]) ** 2 -
-                             (weights[1][i])**2)/(weights[0][i]*weights[0][1])
+            cos_alpha = 0.5 * ((weights[0][i]) ** 2 + (weights[0][1]) ** 2 -
+                               (weights[1][i]) ** 2) / (weights[0][i] * weights[0][1])
 
             if (cos_alpha < -1 or 1 < cos_alpha):
                 prob_is_eucl = False
             else:
-                #computes one of the two possible positions for node i
-                pos[i] = np.array([weights[0][i]*cos_alpha,
-                                  weights[0][i]*(1-cos_alpha**2)**(0.5)])
+                # computes one of the two possible positions for node i
+                pos[i] = np.array([weights[0][i] * cos_alpha,
+                                  weights[0][i] * (1 - cos_alpha ** 2) ** (0.5)])
                 omega = 1
                 if abs(cos_alpha) != 1:
                     # as soon as one node is not aligned with edge (0,1)
@@ -157,16 +157,16 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
                     # accordingly
                     if nil_idx == -1:
                         nil_idx = i
-                    elif abs(((pos[i][0]-pos[nil_idx][0])**2 +
-                              (pos[i][1]-pos[nil_idx][1])**2)**(0.5) -
-                             weights[i][nil_idx]) > 1e-08*weights[i][nil_idx]:
+                    elif abs(((pos[i][0] - pos[nil_idx][0]) ** 2 +
+                              (pos[i][1] - pos[nil_idx][1]) ** 2) ** (0.5) -
+                             weights[i][nil_idx]) > 1e-08 * weights[i][nil_idx]:
                         omega = -1
-                pos[i][1] = omega*pos[i][1]  # orient node
+                pos[i][1] = omega * pos[i][1]  # orient node
                 # We have to check the distance to all the previous
                 # nodes to decide if the problem is euclidian
                 for j in range(2, i):
-                    if abs(((pos[i][0]-pos[j][0])**2 +
-                           (pos[i][1]-pos[j][1])**2)**(0.5) -
+                    if abs(((pos[i][0] - pos[j][0]) ** 2 +
+                           (pos[i][1] - pos[j][1]) ** 2) ** (0.5) -
                        weights[i][j]) > 1e-08 * weights[i][j]:
                         prob_is_eucl = False
             i += 1
@@ -175,7 +175,7 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
             pos = nx.layout.spring_layout(G)
             print("WTF")
     if node_color is None:
-        node_color = [0.4]*n_cities
+        node_color = [0.4] * n_cities
 
     nx.draw_networkx_nodes(G, pos=pos, node_size=node_size,
                            cmap=plt.cm.Blues, node_color=node_color)
