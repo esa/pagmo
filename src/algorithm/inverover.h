@@ -60,10 +60,12 @@ public:
 		random = 0,
 		nn = 1
 	};
-	inverover(int gen = 10000, double ri = 0.05, initialization_type ini_type = random);
+	inverover(int gen = 10000, double ri = 0.05, initialization_type ini_type = nn);
         base_ptr clone() const;
         void evolve(population &) const;
         std::string get_name() const;
+protected:
+	// void problem::tsp::nn_tsp::evolve(population &) const
 
 private:
         friend class boost::serialization::access;

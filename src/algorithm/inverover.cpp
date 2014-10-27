@@ -32,6 +32,7 @@
 #include "../serialization.h"
 #include "../population.h"
 #include "../problem/tsp.h"
+#include "../algorithm/nn_tsp.h"
 #include "base.h"
 #include "inverover.h"
 
@@ -88,7 +89,6 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 	// Let's store some useful variables.
 
 	const population::size_type NP = pop.size();
-	const std::vector<std::vector<double> >& weights = prob->get_weights();
 	const problem::base::size_type Nv = prob->get_n_cities();
 
 	// Get out if there is nothing to do.
@@ -105,22 +105,6 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_Nv(m_urng,Nv_);
 	boost::uniform_int<int> Nvless1(0, Nv - 2);
 	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > unif_Nvless1(m_urng,Nvless1);
-
-
-	//check if we have a symmetric problem (symmetric weight matrix)
-	bool is_sym = true;
-	for(size_t i = 0; i < Nv; i++)
-	{
-		for(size_t j = i+1; j < Nv; j++)
-		{
-			if(weights[i][j] != weights[j][i])
-			{
-				is_sym = false;
-				goto end_loop;
-			}
-		}
-	}
-	end_loop:	
 	
 	//create own local population
 	std::vector<decision_vector> my_pop(NP, decision_vector(Nv));
@@ -181,58 +165,41 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 		case 1:
 		{
 		//initialize with nearest neighbor algorithm
-			int nxt_city;
-			size_t min_idx;
-			std::vector<int> not_visited(Nv);
+		std::vector<int> starting_notes(std::max(Nv,not_feasible.size()));
+			for (size_t j = 0; j < starting_notes.size(); j++) {
+					starting_notes[j] = j;
+			}
+			std::shuffle(starting_notes.begin(), starting_notes.end(), m_urng);
 			for (size_t ii = 0; ii < not_feasible.size(); ii++) {
 				i = not_feasible[ii];
-				for (size_t j = 0; j < Nv; j++) {
-					not_visited[j] = j;
-				}
-				my_pop[i][0] = unif_Nv();
-				std::swap(not_visited[my_pop[i][0]],not_visited[Nv-1]);
-				for (size_t j = 1; j < Nv-1; j++) {
-					min_idx = 0;
-					nxt_city = not_visited[0];
-					for (size_t l = 1; l < Nv-j; l++) {
-						if(weights[my_pop[i][j-1]][not_visited[l]] < weights[my_pop[i][j-1]][nxt_city]){
-							min_idx = l;		
-							nxt_city = not_visited[l];}
-					}
-					my_pop[i][j] = nxt_city;
-					std::swap(not_visited[min_idx],not_visited[Nv-j-1]);
-				}
-				my_pop[i][Nv-1] = not_visited[0];
+				pagmo::population one_ind_pop(pop.problem(), 1);
+				pagmo::algorithm::nn_tsp algo(starting_notes[i] % Nv);
+				algo.evolve(one_ind_pop);
+				my_pop[i] = one_ind_pop.get_individual(0).cur_x;
 			}
 			break;
 		}
 		default:
 			pagmo_throw(value_error,"Invalid initialization type");
-	}
-
-	//compute fitness of individuals (necessary if weight matrix is not symmetric)
-	std::vector<double>  fitness(NP, 0);
-	if(!is_sym){
-		for(size_t i=0; i < NP; i++){
-    			fitness[i] = weights[my_pop[i][Nv-1]][my_pop[i][0]];
-    			for(size_t k=1; k < Nv; k++){
-        			fitness[i] += weights[my_pop[i][k-1]][my_pop[i][k]];
-			}
-		}
 	}	
 	
+	std::vector<fitness_vector>  fitness(NP, fitness_vector(1));
+	for(size_t i=0; i < NP; i++){
+    		fitness[i] = prob->objfun(my_pop[i]);
+	}
+	
 	decision_vector tmp_tour(Nv);
-	bool stop;
+	bool stop, changed;
 	size_t rnd_num, i2, pos1_c1, pos1_c2, pos2_c1, pos2_c2; //pos2_c1 denotes the position of city1 in parent2
-	double fitness_change, fitness_tmp = 0;
+	fitness_vector fitness_tmp;
 
 	//InverOver main loop
 	for(int iter = 0; iter < m_gen; iter++){
 		for(size_t i1 = 0; i1 < NP; i1++){
-			fitness_change = 0;
 			tmp_tour = my_pop[i1];
 			pos1_c1 = unif_Nv();
 			stop = false;
+			changed = false;
 			while(!stop){
 				if(unif_01() < m_ri){
 					rnd_num = unif_Nvless1();
@@ -247,45 +214,28 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 				}
 				stop = (abs(pos1_c1-pos1_c2)==1 || abs(pos1_c1-pos1_c2)==Nv-1);
 				if(!stop){
-					
+					changed = true;
 					if(pos1_c1<pos1_c2){
 						for(size_t l=0; l < (double (pos1_c2-pos1_c1-1)/2); l++){
 							std::swap(tmp_tour[pos1_c1+1+l],tmp_tour[pos1_c2-l]);}
-						if(is_sym){
-							fitness_change -= weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c2]] + weights[tmp_tour[pos1_c1+1]][tmp_tour[pos1_c2+1 - (pos1_c2+1 > Nv-1? Nv:0)]];
-							fitness_change += weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c1+1]] + weights[tmp_tour[pos1_c2]][tmp_tour[pos1_c2+1 - (pos1_c2+1 > Nv-1? Nv:0)]];
-						}
 					}
 					else{
 						//inverts the section from c1 to c2 (see documentation Note3)
 						
 						for(size_t l=0; l < (double (Nv-(pos1_c1-pos1_c2)-1)/2); l++){
 							std::swap(tmp_tour[pos1_c1+1+l - (pos1_c1+1+l>Nv-1? Nv:0)],tmp_tour[pos1_c2-l + (pos1_c2<l? Nv:0)]);}
-						if(is_sym){
-							fitness_change -= weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c2]] + weights[tmp_tour[pos1_c1+1 - (pos1_c1+1 > Nv-1? Nv:0)]][tmp_tour[pos1_c2+1]];
-							fitness_change += weights[tmp_tour[pos1_c1]][tmp_tour[pos1_c1+1 - (pos1_c1+1 > Nv-1? Nv:0)]] + weights[tmp_tour[pos1_c2]][tmp_tour[pos1_c2+1]];
-						}
 						
 					}
 					pos1_c1 = pos1_c2; //better performance than original Inver-Over (shorter tour in less time)
 				}
 			} //end of while loop (looping over a single indvidual)
-			if(!is_sym){ //compute fitness of the temporary tour
-    				fitness_tmp = weights[tmp_tour[Nv-1]][tmp_tour[0]];
-    				for(size_t k=1; k < Nv; k++){
-        				fitness_tmp += weights[tmp_tour[k-1]][tmp_tour[k]];
-				}
-				fitness_change = fitness_tmp - fitness[i1]; 
-			}
-	
-			if(fitness_change < 0){ //replace individual?
-				my_pop[i1] = tmp_tour;
-				if(!is_sym){
-					fitness[i1] = fitness_tmp;
+			if(changed){
+				fitness_tmp = prob->objfun(tmp_tour);
+				if(prob->compare_fitness(fitness_tmp,fitness[i1])){ //replace individual?
+					my_pop[i1] = tmp_tour;
+					fitness[i1][0] = fitness_tmp[0];
 				}
 			}
-			
-			
 		} //end of loop over population
 	} //end of loop over generations
 

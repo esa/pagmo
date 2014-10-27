@@ -148,23 +148,37 @@ namespace pagmo { namespace problem {
 
     void tsp::objfun_impl(fitness_vector &f, const decision_vector& x) const 
     {
-        decision_vector tour;
         f[0]=0;
         switch( m_encoding ) {
             case FULL:
+	    {
+		decision_vector tour;
                 tour = full2cities(x);
-                break;
+        	for (decision_vector::size_type i=0; i<m_n_cities-1; ++i) {
+            	f[0] += m_weights[tour[i]][tour[i+1]];
+        	}
+        	f[0]+= m_weights[tour[m_n_cities-1]][tour[0]];
+		return;
+	    }
             case RANDOMKEYS:
+	    {
+		decision_vector tour;
                 tour = randomkeys2cities(x);
-                break;
+	        for (decision_vector::size_type i=0; i<m_n_cities-1; ++i) {
+            		f[0] += m_weights[tour[i]][tour[i+1]];
+        	}
+        	f[0]+= m_weights[tour[m_n_cities-1]][tour[0]];
+                return;
+	    }
             case CITIES:
-                tour = x;
-                break;
+	    {
+	        for (decision_vector::size_type i=0; i<m_n_cities-1; ++i) {
+            		f[0] += m_weights[x[i]][x[i+1]];
+        	}
+        	f[0]+= m_weights[x[m_n_cities-1]][x[0]];
+                return;
+	    }
         }
-        for (decision_vector::size_type i=0; i<m_n_cities-1; ++i) {
-            f[0] += m_weights.at(tour.at(i)).at(tour.at(i+1));
-        }
-        f[0]+= m_weights.at(tour.at(m_n_cities-1)).at(tour.at(0));
     }
 
     size_t compute_idx(const size_t i, const size_t j, const size_t n) 
