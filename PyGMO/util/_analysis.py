@@ -2,6 +2,7 @@ from __future__ import print_function as _dummy
 
 
 class analysis:
+
     """
     This class contains the tools necessary for exploratory analysis of the search,
     fitness and constraint space of a given problem. Several tests can be conducted
@@ -49,7 +50,8 @@ class analysis:
         self.c_span = []
         self.local_nclusters = 0
         self.local_initial_npoints = 0
-        self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = (0, 0, 0, 0, 0, 0)
+        self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = (
+            0, 0, 0, 0, 0, 0)
         self.fignum = 1
         self.lin_conv_npairs = 0
         self.c_lin_npairs = 0
@@ -69,7 +71,8 @@ class analysis:
             if npoints > 0:
                 self.sample(npoints, method, first)
         else:
-            raise ValueError("analysis: input either a problem or a population object to initialise the class")
+            raise ValueError(
+                "analysis: input either a problem or a population object to initialise the class")
 
         if output_to_file:
             import os
@@ -81,21 +84,28 @@ class analysis:
                     self.dir = './analysis_' + str(i)
                     break
             output = open(self.dir + '/log.txt', 'w+')
-            print("===============================================================================", file=output)
-            print("                                   ANALYSIS                                    ", file=output)
-            print("===============================================================================", file=output)
-            print("-------------------------------------------------------------------------------", file=output)
+            print(
+                "===============================================================================", file=output)
+            print(
+                "                                   ANALYSIS                                    ", file=output)
+            print(
+                "===============================================================================", file=output)
+            print(
+                "-------------------------------------------------------------------------------", file=output)
             print("PROBLEM PROPERTIES", file=output)
-            print("-------------------------------------------------------------------------------", file=output)
+            print(
+                "-------------------------------------------------------------------------------", file=output)
             print(self.prob, file=output)
             if self.npoints > 0:
-                print("-------------------------------------------------------------------------------", file=output)
-                print('SAMPLED [' + str(self.npoints) + '] POINTS VIA', method, 'METHOD FOR THE SUBSEQUENT TESTS', file=output)
+                print(
+                    "-------------------------------------------------------------------------------", file=output)
+                print('SAMPLED [' + str(self.npoints) + '] POINTS VIA',
+                      method, 'METHOD FOR THE SUBSEQUENT TESTS', file=output)
             output.close()
 
-    ######################################################################################################################
+    ##########################################################################
     # SAMPLING
-    ######################################################################################################################
+    ##########################################################################
     def sample(self, npoints, method='sobol', first=1):
         """
         Routine used to sample the search space. Samples in x, f and c and scales the datasets.
@@ -148,10 +158,12 @@ class analysis:
         self.ub = list(self.prob.ub)
 
         self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = \
-            self.prob.dimension, self.prob.dimension - self.prob.i_dimension, self.prob.i_dimension, self.prob.c_dimension, self.prob. ic_dimension, self.prob.f_dimension
+            self.prob.dimension, self.prob.dimension - \
+            self.prob.i_dimension, self.prob.i_dimension, self.prob.c_dimension, self.prob. ic_dimension, self.prob.f_dimension
 
         if self.npoints <= 0:
-            raise ValueError("analysis.sample: at least one point needs to be sampled")
+            raise ValueError(
+                "analysis.sample: at least one point needs to be sampled")
 
         if method == 'pop':
             poplength = len(self.pop)
@@ -162,7 +174,8 @@ class analysis:
                 raise ValueError(
                     "analysis.sample: it is not possible to sample more points than there are in the population via 'pop'")
             elif poplength == npoints:
-                self.points = [list(self.pop[i].cur_x) for i in range(poplength)]
+                self.points = [list(self.pop[i].cur_x)
+                               for i in range(poplength)]
                 self.f = [list(self.pop[i].cur_f) for i in range(poplength)]
             else:
                 idx = range(poplength)
@@ -205,7 +218,8 @@ class analysis:
             for i in range(npoints):
                 temp = list(sampler.next())  # sample in the unit hypercube
                 for j in range(self.dim):
-                    temp[j] = temp[j] * self.ub[j] + (1 - temp[j]) * self.lb[j]  # resize
+                    temp[j] = temp[j] * self.ub[j] + \
+                        (1 - temp[j]) * self.lb[j]  # resize
                     if j >= self.cont_dim:
                         temp[j] = round(temp[j], 0)  # round if necessary
                 self.points.append(temp)
@@ -223,8 +237,10 @@ class analysis:
         if self.dir is not None:
             output = open(self.dir + '/log.txt', 'r+')
             output.seek(0, 2)
-            print("\n-------------------------------------------------------------------------------", file=output)
-            print('SAMPLED [' + str(npoints) + '] POINTS VIA', method, 'METHOD FOR THE SUBSEQUENT TESTS', file=output)
+            print(
+                "\n-------------------------------------------------------------------------------", file=output)
+            print('SAMPLED [' + str(npoints) + '] POINTS VIA',
+                  method, 'METHOD FOR THE SUBSEQUENT TESTS', file=output)
             output.close()
 
     def _scale_sample(self):
@@ -242,9 +258,9 @@ class analysis:
             for j in range(self.c_dim):
                 self.c[i][j] /= self.c_span[j]
 
-    ######################################################################################################################
+    ##########################################################################
     # FITNESS DISTRIBUTION
-    ######################################################################################################################
+    ##########################################################################
     def f_distribution(self, percentile=[5, 10, 25, 50, 75], plot_f_distribution=True, plot_x_pcp=True, round_to=3):
         """
         This function gives the user information about the f-distribution of the sampled search-space. All properties are shown per objective (each objective one column). To compute the fitness distribution (mean, std, percentile, skeweness and kurtosis),
@@ -278,50 +294,62 @@ class analysis:
         * Plot of f-distribution as probability density function.
         * X-PCP: pcp of chromosome of points in the sample grouped by fitness value ranges (percentiles).
         """
-        if self.dir == None:
+        if self.dir is None:
             output = None
         else:
-            output=open(self.dir + '/log.txt','r+')
-            output.seek(0,2)
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
 
-        print("--------------------------------------------------------------------------------",file=output)
-        print("F-DISTRIBUTION FEATURES",end=" ",file=output)
-        if self.f_dim>1:
-            print("("+str(self.f_dim)+" OBJECTIVES)",file=output)
+        print(
+            "--------------------------------------------------------------------------------", file=output)
+        print("F-DISTRIBUTION FEATURES", end=" ", file=output)
+        if self.f_dim > 1:
+            print("(" + str(self.f_dim) + " OBJECTIVES)", file=output)
         else:
-            print("",file=output)
-        print("--------------------------------------------------------------------------------",file=output)
-        #print("Number of points sampled :              ",[self.npoints],file=output)
-        print("Fitness magnitude :",file=output)
-        print("     Min :                              ",[round(i,round_to) for i in self.f_offset],file=output)    
-        print("     Max :                              ",[round(i+j,round_to) for i,j in zip(self.f_span,self.f_offset)],file=output)
-        print("     Peak-to-peak (scale factor) :      ",[round(i,round_to) for i in self.f_span],file=output)
-        print("Fitness distribution :",file=output)
-        print("     Mean :                             ",[round(i,round_to) for i in self._mean()],file=output)
-        print("     Standard deviation :               ",[round(i,round_to) for i in self._std()],file=output)
-        if percentile!=[]:
-            print("     Percentiles :",file=output)
-        if isinstance(percentile,(int,float)):
-            percentile=[percentile]
-        percentile_values=self._percentile(percentile)
-        for (j,k) in zip(percentile,percentile_values):
-            if j<10:
-                print("          ",j,":                          ",[round(i,round_to) for i in k],file=output)
-            elif j==100:
-                print("          ",j,":                        ",[round(i,round_to) for i in k],file=output)
+            print("", file=output)
+        print(
+            "--------------------------------------------------------------------------------", file=output)
+        # print("Number of points sampled :              ",[self.npoints],file=output)
+        print("Fitness magnitude :", file=output)
+        print("     Min :                              ",
+              [round(i, round_to) for i in self.f_offset], file=output)
+        print("     Max :                              ", [
+              round(i + j, round_to) for i, j in zip(self.f_span, self.f_offset)], file=output)
+        print("     Peak-to-peak (scale factor) :      ",
+              [round(i, round_to) for i in self.f_span], file=output)
+        print("Fitness distribution :", file=output)
+        print("     Mean :                             ",
+              [round(i, round_to) for i in self._mean()], file=output)
+        print("     Standard deviation :               ",
+              [round(i, round_to) for i in self._std()], file=output)
+        if percentile != []:
+            print("     Percentiles :", file=output)
+        if isinstance(percentile, (int, float)):
+            percentile = [percentile]
+        percentile_values = self._percentile(percentile)
+        for (j, k) in zip(percentile, percentile_values):
+            if j < 10:
+                print("          ", j, ":                          ",
+                      [round(i, round_to) for i in k], file=output)
+            elif j == 100:
+                print("          ", j, ":                        ",
+                      [round(i, round_to) for i in k], file=output)
             else:
-                print("          ",j,":                         ",[round(i,round_to) for i in k] ,file=output)
-        print("     Skew :                             ",[round(i,round_to) for i in self._skew()],file=output)
-        print("     Kurtosis :                         ",[round(i,round_to) for i in self._kurtosis()],file=output)
-        print("Number of peaks of f-distribution :     ",self._n_peaks_f(),file=output)
-        if output!=None:
+                print("          ", j, ":                         ",
+                      [round(i, round_to) for i in k], file=output)
+        print("     Skew :                             ",
+              [round(i, round_to) for i in self._skew()], file=output)
+        print("     Kurtosis :                         ", [
+              round(i, round_to) for i in self._kurtosis()], file=output)
+        print("Number of peaks of f-distribution :     ",
+              self._n_peaks_f(), file=output)
+        if output not None:
             output.close()
         if plot_f_distribution:
             self.plot_f_distr()
-        if plot_x_pcp and percentile!=[]:
-            self.plot_x_pcp(percentile,percentile_values)
+        if plot_x_pcp and percentile != []:
+            self.plot_x_pcp(percentile, percentile_values)
 
-   
     def _skew(self):
         """
         **Returns** the skew of the f-distributions in the form of a list [fitness dimension].
@@ -335,7 +363,7 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._skew needs scipy to run. Is it installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._skew: sampling first is necessary")
         return skew(self.f).tolist()
@@ -353,7 +381,7 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._kurtosis needs scipy to run. Is it installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._kurtosis: sampling first is necessary")
         return kurtosis(self.f).tolist()
@@ -371,10 +399,10 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._mean needs numpy to run. Is it installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._mean: sampling first is necessary")
-        return mean(self.f,0).tolist()
+        return mean(self.f, 0).tolist()
 
     def _var(self):
         """
@@ -392,10 +420,10 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._var needs numpy to run. Is it installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._var: sampling first is necessary")
-        return var(self.f,0).tolist()
+        return var(self.f, 0).tolist()
 
     def _std(self):
         """
@@ -414,10 +442,10 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._std needs numpy to run. Is it installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._std: sampling first is necessary")
-        return std(self.f,0).tolist()
+        return std(self.f, 0).tolist()
 
     def _ptp(self):
         """
@@ -432,12 +460,12 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._ptp needs numpy to run. Is it installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._ptp: sampling first is necessary")
-        return ptp(self.f,0).tolist()
+        return ptp(self.f, 0).tolist()
 
-    def _percentile(self,p):
+    def _percentile(self, p):
         """
         **Returns** the percentile(s) of the f-distributions specified in p inthe form of a list
         [length p][fitness dimension].
@@ -445,7 +473,7 @@ class analysis:
 
         **USAGE:**
         analysis._percentile(p=[0,10,25,50,75,100])
-        
+
         * p: percentile(s) to return. Can be a single int/float or a list.
         """
         try:
@@ -453,67 +481,66 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._percentile needs numpy to run. Is it installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._percentile: sampling first is necessary")
-        if isinstance(p,(list,tuple)):
-            return [percentile(self.f,i,0).tolist() for i in p]
+        if isinstance(p, (list, tuple)):
+            return [percentile(self.f, i, 0).tolist() for i in p]
         else:
-            return percentile(self.f,p,0).tolist()
+            return percentile(self.f, p, 0).tolist()
 
-
-    def _n_peaks_f(self,nf=0):
+    def _n_peaks_f(self, nf=0):
         """
         **Returns** the number of peaks of the f-distributions in the form of a list [fitness dimension].
 
 
         **USAGE:**
         analysis._n_peaks_f([nf=100])
-        
+
         * nf: discretisation of the f-distributions used to find their peaks. Defaults to npoints-1.
         """
         try:
-            from numpy import array,zeros
+            from numpy import array, zeros
             from scipy.stats import gaussian_kde
         except ImportError:
             raise ImportError(
                 "analysis._n_peaks_f needs scipy, numpy and matplotlib to run. Are they installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._n_peaks_f: sampling first is necessary")
-        if nf==0:
-            nf=self.npoints-1
-        elif nf<3:
+        if nf == 0:
+            nf = self.npoints - 1
+        elif nf < 3:
             raise ValueError(
                 "analysis._n_peaks_f: value of nf too small")
-        npeaks=[]
+        npeaks = []
         for i in range(self.f_dim):
             npeaks.append(0)
-            f=[a[i] for a in self.f]
-            kde=gaussian_kde(f)
-            df=self._ptp()[i]/nf
-            x=[min(f)]
-            for j in range(0,nf):
-                x.append(x[j]+df)
-            y=kde(x)
-            minidx=[0]
-            k=1
-            for (a,b,c) in zip(y[0:nf-1],y[1:nf],y[2:nf+1]):
-                if a>b<c:
+            f = [a[i] for a in self.f]
+            kde = gaussian_kde(f)
+            df = self._ptp()[i] / nf
+            x = [min(f)]
+            for j in range(0, nf):
+                x.append(x[j] + df)
+            y = kde(x)
+            minidx = [0]
+            k = 1
+            for (a, b, c) in zip(y[0:nf - 1], y[1:nf], y[2:nf + 1]):
+                if a > b < c:
                     minidx.append(k)
-                k+=1
-            minidx.append(nf+1)
-            mode_mass=[kde.integrate_box_1d(x[minidx[j]],x[minidx[j+1]-1]) for j in range(len(minidx)-1)]
+                k += 1
+            minidx.append(nf + 1)
+            mode_mass = [kde.integrate_box_1d(
+                x[minidx[j]], x[minidx[j + 1] - 1]) for j in range(len(minidx) - 1)]
             for mode in mode_mass:
-                if mode>0.01:
-                    npeaks[i]+=1
+                if mode > 0.01:
+                    npeaks[i] += 1
         return npeaks
 
-
-    ######################################################################################################################
-    #FITNESS LINEARITY AND CONVEXITY
-    ######################################################################################################################
-    def f_linearity_convexity(self,n_pairs=0,tol=10**(-8),round_to=3):
+    ##########################################################################
+    # FITNESS LINEARITY AND CONVEXITY
+    ##########################################################################
+    def f_linearity_convexity(self, n_pairs=0, tol=10 ** (-8), round_to=3):
         """
         This function gives the user information about the probability of linearity and convexity
         of the fitness function(s). See analysis._p_lin_conv for a more thorough description of
@@ -539,23 +566,29 @@ class analysis:
         **NOTE:** integer variable values are fixed during each of the tests and linearity or convexity
         is assessed as regards the continuous part of the chromosome.
         """
-        if self.dir==None:
-            output=None
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-        print("-------------------------------------------------------------------------------",file=output)
-        print("PROBABILITY OF LINEARITY AND CONVEXITY",file=output)
-        print("-------------------------------------------------------------------------------",file=output)
-        p=self._p_lin_conv(n_pairs,tol)
-        print("Number of pairs of points used :        ",[self.lin_conv_npairs],file=output)
-        print("Probability of linearity :              ",[round(i,round_to) for i in p[0]],file=output)
-        print("Probability of convexity :              ",[round(i,round_to) for i in p[1]],file=output)
-        print("Mean deviation from linearity :         ",[round(i,round_to) for i in p[2]],file=output)
-        if output!=None:
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        print("PROBABILITY OF LINEARITY AND CONVEXITY", file=output)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        p = self._p_lin_conv(n_pairs, tol)
+        print("Number of pairs of points used :        ",
+              [self.lin_conv_npairs], file=output)
+        print("Probability of linearity :              ",
+              [round(i, round_to) for i in p[0]], file=output)
+        print("Probability of convexity :              ",
+              [round(i, round_to) for i in p[1]], file=output)
+        print("Mean deviation from linearity :         ",
+              [round(i, round_to) for i in p[2]], file=output)
+        if output is not None:
             output.close()
 
-    def _p_lin_conv(self,n_pairs=0,threshold=10**(-10)):
+    def _p_lin_conv(self, n_pairs=0, threshold=10 ** (-10)):
         """
         Tests the probability of linearity and convexity and the mean deviation from linearity of
         the f-distributions obtained. A pair of points (X1,F1),(X2,F2) from the sample is selected
@@ -567,7 +600,7 @@ class analysis:
 
         **USAGE:**
         analysis._p_lin_conv([n_pairs=100, threshold=10**(-10)])
-        
+
         * n_pairs: number of pairs of points used in the test. If set to 0, it will use as many pairs
           of points as points there are in the sample. Defaults to 0.
         * threshold: tolerance considered to rate the function as linear or convex between two points.
@@ -585,59 +618,64 @@ class analysis:
         **NOTE:** integer variables values are fixed during each of the tests and linearity or convexity
         is evaluated as regards the continuous part of the chromosome.
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._p_lin_conv: sampling first is necessary")
-        if self.cont_dim==0:
+        if self.cont_dim == 0:
             raise ValueError(
                 "analysis._p_lin_conv: this test makes no sense for purely integer problems")
-        if n_pairs==0:
-            n_pairs=self.npoints
+        if n_pairs == 0:
+            n_pairs = self.npoints
         try:
-            from numpy.random import random,randint
-            from numpy import array, multiply,divide,zeros
+            from numpy.random import random, randint
+            from numpy import array, multiply, divide, zeros
         except ImportError:
             raise ImportError(
                 "analysis._p_lin_conv needs numpy to run. Is it installed?")
-        p_lin=zeros(self.f_dim)
-        p_conv=zeros(self.f_dim)
-        mean_dev=zeros(self.f_dim)
+        p_lin = zeros(self.f_dim)
+        p_conv = zeros(self.f_dim)
+        mean_dev = zeros(self.f_dim)
         for i in range(n_pairs):
-            i1=randint(self.npoints)
-            i2=randint(self.npoints)
-            while (i2==i1):
-                i2=randint(self.npoints)
-            r=random()
-            x=r*array(self.points[i1])+(1-r)*array(self.points[i2])
+            i1 = randint(self.npoints)
+            i2 = randint(self.npoints)
+            while (i2 == i1):
+                i2 = randint(self.npoints)
+            r = random()
+            x = r * array(self.points[i1]) + (1 - r) * array(self.points[i2])
 
-            if self.cont_dim!=self.dim:
-                x[self.cont_dim:]=self.points[i1][self.cont_dim:]
-                x=multiply(array(x),array(self.ub)-array(self.lb))+array(self.lb)
-                x2=multiply(array(self.points[i2][:self.cont_dim]+self.points[i1][self.cont_dim:]),array(self.ub)-array(self.lb))+array(self.lb)
-                f2=divide(array(self.prob.objfun(x2))-array(self.f_offset),self.f_span)
-                f_lin=r*array(self.f[i1])+(1-r)*array(f2)
+            if self.cont_dim != self.dim:
+                x[self.cont_dim:] = self.points[i1][self.cont_dim:]
+                x = multiply(
+                    array(x), array(self.ub) - array(self.lb)) + array(self.lb)
+                x2 = multiply(array(self.points[i2][:self.cont_dim] + self.points[i1][
+                              self.cont_dim:]), array(self.ub) - array(self.lb)) + array(self.lb)
+                f2 = divide(
+                    array(self.prob.objfun(x2)) - array(self.f_offset), self.f_span)
+                f_lin = r * array(self.f[i1]) + (1 - r) * array(f2)
             else:
-                x=multiply(array(x),array(self.ub)-array(self.lb))+array(self.lb)
-                f_lin=r*array(self.f[i1])+(1-r)*array(self.f[i2])
+                x = multiply(
+                    array(x), array(self.ub) - array(self.lb)) + array(self.lb)
+                f_lin = r * array(self.f[i1]) + (1 - r) * array(self.f[i2])
 
-            f_real=divide(array(self.prob.objfun(x))-array(self.f_offset),self.f_span)
-            delta=f_lin-f_real
-            mean_dev+=abs(delta)
+            f_real = divide(
+                array(self.prob.objfun(x)) - array(self.f_offset), self.f_span)
+            delta = f_lin - f_real
+            mean_dev += abs(delta)
             for j in range(self.f_dim):
-                if abs(delta[j])<threshold:
-                    p_lin[j]+=1
-                elif delta[j]>0:
-                    p_conv[j]+=1
-        p_lin/=n_pairs
-        p_conv/=n_pairs
-        mean_dev/=n_pairs
-        self.lin_conv_npairs=n_pairs
-        return (list(p_lin),list(p_conv),list(mean_dev))
+                if abs(delta[j]) < threshold:
+                    p_lin[j] += 1
+                elif delta[j] > 0:
+                    p_conv[j] += 1
+        p_lin /= n_pairs
+        p_conv /= n_pairs
+        mean_dev /= n_pairs
+        self.lin_conv_npairs = n_pairs
+        return (list(p_lin), list(p_conv), list(mean_dev))
 
-    ######################################################################################################################
-    #FITNESS REGRESSION
-    ######################################################################################################################
-    def f_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):
+    ##########################################################################
+    # FITNESS REGRESSION
+    ##########################################################################
+    def f_regression(self, degree=[], interaction=False, pred=True, tol=10 ** (-8), round_to=3):
         """
         This function performs polynomial regressions on each objective function and measures the
         precision of these regressions.
@@ -657,7 +695,7 @@ class analysis:
           to all regressions performed. Defaults to True.
         * tol: tolerance to consider a coefficient of the regression model as zero. Defaults to 10**(-8).
         * round_to: precision of the results printed. Defaults to 3.
- 
+
 
         **Prints to screen or file:**
 
@@ -672,53 +710,60 @@ class analysis:
 
         **REF:** http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf
         """
-        if self.dir==None:
-            output=None
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
 
-        if isinstance(degree,int):
-            degree=[degree]
-        if len(degree)>0:
-            if isinstance(interaction,bool):
-                interaction=[interaction]*len(degree)
-            if isinstance(pred,bool):
-                pred=[pred]*len(degree)
-            if len(degree)!=len(interaction) or len(degree)!=len(pred):
+        if isinstance(degree, int):
+            degree = [degree]
+        if len(degree) > 0:
+            if isinstance(interaction, bool):
+                interaction = [interaction] * len(degree)
+            if isinstance(pred, bool):
+                pred = [pred] * len(degree)
+            if len(degree) != len(interaction) or len(degree) != len(pred):
                 raise ValueError(
-                        "analysis.f_regression: format of arguments is incorrect")
+                    "analysis.f_regression: format of arguments is incorrect")
 
-            print("-------------------------------------------------------------------------------",file=output)
-            print("F-REGRESSION",file=output)
-            print("-------------------------------------------------------------------------------",file=output)
-            properties=[]
-            for deg,inter,predi in zip(degree,interaction,pred):
-                properties.append(self._regression_properties(degree=deg,interaction=interaction,mode='f',pred=predi,tol=tol,w=None))
+            print(
+                "-------------------------------------------------------------------------------", file=output)
+            print("F-REGRESSION", file=output)
+            print(
+                "-------------------------------------------------------------------------------", file=output)
+            properties = []
+            for deg, inter, predi in zip(degree, interaction, pred):
+                properties.append(self._regression_properties(
+                    degree=deg, interaction=interaction, mode='f', pred=predi, tol=tol, w=None))
             for f in range(self.f_dim):
-                if self.f_dim>1:
-                    print("OBJECTIVE "+str(f+1)+" :",file=output)
-                spaces=[7,17,9,9,11,9,11]
-                print("DEGREE".center(spaces[0]),"F".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
-                for deg,inter,prop in zip(degree,interaction,properties):
+                if self.f_dim > 1:
+                    print("OBJECTIVE " + str(f + 1) + " :", file=output)
+                spaces = [7, 17, 9, 9, 11, 9, 11]
+                print("DEGREE".center(spaces[0]), "F".center(spaces[1]), "R2".center(spaces[2]), "R2adj".center(spaces[
+                      3]), "RMSE".center(spaces[4]), "R2pred".center(spaces[5]), "PRESS-RMSE".center(spaces[6]), file=output)
+                for deg, inter, prop in zip(degree, interaction, properties):
                     if inter:
-                        print((str(deg)+'(i)').center(spaces[0]),end=' ',file=output)
+                        print(
+                            (str(deg) + '(i)').center(spaces[0]), end=' ', file=output)
                     else:
-                        print(str(deg).center(spaces[0]),end=' ',file=output)
-                    for i,s in zip(prop[f],spaces[1:]):
-                        if i==None:
-                            print("X".center(s),end=' ',file=output)
+                        print(str(deg).center(spaces[0]), end=' ', file=output)
+                    for i, s in zip(prop[f], spaces[1:]):
+                        if i is None:
+                            print("X".center(s), end=' ', file=output)
                         else:
-                            string=str(i).split('e')
-                            if len(string)>1:
-                                print((str(round(float(string[0]),round_to))+'e'+string[1]).center(s),end=' ',file=output)
+                            string = str(i).split('e')
+                            if len(string) > 1:
+                                print(
+                                    (str(round(float(string[0]), round_to)) + 'e' + string[1]).center(s), end=' ', file=output)
                             else:
-                                print(str(round(i,round_to)).center(s),end=' ',file=output)
+                                print(
+                                    str(round(i, round_to)).center(s), end=' ', file=output)
                     print(file=output)
-        if output!=None:
+        if output is not None:
             output.close()
 
-    def _regression_coefficients(self,degree,interaction=False,mode='f',A=None):    
+    def _regression_coefficients(self, degree, interaction=False, mode='f', A=None):
         """
         Performs a polynomial regression on the sampled dataset and **Returns** the
         coefficients of the polynomial model.
@@ -742,47 +787,47 @@ class analysis:
         * w[fitness/constraint dimension][number of coefficients]: coefficients of the
           regression model, ordered as follows: highest order first, lexicographical.
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._regression_coefficients: sampling first is necessary")
-        if degree<1 or degree>10:
+        if degree < 1 or degree > 10:
             raise ValueError(
                 "analysis._regression_coefficients: regression_degree needs to be [1,10]")
-        if mode=='c':
-            if self.c_dim==0:
+        if mode == 'c':
+            if self.c_dim == 0:
                 raise ValueError(
                     "analysis._regression_coefficients: selected mode 'c' for unconstrained problem")
-            elif self.c==[]:
+            elif self.c == []:
                 raise ValueError(
                     "analysis._regression_coefficients: computing constraints first is necessary")
         else:
-            if mode!='f':
+            if mode != 'f':
                 raise ValueError(
-                    "analysis._regression_coefficients: mode needs to be 'f' or 'c' ") 
+                    "analysis._regression_coefficients: mode needs to be 'f' or 'c' ")
         try:
             from numpy.linalg import lstsq
             from numpy import array
         except ImportError:
             raise ImportError(
                 "analysis._regression_coefficients needs numpy to run. Is it installed?")
-        if A==None:
-            A=self._build_polynomial(self.points,degree,interaction)
-        if mode=='f':
-            l=self.f_dim
+        if A is None:
+            A = self._build_polynomial(self.points, degree, interaction)
+        if mode == 'f':
+            l = self.f_dim
         else:
-            l=self.c_dim
-        w=[]
+            l = self.c_dim
+        w = []
         for i in range(l):
-            if mode=='f':
-                b=[self.f[j][i] for j in range(self.npoints)]
+            if mode == 'f':
+                b = [self.f[j][i] for j in range(self.npoints)]
             else:
-                b=[self.c[j][i] for j in range(self.npoints)]
-            b=array(b)
-            temp=lstsq(A,b)[0]
+                b = [self.c[j][i] for j in range(self.npoints)]
+            b = array(b)
+            temp = lstsq(A, b)[0]
             w.append(list(temp))
         return w
 
-    def _regression_properties(self,degree,interaction=False,mode='f',pred=True,tol=10**(-8),w=None):
+    def _regression_properties(self, degree, interaction=False, mode='f', pred=True, tol=10 ** (-8), w=None):
         """
         Tests the precision and extracts the properties of a regression model fitting the dataset.
 
@@ -801,7 +846,7 @@ class analysis:
         * tol: tolerance to consider a coefficient of the model as zero. Defaults to 10**(-8).
         * w: coefficients of the regression model whose propperties one wants to assess. This argument
           is added for reusability, if set to None they will be calculated. Defaults to None.
-        
+
 
         **Returns** list of size [fitness/constraint dimension][6] containing, per fitness/constraint function:
 
@@ -816,42 +861,46 @@ class analysis:
         **REF:** http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf
         """
         try:
-            from numpy import var,array,zeros
+            from numpy import var, array, zeros
         except ImportError:
             raise ImportError(
                 "analysis._regression_properties needs numpy to run. Is it installed?")
-        if mode=='f':
-            y=self.f
-            y_dim=self.f_dim
-        elif mode=='c':
-            y=self.c
-            y_dim=self.c_dim
-        if w==None:
-            w=self._regression_coefficients(degree,interaction,mode)
-        sst=self.npoints*var(y,0)
-        sse=sum((array(self._regression_predict(w,self.points,degree,interaction))-array(y))**2,0)
-        output=[]
+        if mode == 'f':
+            y = self.f
+            y_dim = self.f_dim
+        elif mode == 'c':
+            y = self.c
+            y_dim = self.c_dim
+        if w is None:
+            w = self._regression_coefficients(degree, interaction, mode)
+        sst = self.npoints * var(y, 0)
+        sse = sum((array(self._regression_predict(
+            w, self.points, degree, interaction)) - array(y)) ** 2, 0)
+        output = []
         if pred:
-            press=self._regression_press(degree,interaction,mode)
+            press = self._regression_press(degree, interaction, mode)
         for i in range(y_dim):
-            p=0
-            tmp=[]
+            p = 0
+            tmp = []
             for j in w[i][:-1]:
-                if abs(j)>tol:
-                    p+=1
-            tmp.append(((sst[i]-sse[i])/sse[i])*(self.npoints-p-1)/p)#F
-            tmp.append(1-sse[i]/sst[i])#R2
-            tmp.append(1-(1-tmp[1])*(self.npoints-1)/(self.npoints-p-1))#R2adj
-            tmp.append((sse[i]/(self.npoints-p-1))**0.5)#RMSE
+                if abs(j) > tol:
+                    p += 1
+            tmp.append(
+                ((sst[i] - sse[i]) / sse[i]) * (self.npoints - p - 1) / p)  # F
+            tmp.append(1 - sse[i] / sst[i])  # R2
+            # R2adj
+            tmp.append(
+                1 - (1 - tmp[1]) * (self.npoints - 1) / (self.npoints - p - 1))
+            tmp.append((sse[i] / (self.npoints - p - 1)) ** 0.5)  # RMSE
             if pred:
-                tmp.append(1-press[i]/sst[i])#R2pred
-                tmp.append((press[i]/(self.npoints))**0.5)#PRESS-RMSE
+                tmp.append(1 - press[i] / sst[i])  # R2pred
+                tmp.append((press[i] / (self.npoints)) ** 0.5)  # PRESS-RMSE
             else:
-                tmp.extend([None,None])
+                tmp.extend([None, None])
             output.append(tmp)
         return output
 
-    def _regression_press(self,degree,interaction=False,mode='f'):
+    def _regression_press(self, degree, interaction=False, mode='f'):
         """
         Calculates the PRESS of a regression model on the dataset. This involves fitting of as
         many models as points there are in the dataset.
@@ -872,107 +921,109 @@ class analysis:
         * PRESS [fitness/constraint dimension].
         """
         try:
-            from numpy import array,zeros
+            from numpy import array, zeros
         except ImportError:
             raise ImportError(
                 "analysis._regression_press needs numpy to run. Is it installed?")
-        if mode=='f':
-            y_dim=self.f_dim
-            y=self.f
-        elif mode=='c':
-            y_dim=self.c_dim
-            y=self.c
-        press=zeros(y_dim)
-        A=self._build_polynomial(self.points,degree,interaction)
-        self.npoints-=1
-        for i in range(self.npoints+1):
-            x=self.points.pop(0)
-            a=A.pop(0)
-            yreal=y.pop(0)
-            w=self._regression_coefficients(degree,interaction,mode,A)
-            ypred=array(self._regression_predict(w,[x],degree,interaction))[0]
-            press=press+(ypred-yreal)**2
+        if mode == 'f':
+            y_dim = self.f_dim
+            y = self.f
+        elif mode == 'c':
+            y_dim = self.c_dim
+            y = self.c
+        press = zeros(y_dim)
+        A = self._build_polynomial(self.points, degree, interaction)
+        self.npoints -= 1
+        for i in range(self.npoints + 1):
+            x = self.points.pop(0)
+            a = A.pop(0)
+            yreal = y.pop(0)
+            w = self._regression_coefficients(degree, interaction, mode, A)
+            ypred = array(
+                self._regression_predict(w, [x], degree, interaction))[0]
+            press = press + (ypred - yreal) ** 2
             A.append(a)
             self.points.append(x)
             y.append(yreal)
-        self.npoints+=1
+        self.npoints += 1
         return press.tolist()
 
-    def _build_polynomial(self,x,degree,interaction=False):
+    def _build_polynomial(self, x, degree, interaction=False):
         """
         Builds the polynomial base necessary to fit or evaluate a regression model.
 
 
         **USAGE:**
         analysis._build_polynomial(x=analysis.points, degree=2 [,interaction=True])
-        
+
         * x [number of points][dimension]: chromosome (or list of chromosomes) of the point (or points)
           whose polynomial is built.
         * degree: degree of the polynomial.
         * interaction: if True, interaction products of first order will be added. These are all terms
           of order regression_degree+1 that involve at least 2 variables. Defaults to False.
-        
+
 
         **Returns**:
-        
+
         * A[number of points][number of terms in the polynomial].
         """
         from itertools import combinations_with_replacement
         if interaction:
-            coef=list(combinations_with_replacement(range(self.dim),degree+1))
+            coef = list(
+                combinations_with_replacement(range(self.dim), degree + 1))
             for i in range(self.dim):
-                coef.remove((i,)*(degree+1))
+                coef.remove((i,) * (degree + 1))
         else:
-            coef=[]
-        for i in range(degree,1,-1):
-            coef=coef+list(combinations_with_replacement(range(self.dim),i))
-        n_coef=len(coef)
+            coef = []
+        for i in range(degree, 1, -1):
+            coef = coef + \
+                list(combinations_with_replacement(range(self.dim), i))
+        n_coef = len(coef)
 
-        A=[]
+        A = []
         for i in range(len(x)):
-            c=[]
+            c = []
             for j in range(n_coef):
-                prod=1
+                prod = 1
                 for k in range(len(coef[j])):
-                    prod*=x[i][coef[j][k]]
+                    prod *= x[i][coef[j][k]]
                 c.append(prod)
-            A.append(c+x[i]+[1])
+            A.append(c + x[i] + [1])
         return A
 
-    def _regression_predict(self,coefficients,x,degree,interaction=False):
+    def _regression_predict(self, coefficients, x, degree, interaction=False):
         """
-        Routine that, given the coefficients of a regression model and a point, calculates the 
+        Routine that, given the coefficients of a regression model and a point, calculates the
         predicted value for that point.
 
 
         **USAGE:**
         analysis._regression_predict(coefficients=[1,1,1,1], x=[[0,0,0],[1,1,1]], degree=1 [,interaction=False])
-        
+
         * coefficients[fitness/constraint dimension][number of coefficients]: of the regression model
         * x[number of points][dimension]: chromosome of point to evaluate.
         * degree: of the regression model.
         * interaction: if True, interaction products of first order will be added. These are all terms
           of order regression_degree+1 that involve at least 2 variables. Defaults to False.
-        
+
 
         **Returns**:
-        
+
         * prediction[number of points][fitness/constraint dimension].
         """
         try:
-            from numpy import array,dot,transpose
+            from numpy import array, dot, transpose
         except ImportError:
             raise ImportError(
                 "analysis._regression_predict needs numpy to run. Is it installed?")
-        polynomial=array(self._build_polynomial(x,degree,interaction))
-        prediction=dot(polynomial,transpose(coefficients))
+        polynomial = array(self._build_polynomial(x, degree, interaction))
+        prediction = dot(polynomial, transpose(coefficients))
         return prediction.tolist()
 
- 
-    ######################################################################################################################
-    #OBJECTIVES CORRELATION
-    ######################################################################################################################           
-    def f_correlation(self,tc=0.95,tabs=0.1,round_to=3):
+    ##########################################################################
+    # OBJECTIVES CORRELATION
+    ##########################################################################
+    def f_correlation(self, tc=0.95, tabs=0.1, round_to=3):
         """
         This function performs first dimensionality reduction via PCA on the fitness sample of
         multi-objective problems following the algorithm proposed in the reference. It also gives the user other informations about objective
@@ -1000,33 +1051,39 @@ class analysis:
         * Eigenvalues, relative contribution, eigenvectors (of the objective correlation matrix).
         * Objective correlation matrix.
         """
-        from numpy import asarray,ones
-        if self.dir==None:
-            output=None
+        from numpy import asarray, ones
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-        print("--------------------------------------------------------------------------------",file=output)
-        print("OBJECTIVES CORRELATION ",file=output)
-        print("--------------------------------------------------------------------------------",file=output)
-        if self.f_dim==1:
-            print("This is a single-objective problem.",file=output)
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+        print(
+            "--------------------------------------------------------------------------------", file=output)
+        print("OBJECTIVES CORRELATION ", file=output)
+        print(
+            "--------------------------------------------------------------------------------", file=output)
+        if self.f_dim == 1:
+            print("This is a single-objective problem.", file=output)
         else:
-            obj_corr=self._f_correlation()
-            critical_obj=self._perform_f_pca(obj_corr,tc=tc,tabs=tabs)
-            print("Critical objectives from first PCA :    ",[int(i+1) for i in critical_obj],file=output)
+            obj_corr = self._f_correlation()
+            critical_obj = self._perform_f_pca(obj_corr, tc=tc, tabs=tabs)
+            print("Critical objectives from first PCA :    ",
+                  [int(i + 1) for i in critical_obj], file=output)
 
-            print("Eigenvalues".center(12),"Relative contribution".center(23),"Eigenvectors".center(45),file=output)
-            total_ev=sum(obj_corr[1])
+            print("Eigenvalues".center(12), "Relative contribution".center(
+                23), "Eigenvectors".center(45), file=output)
+            total_ev = sum(obj_corr[1])
             for i in range(self.f_dim):
-                print(str(round(obj_corr[1][i],round_to)).center(12),(str(round(100*abs(obj_corr[1][i])/sum([abs(e) for e in obj_corr[1]]),round_to))+'%').center(23),str([round(val,round_to) for val in obj_corr[2][i]]).center(45),file=output)
-            print("Objective correlation matrix :          ",file=output)
+                print(str(round(obj_corr[1][i], round_to)).center(12), (str(round(100 * abs(obj_corr[1][i]) / sum([abs(e) for e in obj_corr[
+                      1]]), round_to)) + '%').center(23), str([round(val, round_to) for val in obj_corr[2][i]]).center(45), file=output)
+            print("Objective correlation matrix :          ", file=output)
             for i in range(self.f_dim):
-                print("     [",end='',file=output)
+                print("     [", end='', file=output)
                 for j in obj_corr[0][i]:
-                    print(str(round(j,round_to)).center(8),end='',file=output)
-                print("]",file=output)
-        if output!=None:
+                    print(
+                        str(round(j, round_to)).center(8), end='', file=output)
+                print("]", file=output)
+        if output is not None:
             output.close()
 
     def _f_correlation(self):
@@ -1045,25 +1102,25 @@ class analysis:
         * eval[search dimension]: its eigenvalues.
         * evect[search dimension][search dimension]: its eigenvectors.
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._f_correlation: sampling first is necessary")
-        if self.f_dim<2:
+        if self.f_dim < 2:
             raise ValueError(
                 "analysis._f_correlation: this test makes no sense for single-objective optimisation")
         try:
-            from numpy import corrcoef,transpose,dot
+            from numpy import corrcoef, transpose, dot
             from numpy.linalg import eigh
         except ImportError:
             raise ImportError(
                 "analysis._f_correlation needs numpy to run. Is it installed?")
-        M=corrcoef(self.f, rowvar=0)
-        e=eigh(M)
+        M = corrcoef(self.f, rowvar=0)
+        e = eigh(M)
         return (M.tolist(), e[0].tolist(), transpose(e[1]).tolist())
-    
-    def _perform_f_pca(self,obj_corr=None,tc=0.95,tabs=0.1):
+
+    def _perform_f_pca(self, obj_corr=None, tc=0.95, tabs=0.1):
         """
-        Performs first Objective Reduction using Principal Component Analysis on the objective 
+        Performs first Objective Reduction using Principal Component Analysis on the objective
         correlation matrix as defined in the reference and **Returns** a list of the relevant objectives
         according to this procedure. Only for multi-objective problems.
 
@@ -1072,102 +1129,103 @@ class analysis:
         * obj_corr: objective correlation matrix, its eigenvalues and eigenvectors, in the form of the output of analysis._f_correlation. This parameter is added for reusability (if None, these will be calculated). Defaults to None.
         * tc: threshold cut. When the cumulative contribution of the eigenvalues absolute value equals this fraction of its maximum value, the reduction algorithm stops. A higher threshold cut means less reduction (see reference). Defaults to 0.95.
         * tabs: absolute tolerance. A Principal Component is treated differently if the absolute value of its corresponding eigenvalue is lower than this value (see reference). Defaults to 0.1.
-        
+
 
         **Returns**:
 
         * Keep: list of critical objectives or objectives to keep (zero-based).
 
-        
+
         **REF:** Deb K. and Saxena D.K, On Finding Pareto-Optimal Solutions Through Dimensionality
         Reduction for Certain Large-Dimensional Multi-Objective Optimization Problems, KanGAL Report
         No. 2005011, IIT Kanpur, 2005.
         """
         try:
-            from numpy import asarray,corrcoef,transpose,dot,argmax,argmin
+            from numpy import asarray, corrcoef, transpose, dot, argmax, argmin
             from numpy.linalg import eigh
             from itertools import combinations
         except ImportError:
             raise ImportError(
                 "analysis._perform_f_pca needs numpy to run. Is it installed?")
-        if obj_corr==None:
-            obj_corr=self._f_correlation()
-        M=obj_corr[0]
-        eigenvals=asarray(obj_corr[1])
-        eigenvects=asarray(obj_corr[2])
-        #eigenvalue elimination of redundant objectives
-        contributions=(asarray(abs(eigenvals))/sum(abs(eigenvals))).tolist()
-        l=len(eigenvals)
-        eig_order=[y for (x,y) in sorted(zip(contributions,range(l)),reverse=True)]
-        cumulative_contribution=0
-        keep=[]
-        first=True
+        if obj_corr is None:
+            obj_corr = self._f_correlation()
+        M = obj_corr[0]
+        eigenvals = asarray(obj_corr[1])
+        eigenvects = asarray(obj_corr[2])
+        # eigenvalue elimination of redundant objectives
+        contributions = (
+            asarray(abs(eigenvals)) / sum(abs(eigenvals))).tolist()
+        l = len(eigenvals)
+        eig_order = [
+            y for (x, y) in sorted(zip(contributions, range(l)), reverse=True)]
+        cumulative_contribution = 0
+        keep = []
+        first = True
         for i in eig_order:
-            index_p,index_n=argmax(eigenvects[i]),argmin(eigenvects[i])
-            p,n=eigenvects[i][index_p],eigenvects[i][index_n]
+            index_p, index_n = argmax(eigenvects[i]), argmin(eigenvects[i])
+            p, n = eigenvects[i][index_p], eigenvects[i][index_n]
             if first:
-                first=False
-                if p>0:
-                    if all([k!=index_p for k in keep]):
+                first = False
+                if p > 0:
+                    if all([k != index_p for k in keep]):
                         keep.append(index_p)
-                    if n<0:
-                        if all([k!=index_n for k in keep]):
+                    if n < 0:
+                        if all([k != index_n for k in keep]):
                             keep.append(index_n)
                 else:
-                    keep=range(l)
+                    keep = range(l)
                     break
-            elif abs(eigenvals[i])<tabs:
-                if abs(p)>abs(n):
-                    if all([k!=index_p for k in keep]):
+            elif abs(eigenvals[i]) < tabs:
+                if abs(p) > abs(n):
+                    if all([k != index_p for k in keep]):
                         keep.append(index_p)
                 else:
-                    if all([k!=index_n for k in keep]):
+                    if all([k != index_n for k in keep]):
                         keep.append(index_n)
             else:
-                if n>=0:
-                    if all([k!=index_p for k in keep]):
+                if n >= 0:
+                    if all([k != index_p for k in keep]):
                         keep.append(index_p)
-                elif p<=0:
-                    keep=range(l)
+                elif p <= 0:
+                    keep = range(l)
                     break
                 else:
-                    if abs(n)>=p>=0.9*abs(n):
-                        if all([k!=index_p for k in keep]):
+                    if abs(n) >= p >= 0.9 * abs(n):
+                        if all([k != index_p for k in keep]):
                             keep.append(index_p)
-                        if all([k!=index_n for k in keep]):    
+                        if all([k != index_n for k in keep]):
                             keep.append(index_n)
-                    elif p<0.9*abs(n):
-                        if all([k!=index_n for k in keep]):
+                    elif p < 0.9 * abs(n):
+                        if all([k != index_n for k in keep]):
                             keep.append(index_n)
                     else:
-                        if abs(n)>=0.8*p:
-                            if all([k!=index_p for k in keep]):
+                        if abs(n) >= 0.8 * p:
+                            if all([k != index_p for k in keep]):
                                 keep.append(index_p)
-                            if all([k!=index_n for k in keep]):    
+                            if all([k != index_n for k in keep]):
                                 keep.append(index_n)
                         else:
-                            if all([k!=index_p for k in keep]):
+                            if all([k != index_p for k in keep]):
                                 keep.append(index_p)
 
-            cumulative_contribution+=contributions[i]
-            if cumulative_contribution>=tc or len(keep)==l:
+            cumulative_contribution += contributions[i]
+            if cumulative_contribution >= tc or len(keep) == l:
                 break
-        #correlation elimination of redundant objectives
-        if len(keep)>2: 
-            c=list(combinations(keep,2))
+        # correlation elimination of redundant objectives
+        if len(keep) > 2:
+            c = list(combinations(keep, 2))
             for i in range(len(c)):
-                if all([x*y>0 for x,y in zip(M[c[i][0]],M[c[i][1]])]) and any([k==c[i][1] for k in keep]) and any([k==c[i][0] for k in keep]):
-                    if keep.index(c[i][0])<keep.index(c[i][1]):
+                if all([x * y > 0 for x, y in zip(M[c[i][0]], M[c[i][1]])]) and any([k == c[i][1] for k in keep]) and any([k == c[i][0] for k in keep]):
+                    if keep.index(c[i][0]) < keep.index(c[i][1]):
                         keep.remove(c[i][1])
                     else:
                         keep.remove(c[i][0])
         return sorted(keep)
 
-
-    ######################################################################################################################
-    #FITNESS SENSITIVITY
-    ###################################################################################################################### 
-    def f_sensitivity(self,hessian=True,plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0,h=0.01,conv_tol=10**(-6),zero_tol=10**(-8),tmax=15,round_to=3):
+    ##########################################################################
+    # FITNESS SENSITIVITY
+    ##########################################################################
+    def f_sensitivity(self, hessian=True, plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0, h=0.01, conv_tol=10 ** (-6), zero_tol=10 ** (-8), tmax=15, round_to=3):
         """
         This function evaluates the jacobian matrix and hessian tensor in a subset of the sample
         in order to extract information about sensitivity of the fitness function(s) with respect
@@ -1177,7 +1235,7 @@ class analysis:
 
         **USAGE:**
         analysis.f_sensitivity([hessian=True, plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0, h=0.01,conv_tol=10**(-6), zero_tol=10**(-8), tmax=15, round_to=3])
-        
+
         * hessian: if True, the hessian tensor and its properties will also be evaluated. Defaults to True.
         * plot_gradient_sparsity: if True, the Jacobian matrix sparsity plot will be generated.
         * plot_pcp: if True, the gradient PCP (with chromosome in X-axis) will be generated. Defaults to True.
@@ -1191,7 +1249,7 @@ class analysis:
 
 
         **Prints to screen or file:**
-        
+
         * Number of points used.
         * Percentiles 0, 25, 50, 75 and 100 of the distribution of:
 
@@ -1214,47 +1272,59 @@ class analysis:
         functions store a great number of properties as class attributes. See their respective
         entries for more information about these attributes.
         """
-        if self.dir==None:
-            output=None
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-        print("-------------------------------------------------------------------------------",file=output)
-        print("F-SENSITIVITY ",file=output)
-        print("-------------------------------------------------------------------------------",file=output)
-        self._get_gradient(sample_size=sample_size,h=h,grad_tol=conv_tol,zero_tol=zero_tol,tmax=tmax,mode='f')
-        g=self._grad_properties(tol=zero_tol,mode='f')
-        self._get_hessian(sample_size=sample_size,h=h,hess_tol=conv_tol,tmax=tmax)
-        h=self._hess_properties(tol=zero_tol)
-        print("Number of points used :    ",[self.grad_npoints],file=output)
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        print("F-SENSITIVITY ", file=output)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        self._get_gradient(sample_size=sample_size, h=h,
+                           grad_tol=conv_tol, zero_tol=zero_tol, tmax=tmax, mode='f')
+        g = self._grad_properties(tol=zero_tol, mode='f')
+        self._get_hessian(
+            sample_size=sample_size, h=h, hess_tol=conv_tol, tmax=tmax)
+        h = self._hess_properties(tol=zero_tol)
+        print("Number of points used :    ", [self.grad_npoints], file=output)
         for f in range(self.f_dim):
-            if self.f_dim>1:
-                print("OBJECTIVE "+str(f+1)+" :",file=output)
-            print("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
-            print("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
-            print("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
+            if self.f_dim > 1:
+                print("OBJECTIVE " + str(f + 1) + " :", file=output)
+            print("  Percentiles : ".ljust(28), "0".center(9), "25".center(9), "50".center(
+                9), "75".center(9), "100".center(9), "", sep="|", file=output)
+            print("     Gradient norm :".ljust(28), str(round(g[0][f][0], round_to)).center(9), str(round(g[0][f][1], round_to)).center(9), str(round(
+                g[0][f][2], round_to)).center(9), str(round(g[0][f][3], round_to)).center(9), str(round(g[0][f][4], round_to)).center(9), "", sep="|", file=output)
+            print("    |dFx|_max/|dFx|_min :".ljust(28), str(round(g[1][f][0], round_to)).center(9), str(round(g[1][f][1], round_to)).center(9), str(round(
+                g[1][f][2], round_to)).center(9), str(round(g[1][f][3], round_to)).center(9), str(round(g[1][f][4], round_to)).center(9), "", sep="|", file=output)
             if hessian:
-                print("     Hessian conditioning :".ljust(28),str(round(h[0][f][0],round_to)).center(9),str(round(h[0][f][1],round_to)).center(9),str(round(h[0][f][2],round_to)).center(9),str(round(h[0][f][3],round_to)).center(9),str(round(h[0][f][4],round_to)).center(9),"",sep="|",file=output)
-                print("     Gradient sparsity :                               ","["+str(round(self.grad_sparsity,round_to))+"]",file=output)  
-                print("     Fraction of points with PD hessian :              ","["+str(round(h[1][f],round_to))+"]",file=output)
-                print("     Fraction of points with PSD (not PD) hessian :    ","["+str(round(h[2][f],round_to))+"]",file=output)
+                print("     Hessian conditioning :".ljust(28), str(round(h[0][f][0], round_to)).center(9), str(round(h[0][f][1], round_to)).center(9), str(round(
+                    h[0][f][2], round_to)).center(9), str(round(h[0][f][3], round_to)).center(9), str(round(h[0][f][4], round_to)).center(9), "", sep="|", file=output)
+                print("     Gradient sparsity :                               ",
+                      "[" + str(round(self.grad_sparsity, round_to)) + "]", file=output)
+                print("     Fraction of points with PD hessian :              ",
+                      "[" + str(round(h[1][f], round_to)) + "]", file=output)
+                print("     Fraction of points with PSD (not PD) hessian :    ",
+                      "[" + str(round(h[2][f], round_to)) + "]", file=output)
             else:
-                print("     Gradient sparsity :           ","["+str(round(self.grad_sparsity,round_to))+"]",file=output)
-        if output!=None:
+                print("     Gradient sparsity :           ",
+                      "[" + str(round(self.grad_sparsity, round_to)) + "]", file=output)
+        if output is not None:
             output.close()
         if plot_gradient_sparsity:
-            self.plot_gradient_sparsity(zero_tol=zero_tol,mode='f')
-        if plot_pcp and self.cont_dim>1:
-            self.plot_gradient_pcp(mode='f',invert=False)
-        if plot_inverted_pcp and self.f_dim>1:
-            self.plot_gradient_pcp(mode='f',invert=True)
+            self.plot_gradient_sparsity(zero_tol=zero_tol, mode='f')
+        if plot_pcp and self.cont_dim > 1:
+            self.plot_gradient_pcp(mode='f', invert=False)
+        if plot_inverted_pcp and self.f_dim > 1:
+            self.plot_gradient_pcp(mode='f', invert=True)
 
-    def _get_gradient(self,sample_size=0,h=0.01,grad_tol=0.000001,zero_tol=0.000001,tmax=15,mode='f'):
+    def _get_gradient(self, sample_size=0, h=0.01, grad_tol=0.000001, zero_tol=0.000001, tmax=15, mode='f'):
         """
-        Routine that selects points from the sample and calculates the Jacobian matrix in them by 
+        Routine that selects points from the sample and calculates the Jacobian matrix in them by
         calling richardson_gradient. Also computes its sparsity.
 
-        
+
         **USAGE:**
         analysis._get_gradient([sample_size=100, h=0.01, grad_tol=0.000001, zero_tol=0.000001])
 
@@ -1278,17 +1348,17 @@ class analysis:
 
         **NOTE:** all integer variables are ignored for this test.
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._get_gradient: sampling first is necessary")
-        if mode=='f':
-            dim=self.f_dim
-        elif mode=='c':
-            if self.c_dim==0:
+        if mode == 'f':
+            dim = self.f_dim
+        elif mode == 'c':
+            if self.c_dim == 0:
                 raise ValueError(
                     "analysis._get_gradient: mode 'c' selected for unconstrained problem")
             else:
-                dim=self.c_dim
+                dim = self.c_dim
         else:
             raise ValueError(
                 "analysis._get_gradient: select a valid mode 'f' or 'c'")
@@ -1299,39 +1369,41 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._get_gradient needs numpy to run. Is it installed?")
-        
-        if sample_size<=0 or sample_size>=self.npoints:
-            grad_points=range(self.npoints)
-            grad_npoints=self.npoints
-        else:
-            grad_npoints=sample_size
-            grad_points=[randint(self.npoints) for i in range(sample_size)] #avoid repetition?
 
-        grad=[]
-        grad_sparsity=0
+        if sample_size <= 0 or sample_size >= self.npoints:
+            grad_points = range(self.npoints)
+            grad_npoints = self.npoints
+        else:
+            grad_npoints = sample_size
+            grad_points = [randint(self.npoints)
+                           for i in range(sample_size)]  # avoid repetition?
+
+        grad = []
+        grad_sparsity = 0
         for i in grad_points:
-            grad.append(self._richardson_gradient(x=self.points[i],h=h,grad_tol=grad_tol,tmax=tmax,mode=mode))
-        average_abs_gradient=nanmean(abs(asarray(grad)),0)
+            grad.append(self._richardson_gradient(
+                x=self.points[i], h=h, grad_tol=grad_tol, tmax=tmax, mode=mode))
+        average_abs_gradient = nanmean(abs(asarray(grad)), 0)
         for i in range(dim):
             for j in range(self.cont_dim):
-                if abs(average_abs_gradient[i][j])<=zero_tol:
-                    grad_sparsity+=1.
-        grad_sparsity/=(self.cont_dim*dim)
+                if abs(average_abs_gradient[i][j]) <= zero_tol:
+                    grad_sparsity += 1.
+        grad_sparsity /= (self.cont_dim * dim)
 
-        if mode=='f':
-            self.grad_npoints=grad_npoints
-            self.grad_points=grad_points
-            self.grad=grad
-            self.average_abs_gradient=average_abs_gradient
-            self.grad_sparsity=grad_sparsity
+        if mode == 'f':
+            self.grad_npoints = grad_npoints
+            self.grad_points = grad_points
+            self.grad = grad
+            self.average_abs_gradient = average_abs_gradient
+            self.grad_sparsity = grad_sparsity
         else:
-            self.c_grad_npoints=grad_npoints
-            self.c_grad_points=grad_points
-            self.c_grad=grad
-            self.average_abs_c_gradient=average_abs_gradient
-            self.c_grad_sparsity=grad_sparsity
+            self.c_grad_npoints = grad_npoints
+            self.c_grad_points = grad_points
+            self.c_grad = grad
+            self.average_abs_c_gradient = average_abs_gradient
+            self.c_grad_sparsity = grad_sparsity
 
-    def _richardson_gradient(self,x,h,grad_tol,tmax=15,mode='f'):
+    def _richardson_gradient(self, x, h, grad_tol, tmax=15, mode='f'):
         """
         Evaluates jacobian matrix in point x of the search space by means of Richardson Extrapolation.
 
@@ -1352,49 +1424,51 @@ class analysis:
         **NOTE:** all integer variables are ignored for this test.
         """
         from numpy import array, zeros, amax
-        if mode=='f':
-            function=self.prob.objfun
-            span=self.f_span
-            dim=self.f_dim
-        elif mode=='c':
-            function=self.prob.compute_constraints
-            span=self.c_span
-            dim=self.c_dim
-        d=[[zeros([dim,self.cont_dim])],[]]
-        hh=2*h
-        err=1
-        t=0
-        #descale
-        x=array(x)*(array(self.ub)-array(self.lb))+array(self.lb)
-        while (err>grad_tol and t<tmax):
-            hh/=2
+        if mode == 'f':
+            function = self.prob.objfun
+            span = self.f_span
+            dim = self.f_dim
+        elif mode == 'c':
+            function = self.prob.compute_constraints
+            span = self.c_span
+            dim = self.c_dim
+        d = [[zeros([dim, self.cont_dim])], []]
+        hh = 2 * h
+        err = 1
+        t = 0
+        # descale
+        x = array(x) * (array(self.ub) - array(self.lb)) + array(self.lb)
+        while (err > grad_tol and t < tmax):
+            hh /= 2
             for i in range(self.cont_dim):
-                xu=x.tolist()
-                xd=x.tolist()
-                xu[i]+=hh*(self.ub[i]-self.lb[i])
-                xd[i]-=hh*(self.ub[i]-self.lb[i])
-                if xu[i]>self.ub[i] or xd[i]<self.lb[i]:
-                    tmp=zeros(dim)
+                xu = x.tolist()
+                xd = x.tolist()
+                xu[i] += hh * (self.ub[i] - self.lb[i])
+                xd[i] -= hh * (self.ub[i] - self.lb[i])
+                if xu[i] > self.ub[i] or xd[i] < self.lb[i]:
+                    tmp = zeros(dim)
                 else:
-                    #rescale
-                    tmp=(array(function(xu))-array(function(xd)))/(2*hh*array(span))
-                
+                    # rescale
+                    tmp = (array(function(xu)) - array(function(xd))) / \
+                        (2 * hh * array(span))
+
                 for j in range(dim):
-                    d[t%2][0][j][i]=tmp[j]
+                    d[t % 2][0][j][i] = tmp[j]
 
-            for k in range(1,t+1):
-                d[t%2][k]=d[t%2][k-1]+(d[t%2][k-1]-d[(t+1)%2][k-1])/(4**k-1)
+            for k in range(1, t + 1):
+                d[t % 2][k] = d[t % 2][k - 1] + \
+                    (d[t % 2][k - 1] - d[(t + 1) % 2][k - 1]) / (4 ** k - 1)
 
-            if t>0:
-                err=amax(abs(d[t%2][t]-d[(t+1)%2][t-1]))
+            if t > 0:
+                err = amax(abs(d[t % 2][t] - d[(t + 1) % 2][t - 1]))
 
-            d[(t+1)%2].extend([zeros([dim,self.cont_dim]),zeros([dim,self.cont_dim])])
-            t+=1
+            d[(t + 1) %
+              2].extend([zeros([dim, self.cont_dim]), zeros([dim, self.cont_dim])])
+            t += 1
 
-        return d[(t+1)%2][t-1].tolist()
+        return d[(t + 1) % 2][t - 1].tolist()
 
-
-    def _get_hessian(self,sample_size=0,h=0.01,hess_tol=0.000001,tmax=15):
+    def _get_hessian(self, sample_size=0, h=0.01, hess_tol=0.000001, tmax=15):
         """
         Routine that selects points from the sample and calculates the Hessian 3rd-order tensor in
         them by calling richardson_hessian.
@@ -1409,7 +1483,7 @@ class analysis:
 
 
         **The following parameters are stored as attributes:**
-        
+
         * analysis.hess_npoints: number of points where hessian is computed.
         * analysis.hess_points[hess_npoints]: indexes of these points in sample list.
         * analysis.hess[hess_npoints][fitness dimension][continuous search dimension][continuous
@@ -1418,7 +1492,7 @@ class analysis:
 
         **NOTE:** all integer variables are ignored for this test.
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._get_hessian: sampling first is necessary")
         try:
@@ -1426,19 +1500,22 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._get_hessian needs numpy to run. Is it installed?")
-        if sample_size<=0 or sample_size>=self.npoints:
-            self.hess_points=range(self.npoints)
-            self.hess_npoints=self.npoints
+        if sample_size <= 0 or sample_size >= self.npoints:
+            self.hess_points = range(self.npoints)
+            self.hess_npoints = self.npoints
 
         else:
-            self.hess_npoints=sample_size
-            self.hess_points=[randint(self.npoints) for i in range(sample_size)] #avoid repetition?
+            self.hess_npoints = sample_size
+            # avoid repetition?
+            self.hess_points = [randint(self.npoints)
+                                for i in range(sample_size)]
 
-        self.hess=[]
+        self.hess = []
         for i in self.hess_points:
-            self.hess.append(self._richardson_hessian(x=self.points[i],h=h,hess_tol=hess_tol,tmax=tmax))
+            self.hess.append(
+                self._richardson_hessian(x=self.points[i], h=h, hess_tol=hess_tol, tmax=tmax))
 
-    def _richardson_hessian(self,x,h,hess_tol,tmax=15):
+    def _richardson_hessian(self, x, h, hess_tol, tmax=15):
         """
         Evaluates hessian 3rd-order tensor in point x of the search space by means of Richardson
         Extrapolation.
@@ -1446,13 +1523,13 @@ class analysis:
 
         **USAGE:**
         analysis._richardson_hessian(x=(a point's chromosome), h=0.01, hess_tol=0.000001 [, tmax=15])
-        
+
         * x: list or tuple containing the chromosome of a point in the search space, where the Hessian
           3rd-order tensor will be evaluated.
         * h: initial dx taken for evaluation of derivatives.
         * hess_tol: tolerance for convergence.
         * tmax: maximum of iterations. Defaults to 15.
-        
+
 
         **Returns** hessian tensor at point x as a list [fitness dimension][continuous search dimension]
         [continuous search dimension].
@@ -1462,72 +1539,86 @@ class analysis:
         """
         from numpy import array, zeros, amax
         from itertools import combinations_with_replacement
-        ind=list(combinations_with_replacement(range(self.cont_dim),2))
-        n_ind=len(ind)
-        d=[[zeros([self.f_dim,n_ind])],[]]
-        hh=2*h
-        err=1
-        t=0
-        x=array(x)*(array(self.ub)-array(self.lb))+array(self.lb)
-        while (err>hess_tol and t<tmax):
-            hh/=2
+        ind = list(combinations_with_replacement(range(self.cont_dim), 2))
+        n_ind = len(ind)
+        d = [[zeros([self.f_dim, n_ind])], []]
+        hh = 2 * h
+        err = 1
+        t = 0
+        x = array(x) * (array(self.ub) - array(self.lb)) + array(self.lb)
+        while (err > hess_tol and t < tmax):
+            hh /= 2
             for i in range(n_ind):
-                xu=x.tolist()
-                xd=x.tolist()
-                xuu=x.tolist()
-                xdd=x.tolist()
-                xud=x.tolist()
-                xdu=x.tolist()
+                xu = x.tolist()
+                xd = x.tolist()
+                xuu = x.tolist()
+                xdd = x.tolist()
+                xud = x.tolist()
+                xdu = x.tolist()
 
-                if ind[i][0]==ind[i][1]:
-                    xu[ind[i][0]]=xu[ind[i][0]]+hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
-                    xd[ind[i][0]]-=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
-                    if xu[ind[i][0]]>self.ub[ind[i][0]] or xd[ind[i][0]]<self.lb[ind[i][0]]:
-                        tmp=zeros(self.f_dim)
+                if ind[i][0] == ind[i][1]:
+                    xu[ind[i][0]] = xu[ind[i][0]] + hh * \
+                        (self.ub[ind[i][0]] - self.lb[ind[i][0]])
+                    xd[ind[i][0]] -= hh * \
+                        (self.ub[ind[i][0]] - self.lb[ind[i][0]])
+                    if xu[ind[i][0]] > self.ub[ind[i][0]] or xd[ind[i][0]] < self.lb[ind[i][0]]:
+                        tmp = zeros(self.f_dim)
                     else:
-                        #rescale
-                        tmp=(array(self.prob.objfun(xu))-2*array(self.prob.objfun(x))+array(self.prob.objfun(xd)))/((hh**2)*array(self.f_span))
+                        # rescale
+                        tmp = (array(self.prob.objfun(xu)) - 2 * array(self.prob.objfun(x)) +
+                               array(self.prob.objfun(xd))) / ((hh ** 2) * array(self.f_span))
 
                 else:
-                    xuu[ind[i][0]]+=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
-                    xuu[ind[i][1]]+=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
-                    xdd[ind[i][0]]-=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
-                    xdd[ind[i][1]]-=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
-                    xud[ind[i][0]]+=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
-                    xud[ind[i][1]]-=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
-                    xdu[ind[i][0]]-=hh*(self.ub[ind[i][0]]-self.lb[ind[i][0]])
-                    xdu[ind[i][1]]+=hh*(self.ub[ind[i][1]]-self.lb[ind[i][1]])
-                    limit_test=[xuu[ind[i][0]]>self.ub[ind[i][0]],xuu[ind[i][1]]>self.ub[ind[i][1]], xdd[ind[i][0]]<self.lb[ind[i][0]],  xdd[ind[i][1]]<self.lb[ind[i][1]],\
-                    xud[ind[i][0]]>self.ub[ind[i][0]], xud[ind[i][1]]<self.lb[ind[i][1]],xdu[ind[i][0]]<self.lb[ind[i][0]],xdu[ind[i][1]]>self.ub[ind[i][1]] ]
+                    xuu[ind[i][0]] += hh * \
+                        (self.ub[ind[i][0]] - self.lb[ind[i][0]])
+                    xuu[ind[i][1]] += hh * \
+                        (self.ub[ind[i][1]] - self.lb[ind[i][1]])
+                    xdd[ind[i][0]] -= hh * \
+                        (self.ub[ind[i][0]] - self.lb[ind[i][0]])
+                    xdd[ind[i][1]] -= hh * \
+                        (self.ub[ind[i][1]] - self.lb[ind[i][1]])
+                    xud[ind[i][0]] += hh * \
+                        (self.ub[ind[i][0]] - self.lb[ind[i][0]])
+                    xud[ind[i][1]] -= hh * \
+                        (self.ub[ind[i][1]] - self.lb[ind[i][1]])
+                    xdu[ind[i][0]] -= hh * \
+                        (self.ub[ind[i][0]] - self.lb[ind[i][0]])
+                    xdu[ind[i][1]] += hh * \
+                        (self.ub[ind[i][1]] - self.lb[ind[i][1]])
+                    limit_test = [xuu[ind[i][0]] > self.ub[ind[i][0]], xuu[ind[i][1]] > self.ub[ind[i][1]], xdd[ind[i][0]] < self.lb[ind[i][0]], xdd[ind[i][1]] < self.lb[ind[i][1]],
+                                  xud[ind[i][0]] > self.ub[ind[i][0]], xud[ind[i][1]] < self.lb[ind[i][1]], xdu[ind[i][0]] < self.lb[ind[i][0]], xdu[ind[i][1]] > self.ub[ind[i][1]]]
                     if any(limit_test):
-                        tmp=zeros(self.f_dim)
+                        tmp = zeros(self.f_dim)
                     else:
-                        #rescale
-                        tmp=(array(self.prob.objfun(xuu))-array(self.prob.objfun(xud))-array(self.prob.objfun(xdu))+array(self.prob.objfun(xdd)))/(4*hh*hh*array(self.f_span))
+                        # rescale
+                        tmp = (array(self.prob.objfun(xuu)) - array(self.prob.objfun(xud)) - array(
+                            self.prob.objfun(xdu)) + array(self.prob.objfun(xdd))) / (4 * hh * hh * array(self.f_span))
 
                 for j in range(self.f_dim):
-                    d[t%2][0][j][i]=tmp[j]
+                    d[t % 2][0][j][i] = tmp[j]
 
-            for k in range(1,t+1):
-                d[t%2][k]=d[t%2][k-1]+(d[t%2][k-1]-d[(t+1)%2][k-1])/(4**k-1)
+            for k in range(1, t + 1):
+                d[t % 2][k] = d[t % 2][k - 1] + \
+                    (d[t % 2][k - 1] - d[(t + 1) % 2][k - 1]) / (4 ** k - 1)
 
-            if t>0:
-                err=amax(abs(d[t%2][t]-d[(t+1)%2][t-1]))
+            if t > 0:
+                err = amax(abs(d[t % 2][t] - d[(t + 1) % 2][t - 1]))
 
-            d[(t+1)%2].extend([zeros([self.f_dim,n_ind]),zeros([self.f_dim,n_ind])])
-            t+=1
+            d[(t + 1) %
+              2].extend([zeros([self.f_dim, n_ind]), zeros([self.f_dim, n_ind])])
+            t += 1
 
-        hessian=[]
+        hessian = []
         for i in range(self.f_dim):
-            mat=zeros([self.cont_dim,self.cont_dim])
+            mat = zeros([self.cont_dim, self.cont_dim])
             for j in range(n_ind):
-                mat[ind[j][0]][ind[j][1]]=d[(t+1)%2][t-1][i][j]
-                mat[ind[j][1]][ind[j][0]]=d[(t+1)%2][t-1][i][j]
+                mat[ind[j][0]][ind[j][1]] = d[(t + 1) % 2][t - 1][i][j]
+                mat[ind[j][1]][ind[j][0]] = d[(t + 1) % 2][t - 1][i][j]
             hessian.append(mat.tolist())
 
         return hessian
 
-    def _grad_properties(self,tol=10**(-8),mode='f'):
+    def _grad_properties(self, tol=10 ** (-8), mode='f'):
         """
         Computes some properties of the gradient once it is stored as an attribute.
 
@@ -1540,31 +1631,31 @@ class analysis:
 
 
         **Returns** tuple of 2 containing:
-        
+
         * norm_quartiles[fitness/constraint dimension][5]: percentiles 0,25,50,75,100 of
           gradient norm (per fitness/constraint function)
         * cond_quartiles[fitness/constraint dimension][5]: percentiles 0,25,50,75,100 of
           ratio of maximum to minimum absolute value of partial derivatives in that gradient
           (per fitness/constraint function).
         """
-        if mode=='f':
-            if self.grad_npoints==0:
+        if mode == 'f':
+            if self.grad_npoints == 0:
                 raise ValueError(
                     "analysis._grad_properties: sampling and getting gradient first is necessary")
-            dim=self.f_dim
-            grad=self.grad
-            npoints=self.grad_npoints
-        elif mode=='c':
-            if self.c_dim==0:
+            dim = self.f_dim
+            grad = self.grad
+            npoints = self.grad_npoints
+        elif mode == 'c':
+            if self.c_dim == 0:
                 raise ValueError(
                     "analysis._grad_properties: mode 'c' selected for unconstrained problem")
-            if self.c_grad_npoints==0:
+            if self.c_grad_npoints == 0:
                 raise ValueError(
                     "analysis._grad_properties: sampling and getting c_gradient first is necessary")
             else:
-                dim=self.c_dim
-                grad=self.c_grad
-                npoints=self.c_grad_npoints
+                dim = self.c_dim
+                grad = self.c_grad
+                npoints = self.c_grad_npoints
         else:
             raise ValueError(
                 "analysis._grad_properties: select a valid mode 'f' or 'c'")
@@ -1574,48 +1665,48 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._grad_properties needs numpy to run. Is it installed?")
-        cond_quartiles=[]
-        norm_quartiles=[]
+        cond_quartiles = []
+        norm_quartiles = []
         for f in range(dim):
-            cond=[]
-            norms=[]
+            cond = []
+            norms = []
             for p in range(npoints):
-                tmp=[abs(i) for i in grad[p][f]]
+                tmp = [abs(i) for i in grad[p][f]]
                 norms.append(norm(grad[p][f]))
-                if min(tmp)>tol:
-                    cond.append(max(tmp)/min(tmp))
+                if min(tmp) > tol:
+                    cond.append(max(tmp) / min(tmp))
                 else:
                     cond.append(float('inf'))
             cond_quartiles.append([])
             norm_quartiles.append([])
-            for i in range(0,101,25):
-                cond_quartiles[f].append(percentile(cond,i).tolist())
-                norm_quartiles[f].append(percentile(norms,i).tolist())
-        return (norm_quartiles,cond_quartiles)
+            for i in range(0, 101, 25):
+                cond_quartiles[f].append(percentile(cond, i).tolist())
+                norm_quartiles[f].append(percentile(norms, i).tolist())
+        return (norm_quartiles, cond_quartiles)
 
-    def _hess_properties(self,tol=10**(-8)):        
+    def _hess_properties(self, tol=10 ** (-8)):
         """
         Computes some properties of the hessian once it is stored as an attribute.
 
 
         **USAGE:**
         analysis._hess_properties([tol=10**(-8)])
-        
+
         * tol: tolerance to consider an eigenvalue as zero. Defaults to 10**(-8).
 
 
           **Returns** tuple of 3:
-        
+
         * cond_quartiles[fitness dimension][5]: percentiles 0,25,50,75,100 of ratio of maximum to
           minimum absolute value of eigenvalues in that hessian matrix (per fitness function).
         * pd[fitness dimension]: fraction of points of sample with positive-definite hessian.
         * psd[fitness dimension]: fraction of points of sample with positive-semidefinite
           (and not positive-definite) hessian matrix.
         """
-        if self.hess_npoints==0:
+        if self.hess_npoints == 0:
             raise ValueError(
                 "analysis._hess_properties: sampling and getting gradient first is necessary")
-        if self.dim==1:
+        if self.dim == 1:
             raise ValueError(
                 "analysis._hess_properties: test not applicable to univariate problems")
         try:
@@ -1624,38 +1715,37 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._hess_properties needs numpy to run. Is it installed?")
-        pd=[0]*self.f_dim
-        psd=[0]*self.f_dim
-        cond_quartiles=[]
+        pd = [0] * self.f_dim
+        psd = [0] * self.f_dim
+        cond_quartiles = []
         for f in range(self.f_dim):
-            cond=[]
-            
+            cond = []
+
             for p in range(self.hess_npoints):
-                e=eigh(self.hess[p][f])[0]
-                eu=max(e)
-                ed=min(e)
-                eabs=[abs(i) for i in e]
-                if min(eabs)>tol:
-                    cond.append(max(eabs)/min(eabs))
+                e = eigh(self.hess[p][f])[0]
+                eu = max(e)
+                ed = min(e)
+                eabs = [abs(i) for i in e]
+                if min(eabs) > tol:
+                    cond.append(max(eabs) / min(eabs))
                 else:
                     cond.append(float('inf'))
-                if ed>=tol:
-                    pd[f]+=1.
-                if abs(ed)<tol:
-                    psd[f]+=1.
-            pd[f]/=self.hess_npoints
-            psd[f]/=self.hess_npoints
+                if ed >= tol:
+                    pd[f] += 1.
+                if abs(ed) < tol:
+                    psd[f] += 1.
+            pd[f] /= self.hess_npoints
+            psd[f] /= self.hess_npoints
             cond_quartiles.append([])
-            for i in range(0,101,25):
-                cond_quartiles[f].append(percentile(cond,i).tolist())
-        return (cond_quartiles,pd,psd)
+            for i in range(0, 101, 25):
+                cond_quartiles[f].append(percentile(cond, i).tolist())
+        return (cond_quartiles, pd, psd)
 
+    ##########################################################################
+    # CONSTRAINTS FEASIBILITY
+    ##########################################################################
 
-    ######################################################################################################################
-    #CONSTRAINTS FEASIBILITY
-    ###################################################################################################################### 
-
-    def c_feasibility(self,tol=10**(-8),round_to=3):        
+    def c_feasibility(self, tol=10 ** (-8), round_to=3):
         """
         This function gives the user information about the effectivity and possible redundancy of
         the constraints of the problem.
@@ -1690,50 +1780,60 @@ class analysis:
           g_i (row) with respect to g_j (column), this is the fraction of the points violating g_i that
           also violate g_j (column).
         """
-        if self.dir==None:
-            output=None
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-        print("-------------------------------------------------------------------------------",file=output)
-        print("C-FEASIBILITY",file=output)
-        print("-------------------------------------------------------------------------------",file=output)
-        if self.c_dim==0:
-            print("This is an unconstrained problem.",file=output)
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        print("C-FEASIBILITY", file=output)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        if self.c_dim == 0:
+            print("This is an unconstrained problem.", file=output)
         else:
-            results=self._c_effectiveness(tol)
-            redundancy=self._ic_redundancy(tol)
-            for c in range(self.c_dim-self.ic_dim):
-                print("Constraint h_"+str(c+1)+" :",file=output)
-                print("     Effectiveness >=0 :                ",[round(1-results[c][0]+results[c][1],round_to)],file=output)
-                print("     Effectiveness <=0 :                ",[round(results[c][0],round_to)],file=output)
-                print("     Number of feasible points found :  ",[int(round(results[c][1]*self.npoints,0))],file=output)
-            for c in range(-self.ic_dim,0):
-                print("Constraint g_"+str(c+self.ic_dim+1)+" : ",file=output)
-                print("     Effectiveness >0 :                 ",[round(1-results[c][0],round_to)],file=output)
-                if self.ic_dim>1:
-                    print("     Redundancy wrt. all other ic :     ",[round(redundancy[0][c],round_to)],file=output)
-                print("     Number of feasible points found :  ",[int(round(results[c][0]*self.npoints,0))],file=output)  
-            if self.ic_dim>1:
-                print("Pairwise redundancy (ic) :",file=output)
-                print("_____|",end='',file=output)
-                for i in range(self.ic_dim-1):
-                    print(("g"+str(i+1)).center(8),end='|',file=output)
-                print(("g"+str(self.ic_dim)).center(8),end='|',file=output)
+            results = self._c_effectiveness(tol)
+            redundancy = self._ic_redundancy(tol)
+            for c in range(self.c_dim - self.ic_dim):
+                print("Constraint h_" + str(c + 1) + " :", file=output)
+                print("     Effectiveness >=0 :                ", [
+                      round(1 - results[c][0] + results[c][1], round_to)], file=output)
+                print("     Effectiveness <=0 :                ",
+                      [round(results[c][0], round_to)], file=output)
+                print("     Number of feasible points found :  ", [
+                      int(round(results[c][1] * self.npoints, 0))], file=output)
+            for c in range(-self.ic_dim, 0):
+                print(
+                    "Constraint g_" + str(c + self.ic_dim + 1) + " : ", file=output)
+                print("     Effectiveness >0 :                 ",
+                      [round(1 - results[c][0], round_to)], file=output)
+                if self.ic_dim > 1:
+                    print("     Redundancy wrt. all other ic :     ",
+                          [round(redundancy[0][c], round_to)], file=output)
+                print("     Number of feasible points found :  ", [
+                      int(round(results[c][0] * self.npoints, 0))], file=output)
+            if self.ic_dim > 1:
+                print("Pairwise redundancy (ic) :", file=output)
+                print("_____|", end='', file=output)
+                for i in range(self.ic_dim - 1):
+                    print(("g" + str(i + 1)).center(8), end='|', file=output)
+                print(("g" + str(self.ic_dim)).center(8), end='|', file=output)
                 for i in range(self.ic_dim):
                     print(file=output)
-                    print((" g"+str(i+1)).ljust(5),end='|',file=output)
+                    print((" g" + str(i + 1)).ljust(5), end='|', file=output)
                     for j in range(self.ic_dim):
-                        print(str(round(redundancy[1][i][j],round_to)).center(8),end='|',file=output)
+                        print(
+                            str(round(redundancy[1][i][j], round_to)).center(8), end='|', file=output)
                 print(file=output)
-        if output!=None:
+        if output is not None:
             output.close()
 
-    ######################################################################################################################
-    #CONSTRAINTS LINEARITY
-    ###################################################################################################################### 
+    ##########################################################################
+    # CONSTRAINTS LINEARITY
+    ##########################################################################
 
-    def c_linearity(self,npairs=0,tol=10**(-8),round_to=3):
+    def c_linearity(self, npairs=0, tol=10 ** (-8), round_to=3):
         """
         This function gives the user information about the probability of linearity of the constraint
         function(s). See analysis._c_lin for a more thorough description of this test.
@@ -1757,33 +1857,39 @@ class analysis:
         **NOTE:** integer variable values are fixed during each of the tests and linearity or convexity
         is assessed as regards the continuous part of the chromosome.
         """
-        if self.dir==None:
-            output=None
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-        print("-------------------------------------------------------------------------------",file=output)
-        print("C-LINEARITY",file=output)
-        print("-------------------------------------------------------------------------------",file=output)
-        if self.c_dim==0:
-            print("This is an unconstrained problem.",file=output)
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        print("C-LINEARITY", file=output)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        if self.c_dim == 0:
+            print("This is an unconstrained problem.", file=output)
         else:
 
-            results=self._c_lin(npairs,tol)
-            print("Number of pairs of points used :        ",[self.c_lin_npairs],file=output)
-            print(" "*5,"CONSTRAINT".center(25),"PROBABILITY OF LINEARITY".center(25),file=output)
-            for c in range(self.c_dim-self.ic_dim):
-                print(" "*5,("h_"+str(c+1)).center(25),str([round(results[c],round_to)]).center(25),file=output)
-            for c in range(-self.ic_dim,0):
-                print(" "*5,("g_"+str(self.c_dim-self.ic_dim+c)).center(25),str([round(results[c],round_to)]).center(25),file=output)
-        if output!=None:
+            results = self._c_lin(npairs, tol)
+            print("Number of pairs of points used :        ",
+                  [self.c_lin_npairs], file=output)
+            print(" " * 5, "CONSTRAINT".center(25),
+                  "PROBABILITY OF LINEARITY".center(25), file=output)
+            for c in range(self.c_dim - self.ic_dim):
+                print(" " * 5, ("h_" + str(c + 1)).center(25),
+                      str([round(results[c], round_to)]).center(25), file=output)
+            for c in range(-self.ic_dim, 0):
+                print(" " * 5, ("g_" + str(self.c_dim - self.ic_dim + c)).center(25),
+                      str([round(results[c], round_to)]).center(25), file=output)
+        if output is not None:
             output.close()
 
-    ######################################################################################################################
-    #CONSTRAINTS REGRESSION
-    ###################################################################################################################### 
+    ##########################################################################
+    # CONSTRAINTS REGRESSION
+    ##########################################################################
 
-    def c_regression(self,degree=[],interaction=False,pred=True,tol=10**(-8),round_to=3):        
+    def c_regression(self, degree=[], interaction=False, pred=True, tol=10 ** (-8), round_to=3):
         """
         This function performs polynomial regressions on each constraint function and measures the
         precision of these regressions.
@@ -1803,10 +1909,10 @@ class analysis:
           to all regressions performed. Defaults to True.
         * tol: tolerance to consider a coefficient of the regression model as zero. Defaults to 10**(-8).
         * round_to: precision of the results printed. Defaults to 3.
-        
+
 
         **Prints to screen or file:**
-        
+
         * Degree: Degree of the regression. (i) indicates the addition of interaction products.
         * F: F-statistic value of the regression.
         * R2: R-square coefficient.
@@ -1814,75 +1920,84 @@ class analysis:
         * RMSE: Root Mean Square Eror.
         * R2pred: prediction R-square coefficient.
         * PRESS-RMSE: prediction RMSE.
-        
+
 
         **REF:** http://www.cavs.msstate.edu/publications/docs/2005/01/741A%20comparative%20study.pdf
         """
-        if self.dir==None:
-            output=None
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
 
-        if isinstance(degree,int):
-            degree=[degree]
-        if len(degree)>0:
-            if isinstance(interaction,bool):
-                interaction=[interaction]*len(degree)
-            if isinstance(pred,bool):
-                pred=[pred]*len(degree)
-            if len(degree)!=len(interaction) or len(degree)!=len(pred):
+        if isinstance(degree, int):
+            degree = [degree]
+        if len(degree) > 0:
+            if isinstance(interaction, bool):
+                interaction = [interaction] * len(degree)
+            if isinstance(pred, bool):
+                pred = [pred] * len(degree)
+            if len(degree) != len(interaction) or len(degree) != len(pred):
                 raise ValueError(
-                        "analysis.c_regression: format of arguments is incorrect")
+                    "analysis.c_regression: format of arguments is incorrect")
 
-            print("-------------------------------------------------------------------------------",file=output)
-            print("C-REGRESSION",file=output)
-            print("-------------------------------------------------------------------------------",file=output)
-            if self.c_dim==0:
-                print("This is an unconstrained problem.",file=output)
+            print(
+                "-------------------------------------------------------------------------------", file=output)
+            print("C-REGRESSION", file=output)
+            print(
+                "-------------------------------------------------------------------------------", file=output)
+            if self.c_dim == 0:
+                print("This is an unconstrained problem.", file=output)
             else:
-                properties=[]
-                for deg,inter,predi in zip(degree,interaction,pred):
-                    properties.append(self._regression_properties(degree=deg,interaction=interaction,mode='c',pred=predi,tol=tol,w=None))
+                properties = []
+                for deg, inter, predi in zip(degree, interaction, pred):
+                    properties.append(self._regression_properties(
+                        degree=deg, interaction=interaction, mode='c', pred=predi, tol=tol, w=None))
                 for c in range(self.c_dim):
-                    if c<self.c_dim-self.ic_dim:
-                        print("CONSTRAINT h_"+str(c+1)+" :",file=output)
+                    if c < self.c_dim - self.ic_dim:
+                        print("CONSTRAINT h_" + str(c + 1) + " :", file=output)
                     else:
-                        print("CONSTRAINT g_"+str(c-self.c_dim+self.ic_dim+1)+" :",file=output)
-                    spaces=[7,17,9,9,11,9,11]
-                    print("DEGREE".center(spaces[0]),"F*".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
-                    for deg,inter,prop in zip(degree,interaction,properties):
+                        print(
+                            "CONSTRAINT g_" + str(c - self.c_dim + self.ic_dim + 1) + " :", file=output)
+                    spaces = [7, 17, 9, 9, 11, 9, 11]
+                    print("DEGREE".center(spaces[0]), "F*".center(spaces[1]), "R2".center(spaces[2]), "R2adj".center(spaces[
+                          3]), "RMSE".center(spaces[4]), "R2pred".center(spaces[5]), "PRESS-RMSE".center(spaces[6]), file=output)
+                    for deg, inter, prop in zip(degree, interaction, properties):
                         if inter:
-                            print((str(deg)+'(i)').center(spaces[0]),end=' ',file=output)
+                            print(
+                                (str(deg) + '(i)').center(spaces[0]), end=' ', file=output)
                         else:
-                            print(str(deg).center(spaces[0]),end=' ',file=output)
-                        for i,s in zip(prop[c],spaces[1:]):
-                            if i==None:
-                                print("X".center(s),end=' ',file=output)
+                            print(
+                                str(deg).center(spaces[0]), end=' ', file=output)
+                        for i, s in zip(prop[c], spaces[1:]):
+                            if i is None:
+                                print("X".center(s), end=' ', file=output)
                             else:
-                                string=str(i).split('e')
-                                if len(string)>1:
-                                    print((str(round(float(string[0]),round_to))+'e'+string[1]).center(s),end=' ',file=output)
+                                string = str(i).split('e')
+                                if len(string) > 1:
+                                    print(
+                                        (str(round(float(string[0]), round_to)) + 'e' + string[1]).center(s), end=' ', file=output)
                                 else:
-                                    print(str(round(i,round_to)).center(s),end=' ',file=output)
+                                    print(
+                                        str(round(i, round_to)).center(s), end=' ', file=output)
                         print(file=output)
-        if output!=None:
+        if output is not None:
             output.close()
 
-    ######################################################################################################################
-    #CONSTRAINTS SENSITIVITY
-    ###################################################################################################################### 
+    ##########################################################################
+    # CONSTRAINTS SENSITIVITY
+    ##########################################################################
 
-    def c_sensitivity(self,plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True,sample_size=0,h=0.01,conv_tol=10**(-6),zero_tol=10**(-8),tmax=15,round_to=3):
+    def c_sensitivity(self, plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0, h=0.01, conv_tol=10 ** (-6), zero_tol=10 ** (-8), tmax=15, round_to=3):
         """
-        This function evaluates the jacobian matrix of the constraint fucntions in a subset of the 
+        This function evaluates the jacobian matrix of the constraint fucntions in a subset of the
         sample in order to extract information about sensitivity of the constraints with respect
         to the search variables. All results are presented per constraint.
 
 
         **USAGE:**
         analysis.c_sensitivity([plot_gradient_sparsity=True, plot_pcp=True, plot_inverted_pcp=True, sample_size=0, h=0.01, conv_tol=10**(-6), zero_tol=10**(-8), tmax=15,round_to=3])
-        
+
         * plot_gradient_sparsity: if True, the Jacobian matrix sparsity plot will be generated.
         * plot_pcp: if True, the c-gradient PCP (with chromosome in X-axis) will be generated. Defaults to True.
         * plot_inverted_pcp: if True, the c-gradient PCP (with F in X-axis) will be generated. Defaults to True.
@@ -1891,63 +2006,70 @@ class analysis:
         * conv_tol: convergence parameter for Richardson extrapolation method. Defaults to 10**(-6).
         * zero_tol: tolerance for considering a component as nule during the sparsity test. Defaults to 10**(-8).
         * tmax: maximum of iterations for Richardson extrapolation. Defaults to 15.
-        * round_to: precision of the results printed. Defaults to 3. 
-        
+        * round_to: precision of the results printed. Defaults to 3.
+
 
         **Prints to screen or file:**
-        
+
         * Number of points used.
         * Percentiles 0, 25, 50, 75 and 100 of the distribution of:
 
                 * C-Gradient norm.
                 * abs(dFx)_max/abs(dFx)_min: ratio of maximum to minimum absolute value of partial derivatives in that constraint function gradient.
         * C-Gradient sparsity: fraction of components of the c-gradient that are nule at every point.
-        
+
 
         **Shows or saves to file:**
 
         * C-Gradient/Jacobian sparsity plot.
         * C-Gradient/Jacobian PCP with chromosome in X-axis.
         * C-Gradient/Jacobian PCP with fitness in X-axis.
-        
+
 
         **NOTE:** this function calls analysis._get_gradient, which stores a great number of properties
         as class attributes. See its entry for more information about these attributes.
         """
-        if self.dir==None:
-            output=None
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
 
-        print("-------------------------------------------------------------------------------",file=output)
-        print("C-SENSITIVITY ",file=output)
-        print("-------------------------------------------------------------------------------",file=output)
-        if self.c_dim==0:
-                print("This is an unconstrained problem.",file=output)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        print("C-SENSITIVITY ", file=output)
+        print(
+            "-------------------------------------------------------------------------------", file=output)
+        if self.c_dim == 0:
+            print("This is an unconstrained problem.", file=output)
         else:
-            self._get_gradient(sample_size=sample_size,h=h,grad_tol=conv_tol,zero_tol=zero_tol,tmax=tmax,mode='c')
-            g=self._grad_properties(tol=zero_tol,mode='c')
+            self._get_gradient(
+                sample_size=sample_size, h=h, grad_tol=conv_tol, zero_tol=zero_tol, tmax=tmax, mode='c')
+            g = self._grad_properties(tol=zero_tol, mode='c')
             for f in range(self.ic_dim):
-                if self.ic_dim>1:
-                    print("CONSTRAINT g_"+str(f+1)+" :",file=output)
-                print("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
-                print("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
-                print("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
-                print("     Gradient sparsity :           ","["+str(round(self.c_grad_sparsity,round_to))+"]",file=output)
+                if self.ic_dim > 1:
+                    print("CONSTRAINT g_" + str(f + 1) + " :", file=output)
+                print("  Percentiles : ".ljust(28), "0".center(9), "25".center(9), "50".center(
+                    9), "75".center(9), "100".center(9), "", sep="|", file=output)
+                print("     Gradient norm :".ljust(28), str(round(g[0][f][0], round_to)).center(9), str(round(g[0][f][1], round_to)).center(9), str(round(
+                    g[0][f][2], round_to)).center(9), str(round(g[0][f][3], round_to)).center(9), str(round(g[0][f][4], round_to)).center(9), "", sep="|", file=output)
+                print("    |dFx|_max/|dFx|_min :".ljust(28), str(round(g[1][f][0], round_to)).center(9), str(round(g[1][f][1], round_to)).center(9), str(round(
+                    g[1][f][2], round_to)).center(9), str(round(g[1][f][3], round_to)).center(9), str(round(g[1][f][4], round_to)).center(9), "", sep="|", file=output)
+                print("     Gradient sparsity :           ",
+                      "[" + str(round(self.c_grad_sparsity, round_to)) + "]", file=output)
 
-            if output!=None:
+            if output is not None:
                 output.close()
             if plot_gradient_sparsity:
-                self.plot_gradient_sparsity(zero_tol=zero_tol,mode='c')
-            if plot_pcp and self.cont_dim>1:
-                self.plot_gradient_pcp(mode='c',invert=False)
-            if plot_inverted_pcp and self.c_dim>1:
-                self.plot_gradient_pcp(mode='c',invert=True)
+                self.plot_gradient_sparsity(zero_tol=zero_tol, mode='c')
+            if plot_pcp and self.cont_dim > 1:
+                self.plot_gradient_pcp(mode='c', invert=False)
+            if plot_inverted_pcp and self.c_dim > 1:
+                self.plot_gradient_pcp(mode='c', invert=True)
 
 
-#CONSTRAINTS
-    def _c_lin(self,n_pairs=0,threshold=10**(-10)):
+# CONSTRAINTS
+    def _c_lin(self, n_pairs=0, threshold=10 ** (-10)):
         """
         Tests the probability of linearity  of the constraint violation distributions obtained. A
         pair of points (X1,C1),(X2,C2) from the sample is selected per test and a random convex
@@ -1973,58 +2095,62 @@ class analysis:
         **NOTE:** integer variable values are fixed during each of the tests and linearity
         is evaluated as regards the continuous part of the chromosome.\n
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._c_lin: sampling first is necessary")
-        if self.c_dim==0:
+        if self.c_dim == 0:
             raise ValueError(
                 "analysis._c_lin: this test makes no sense for unconstrained optimisation")
-        if len(self.c)==0:
+        if len(self.c) == 0:
             raise ValueError(
                 "analysis._c_lin: computing constraints first is necessary")
-        if self.cont_dim==0:
+        if self.cont_dim == 0:
             raise ValueError(
                 "analysis._c_lin: this test makes no sense for purely integer problems")
-        if n_pairs==0:
-            n_pairs=self.npoints
+        if n_pairs == 0:
+            n_pairs = self.npoints
         try:
-            from numpy.random import random,randint
-            from numpy import array, multiply,zeros,divide
+            from numpy.random import random, randint
+            from numpy import array, multiply, zeros, divide
         except ImportError:
             raise ImportError(
                 "analysis._c_lin needs numpy to run. Is it installed?")
 
-        p_lin=zeros(self.c_dim)
+        p_lin = zeros(self.c_dim)
         for i in range(n_pairs):
-            i1=randint(self.npoints)
-            i2=randint(self.npoints)
-            while (i2==i1):
-                i2=randint(self.npoints)
-            r=random()
-            x=r*array(self.points[i1])+(1-r)*array(self.points[i2])
+            i1 = randint(self.npoints)
+            i2 = randint(self.npoints)
+            while (i2 == i1):
+                i2 = randint(self.npoints)
+            r = random()
+            x = r * array(self.points[i1]) + (1 - r) * array(self.points[i2])
 
-            if self.cont_dim!=self.dim:
-                x[self.cont_dim:]=self.points[i1][self.cont_dim:]
-                x=multiply(array(x),array(self.ub)-array(self.lb))+array(self.lb)
-                x2=multiply(array(self.points[i2][:self.cont_dim]+self.points[i1][self.cont_dim:]),array(self.ub)-array(self.lb))+array(self.lb)
-                c2=divide(self.prob.compute_constraints(x2),self.c_span)
-                c_lin=r*array(self.c[i1])+(1-r)*array(c2)
+            if self.cont_dim != self.dim:
+                x[self.cont_dim:] = self.points[i1][self.cont_dim:]
+                x = multiply(
+                    array(x), array(self.ub) - array(self.lb)) + array(self.lb)
+                x2 = multiply(array(self.points[i2][:self.cont_dim] + self.points[i1][
+                              self.cont_dim:]), array(self.ub) - array(self.lb)) + array(self.lb)
+                c2 = divide(self.prob.compute_constraints(x2), self.c_span)
+                c_lin = r * array(self.c[i1]) + (1 - r) * array(c2)
             else:
-                x=multiply(array(x),array(self.ub)-array(self.lb))+array(self.lb)  
-                c_lin=r*array(self.c[i1])+(1-r)*array(self.c[i2])
+                x = multiply(
+                    array(x), array(self.ub) - array(self.lb)) + array(self.lb)
+                c_lin = r * array(self.c[i1]) + (1 - r) * array(self.c[i2])
 
-            c_real=divide(self.prob.compute_constraints(x),self.c_span)
-            delta=c_lin-c_real
+            c_real = divide(self.prob.compute_constraints(x), self.c_span)
+            delta = c_lin - c_real
 
             for j in range(self.c_dim):
-                if abs(delta[j])<threshold:
-                    p_lin[j]+=1
-        p_lin/=n_pairs
+                if abs(delta[j]) < threshold:
+                    p_lin[j] += 1
+        p_lin /= n_pairs
 
-        self.c_lin_npairs=n_pairs
+        self.c_lin_npairs = n_pairs
         return list(p_lin)
 
-    def _compute_constraints(self):#NEVER CALL AFTER SCALING!!! (sample calls it default)
+    # NEVER CALL AFTER SCALING!!! (sample calls it default)
+    def _compute_constraints(self):
         """
         Computes the constraint function values of the points in the sample.
 
@@ -2042,27 +2168,29 @@ class analysis:
         **NOTE:** Never call this function after having scaled the dataset. _sample function calls it
         automatically if the problem is a constrained one, and then calls _scale_sample.\n
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._compute_constraints: sampling first is necessary")
         try:
-            from numpy.random import random,randint
-            from numpy import array, multiply, ptp,amax,amin
+            from numpy.random import random, randint
+            from numpy import array, multiply, ptp, amax, amin
         except ImportError:
             raise ImportError(
                 "analysis._compute_constraints needs numpy to run. Is it installed?")
-        self.c=[]
-        self.c_span=[]
-        if self.c_dim!=0:
+        self.c = []
+        self.c_span = []
+        if self.c_dim != 0:
             for i in range(self.npoints):
-                self.c.append(list(self.prob.compute_constraints(self.points[i])))
+                self.c.append(
+                    list(self.prob.compute_constraints(self.points[i])))
 
-            temp0=ptp(self.c,0).tolist()
-            temp1=amax(self.c,0).tolist()
-            temp2=abs(amin(self.c,0)).tolist()
-            self.c_span=[max(j,k,l) for j,k,l in zip(temp0,temp1,temp2)]
+            temp0 = ptp(self.c, 0).tolist()
+            temp1 = amax(self.c, 0).tolist()
+            temp2 = abs(amin(self.c, 0)).tolist()
+            self.c_span = [max(j, k, l)
+                           for j, k, l in zip(temp0, temp1, temp2)]
 
-    def _c_effectiveness(self,tol=10**(-8)):
+    def _c_effectiveness(self, tol=10 ** (-8)):
         """
         Evaluates constraint effectiveness for a constraint problem.
 
@@ -2080,25 +2208,25 @@ class analysis:
                 * c[i][0] is the <= effectiveness of the constraint i (fraction of sample <=).
                 * c[i][1] is the == effectiveness of the constraint i (fraction of sample ==).
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._c_effectiveness: sampling first is necessary")
-        c=[]
-        if self.c_dim!=0:
-            if len(self.c)==0:
+        c = []
+        if self.c_dim != 0:
+            if len(self.c) == 0:
                 raise ValueError(
                     "analysis._c_effectiveness: compute constraints first")
-            dp=1./self.npoints
+            dp = 1. / self.npoints
             for i in range(self.c_dim):
-                c.append([0,0])
+                c.append([0, 0])
                 for j in range(self.npoints):
-                    if self.c[j][i]<=tol:
-                        c[i][0]+=dp
-                    if abs(self.c[j][i])<tol:
-                        c[i][1]+=dp
+                    if self.c[j][i] <= tol:
+                        c[i][0] += dp
+                    if abs(self.c[j][i]) < tol:
+                        c[i][1] += dp
             return c
 
-    def _ic_redundancy(self,tol=10**(-8)):
+    def _ic_redundancy(self, tol=10 ** (-8)):
         """
         Evaluates redundancy of inequality constraints, both of each constraint wrt all the rest and
         pairwise.
@@ -2106,63 +2234,63 @@ class analysis:
 
         **USAGE:**
         analysis._ic_redundancy([tol=10**(-10)])
-        
+
         * tol: tolerance for assessment of equality.\n
-        
+
 
         **Returns** tuple of 2:
         * redundancy[inequality constraint dimension]: redundancy of each inequality constraint with respect to all other inequality constraints. redundancy[i] is the fraction of points violating constraint g_i that also violate any other inequality constraint.
         * m[inequality constraint dimension][inequality constraint dimension]: pairwise redundancy. m[i][j] is the fraction of points violating constraint g_i that also violate constraint g_j.
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._constraint_feasibility: sampling first is necessary")
-        ec_f=[]
-        if self.ic_dim!=0:
-            if len(self.c)==0:
+        ec_f = []
+        if self.ic_dim != 0:
+            if len(self.c) == 0:
                 raise ValueError(
                     "analysis._constraint_feasibility: compute constraints first")
             try:
-                from numpy import dot,transpose,array
+                from numpy import dot, transpose, array
             except ImportError:
                 raise ImportError(
                     "analysis._c_lin needs numpy to run. Is it installed?")
-            redundancy=[0 for i in range(self.ic_dim)]
-            violation=[]
+            redundancy = [0 for i in range(self.ic_dim)]
+            violation = []
             for i in range(self.npoints):
-                violation.append([0]*self.ic_dim)
-                count=0
-                for j in range(-self.ic_dim,0):
-                    if self.c[i][j]>tol:
-                        violation[i][j]=1.
-                        if count==0:
-                            first_index=j
-                        elif count==1:
-                            redundancy[first_index]+=1.
-                            redundancy[j]+=1.
+                violation.append([0] * self.ic_dim)
+                count = 0
+                for j in range(-self.ic_dim, 0):
+                    if self.c[i][j] > tol:
+                        violation[i][j] = 1.
+                        if count == 0:
+                            first_index = j
+                        elif count == 1:
+                            redundancy[first_index] += 1.
+                            redundancy[j] += 1.
                         else:
-                            redundancy[j]+=1.
-                        count+=1
+                            redundancy[j] += 1.
+                        count += 1
 
-            m=dot(transpose(violation),violation)
+            m = dot(transpose(violation), violation)
             for i in range(self.ic_dim):
-                d=float(m[i][i])
-                if d>0:
-                    redundancy[i]=redundancy[i]/d
+                d = float(m[i][i])
+                if d > 0:
+                    redundancy[i] = redundancy[i] / d
                     for j in range(self.ic_dim):
-                        m[i][j]=m[i][j]/d
+                        m[i][j] = m[i][j] / d
                 else:
-                    redundancy[i]=1
-                    m[i]=[1]*self.ic_dim
-            return (redundancy,m.tolist())
+                    redundancy[i] = 1
+                    m[i] = [1] * self.ic_dim
+            return (redundancy, m.tolist())
 
-    ######################################################################################################################
-    #LOCAL SEARCH
-    ###################################################################################################################### 
+    ##########################################################################
+    # LOCAL SEARCH
+    ##########################################################################
 
-    def local_search(self,clusters_to_show=10,plot_global_pcp=True,plot_separate_pcp=True,scatter_plot_dimensions=[],\
-        sample_size=0,algo=None,decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio',\
-        variance_ratio=0.9,k=0,single_cluster_tolerance=0.0001,kmax=0,round_to=3):
+    def local_search(self, clusters_to_show=10, plot_global_pcp=True, plot_separate_pcp=True, scatter_plot_dimensions=[],
+                     sample_size=0, algo=None, decomposition_method='tchebycheff', weights='uniform', z=[], con2mo='obj_cstrsvio',
+                     variance_ratio=0.9, k=0, single_cluster_tolerance=0.0001, kmax=0, round_to=3):
         """
         This function selects points from the sample and launches local searches using them as initial
         points. Then it clusters the results and orders the clusters ascendently as regards fitness
@@ -2175,7 +2303,7 @@ class analysis:
 
         **USAGE:**
         analysis.local_search([clusters_to_show=10, plot_global_pcp=True, plot_separate_pcp=True, scatter_plot_dimensions=[], sample_size=0, algo=algorithm.(), decomposition_method='tchebycheff', weights='uniform', z=[],con2mo='obj_cstrsvio', variance_ratio=0.9, k=0,single_cluster_tolerance=0.001, kmax=0, round_to=3])
-        
+
         * clusters_to_show: number of clusters whose parameters will be displayed. Option 'all' will
           display all clusters obtained. Clusters will be ordered ascendently as regards mean fitness
           value (after applying problem.con2mo in the case of constrained problems and problem.decompose
@@ -2253,68 +2381,87 @@ class analysis:
         from numpy import percentile
         from PyGMO import algorithm
 
-        if algo==None:
+        if algo is None:
             algo = algorithm.cs()
 
-        if self.dir==None:
-            output=None
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-        print("--------------------------------------------------------------------------------",file=output)
-        print("LOCAL SEARCH",file=output)
-        print("--------------------------------------------------------------------------------",file=output)
-        if output!=None:
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+        print(
+            "--------------------------------------------------------------------------------", file=output)
+        print("LOCAL SEARCH", file=output)
+        print(
+            "--------------------------------------------------------------------------------", file=output)
+        if output is not None:
             output.close()
-        self._get_local_extrema(sample_size,algo,True,decomposition_method,weights,z,con2mo,True)
-        if self.dir==None:
-            output=None
+        self._get_local_extrema(
+            sample_size, algo, True, decomposition_method, weights, z, con2mo, True)
+        if self.dir is None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-        self._cluster_local_extrema(variance_ratio,k,single_cluster_tolerance,kmax)
-        if clusters_to_show=='all' or clusters_to_show>self.local_nclusters:
-            clusters_to_show=self.local_nclusters
-        print("Local searches performed :              ",self.local_initial_npoints,file=output)
-        print("Quartiles of CPU time per search [ms]:  ",round(percentile(self.local_search_time,0),round_to),"/",round(percentile(self.local_search_time,25),round_to),"/",round(percentile(self.local_search_time,50),round_to),"/",round(percentile(self.local_search_time,75),round_to),"/",round(percentile(self.local_search_time,100),round_to),file=output)
-        if clusters_to_show>0:
-            print("Number of clusters identified :         ",self.local_nclusters,file=output)
-            print("Cluster properties (max. best "+str(clusters_to_show)+" clusters) :",file=output)
-            for i in range(min((self.local_nclusters,clusters_to_show))):
-                print("     Cluster n. "+str(i+1)+' :',file=output)
-                print("         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"%",file=output)
-                print("         Cluster X_center :             ",[round(x,round_to) for x in self.local_cluster_x_centers[i]],file=output)
-                print("         Mean objective value :         ",[round(f,round_to) for f in self.local_cluster_f_centers[i]],file=output)
-                print("         F(X_center) :                  ",[round(f,round_to) for f in self.local_cluster_f[i]],file=output)
-                if self.c_dim>0:
-                    print("         C(X_center) :                  ",[round(c,round_to) for c in self.local_cluster_c[i]],file=output)
-                print("         Cluster span in F :            ",[round(s,round_to) for s in self.local_cluster_f_span[i]],file=output)
-                print("         Cluster radius in X :          ",round(self.local_cluster_rx[i],round_to),file=output)
-                print("         Radius of attraction :         ",round(self.local_cluster_rx0[i],round_to),file=output)
-        if output!=None:
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+        self._cluster_local_extrema(
+            variance_ratio, k, single_cluster_tolerance, kmax)
+        if clusters_to_show == 'all' or clusters_to_show > self.local_nclusters:
+            clusters_to_show = self.local_nclusters
+        print("Local searches performed :              ",
+              self.local_initial_npoints, file=output)
+        print("Quartiles of CPU time per search [ms]:  ", round(percentile(self.local_search_time, 0), round_to), "/", round(percentile(self.local_search_time, 25), round_to), "/", round(
+            percentile(self.local_search_time, 50), round_to), "/", round(percentile(self.local_search_time, 75), round_to), "/", round(percentile(self.local_search_time, 100), round_to), file=output)
+        if clusters_to_show > 0:
+            print("Number of clusters identified :         ",
+                  self.local_nclusters, file=output)
+            print("Cluster properties (max. best " +
+                  str(clusters_to_show) + " clusters) :", file=output)
+            for i in range(min((self.local_nclusters, clusters_to_show))):
+                print("     Cluster n. " + str(i + 1) + ' :', file=output)
+                print("         Size:                          ", self.local_cluster_size[
+                      i], ", ", 100 * round(self.local_cluster_size[i] / self.local_initial_npoints, 4), "%", file=output)
+                print("         Cluster X_center :             ", [
+                      round(x, round_to) for x in self.local_cluster_x_centers[i]], file=output)
+                print("         Mean objective value :         ", [
+                      round(f, round_to) for f in self.local_cluster_f_centers[i]], file=output)
+                print("         F(X_center) :                  ", [
+                      round(f, round_to) for f in self.local_cluster_f[i]], file=output)
+                if self.c_dim > 0:
+                    print("         C(X_center) :                  ", [
+                          round(c, round_to) for c in self.local_cluster_c[i]], file=output)
+                print("         Cluster span in F :            ", [
+                      round(s, round_to) for s in self.local_cluster_f_span[i]], file=output)
+                print("         Cluster radius in X :          ", round(
+                    self.local_cluster_rx[i], round_to), file=output)
+                print("         Radius of attraction :         ", round(
+                    self.local_cluster_rx0[i], round_to), file=output)
+        if output is not None:
             output.close()
 
         if plot_global_pcp:
-            self.plot_local_cluster_pcp(together=True,clusters_to_plot=clusters_to_show)
+            self.plot_local_cluster_pcp(
+                together=True, clusters_to_plot=clusters_to_show)
         if plot_separate_pcp:
-            self.plot_local_cluster_pcp(together=False,clusters_to_plot=clusters_to_show)
-        if isinstance(scatter_plot_dimensions,int):
-            scatter_plot_dimensions=[scatter_plot_dimensions]
-        if isinstance(scatter_plot_dimensions,(list,tuple)):
-            scatter_plot_dimensions=[i-1 for i in scatter_plot_dimensions]
-        if len(scatter_plot_dimensions)>0:
-            self.plot_local_cluster_scatter(dimensions=scatter_plot_dimensions,clusters_to_plot=clusters_to_show)
+            self.plot_local_cluster_pcp(
+                together=False, clusters_to_plot=clusters_to_show)
+        if isinstance(scatter_plot_dimensions, int):
+            scatter_plot_dimensions = [scatter_plot_dimensions]
+        if isinstance(scatter_plot_dimensions, (list, tuple)):
+            scatter_plot_dimensions = [i - 1 for i in scatter_plot_dimensions]
+        if len(scatter_plot_dimensions) > 0:
+            self.plot_local_cluster_scatter(
+                dimensions=scatter_plot_dimensions, clusters_to_plot=clusters_to_show)
 
-#LOCAL SEARCH
+# LOCAL SEARCH
 
-    def _get_local_extrema(self,sample_size=0,algo=None,par=True,decomposition_method='tchebycheff',weights='uniform',z=[],con2mo='obj_cstrsvio', warning=True):
+    def _get_local_extrema(self, sample_size=0, algo=None, par=True, decomposition_method='tchebycheff', weights='uniform', z=[], con2mo='obj_cstrsvio', warning=True):
         """
         Selects points from the sample and launches local searches using them as initial points.
 
 
         **USAGE:**
         analysis._get_local_extrema([sample_size=0, algo=algorithm.cs(), par=True, decomposition_method='tchebycheff', weights='uniform', z=[], con2mo='obj_cstrsvio', warning=True])
-        
+
         * sample_size: number of initial points to launch local searches from. If set to 0, all
           points in sample are used. Defaults to 0.
         * algo: algorithm object used in searches. For purposes, it should be a local
@@ -2340,7 +2487,7 @@ class analysis:
 
 
         **The following parameters are stored as attributes:**
-        
+
         * analysis.local_initial_npoints: number of initial points used for local searches (number
           of searches performed).
         * analysis.local_initial_points[number of searches]: index of each initial point in the
@@ -2354,125 +2501,137 @@ class analysis:
         * analysis.local_f_dec[number of searches]: fitness value of points after con2mo in constraint
           and decompose in multi-objective problems. Used to rate and order clusters.\n
         """
-        from PyGMO import archipelago,island,population,algorithm
-        if algo == None:
-            algo=algorithm.cs()
+        from PyGMO import archipelago, island, population, algorithm
+        if algo is None:
+            algo = algorithm.cs()
 
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._get_local_extrema: sampling first is necessary")
 
-        if not isinstance(algo,algorithm._algorithm._base):
+        if not isinstance(algo, algorithm._algorithm._base):
             raise ValueError(
                 "analysis._get_local_extrema: input a valid pygmo algorithm")
         try:
             from numpy.random import randint
-            from numpy import array,ptp
+            from numpy import array, ptp
         except ImportError:
             raise ImportError(
                 "analysis._get_local_extrema needs numpy to run. Is it installed?")
 
         from time import time
-        
-        if sample_size<=0 or sample_size>=self.npoints:
-            self.local_initial_points=range(self.npoints)
-            self.local_initial_npoints=self.npoints
+
+        if sample_size <= 0 or sample_size >= self.npoints:
+            self.local_initial_points = range(self.npoints)
+            self.local_initial_npoints = self.npoints
         else:
-            self.local_initial_npoints=sample_size
-            self.local_initial_points=[randint(self.npoints) for i in range(sample_size)] #avoid repetition?
+            self.local_initial_npoints = sample_size
+            self.local_initial_points = [
+                randint(self.npoints) for i in range(sample_size)]  # avoid repetition?
 
-        self.local_extrema=[]
-        #self.local_neval=[]// pygmo doesn't return it
-        self.local_search_time=[]
-        self.local_f=[]
-        self.local_f_dec=[]
+        self.local_extrema = []
+        # self.local_neval=[]// pygmo doesn't return it
+        self.local_search_time = []
+        self.local_f = []
+        self.local_f_dec = []
 
-        if con2mo==None:
-            prob=self.prob
-        elif self.c_dim>0:
-            prob=problem.con2mo(self.prob,method=con2mo)
+        if con2mo is None:
+            prob = self.prob
+        elif self.c_dim > 0:
+            prob = problem.con2mo(self.prob, method=con2mo)
             if warning:
-                if self.dir==None:
-                    output=None
+                if self.dir is None:
+                    output = None
                 else:
-                    output=open(self.dir+'/log.txt','r+')
-                    output.seek(0,2)
-                print('WARNING: get_local_extrema is being transformed to MO by means of '+con2mo,file=output)
-                if self.dir!=None:
+                    output = open(self.dir + '/log.txt', 'r+')
+                    output.seek(0, 2)
+                print(
+                    'WARNING: get_local_extrema is being transformed to MO by means of ' + con2mo, file=output)
+                if self.dir is not None:
                     output.close()
         else:
-            prob=self.prob
+            prob = self.prob
 
-        if prob.f_dimension==1:
-            decomposition=prob
+        if prob.f_dimension == 1:
+            decomposition = prob
 
         else:
-            if weights=='uniform':
-                weightvector=[1./prob.f_dimension for i in range(prob.f_dimension)]
-            elif weights=='random':
-                weightvector=[]
+            if weights == 'uniform':
+                weightvector = [
+                    1. / prob.f_dimension for i in range(prob.f_dimension)]
+            elif weights == 'random':
+                weightvector = []
             else:
-                weightvector=weights
+                weightvector = weights
 
-            decomposition=problem.decompose(prob,method=decomposition_method, weights=weightvector,z=z)
-            
+            decomposition = problem.decompose(
+                prob, method=decomposition_method, weights=weightvector, z=z)
+
             if warning:
-                if decomposition_method=='tchebycheff' or decomposition_method=='bi':
-                    if z==[]:
-                        z=[0 for i in range(self.f_dim)]
-                    additional_message=' and '+str(z)+' ideal reference point!'
+                if decomposition_method == 'tchebycheff' or decomposition_method == 'bi':
+                    if z == []:
+                        z = [0 for i in range(self.f_dim)]
+                    additional_message = ' and ' + \
+                        str(z) + ' ideal reference point!'
                 else:
-                    additional_message='!'
-                if self.dir==None:
-                    output=None
+                    additional_message = '!'
+                if self.dir is None:
+                    output = None
                 else:
-                    output=open(self.dir+'/log.txt','r+')
-                    output.seek(0,2)
-                string='WARNING: get_local_extrema is decomposing multi-objective problem by means of '+str(decomposition_method)+' method, with '+str(weights)+' weight vector'+additional_message
-                length=0
+                    output = open(self.dir + '/log.txt', 'r+')
+                    output.seek(0, 2)
+                string = 'WARNING: get_local_extrema is decomposing multi-objective problem by means of ' + \
+                    str(decomposition_method) + ' method, with ' + \
+                    str(weights) + ' weight vector' + additional_message
+                length = 0
                 for word in string.split(' '):
-                    length+=len(word)+1
-                    if length>80:
-                        length=len(word)+1
-                        print('\n'+word,end=' ',file=output)
+                    length += len(word) + 1
+                    if length > 80:
+                        length = len(word) + 1
+                        print('\n' + word, end=' ', file=output)
                     else:
-                        print(word,end=' ',file=output)
+                        print(word, end=' ', file=output)
                 print(file=output)
-                if self.dir!=None:
+                if self.dir is not None:
                     output.close()
         if par:
-            archi=archipelago()
+            archi = archipelago()
         for i in range(self.local_initial_npoints):
-            pop=population(decomposition)
-            x0=[]
+            pop = population(decomposition)
+            x0 = []
             for j in range(self.dim):
-                x0.append(self.points[self.local_initial_points[i]][j]*(self.ub[j]-self.lb[j])+self.lb[j])
+                x0.append(self.points[self.local_initial_points[i]][
+                          j] * (self.ub[j] - self.lb[j]) + self.lb[j])
             pop.push_back(x0)
-            isl=island(algo,pop)
+            isl = island(algo, pop)
             if par:
                 archi.push_back(isl)
             else:
                 isl.evolve(1)
                 self.local_search_time.append(isl.get_evolution_time())
-                self.local_extrema.append([(c-l)/(u-l) for c,u,l in zip(list(isl.population.champion.x),self.ub,self.lb)])
+                self.local_extrema.append(
+                    [(c - l) / (u - l) for c, u, l in zip(list(isl.population.champion.x), self.ub, self.lb)])
                 self.local_f_dec.append(isl.population.champion.f[0])
-                self.local_f.append(((array(self.prob.objfun(isl.population.champion.x))-array(self.f_offset))/array(self.f_span)).tolist())
+                self.local_f.append(((array(self.prob.objfun(
+                    isl.population.champion.x)) - array(self.f_offset)) / array(self.f_span)).tolist())
         if par:
-            start=time()
+            start = time()
             archi.evolve(1)
             archi.join()
-            finish=time()
+            finish = time()
             for i in archi:
                 self.local_search_time.append(i.get_evolution_time())
-                self.local_extrema.append([(c-l)/(u-l) for c,u,l in zip(list(i.population.champion.x),self.ub,self.lb)])
+                self.local_extrema.append(
+                    [(c - l) / (u - l) for c, u, l in zip(list(i.population.champion.x), self.ub, self.lb)])
                 self.local_f_dec.append(i.population.champion.f[0])
-                self.local_f.append(((array(self.prob.objfun(i.population.champion.x))-array(self.f_offset))/array(self.f_span)).tolist())
-        f_dec_offset=min(self.local_f_dec)
-        f_dec_span=ptp(self.local_f_dec)
-        self.local_f_dec=[(i-f_dec_offset)/f_dec_span for i in self.local_f_dec[:]]
+                self.local_f.append(((array(self.prob.objfun(
+                    i.population.champion.x)) - array(self.f_offset)) / array(self.f_span)).tolist())
+        f_dec_offset = min(self.local_f_dec)
+        f_dec_span = ptp(self.local_f_dec)
+        self.local_f_dec = [
+            (i - f_dec_offset) / f_dec_span for i in self.local_f_dec[:]]
 
-
-    def _cluster_local_extrema(self,variance_ratio=0.95,k=0,single_cluster_tolerance=0.0001,kmax=0):
+    def _cluster_local_extrema(self, variance_ratio=0.95, k=0, single_cluster_tolerance=0.0001, kmax=0):
         """
         Clusters the results of a set of local searches and orders the clusters ascendently as
         regards fitness value of its centroid (after transformation for constraint problems and
@@ -2484,7 +2643,7 @@ class analysis:
 
         **USAGE:**
         analysis._cluster_local_extrema([variance_ratio=0.95, k=0, single_cluster_tolerance=0.0001, kmax=0])
-        
+
         * variance_ratio: target fraction of variance explained by the cluster centroids, when not
           clustering to a fixed number of clusters.
         * k: number of clusters when clustering to fixed number of clusters. If k=0, the clustering
@@ -2495,7 +2654,7 @@ class analysis:
           to a fixed number of clusters. Defaults to 0.0001.
         * kmax: maximum number of clusters admissible. If set to 0, the limit is the number of local
           searches performed. Defaults to 0.
-        
+
 
         **The following parameters are stored as attributes:**
 
@@ -2517,10 +2676,10 @@ class analysis:
         * analysis.local_cluster_rx0[number of clusters]: radius of attraction, or euclidian distance
           from the furthest initial local search point in the cluster to the cluster X-center.
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._cluster_local_extrema: sampling first is necessary")
-        if self.local_initial_npoints==0:
+        if self.local_initial_npoints == 0:
             raise ValueError(
                 "analysis._cluster_local_extrema: getting local extrema first is necessary")
         try:
@@ -2530,114 +2689,124 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._cluster_local_extrema needs numpy and sklearn to run. Are they installed?")
-        dataset=[]
+        dataset = []
 
-        if kmax==0:
-            kmax=self.local_initial_npoints
+        if kmax == 0:
+            kmax = self.local_initial_npoints
 
         for i in range(self.local_initial_npoints):
 
             dataset.append(self.local_extrema[i][:])
             dataset[i].extend(self.local_f[i])
 
-        if k!=0:#cluster to given number of clusters
-            clust=KMeans(k)
+        if k != 0:  # cluster to given number of clusters
+            clust = KMeans(k)
 
-            #storage of output
-            local_cluster=list(clust.fit_predict(dataset))
-            self.local_nclusters=k
-            cluster_size=zeros(k)
+            # storage of output
+            local_cluster = list(clust.fit_predict(dataset))
+            self.local_nclusters = k
+            cluster_size = zeros(k)
             for i in range(self.local_initial_npoints):
-                cluster_size[local_cluster[i]]+=1
-            cluster_size=list(cluster_size)
+                cluster_size[local_cluster[i]] += 1
+            cluster_size = list(cluster_size)
 
-        else:#find out number of clusters
-            clust=KMeans(1)
-            total_distances=clust.fit_transform(dataset)
-            total_center=clust.cluster_centers_[0]
-            total_radius=max(total_distances)[0]
+        else:  # find out number of clusters
+            clust = KMeans(1)
+            total_distances = clust.fit_transform(dataset)
+            total_center = clust.cluster_centers_[0]
+            total_radius = max(total_distances)[0]
 
-            if total_radius<single_cluster_tolerance*(self.dim+self.f_dim):#single cluster scenario
-                #storage of output
-                local_cluster=list(clust.predict(dataset))
-                self.local_nclusters=1
-                cluster_size=[0]
+            # single cluster scenario
+            if total_radius < single_cluster_tolerance * (self.dim + self.f_dim):
+                # storage of output
+                local_cluster = list(clust.predict(dataset))
+                self.local_nclusters = 1
+                cluster_size = [0]
                 for i in range(self.local_initial_npoints):
-                    cluster_size[local_cluster[i]]+=1
-                cluster_size=list(cluster_size)
+                    cluster_size[local_cluster[i]] += 1
+                cluster_size = list(cluster_size)
             else:
-                k=2 #multiple cluster scenario
-                var_tot=sum([x**2 for x in total_distances])
-                var_ratio=0
-                while var_ratio<=variance_ratio and k<=kmax:
-                    clust=KMeans(k)
-                    y=clust.fit_predict(dataset)
-                    cluster_size=zeros(k)
-                    var_exp=0
+                k = 2  # multiple cluster scenario
+                var_tot = sum([x ** 2 for x in total_distances])
+                var_ratio = 0
+                while var_ratio <= variance_ratio and k <= kmax:
+                    clust = KMeans(k)
+                    y = clust.fit_predict(dataset)
+                    cluster_size = zeros(k)
+                    var_exp = 0
                     for i in range(self.local_initial_npoints):
-                        cluster_size[y[i]]+=1
+                        cluster_size[y[i]] += 1
                     for i in range(k):
-                        distance=norm(clust.cluster_centers_[i]-total_center)
-                        var_exp+=cluster_size[i]*distance**2
-                    var_ratio=var_exp/var_tot
-                    k+=1
-                #storage of output
-                local_cluster=list(y)
-                self.local_nclusters=k-1
+                        distance = norm(
+                            clust.cluster_centers_[i] - total_center)
+                        var_exp += cluster_size[i] * distance ** 2
+                    var_ratio = var_exp / var_tot
+                    k += 1
+                # storage of output
+                local_cluster = list(y)
+                self.local_nclusters = k - 1
 
-        #more storage and reordering so clusters are ordered best to worst
-        cluster_value=[clust.cluster_centers_[i][self.dim] for i in range(self.local_nclusters)]
-        cluster_value=[0]*self.local_nclusters
+        # more storage and reordering so clusters are ordered best to worst
+        cluster_value = [clust.cluster_centers_[i][self.dim]
+                         for i in range(self.local_nclusters)]
+        cluster_value = [0] * self.local_nclusters
         for i in range(self.local_initial_npoints):
-            cluster_value[local_cluster[i]]+=self.local_f_dec[i]/cluster_size[local_cluster[i]]
-        order=[x for (y,x) in sorted(zip(cluster_value,range(self.local_nclusters)))]
+            cluster_value[
+                local_cluster[i]] += self.local_f_dec[i] / cluster_size[local_cluster[i]]
+        order = [x for (y, x) in sorted(
+            zip(cluster_value, range(self.local_nclusters)))]
 
-        self.local_cluster_x_centers=[]
-        self.local_cluster_f_centers=[]
-        self.local_cluster_c=[]
-        self.local_cluster_f=[]
-        self.local_cluster=[]
-        self.local_cluster_size=[]
+        self.local_cluster_x_centers = []
+        self.local_cluster_f_centers = []
+        self.local_cluster_c = []
+        self.local_cluster_f = []
+        self.local_cluster = []
+        self.local_cluster_size = []
         for i in range(self.local_nclusters):
             self.local_cluster_size.append(cluster_size[order[i]])
-            self.local_cluster_x_centers.append(clust.cluster_centers_[order[i]][:self.dim])
-            self.local_cluster_f_centers.append(clust.cluster_centers_[order[i]][self.dim:])
-            self.local_cluster_f.append(((array(self.prob.objfun(array(self.local_cluster_x_centers[i])*(array(self.ub)-array(self.lb))+array(self.lb)))-array(self.f_offset))/array(self.f_span)).tolist())
-            if self.c_dim>0:
-                self.local_cluster_c.append(((array(self.prob.compute_constraints(array(self.local_cluster_x_centers[i])*(array(self.ub)-array(self.lb))+array(self.lb))))/array(self.c_span)).tolist())
+            self.local_cluster_x_centers.append(
+                clust.cluster_centers_[order[i]][:self.dim])
+            self.local_cluster_f_centers.append(
+                clust.cluster_centers_[order[i]][self.dim:])
+            self.local_cluster_f.append(((array(self.prob.objfun(array(self.local_cluster_x_centers[
+                                        i]) * (array(self.ub) - array(self.lb)) + array(self.lb))) - array(self.f_offset)) / array(self.f_span)).tolist())
+            if self.c_dim > 0:
+                self.local_cluster_c.append(((array(self.prob.compute_constraints(array(self.local_cluster_x_centers[
+                                            i]) * (array(self.ub) - array(self.lb)) + array(self.lb)))) / array(self.c_span)).tolist())
 
         for i in range(self.local_initial_npoints):
             for j in range(self.local_nclusters):
-                if local_cluster[i]==order[j]:
+                if local_cluster[i] == order[j]:
                     self.local_cluster.append(j)
                     break
 
-        #calculate cluster radius and center
-        self.local_cluster_rx=[0]*self.local_nclusters
-        self.local_cluster_rx0=[0]*self.local_nclusters
-        f=[[] for i in range(self.local_nclusters)]
+        # calculate cluster radius and center
+        self.local_cluster_rx = [0] * self.local_nclusters
+        self.local_cluster_rx0 = [0] * self.local_nclusters
+        f = [[] for i in range(self.local_nclusters)]
         for i in range(self.local_initial_npoints):
-            c=self.local_cluster[i]
-            if self.local_cluster_size[c]==1:
-                f[c].append([0]*self.f_dim)
+            c = self.local_cluster[i]
+            if self.local_cluster_size[c] == 1:
+                f[c].append([0] * self.f_dim)
             else:
-                rx=norm(array(self.local_extrema[i])-array(self.local_cluster_x_centers[c]))
-                rx0=norm(array(self.points[self.local_initial_points[i]])-array(self.local_cluster_x_centers[c]))
+                rx = norm(
+                    array(self.local_extrema[i]) - array(self.local_cluster_x_centers[c]))
+                rx0 = norm(array(self.points[
+                           self.local_initial_points[i]]) - array(self.local_cluster_x_centers[c]))
                 f[c].append(self.local_f[i])
-                if rx>self.local_cluster_rx[c]:
-                    self.local_cluster_rx[c]=rx
-                if rx0>self.local_cluster_rx0[c]:
-                    self.local_cluster_rx0[c]=rx0
+                if rx > self.local_cluster_rx[c]:
+                    self.local_cluster_rx[c] = rx
+                if rx0 > self.local_cluster_rx0[c]:
+                    self.local_cluster_rx0[c] = rx0
 
-        self.local_cluster_f_span=[ptp(f[t],0).tolist() for t in range(self.local_nclusters)]
+        self.local_cluster_f_span = [
+            ptp(f[t], 0).tolist() for t in range(self.local_nclusters)]
 
+    ##########################################################################
+    # LEVEL SET
+    ##########################################################################
 
-
-    ######################################################################################################################
-    #LEVEL SET
-    ###################################################################################################################### 
-
-    def levelset(self,threshold=50,k_tune=3,k_test=10,linear=True,quadratic=True,nonlinear=True,round_to=3):
+    def levelset(self, threshold=50, k_tune=3, k_test=10, linear=True, quadratic=True, nonlinear=True, round_to=3):
         """
         This function performs binary classifications of the sample via SVM and assesses its precision.
         The classes are defined by a percentile threshold on a fitness function. Linear, quadratic and
@@ -2646,7 +2815,7 @@ class analysis:
         per objective.
 
 
-        **USAGE:** 
+        **USAGE:**
         analysis.levelset([threshold=[25,50], k_test=10,k_tune=3, linear=True, quadratic=False, nonlinear=True, round_to=3])
 
         * threshold: percentile or list of percentiles that will serve as threshold for binary
@@ -2661,46 +2830,57 @@ class analysis:
         * K tune
         * K test
         * Percentile used as threshold.
-        
+
                 * Mean misclassification error of each method used (linear, quadratic, nonlinear).
                 * One-sided p-values of each pairwise comparison (l/q, l/nl, q/nl)
         """
-        if isinstance(threshold,(int,float)):
-            threshold=[threshold]
-        if any([linear,quadratic,nonlinear]) and len(threshold)>0:
-            if self.dir==None:
-                output=None
+        if isinstance(threshold, (int, float)):
+            threshold = [threshold]
+        if any([linear, quadratic, nonlinear]) and len(threshold) > 0:
+            if self.dir is None:
+                output = None
             else:
-                output=open(self.dir+'/log.txt','r+')
-                output.seek(0,2)
+                output = open(self.dir + '/log.txt', 'r+')
+                output.seek(0, 2)
 
-            print("-------------------------------------------------------------------------------",file=output)
-            print("LEVELSET FEATURES ",file=output)
-            print("-------------------------------------------------------------------------------",file=output)
-            print("         K tune :                       ",[k_tune],"",file=output)
-            print("         K test :                       ",[k_test],"",file=output)
+            print(
+                "-------------------------------------------------------------------------------", file=output)
+            print("LEVELSET FEATURES ", file=output)
+            print(
+                "-------------------------------------------------------------------------------", file=output)
+            print("         K tune :                       ",
+                  [k_tune], "", file=output)
+            print("         K test :                       ",
+                  [k_test], "", file=output)
             for i in threshold:
-                svm_results=self._svm_p_values(threshold=i,k_test=k_test,k_tune=k_tune)
-                print("Percentile",i," :",file=output)
-                print("     Mean Misclassification Errors ",file=output)
+                svm_results = self._svm_p_values(
+                    threshold=i, k_test=k_test, k_tune=k_tune)
+                print("Percentile", i, " :", file=output)
+                print("     Mean Misclassification Errors ", file=output)
                 if linear:
-                    print("         Linear Kernel :                ",[round(r,round_to) for r in svm_results[0]],"",file=output)
+                    print("         Linear Kernel :                ", [
+                          round(r, round_to) for r in svm_results[0]], "", file=output)
                 if quadratic:
-                    print("         Quadratic Kernel :             ",[round(r,round_to) for r in svm_results[1]],"",file=output)
+                    print("         Quadratic Kernel :             ", [
+                          round(r, round_to) for r in svm_results[1]], "", file=output)
                 if nonlinear:
-                    print("         Non-Linear Kernel (RBF):       ",[round(r,round_to) for r in svm_results[2]],"",file=output)
+                    print("         Non-Linear Kernel (RBF):       ",
+                          [round(r, round_to) for r in svm_results[2]], "", file=output)
                 if any([linear and quadratic, linear and nonlinear, quadratic and nonlinear]):
-                    print("     P-Values :",file=output)
+                    print("     P-Values :", file=output)
                 if linear and quadratic:
-                    print("         Linear/Quadratic :             ",[round(r,round_to) for r in svm_results[3]],"",file=output)
+                    print("         Linear/Quadratic :             ",
+                          [round(r, round_to) for r in svm_results[3]], "", file=output)
                 if linear and nonlinear:
-                    print("         Linear/Nonlinear :             ",[round(r,round_to) for r in svm_results[4]],"",file=output)
+                    print("         Linear/Nonlinear :             ",
+                          [round(r, round_to) for r in svm_results[4]], "", file=output)
                 if quadratic and nonlinear:
-                    print("         Quadratic/Nonlinear :          ",[round(r,round_to) for r in svm_results[5]],"",file=output)
-            if output!=None:
+                    print("         Quadratic/Nonlinear :          ",
+                          [round(r, round_to) for r in svm_results[5]], "", file=output)
+            if output is not None:
                 output.close()
 
-    def _svm(self,threshold=50,kernel='rbf',k_tune=3,k_test=10):
+    def _svm(self, threshold=50, kernel='rbf', k_tune=3, k_test=10):
         """
         This function performs binary classifications of the sample via SVM and assesses its precision.
         The classes are defined by a percentile threshold on a fitness function. The method is tuned by
@@ -2710,9 +2890,9 @@ class analysis:
         errors can be evaluated by crossvalidation and returned as a distribution.
 
 
-        **USAGE:** 
+        **USAGE:**
         analysis._svm([threshold=25, kernel='rbf', k_tune=3, k_test=10])
-        
+
         * threshold: percentile of the fitness function that will serve as threshold for binary
           classification of the sample. Defaults to 50.
         * kernel: options are 'linear','quadratic' and 'rbf'. Defaults to 'rbf'.
@@ -2722,16 +2902,16 @@ class analysis:
 
 
         **Returns**:
-        
+
         * mce[fitness dimension][k_test]: misclassification errors obtained for each of the fitness functions.
         """
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis._svm: sampling first is necessary")
-        if kernel!='linear' and kernel!= 'quadratic' and kernel!='rbf':
+        if kernel != 'linear' and kernel != 'quadratic' and kernel != 'rbf':
             raise ValueError(
                 "analysis._svm: choose a proper value for kernel ('linear','quadratic','rbf')")
-        if threshold<=0 or threshold>=100:
+        if threshold <= 0 or threshold >= 100:
             raise ValueError(
                 "analysis._svm: threshold needs to be a value ]0,100[")
         try:
@@ -2743,31 +2923,33 @@ class analysis:
         except ImportError:
             raise ImportError(
                 "analysis._svm needs numpy and scikit-learn to run. Are they installed?")
-        
-        if kernel=='quadratic':
-            kernel='poly'
-        c_range=2.**arange(-5,16,2)
-        if kernel=='linear':
-            param_grid=dict(C=c_range)
+
+        if kernel == 'quadratic':
+            kernel = 'poly'
+        c_range = 2. ** arange(-5, 16, 2)
+        if kernel == 'linear':
+            param_grid = dict(C=c_range)
         else:
-            g_range=2.**arange(-15,4,2)
-            param_grid=dict(gamma=g_range,C=c_range)
-        per=self._percentile(threshold)
-        dataset=self.points[:]
-        mce=[]
+            g_range = 2. ** arange(-15, 4, 2)
+            param_grid = dict(gamma=g_range, C=c_range)
+        per = self._percentile(threshold)
+        dataset = self.points[:]
+        mce = []
         for obj in range(self.f_dim):
-            y=zeros(self.npoints) #classification of data
+            y = zeros(self.npoints)  # classification of data
             for i in range(self.npoints):
-                if self.f[i][obj]>per[obj]:
-                    y[i]=1
+                if self.f[i][obj] > per[obj]:
+                    y[i] = 1
 
-            grid=GridSearchCV(estimator=SVC(kernel=kernel,degree=2),param_grid=param_grid,cv=StratifiedKFold(y,k_tune))
-            grid.fit(dataset,y)
-            test_score=cross_val_score(estimator=grid.best_estimator_,X=dataset,y=y,scoring=None,cv=StratifiedKFold(y,k_test))
-            mce.append((ones(k_test)-test_score).tolist())
-        return mce #mce[n_obj][k_test]
+            grid = GridSearchCV(estimator=SVC(
+                kernel=kernel, degree=2), param_grid=param_grid, cv=StratifiedKFold(y, k_tune))
+            grid.fit(dataset, y)
+            test_score = cross_val_score(
+                estimator=grid.best_estimator_, X=dataset, y=y, scoring=None, cv=StratifiedKFold(y, k_test))
+            mce.append((ones(k_test) - test_score).tolist())
+        return mce  # mce[n_obj][k_test]
 
-    def _svm_p_values(self,threshold=50,k_tune=3,k_test=10,l=True,q=True,n=True):
+    def _svm_p_values(self, threshold=50, k_tune=3, k_test=10, l=True, q=True, n=True):
         """
         This function calls analysis._svm several times with identical parameters (threshold, k_tune
         and k_test) but different kernels, and **Returns** the mean misclassification errors of each
@@ -2776,7 +2958,7 @@ class analysis:
 
         **USAGE:**
         analysis._svm_p_values([threshold=25, k_tune=3, k_test=10, l=True, q=False, nl=True])
-        
+
         * threshold: percentile of the fitness function that will serve as threshold for binary classification
           of the sample. Defaults to 50.
         * k_tune: k used in k-fold crossvalidation to tune the model hyperparameters. Defaults to 3.
@@ -2785,7 +2967,7 @@ class analysis:
         * l: if True, the linear kernel model will be included.
         * q: if True, the quadratic kernel model will be included.
         * n: if True, the non-linear (rbf) kernel model will be included.
-        
+
 
         **Returns** a tuple of length 6 containing:
 
@@ -2794,7 +2976,7 @@ class analysis:
         * mmce_nonlinear[fitness dimension]: mean misclassification error of nonlinear (rbf) kernel model.
         * l_q[fitness dimension]: p-value of the comparison between distributions of mce for linear and
           quadratic kernels.
-        * l_n[fitness dimension]: p-value of the comparison between distributions of mce for linear and 
+        * l_n[fitness dimension]: p-value of the comparison between distributions of mce for linear and
           nonlinear (rbf) kernels.
         * q_n[fitness dimension]: p-value of the comparison between distributions of mce for quadratic
           and nonlinear (rbf) kernels.
@@ -2803,8 +2985,8 @@ class analysis:
         **NOTE:** if any of the booleans (l,q,n) is set to False and the corresponding model is not fit, the
         function will return -1 for all the associated results.
         """
-        if any([l,q,n]):
-            if self.npoints==0:
+        if any([l, q, n]):
+            if self.npoints == 0:
                 raise ValueError(
                     "analysis._svm_p_values: sampling first is necessary")
             try:
@@ -2814,50 +2996,50 @@ class analysis:
                 raise ImportError(
                     "analysis._svm_p_values needs scipy and numpy to run. Is it installed?")
             if l:
-                linear=self._svm(threshold=threshold, kernel='linear',k_tune=k_tune, k_test=k_test)
+                linear = self._svm(
+                    threshold=threshold, kernel='linear', k_tune=k_tune, k_test=k_test)
             else:
-                linear=[[-1]*self.f_dim]
+                linear = [[-1] * self.f_dim]
             if q:
-                quadratic=self._svm(threshold=threshold, kernel='quadratic',k_tune=k_tune, k_test=k_test)
+                quadratic = self._svm(
+                    threshold=threshold, kernel='quadratic', k_tune=k_tune, k_test=k_test)
             else:
-                quadratic=[[-1]*self.f_dim]
+                quadratic = [[-1] * self.f_dim]
             if n:
-                nonlinear=self._svm(threshold=threshold, kernel='rbf',k_tune=k_tune, k_test=k_test)
+                nonlinear = self._svm(
+                    threshold=threshold, kernel='rbf', k_tune=k_tune, k_test=k_test)
             else:
-                nonlinear=[[-1]*self.f_dim]
-            l_q=[]
-            q_n=[]
-            l_n=[]
+                nonlinear = [[-1] * self.f_dim]
+            l_q = []
+            q_n = []
+            l_n = []
             for i in range(self.f_dim):
                 if l and q:
                     try:
-                        l_q.append(mannwhitneyu(linear[i],quadratic[i])[1])
+                        l_q.append(mannwhitneyu(linear[i], quadratic[i])[1])
                     except ValueError:
                         l_q.append(0.5)
                 else:
                     l_q.append(-1)
                 if l and n:
                     try:
-                        l_n.append(mannwhitneyu(linear[i],nonlinear[i])[1])
+                        l_n.append(mannwhitneyu(linear[i], nonlinear[i])[1])
                     except ValueError:
                         l_n.append(0.5)
                 else:
                     l_n.append(-1)
                 if n and q:
                     try:
-                        q_n.append(mannwhitneyu(quadratic[i],nonlinear[i])[1])
+                        q_n.append(mannwhitneyu(quadratic[i], nonlinear[i])[1])
                     except ValueError:
                         q_n.append(0.5)
                 else:
                     q_n.append(-1)
-            return (list(mean(linear,1)),list(mean(quadratic,1)),list(mean(nonlinear,1)),l_q,l_n,q_n)
+            return (list(mean(linear, 1)), list(mean(quadratic, 1)), list(mean(nonlinear, 1)), l_q, l_n, q_n)
 
-
-
-
-    ######################################################################################################################
-    #PLOT FUNCTIONS
-    ###################################################################################################################### 
+    ##########################################################################
+    # PLOT FUNCTIONS
+    ##########################################################################
 
     def plot_f_distr(self):
         """
@@ -2874,42 +3056,43 @@ class analysis:
         """
         try:
             from scipy.stats import gaussian_kde
-            from matplotlib.pyplot import plot,draw,title,show,legend,axes,cla,clf,xlabel,ylabel
+            from matplotlib.pyplot import plot, draw, title, show, legend, axes, cla, clf, xlabel, ylabel
         except ImportError:
             raise ImportError(
                 "analysis.plot_f_distr needs scipy and matplotlib to run. Are they installed?")
-        if self.npoints==0:
+        if self.npoints == 0:
             raise ValueError(
                 "analysis.plot_f_distr: sampling first is necessary")
-        ax=axes()
+        ax = axes()
         for i in range(self.f_dim):
-            tmp=[]
+            tmp = []
             for j in range(self.npoints):
                 tmp.append(self.f[j][i])
-            x=sorted(tmp)
-            kde=gaussian_kde(x)
-            y=kde(x)
-            ax.plot(x,y,label='objective '+str(i+1))
+            x = sorted(tmp)
+            kde = gaussian_kde(x)
+            y = kde(x)
+            ax.plot(x, y, label='objective ' + str(i + 1))
         title('F-Distribution(s)')
         xlabel('F')
         ylabel('dP/dF')
         legend()
-        f=ax.get_figure()
-        if self.dir==None:
+        f = ax.get_figure()
+        if self.dir is None:
             show(f)
             cla()
             clf()
         else:
-            f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-            print('*F-distribution plot : <figure_'+str(self.fignum)+'.png>',file=output)
-            self.fignum+=1
+            f.savefig(self.dir + '/figure_' + str(self.fignum) + '.png')
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+            print('*F-distribution plot : <figure_' +
+                  str(self.fignum) + '.png>', file=output)
+            self.fignum += 1
             cla()
             clf()
             output.close()
 
-    def plot_x_pcp(self,percentile=[],percentile_values=[]):
+    def plot_x_pcp(self, percentile=[], percentile_values=[]):
         """
         Routine that creates parallel coordinate plots of the chromosome of all points in the sample
         classified in ranges defined by the list of percentiles input. A plot per objective will be
@@ -2932,69 +3115,71 @@ class analysis:
         try:
             from pandas.tools.plotting import parallel_coordinates as pc
             from pandas import DataFrame as df
-            from matplotlib.pyplot import show,title,grid,ylabel,xlabel,legend,cla,clf
-            from numpy import asarray,transpose
+            from matplotlib.pyplot import show, title, grid, ylabel, xlabel, legend, cla, clf
+            from numpy import asarray, transpose
         except ImportError:
             raise ImportError(
                 "analysis.plot_x_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
-        if isinstance(percentile,(int,float)):
-            percentile=[percentile]
-        if len(percentile)==0:
+        if isinstance(percentile, (int, float)):
+            percentile = [percentile]
+        if len(percentile) == 0:
             raise ValueError(
                 "analysis.plot_x_pcp: introduce at least one percentile to group data")
         else:
-            if isinstance(percentile_values,(int,float)):
-                percentile_values=[percentile_values]
-            if len(percentile_values)==0 or len(percentile_values)!=len(percentile):
-                percentile_values=self._percentile(percentile)
-            percentile=sorted(percentile)
-            percentile_values=sorted(percentile_values)
-            while percentile[0]<=0:
-                percentile=percentile[1:]
-                percentile_values=percentile_values[1:]
-            while percentile[-1]>=100:
-                percentile=percentile[:-1]
-                percentile_values=percentile_values[:-1]
-            labels=[str(a)+"-"+str(b) for a,b in zip([0]+percentile,percentile+[100])]
+            if isinstance(percentile_values, (int, float)):
+                percentile_values = [percentile_values]
+            if len(percentile_values) == 0 or len(percentile_values) != len(percentile):
+                percentile_values = self._percentile(percentile)
+            percentile = sorted(percentile)
+            percentile_values = sorted(percentile_values)
+            while percentile[0] <= 0:
+                percentile = percentile[1:]
+                percentile_values = percentile_values[1:]
+            while percentile[-1] >= 100:
+                percentile = percentile[:-1]
+                percentile_values = percentile_values[:-1]
+            labels = [str(a) + "-" + str(b)
+                      for a, b in zip([0] + percentile, percentile + [100])]
             for obj in range(self.f_dim):
-                dataset=[]
+                dataset = []
                 for i in range(self.npoints):
                     dataset.append([])
-                    if self.f[i][obj]>=percentile_values[-1][obj]:
+                    if self.f[i][obj] >= percentile_values[-1][obj]:
                         dataset[i].append(labels[-1])
                     else:
                         for j in range(len(percentile)):
-                            if self.f[i][obj]<percentile_values[j][obj]:
+                            if self.f[i][obj] < percentile_values[j][obj]:
                                 dataset[i].append(labels[j])
                                 break
                     dataset[i].extend(self.points[i])
 
-                dataset=df(sorted(dataset,key=lambda row: -float(row[0].split('-')[0])))
-                #dataset=df(dataset)
-                title('X-PCP : objective '+str(obj+1)+'\n')
+                dataset = df(
+                    sorted(dataset, key=lambda row: -float(row[0].split('-')[0])))
+                # dataset=df(dataset)
+                title('X-PCP : objective ' + str(obj + 1) + '\n')
                 grid(True)
                 xlabel('Dimension')
                 ylabel('Chromosome (scaled)')
-                plot=0
-                plot=pc(dataset,0)
-                f=plot.get_figure()
-                if self.dir==None:
+                plot = 0
+                plot = pc(dataset, 0)
+                f = plot.get_figure()
+                if self.dir is None:
                     show(f)
                     cla()
                     clf()
                 else:
-                    f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
-                    output=open(self.dir+'/log.txt','r+')
-                    output.seek(0,2)
-                    print('*X-PCP plot obj.'+str(obj+1)+' :    <figure_'+str(self.fignum)+'.png>',file=output)
-                    self.fignum+=1
+                    f.savefig(
+                        self.dir + '/figure_' + str(self.fignum) + '.png')
+                    output = open(self.dir + '/log.txt', 'r+')
+                    output.seek(0, 2)
+                    print('*X-PCP plot obj.' + str(obj + 1) +
+                          ' :    <figure_' + str(self.fignum) + '.png>', file=output)
+                    self.fignum += 1
                     cla()
                     clf()
                     output.close()
-   
 
-
-    def plot_gradient_sparsity(self,zero_tol=10**(-8),mode='f'):
+    def plot_gradient_sparsity(self, zero_tol=10 ** (-8), mode='f'):
         """
         Plots sparsity of jacobian matrix. A position is considered a zero if its mean
         absolute value is lower than tolerance.
@@ -3002,79 +3187,83 @@ class analysis:
 
         **USAGE:**
         analysis.plot_gradient_sparsity([zero_tol=10**(-10), mode='c'])
-        
+
         * zero_tol: tolerance to consider a term as zero.
         * mode: 'f'/'c' to act on the fitness/constraint function jacobian matrix.
-        
+
 
         **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
         selected when instantiating the analysis class.
         """
-        if mode=='f':
-            if self.grad_npoints==0:
+        if mode == 'f':
+            if self.grad_npoints == 0:
                 raise ValueError(
                     "analysis.plot_gradient_sparsity: sampling and getting gradient first is necessary")
-            dim=self.f_dim
-        elif mode=='c':
-            if self.c_dim==0:
+            dim = self.f_dim
+        elif mode == 'c':
+            if self.c_dim == 0:
                 raise ValueError(
                     "analysis.plot_gradient_sparsity: mode 'c' selected for unconstrained problem")
-            if self.c_grad_npoints==0:
+            if self.c_grad_npoints == 0:
                 raise ValueError(
                     "analysis.plot_gradient_sparsity: sampling and getting c_gradient first is necessary")
             else:
-                dim=self.c_dim
+                dim = self.c_dim
         else:
             raise ValueError(
                 "analysis.plot_gradient_sparsity: select a valid mode 'f' or 'c'")
         try:
-            from matplotlib.pylab import spy,show,title,grid,xlabel,ylabel,xticks,yticks,draw,cla,clf
-            from numpy import nanmean,asarray
+            from matplotlib.pylab import spy, show, title, grid, xlabel, ylabel, xticks, yticks, draw, cla, clf
+            from numpy import nanmean, asarray
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_sparsity needs matplotlib and numpy to run. Are they installed?")
 
-        if mode=='f':
-            title('Gradient/Jacobian Sparsity ('+str(100*round(self.grad_sparsity,4))+'% sparse)\n')
+        if mode == 'f':
+            title('Gradient/Jacobian Sparsity (' +
+                  str(100 * round(self.grad_sparsity, 4)) + '% sparse)\n')
             ylabel('Objective')
-            matrix=self.average_abs_gradient
+            matrix = self.average_abs_gradient
         else:
-            title('Constraint Gradient/Jacobian Sparsity ('+str(100*round(self.c_grad_sparsity,4))+'% sparse)\n')
+            title('Constraint Gradient/Jacobian Sparsity (' +
+                  str(100 * round(self.c_grad_sparsity, 4)) + '% sparse)\n')
             ylabel('Constraint')
-            matrix=self.average_abs_c_gradient
+            matrix = self.average_abs_c_gradient
 
         grid(True)
         xlabel('Dimension')
-        
-        plot=spy(matrix,precision=zero_tol,markersize=20)
+
+        plot = spy(matrix, precision=zero_tol, markersize=20)
         try:
-            xlocs=range(self.cont_dim)
-            ylocs=range(dim)
-            xlabels=[str(i) for i in range(1,self.cont_dim+1)]
-            ylabels=[str(i) for i in range(1,dim+1)]
-            xticks(xlocs,[x.format(xlocs[i]) for i,x in enumerate(xlabels)])
-            yticks(ylocs,[y.format(ylocs[i]) for i,y in enumerate(ylabels)])
+            xlocs = range(self.cont_dim)
+            ylocs = range(dim)
+            xlabels = [str(i) for i in range(1, self.cont_dim + 1)]
+            ylabels = [str(i) for i in range(1, dim + 1)]
+            xticks(xlocs, [x.format(xlocs[i]) for i, x in enumerate(xlabels)])
+            yticks(ylocs, [y.format(ylocs[i]) for i, y in enumerate(ylabels)])
         except IndexError, ValueError:
             pass
-        f=plot.get_figure()
-        if self.dir==None:
+        f = plot.get_figure()
+        if self.dir is None:
             show(f)
             cla()
             clf()
         else:
-            f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-            if mode=='f':
-                print('*Gradient/Jacobian sparsity plot : <figure_'+str(self.fignum)+'.png>',file=output)
+            f.savefig(self.dir + '/figure_' + str(self.fignum) + '.png')
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+            if mode == 'f':
+                print('*Gradient/Jacobian sparsity plot : <figure_' +
+                      str(self.fignum) + '.png>', file=output)
             else:
-                print('*Constraints Gradient/Jacobian sparsity plot : <figure_'+str(self.fignum)+'.png>',file=output)
-            self.fignum+=1
+                print('*Constraints Gradient/Jacobian sparsity plot : <figure_' +
+                      str(self.fignum) + '.png>', file=output)
+            self.fignum += 1
             cla()
             clf()
             output.close()
 
-    def plot_gradient_pcp(self,mode='f',invert=False):
+    def plot_gradient_pcp(self, mode='f', invert=False):
         """
         Generates Parallel Coordinate Plot of Gradient: magnitude of (scaled) partial
         derivative dFi/dXj vs. X et F.
@@ -3082,95 +3271,96 @@ class analysis:
 
         **USAGE:**
         analysis.plot_gradient_pcp([mode='c', invert=True])
-        
+
         * mode: 'f'/'c' to use fitness/constraint jacobian matrix.
         * invert: if True, parallel axes are objectives, colors are search variables (not suitable
           for single-objective problems).if False, parallel axes are search variables, colors are
           objectives (not suitable for univariate problems).
-        
+
 
         **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
         selected when instantiating the analysis class.
         """
-        if mode=='f':
-            if self.grad_npoints==0:
+        if mode == 'f':
+            if self.grad_npoints == 0:
                 raise ValueError(
                     "analysis.plot_gradient_pcp: sampling and getting gradient first is necessary")
             else:
-                dim=self.f_dim
-                grad=self.grad
-                npoints=self.grad_npoints
-                string='Objective '
-        elif mode=='c':
-            if self.c_dim==0:
+                dim = self.f_dim
+                grad = self.grad
+                npoints = self.grad_npoints
+                string = 'Objective '
+        elif mode == 'c':
+            if self.c_dim == 0:
                 raise ValueError(
-                    "analysis.plot_gradient_pcp: mode 'c' selected for unconstrained problem")            
-            if self.c_grad_npoints==0:
+                    "analysis.plot_gradient_pcp: mode 'c' selected for unconstrained problem")
+            if self.c_grad_npoints == 0:
                 raise ValueError(
                     "analysis.plot_gradient_pcp: sampling and getting c_gradient first is necessary")
             else:
-                dim=self.c_dim
-                grad=self.c_grad
-                npoints=self.c_grad_npoints
-                string='Constraint '
+                dim = self.c_dim
+                grad = self.c_grad
+                npoints = self.c_grad_npoints
+                string = 'Constraint '
         else:
             raise ValueError(
                 "analysis.plot_gradient_pcp: choose a valid mode 'f' or 'c'")
 
-        if invert==False and self.cont_dim==1:
+        if invert is False and self.cont_dim == 1:
             raise ValueError(
                 "analysis.plot_gradient_pcp: this plot makes no sense for univariate problems")
-        if invert==True and dim==1:
+        if invert is True and dim == 1:
             raise ValueError(
-                "analysis.plot_gradient_pcp: this plot makes no sense for single-"+string.lower()+"problems")
+                "analysis.plot_gradient_pcp: this plot makes no sense for single-" + string.lower() + "problems")
 
         try:
             from pandas.tools.plotting import parallel_coordinates as pc
             from pandas import DataFrame as df
-            from matplotlib.pyplot import show,title,grid,ylabel,xlabel,cla,clf,xticks
-            from numpy import asarray,transpose
+            from matplotlib.pyplot import show, title, grid, ylabel, xlabel, cla, clf, xticks
+            from numpy import asarray, transpose
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
-        gradient=[]
+        gradient = []
         if invert:
-            aux=1
-            file_string=' (inverted)'
+            aux = 1
+            file_string = ' (inverted)'
         else:
-            aux=0
-            file_string=''
+            aux = 0
+            file_string = ''
         for i in range(npoints):
             if invert:
-                tmp=[['x'+str(x+1) for x in range(self.cont_dim)]]
+                tmp = [['x' + str(x + 1) for x in range(self.cont_dim)]]
             else:
-                tmp=[]
+                tmp = []
             for j in range(dim):
                 if invert:
                     tmp.append([])
                 else:
-                    if mode=='c':
-                        if j<self.c_dim-self.ic_dim:
-                            tmp.append(['Constraint h'+str(j+1)])  
+                    if mode == 'c':
+                        if j < self.c_dim - self.ic_dim:
+                            tmp.append(['Constraint h' + str(j + 1)])
                         else:
-                            tmp.append(['Constraint g'+str(j-self.c_dim+self.ic_dim+1)])   
+                            tmp.append(
+                                ['Constraint g' + str(j - self.c_dim + self.ic_dim + 1)])
                     else:
-                        tmp.append(['Objective '+str(j+1)])
+                        tmp.append(['Objective ' + str(j + 1)])
 
-                tmp[j+aux].extend(grad[i][j])
+                tmp[j + aux].extend(grad[i][j])
 
             if invert:
-                tmp2=[]
+                tmp2 = []
                 for ii in range(self.cont_dim):
                     tmp2.append([])
-                    for jj in range(dim+1):
+                    for jj in range(dim + 1):
                         tmp2[ii].append(tmp[jj][ii])
                 gradient.extend(tmp2)
             else:
                 gradient.extend(tmp)
 
-        gradient=df(gradient)
+        gradient = df(gradient)
 
-        title(string+'Gradient/Jacobian PCP \n')
+        title(string + 'Gradient/Jacobian PCP \n')
         grid(True)
         ylabel('Derivative value (scaled)')
         if invert:
@@ -3178,31 +3368,33 @@ class analysis:
         else:
             xlabel('Dimension')
 
-        plot=pc(gradient,0)
-        if mode=='c' and invert:
+        plot = pc(gradient, 0)
+        if mode == 'c' and invert:
             try:
-                xlocs=range(self.c_dim)
-                xlabels=['h'+str(i+1) for i in range(self.c_dim-self.ic_dim)]+['g'+str(i+1) for i in range(self.ic_dim)]
-                xticks(xlocs,[x.format(xlocs[i]) for i,x in enumerate(xlabels)])
+                xlocs = range(self.c_dim)
+                xlabels = ['h' + str(i + 1) for i in range(self.c_dim - self.ic_dim)] + [
+                    'g' + str(i + 1) for i in range(self.ic_dim)]
+                xticks(xlocs, [x.format(xlocs[i])
+                               for i, x in enumerate(xlabels)])
             except IndexError, ValueError:
                 pass
-        f=plot.get_figure()
-        if self.dir==None:
+        f = plot.get_figure()
+        if self.dir is None:
             show(f)
             cla()
             clf()
         else:
-            f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-            print('*'+string+'Gradient/Jacobian PCP plot'+file_string+' : <figure_'+str(self.fignum)+'.png>',file=output)
-            self.fignum+=1
+            f.savefig(self.dir + '/figure_' + str(self.fignum) + '.png')
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+            print('*' + string + 'Gradient/Jacobian PCP plot' + file_string +
+                  ' : <figure_' + str(self.fignum) + '.png>', file=output)
+            self.fignum += 1
             cla()
             clf()
             output.close()
 
-
-    def plot_local_cluster_pcp(self,together=True,clusters_to_plot=10):
+    def plot_local_cluster_pcp(self, together=True, clusters_to_plot=10):
         """
         Generates a Parallel Coordinate Plot of the clusters obtained on the local search results.
         The parallel axes represent the chromosome of the initial points of each local search and
@@ -3211,76 +3403,80 @@ class analysis:
 
         **USAGE:**
         analysis.plot_local_cluster_pcp([together=True, clusters_to_plot=5])
-        
+
         * together: if True, a single plot will be generated. If False, each cluster will be presented
           in a separate plot. Defaults to True.
         * clusters_to_plot: number of clusters to show. Option 'all' will plot all the clusters obtained.
           Otherwise the best clusters will be shown. Clusters are rated by mean decomposed fitness value.
           Defaults to 10.
-        
+
 
         **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
         selected when instantiating the analysis class.
         """
-        if self.local_nclusters==0:
+        if self.local_nclusters == 0:
             raise ValueError(
                 "analysis.plot_local_cluster_pcp: sampling, getting local extrema and clustering them first is necessary")
-        if self.dim==1:
+        if self.dim == 1:
             raise ValueError(
                 "analysis.plot_local_cluster_pcp: this makes no sense for univariate problems")
         try:
             from pandas.tools.plotting import parallel_coordinates as pc
             from pandas import DataFrame as df
-            from matplotlib.pyplot import show,title,grid,ylabel,xlabel,legend,plot,subplot,cla,clf
-            from numpy import asarray,transpose
+            from matplotlib.pyplot import show, title, grid, ylabel, xlabel, legend, plot, subplot, cla, clf
+            from numpy import asarray, transpose
         except ImportError:
             raise ImportError(
                 "analysis.plot_gradient_pcp needs pandas, numpy and matplotlib to run. Are they installed?")
-        if clusters_to_plot=='all':
-            clusters_to_plot=self.local_nclusters
+        if clusters_to_plot == 'all':
+            clusters_to_plot = self.local_nclusters
         if together:
-            n=1
-            dataset=[[]]
+            n = 1
+            dataset = [[]]
             for i in range(self.local_initial_npoints):
-                if self.local_cluster[i]<clusters_to_plot:
-                    dataset[0].append([self.local_cluster[i]+1]+self.points[self.local_initial_points[i]])
+                if self.local_cluster[i] < clusters_to_plot:
+                    dataset[0].append(
+                        [self.local_cluster[i] + 1] + self.points[self.local_initial_points[i]])
             dataset[0].sort(key=lambda row: -row[0])
-            separatelabel=['' for i in range(self.local_nclusters)]
+            separatelabel = ['' for i in range(self.local_nclusters)]
         else:
-            n=min([clusters_to_plot,self.local_nclusters])
-            dataset=[[] for i in range(clusters_to_plot)]
+            n = min([clusters_to_plot, self.local_nclusters])
+            dataset = [[] for i in range(clusters_to_plot)]
             for i in range(self.local_initial_npoints):
-                if self.local_cluster[i]<clusters_to_plot:
-                    dataset[self.local_cluster[i]].append([self.local_cluster[i]+1]+self.points[self.local_initial_points[i]])
-            separatelabel=[': cluster '+str(i+1) for i in range(self.local_nclusters)]
-        flist=[]
+                if self.local_cluster[i] < clusters_to_plot:
+                    dataset[self.local_cluster[i]].append(
+                        [self.local_cluster[i] + 1] + self.points[self.local_initial_points[i]])
+            separatelabel = [
+                ': cluster ' + str(i + 1) for i in range(self.local_nclusters)]
+        flist = []
         for i in range(n):
-            dataframe=df(dataset[i])
-            title('Local extrema clusters PCP'+separatelabel[i]+' \n')
+            dataframe = df(dataset[i])
+            title('Local extrema clusters PCP' + separatelabel[i] + ' \n')
             grid(True)
             xlabel('Dimension')
             ylabel('Chromosome (scaled)')
-            plot=pc(dataframe,0)
-            f=plot.get_figure()
-            if self.dir==None:
+            plot = pc(dataframe, 0)
+            f = plot.get_figure()
+            if self.dir is None:
                 show(f)
                 cla()
                 clf()
             else:
-                f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
-                output=open(self.dir+'/log.txt','r+')
-                output.seek(0,2)
+                f.savefig(self.dir + '/figure_' + str(self.fignum) + '.png')
+                output = open(self.dir + '/log.txt', 'r+')
+                output.seek(0, 2)
                 if together:
-                    aux='(global)'
+                    aux = '(global)'
                 else:
-                    aux='(cluster n.'+str(i+1)+')'
-                print('*Cluster PCP plot '+aux+' : <figure_'+str(self.fignum)+'.png>',file=output)
-                self.fignum+=1
+                    aux = '(cluster n.' + str(i + 1) + ')'
+                print('*Cluster PCP plot ' + aux + ' : <figure_' +
+                      str(self.fignum) + '.png>', file=output)
+                self.fignum += 1
                 cla()
                 clf()
                 output.close()
-    
-    def plot_local_cluster_scatter(self,dimensions='all',clusters_to_plot=10):
+
+    def plot_local_cluster_scatter(self, dimensions='all', clusters_to_plot=10):
         """
         Generates a Scatter Plot of the clusters obtained for the local search results in the
         dimensions specified (up to 3). Points on the plot are local search initial points and
@@ -3290,104 +3486,108 @@ class analysis:
 
         **USAGE:**
         analysis.plot_local_cluster_scatter([dimensions=[1,2], save_fig=False])
-        
+
         * dimensions: list of up to 3 dimensions in the search space that will be shown in the scatter
           plot (zero based). If set to 'all', the whole search space will be taken. An error will be
           raised when trying to plot more than 3 dimensions. Defaults to 'all'.
         * clusters_to_plot: number of clusters to show. The best clusters will be shown. Clusters
           are rated by mean decomposed fitness value. Defaults to 10.
-        
+
 
         **NOTE:** the plot will be shown on screen or saved to file depending on the  option that was
         selected when instantiating the analysis class.
         """
-        if self.local_nclusters==0:
+        if self.local_nclusters == 0:
             raise ValueError(
                 "analysis.plot_local_cluster_scatter: sampling, getting local extrema and clustering them first is necessary")
-        if dimensions=='all':
-            dimensions=range(self.dim)
-        if isinstance(dimensions,int):
-            dimensions=[dimensions]
-        if len(dimensions)>3 or len(dimensions)==0:
+        if dimensions == 'all':
+            dimensions = range(self.dim)
+        if isinstance(dimensions, int):
+            dimensions = [dimensions]
+        if len(dimensions) > 3 or len(dimensions) == 0:
             raise ValueError(
                 "analysis.plot_local_cluster_scatter: choose 1, 2 or 3 dimensions to plot")
         try:
-            from matplotlib.pyplot import show,title,grid,legend,axes,figure,cla,clf
+            from matplotlib.pyplot import show, title, grid, legend, axes, figure, cla, clf
             from mpl_toolkits.mplot3d import Axes3D
             from matplotlib.cm import Set1
-            from numpy import asarray,linspace
+            from numpy import asarray, linspace
         except ImportError:
             raise ImportError(
                 "analysis.plot_local_cluster_scatter needs numpy and matplotlib to run. Are they installed?")
-        
-        
-        dataset=[]
-        if clusters_to_plot=='all':
-            clusters_to_plot=self.local_nclusters
+
+        dataset = []
+        if clusters_to_plot == 'all':
+            clusters_to_plot = self.local_nclusters
         else:
-            clusters_to_plot=min(clusters_to_plot,self.local_nclusters)
-        npoints=0
-        c=[]
-        colors=Set1(linspace(0,1,clusters_to_plot))
+            clusters_to_plot = min(clusters_to_plot, self.local_nclusters)
+        npoints = 0
+        c = []
+        colors = Set1(linspace(0, 1, clusters_to_plot))
         for i in range(self.local_initial_npoints):
-            if self.local_cluster[i]<clusters_to_plot:
-                dataset.append([self.points[self.local_initial_points[i]][j] for j in dimensions])
+            if self.local_cluster[i] < clusters_to_plot:
+                dataset.append(
+                    [self.points[self.local_initial_points[i]][j] for j in dimensions])
                 c.append(colors[self.local_cluster[i]])
-                npoints+=1
-        dataset=asarray(dataset)
-        centers=self.local_cluster_x_centers[:clusters_to_plot]
+                npoints += 1
+        dataset = asarray(dataset)
+        centers = self.local_cluster_x_centers[:clusters_to_plot]
 
-        if len(dimensions)==1:
-            ax=axes()
-            ax.scatter(dataset,[0 for i in range(npoints)], c=c)
-            ax.set_xlim(0,1)
-            ax.set_ylim(-0.1,0.1)
+        if len(dimensions) == 1:
+            ax = axes()
+            ax.scatter(dataset, [0 for i in range(npoints)], c=c)
+            ax.set_xlim(0, 1)
+            ax.set_ylim(-0.1, 0.1)
             ax.set_yticklabels([])
-            ax.set_xlabel('x'+str(dimensions[0]+1))
+            ax.set_xlabel('x' + str(dimensions[0] + 1))
             grid(True)
             for i in range(clusters_to_plot):
-                ax.scatter(centers[i][0],0.005,marker='^',color=colors[i],s=100)
-                ax.text(centers[i][0],0.01,'cluster '+str(i+1),horizontalalignment='center',verticalalignment='bottom',color=colors[i],rotation='vertical',size=12,backgroundcolor='w')
-            
-        elif len(dimensions)==2:
-            ax=axes()
-            ax.scatter(dataset[:,0],dataset[:,1],c=c)
-            ax.set_xlim(0,1)
-            ax.set_ylim(0,1)
-            ax.set_xlabel('x'+str(dimensions[0]+1))
-            ax.set_ylabel('x'+str(dimensions[1]+1))
-            grid(True)
-            for i in range(clusters_to_plot):
-                ax.scatter(centers[i][0],centers[i][1],marker='^',color=colors[i],s=100)
-                ax.text(centers[i][0]+.02,centers[i][1],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
-            
-        else:
-            ax = figure().add_subplot(111,projection='3d')
-            ax.scatter(dataset[:,0],dataset[:,1],dataset[:,2],c=c)
-            ax.set_xlim(0,1)
-            ax.set_ylim(0,1)
-            ax.set_zlim(0,1)
-            ax.set_xlabel('x'+str(dimensions[0]+1))
-            ax.set_ylabel('x'+str(dimensions[1]+1))
-            ax.set_zlabel('x'+str(dimensions[2]+1))
-            for i in range(clusters_to_plot):
-                ax.scatter(centers[i][0],centers[i][1],centers[i][2],marker='^',color=colors[i],s=100)
-                ax.text(centers[i][0],centers[i][1]+0.02,centers[i][2],'cluster '+str(i+1),horizontalalignment='left',verticalalignment='center',color=colors[i],size=12,backgroundcolor='w')
-        title('Local extrema clusters scatter plot')
-        f=ax.get_figure()
+                ax.scatter(
+                    centers[i][0], 0.005, marker='^', color=colors[i], s=100)
+                ax.text(centers[i][0], 0.01, 'cluster ' + str(i + 1), horizontalalignment='center',
+                        verticalalignment='bottom', color=colors[i], rotation='vertical', size=12, backgroundcolor='w')
 
-        if self.dir==None:
+        elif len(dimensions) == 2:
+            ax = axes()
+            ax.scatter(dataset[:, 0], dataset[:, 1], c=c)
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.set_xlabel('x' + str(dimensions[0] + 1))
+            ax.set_ylabel('x' + str(dimensions[1] + 1))
+            grid(True)
+            for i in range(clusters_to_plot):
+                ax.scatter(
+                    centers[i][0], centers[i][1], marker='^', color=colors[i], s=100)
+                ax.text(centers[i][0] + .02, centers[i][1], 'cluster ' + str(i + 1), horizontalalignment='left',
+                        verticalalignment='center', color=colors[i], size=12, backgroundcolor='w')
+
+        else:
+            ax = figure().add_subplot(111, projection='3d')
+            ax.scatter(dataset[:, 0], dataset[:, 1], dataset[:, 2], c=c)
+            ax.set_xlim(0, 1)
+            ax.set_ylim(0, 1)
+            ax.set_zlim(0, 1)
+            ax.set_xlabel('x' + str(dimensions[0] + 1))
+            ax.set_ylabel('x' + str(dimensions[1] + 1))
+            ax.set_zlabel('x' + str(dimensions[2] + 1))
+            for i in range(clusters_to_plot):
+                ax.scatter(centers[i][0], centers[i][1], centers[i][
+                           2], marker='^', color=colors[i], s=100)
+                ax.text(centers[i][0], centers[i][1] + 0.02, centers[i][2], 'cluster ' + str(i + 1),
+                        horizontalalignment='left', verticalalignment='center', color=colors[i], size=12, backgroundcolor='w')
+        title('Local extrema clusters scatter plot')
+        f = ax.get_figure()
+
+        if self.dir is None:
             show(f)
             cla()
             clf()
         else:
-            f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-            print('*Cluster scatter plot (dimensions '+str([i+1 for i in dimensions])+') : <figure_'+str(self.fignum)+'.png>',file=output)
-            self.fignum+=1
+            f.savefig(self.dir + '/figure_' + str(self.fignum) + '.png')
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+            print('*Cluster scatter plot (dimensions ' +
+                  str([i + 1 for i in dimensions]) + ') : <figure_' + str(self.fignum) + '.png>', file=output)
+            self.fignum += 1
             cla()
             clf()
-
-
-
