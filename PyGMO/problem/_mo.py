@@ -49,7 +49,7 @@ def _dtlz234_plot(pop, a=40, comp=[0, 1, 2]):
 
     # plot the wireframe of the known optimal pareto front
     thetas = np.linspace(0, (np.pi / 2.0), 30)
-    #gammas = np.linspace(-np.pi / 4, np.pi / 4, 30)
+    # gammas = np.linspace(-np.pi / 4, np.pi / 4, 30)
     gammas = np.linspace(0, (np.pi / 2.0), 30)
 
     x_frame = np.outer(np.cos(thetas), np.cos(gammas))

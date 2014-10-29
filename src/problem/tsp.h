@@ -29,63 +29,40 @@
 #include <vector>
 #include <string>
 
-#include "./base.h"
+#include "./base_tsp.h"
 #include "../serialization.h"
 
 namespace pagmo { namespace problem {
 
-/// Base TSP.
+/// A static Travelling Salesman Problem
 /**
- * This is a class representing Travelling Salesman Problems. 
- * The problem encoding can be of three different types
- *
- * 1-CITIES
- * This encoding represents the ids of the cities visited directly in the chromosome. THis
- * will create a constrained problem as only permutation of the cities ids are valid (e.g. [0,2,1,5,0] is not
- * a valid chromosome)
- *
- * 2-RANDOMKEYS
- * This encoding, first introduced in the paper
- * Bean, J. C. (1994). Genetic algorithms and random keys for sequencing and optimization. ORSA journal on computing, 6(2), 154-160.
- * creates a box constrained problem without any constraint. It essentially represents the tour as a sequence of doubles bounded in [0,1].
- * The tour is reconstructed by the argsort of the sequence. (e.g. [0.34,0.12,0.76,0.03] -> [3,1,0,2])
- *
- * 3-FULL
- * In the full encoding the TSP is represented as a integer linear programming problem. The details can be found in
- * http://en.wikipedia.org/wiki/Travelling_salesman_problem#Integer_linear_programming_formulation
- *
+ * This is a class representing the classic variant of the  Travelling Salesman Problem.
+ * The distance between cities is defined by a constant weight matrix, the objective
+ * is to visit all cities exactly once forming the shortest possible tour.
  *
  * @author Dario Izzo (dario.izzo@gmail.com)
  * @author Annalisa Riccardi
  */
 
-class __PAGMO_VISIBLE tsp: public base
+class __PAGMO_VISIBLE tsp: public base_tsp
 {
     public:
-        /// Mechanism used to transform the input problem
-        enum encoding {
-            RANDOMKEYS = 0,  ///< The city tour is encoded as a vector of doubles in [0,1]. Results in an unconstrained box-bounded problem
-            FULL = 1,        ///< The TSP is encoded as a linear integer programming problem
-            CITIES = 2       ///< The city tour is directly encoded in the chromosome as a sequence of cities ids.
-        };
+
         tsp();
-        tsp(const std::vector<std::vector<double> >&, const encoding & = FULL);
+        tsp(const std::vector<std::vector<double> >&, const base_tsp::encoding_type & = FULL);
         base_ptr clone() const;
 
         const std::vector<std::vector<double> >& get_weights() const;
-        const decision_vector::size_type& get_n_cities() const;
-        const encoding& get_encoding() const;
 
-        pagmo::decision_vector full2cities(const pagmo::decision_vector &) const;
-        pagmo::decision_vector cities2full(const pagmo::decision_vector &) const;
-        pagmo::decision_vector randomkeys2cities(const pagmo::decision_vector &) const;
-        pagmo::decision_vector cities2randomkeys(const pagmo::decision_vector &, const pagmo::decision_vector &) const;
-
+        /** @name Implementation of virtual methods*/
+        //@{
         std::string get_name() const;
         std::string human_readable_extra() const;
+        double distance(decision_vector::size_type, decision_vector::size_type) const;
+        //@}
 
     private:
-        static boost::array<int, 6> compute_dimensions(decision_vector::size_type n_cities, encoding);
+        static boost::array<int, 2> compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type);
         void check_weights(const std::vector<std::vector<double> >&) const;
 
         void objfun_impl(fitness_vector&, const decision_vector&) const;
@@ -95,16 +72,12 @@ class __PAGMO_VISIBLE tsp: public base
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
         {
-            ar & boost::serialization::base_object<base>(*this);
+            ar & boost::serialization::base_object<base_tsp>(*this);
             ar & m_weights;
-            ar & const_cast<decision_vector::size_type &>(m_n_cities);
-            ar & const_cast<encoding &>(m_encoding);
         }
 
     private:
-        const decision_vector::size_type m_n_cities;
         std::vector<std::vector<double> > m_weights;
-        const encoding m_encoding;
 };
 
 }}  //namespaces

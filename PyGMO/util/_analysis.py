@@ -1,5 +1,6 @@
 from __future__ import print_function as _dummy
 
+
 class analysis:
     """
     This class contains the tools necessary for exploratory analysis of the search,
@@ -9,7 +10,7 @@ class analysis:
     selection.
     """
 
-    def __init__(self,input_object,npoints=0,method='sobol',first=1,output_to_file=False):
+    def __init__(self, input_object, npoints=0, method='sobol', first=1, output_to_file=False):
         """
         Constructor of the analysis class from a problem or population object. Also calls
         analysis.sample when npoints>0 or by default when a population object is input.
@@ -36,64 +37,64 @@ class analysis:
           log.txt and all plots saved as .png images in the directory ./analysis_X/ which is specified
           in attribute analysis.dir. If False, all of them will be shown on screen.
         """
-        self.npoints=0
-        self.points=[]
-        self.f=[]
-        self.f_offset=[]
-        self.f_span=[]
-        self.grad_npoints=0
-        self.grad_points=[]
-        self.grad=[]
-        self.c=[]
-        self.c_span=[]
-        self.local_nclusters=0
-        self.local_initial_npoints=0
-        self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = (0,0,0,0,0,0)
-        self.fignum=1
-        self.lin_conv_npairs=0
-        self.c_lin_npairs=0
-        self.dir=None
+        self.npoints = 0
+        self.points = []
+        self.f = []
+        self.f_offset = []
+        self.f_span = []
+        self.grad_npoints = 0
+        self.grad_points = []
+        self.grad = []
+        self.c = []
+        self.c_span = []
+        self.local_nclusters = 0
+        self.local_initial_npoints = 0
+        self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = (0, 0, 0, 0, 0, 0)
+        self.fignum = 1
+        self.lin_conv_npairs = 0
+        self.c_lin_npairs = 0
+        self.dir = None
 
-        if isinstance(input_object,core._core.population):
-            self.prob=input_object.problem
-            self.pop=input_object
-            method='pop'
-            if npoints=='all':
-                self.sample(len(self.pop),'pop')
-            elif npoints>0:
-                self.sample(npoints,'pop')
-        elif isinstance(input_object,problem._base):
-            self.prob=input_object
-            self.pop=[]
-            if npoints>0:
-                self.sample(npoints,method,first)
+        if isinstance(input_object, core._core.population):
+            self.prob = input_object.problem
+            self.pop = input_object
+            method = 'pop'
+            if npoints == 'all':
+                self.sample(len(self.pop), 'pop')
+            elif npoints > 0:
+                self.sample(npoints, 'pop')
+        elif isinstance(input_object, problem._base):
+            self.prob = input_object
+            self.pop = []
+            if npoints > 0:
+                self.sample(npoints, method, first)
         else:
             raise ValueError("analysis: input either a problem or a population object to initialise the class")
 
         if output_to_file:
             import os
-            i=0
+            i = 0
             while(True):
-                i+=1
-                if not os.path.exists('./analysis_'+str(i)):
-                    os.makedirs('./analysis_'+str(i))
-                    self.dir='./analysis_'+str(i)
+                i += 1
+                if not os.path.exists('./analysis_' + str(i)):
+                    os.makedirs('./analysis_' + str(i))
+                    self.dir = './analysis_' + str(i)
                     break
-            output=open(self.dir+'/log.txt','w+')
-            print ("===============================================================================",file=output)
-            print ("                                   ANALYSIS                                    ",file=output)
-            print ("===============================================================================",file=output)
-            print ("-------------------------------------------------------------------------------",file=output)
-            print ("PROBLEM PROPERTIES",file=output)
-            print ("-------------------------------------------------------------------------------",file=output)
-            print (self.prob,file=output)
-            if self.npoints>0:
-                print ("-------------------------------------------------------------------------------",file=output)
-                print ('SAMPLED ['+str(self.npoints)+'] POINTS VIA',method,'METHOD FOR THE SUBSEQUENT TESTS',file=output)
+            output = open(self.dir + '/log.txt', 'w+')
+            print("===============================================================================", file=output)
+            print("                                   ANALYSIS                                    ", file=output)
+            print("===============================================================================", file=output)
+            print("-------------------------------------------------------------------------------", file=output)
+            print("PROBLEM PROPERTIES", file=output)
+            print("-------------------------------------------------------------------------------", file=output)
+            print(self.prob, file=output)
+            if self.npoints > 0:
+                print("-------------------------------------------------------------------------------", file=output)
+                print('SAMPLED [' + str(self.npoints) + '] POINTS VIA', method, 'METHOD FOR THE SUBSEQUENT TESTS', file=output)
             output.close()
-    
+
     ######################################################################################################################
-    #SAMPLING
+    # SAMPLING
     ######################################################################################################################
     def sample(self, npoints, method='sobol', first=1):
         """
@@ -119,7 +120,7 @@ class analysis:
 
 
         **The following parameters are stored as attributes of the class:**
-        
+
         * analysis.npoints: number of points sampled.
         * analysis.points[number of points sampled][search dimension]: chromosome of points sampled.
         * analysis.f[number of points sampled][fitness dimension]: fitness vector of points sampled.
@@ -138,44 +139,43 @@ class analysis:
         **NOTE:** when calling sample, all sampling methods can be used and the search space is sampled within its box constraints. If a population has been input to the
         constructor, a subset of individuals are selected (randomly).
         """
-        from PyGMO.util import lhs,sobol,faure,halton
-        
-        self.points=[]
-        self.f=[]
-        self.npoints=npoints
-        self.lb=list(self.prob.lb)
-        self.ub=list(self.prob.ub)  
+        from PyGMO.util import lhs, sobol, faure, halton
+
+        self.points = []
+        self.f = []
+        self.npoints = npoints
+        self.lb = list(self.prob.lb)
+        self.ub = list(self.prob.ub)
 
         self.dim, self.cont_dim, self.int_dim, self.c_dim, self.ic_dim, self.f_dim = \
-        self.prob.dimension, self.prob.dimension - self.prob.i_dimension, self.prob.i_dimension, self.prob.c_dimension, self.prob. ic_dimension, self.prob.f_dimension
+            self.prob.dimension, self.prob.dimension - self.prob.i_dimension, self.prob.i_dimension, self.prob.c_dimension, self.prob. ic_dimension, self.prob.f_dimension
 
         if self.npoints <= 0:
-            raise ValueError(
-             "analysis.sample: at least one point needs to be sampled")
+            raise ValueError("analysis.sample: at least one point needs to be sampled")
 
-        if method=='pop':
-            poplength=len(self.pop)
-            if poplength==0:
+        if method == 'pop':
+            poplength = len(self.pop)
+            if poplength == 0:
                 raise ValueError(
                     "analysis.sample: method 'pop' specified but population object inexistant or void")
-            elif poplength<npoints:
+            elif poplength < npoints:
                 raise ValueError(
                     "analysis.sample: it is not possible to sample more points than there are in the population via 'pop'")
-            elif poplength==npoints:
-                self.points=[list(self.pop[i].cur_x) for i in range(poplength)]
-                self.f=[list(self.pop[i].cur_f) for i in range(poplength)]
+            elif poplength == npoints:
+                self.points = [list(self.pop[i].cur_x) for i in range(poplength)]
+                self.f = [list(self.pop[i].cur_f) for i in range(poplength)]
             else:
-                idx=range(poplength)
+                idx = range(poplength)
                 try:
                     from numpy.random import randint
                 except ImportError:
                     raise ImportError(
                         "analysis.sample needs numpy to run when sampling partially a population. Is it installed?")
-                for i in range(poplength,poplength-npoints,-1):  
-                    r=idx.pop(randint(i))
+                for i in range(poplength, poplength - npoints, -1):
+                    r = idx.pop(randint(i))
                     self.points.append(list(self.pop[r].cur_x))
                     self.f.append(list(self.pop[r].cur_f))
-        elif method=='montecarlo':
+        elif method == 'montecarlo':
             try:
                 from numpy.random import random
             except ImportError:
@@ -224,8 +224,8 @@ class analysis:
         if self.dir!=None:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-            print ("\n-------------------------------------------------------------------------------",file=output)
-            print ('SAMPLED ['+str(npoints)+'] POINTS VIA',method,'METHOD FOR THE SUBSEQUENT TESTS',file=output)
+            print("\n-------------------------------------------------------------------------------",file=output)
+            print('SAMPLED ['+str(npoints)+'] POINTS VIA',method,'METHOD FOR THE SUBSEQUENT TESTS',file=output)
             output.close()
 
     def _scale_sample(self):
@@ -286,36 +286,36 @@ class analysis:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
 
-        print ("--------------------------------------------------------------------------------",file=output)
-        print ("F-DISTRIBUTION FEATURES",end=" ",file=output)
+        print("--------------------------------------------------------------------------------",file=output)
+        print("F-DISTRIBUTION FEATURES",end=" ",file=output)
         if self.f_dim>1:
-            print ("("+str(self.f_dim)+" OBJECTIVES)",file=output)
+            print("("+str(self.f_dim)+" OBJECTIVES)",file=output)
         else:
-            print ("",file=output)
-        print ("--------------------------------------------------------------------------------",file=output)
-        #print ("Number of points sampled :              ",[self.npoints],file=output)
-        print ("Fitness magnitude :",file=output)
-        print ("     Min :                              ",[round(i,round_to) for i in self.f_offset],file=output)    
-        print ("     Max :                              ",[round(i+j,round_to) for i,j in zip(self.f_span,self.f_offset)],file=output)
-        print ("     Peak-to-peak (scale factor) :      ",[round(i,round_to) for i in self.f_span],file=output)
-        print ("Fitness distribution :",file=output)
-        print ("     Mean :                             ",[round(i,round_to) for i in self._mean()],file=output)
-        print ("     Standard deviation :               ",[round(i,round_to) for i in self._std()],file=output)
+            print("",file=output)
+        print("--------------------------------------------------------------------------------",file=output)
+        #print("Number of points sampled :              ",[self.npoints],file=output)
+        print("Fitness magnitude :",file=output)
+        print("     Min :                              ",[round(i,round_to) for i in self.f_offset],file=output)    
+        print("     Max :                              ",[round(i+j,round_to) for i,j in zip(self.f_span,self.f_offset)],file=output)
+        print("     Peak-to-peak (scale factor) :      ",[round(i,round_to) for i in self.f_span],file=output)
+        print("Fitness distribution :",file=output)
+        print("     Mean :                             ",[round(i,round_to) for i in self._mean()],file=output)
+        print("     Standard deviation :               ",[round(i,round_to) for i in self._std()],file=output)
         if percentile!=[]:
-            print ("     Percentiles :",file=output)
+            print("     Percentiles :",file=output)
         if isinstance(percentile,(int,float)):
             percentile=[percentile]
         percentile_values=self._percentile(percentile)
         for (j,k) in zip(percentile,percentile_values):
             if j<10:
-                print ("          ",j,":                          ",[round(i,round_to) for i in k],file=output)
+                print("          ",j,":                          ",[round(i,round_to) for i in k],file=output)
             elif j==100:
-                print ("          ",j,":                        ",[round(i,round_to) for i in k],file=output)
+                print("          ",j,":                        ",[round(i,round_to) for i in k],file=output)
             else:
-                print ("          ",j,":                         ",[round(i,round_to) for i in k] ,file=output)
-        print ("     Skew :                             ",[round(i,round_to) for i in self._skew()],file=output)
-        print ("     Kurtosis :                         ",[round(i,round_to) for i in self._kurtosis()],file=output)
-        print ("Number of peaks of f-distribution :     ",self._n_peaks_f(),file=output)
+                print("          ",j,":                         ",[round(i,round_to) for i in k] ,file=output)
+        print("     Skew :                             ",[round(i,round_to) for i in self._skew()],file=output)
+        print("     Kurtosis :                         ",[round(i,round_to) for i in self._kurtosis()],file=output)
+        print("Number of peaks of f-distribution :     ",self._n_peaks_f(),file=output)
         if output!=None:
             output.close()
         if plot_f_distribution:
@@ -546,14 +546,14 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        print ("-------------------------------------------------------------------------------",file=output)
-        print ("PROBABILITY OF LINEARITY AND CONVEXITY",file=output)
-        print ("-------------------------------------------------------------------------------",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
+        print("PROBABILITY OF LINEARITY AND CONVEXITY",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
         p=self._p_lin_conv(n_pairs,tol)
-        print ("Number of pairs of points used :        ",[self.lin_conv_npairs],file=output)
-        print ("Probability of linearity :              ",[round(i,round_to) for i in p[0]],file=output)
-        print ("Probability of convexity :              ",[round(i,round_to) for i in p[1]],file=output)
-        print ("Mean deviation from linearity :         ",[round(i,round_to) for i in p[2]],file=output)
+        print("Number of pairs of points used :        ",[self.lin_conv_npairs],file=output)
+        print("Probability of linearity :              ",[round(i,round_to) for i in p[0]],file=output)
+        print("Probability of convexity :              ",[round(i,round_to) for i in p[1]],file=output)
+        print("Mean deviation from linearity :         ",[round(i,round_to) for i in p[2]],file=output)
         if output!=None:
             output.close()
 
@@ -691,17 +691,17 @@ class analysis:
                 raise ValueError(
                         "analysis.f_regression: format of arguments is incorrect")
 
-            print ("-------------------------------------------------------------------------------",file=output)
-            print ("F-REGRESSION",file=output)
-            print ("-------------------------------------------------------------------------------",file=output)
+            print("-------------------------------------------------------------------------------",file=output)
+            print("F-REGRESSION",file=output)
+            print("-------------------------------------------------------------------------------",file=output)
             properties=[]
             for deg,inter,predi in zip(degree,interaction,pred):
                 properties.append(self._regression_properties(degree=deg,interaction=interaction,mode='f',pred=predi,tol=tol,w=None))
             for f in range(self.f_dim):
                 if self.f_dim>1:
-                    print ("OBJECTIVE "+str(f+1)+" :",file=output)
+                    print("OBJECTIVE "+str(f+1)+" :",file=output)
                 spaces=[7,17,9,9,11,9,11]
-                print ("DEGREE".center(spaces[0]),"F".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
+                print("DEGREE".center(spaces[0]),"F".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
                 for deg,inter,prop in zip(degree,interaction,properties):
                     if inter:
                         print((str(deg)+'(i)').center(spaces[0]),end=' ',file=output)
@@ -1008,23 +1008,23 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        print ("--------------------------------------------------------------------------------",file=output)
-        print ("OBJECTIVES CORRELATION ",file=output)
-        print ("--------------------------------------------------------------------------------",file=output)
+        print("--------------------------------------------------------------------------------",file=output)
+        print("OBJECTIVES CORRELATION ",file=output)
+        print("--------------------------------------------------------------------------------",file=output)
         if self.f_dim==1:
-            print ("This is a single-objective problem.",file=output)
+            print("This is a single-objective problem.",file=output)
         else:
             obj_corr=self._f_correlation()
             critical_obj=self._perform_f_pca(obj_corr,tc=tc,tabs=tabs)
-            print ("Critical objectives from first PCA :    ",[int(i+1) for i in critical_obj],file=output)
+            print("Critical objectives from first PCA :    ",[int(i+1) for i in critical_obj],file=output)
 
-            print ("Eigenvalues".center(12),"Relative contribution".center(23),"Eigenvectors".center(45),file=output)
+            print("Eigenvalues".center(12),"Relative contribution".center(23),"Eigenvectors".center(45),file=output)
             total_ev=sum(obj_corr[1])
             for i in range(self.f_dim):
-                print (str(round(obj_corr[1][i],round_to)).center(12),(str(round(100*abs(obj_corr[1][i])/sum([abs(e) for e in obj_corr[1]]),round_to))+'%').center(23),str([round(val,round_to) for val in obj_corr[2][i]]).center(45),file=output)
-            print ("Objective correlation matrix :          ",file=output)
+                print(str(round(obj_corr[1][i],round_to)).center(12),(str(round(100*abs(obj_corr[1][i])/sum([abs(e) for e in obj_corr[1]]),round_to))+'%').center(23),str([round(val,round_to) for val in obj_corr[2][i]]).center(45),file=output)
+            print("Objective correlation matrix :          ",file=output)
             for i in range(self.f_dim):
-                print ("     [",end='',file=output)
+                print("     [",end='',file=output)
                 for j in obj_corr[0][i]:
                     print(str(round(j,round_to)).center(8),end='',file=output)
                 print("]",file=output)
@@ -1221,27 +1221,27 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        print ("-------------------------------------------------------------------------------",file=output)
-        print ("F-SENSITIVITY ",file=output)
-        print ("-------------------------------------------------------------------------------",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
+        print("F-SENSITIVITY ",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
         self._get_gradient(sample_size=sample_size,h=h,grad_tol=conv_tol,zero_tol=zero_tol,tmax=tmax,mode='f')
         g=self._grad_properties(tol=zero_tol,mode='f')
         self._get_hessian(sample_size=sample_size,h=h,hess_tol=conv_tol,tmax=tmax)
         h=self._hess_properties(tol=zero_tol)
-        print ("Number of points used :    ",[self.grad_npoints],file=output)
+        print("Number of points used :    ",[self.grad_npoints],file=output)
         for f in range(self.f_dim):
             if self.f_dim>1:
-                print ("OBJECTIVE "+str(f+1)+" :",file=output)
-            print ("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
-            print ("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
-            print ("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
+                print("OBJECTIVE "+str(f+1)+" :",file=output)
+            print("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
+            print("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
+            print("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
             if hessian:
-                print ("     Hessian conditioning :".ljust(28),str(round(h[0][f][0],round_to)).center(9),str(round(h[0][f][1],round_to)).center(9),str(round(h[0][f][2],round_to)).center(9),str(round(h[0][f][3],round_to)).center(9),str(round(h[0][f][4],round_to)).center(9),"",sep="|",file=output)
-                print ("     Gradient sparsity :                               ","["+str(round(self.grad_sparsity,round_to))+"]",file=output)  
-                print ("     Fraction of points with PD hessian :              ","["+str(round(h[1][f],round_to))+"]",file=output)
-                print ("     Fraction of points with PSD (not PD) hessian :    ","["+str(round(h[2][f],round_to))+"]",file=output)
+                print("     Hessian conditioning :".ljust(28),str(round(h[0][f][0],round_to)).center(9),str(round(h[0][f][1],round_to)).center(9),str(round(h[0][f][2],round_to)).center(9),str(round(h[0][f][3],round_to)).center(9),str(round(h[0][f][4],round_to)).center(9),"",sep="|",file=output)
+                print("     Gradient sparsity :                               ","["+str(round(self.grad_sparsity,round_to))+"]",file=output)  
+                print("     Fraction of points with PD hessian :              ","["+str(round(h[1][f],round_to))+"]",file=output)
+                print("     Fraction of points with PSD (not PD) hessian :    ","["+str(round(h[2][f],round_to))+"]",file=output)
             else:
-                print ("     Gradient sparsity :           ","["+str(round(self.grad_sparsity,round_to))+"]",file=output)
+                print("     Gradient sparsity :           ","["+str(round(self.grad_sparsity,round_to))+"]",file=output)
         if output!=None:
             output.close()
         if plot_gradient_sparsity:
@@ -1697,28 +1697,28 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        print ("-------------------------------------------------------------------------------",file=output)
-        print ("C-FEASIBILITY",file=output)
-        print ("-------------------------------------------------------------------------------",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
+        print("C-FEASIBILITY",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
         if self.c_dim==0:
-            print ("This is an unconstrained problem.",file=output)
+            print("This is an unconstrained problem.",file=output)
         else:
             results=self._c_effectiveness(tol)
             redundancy=self._ic_redundancy(tol)
             for c in range(self.c_dim-self.ic_dim):
-                print ("Constraint h_"+str(c+1)+" :",file=output)
-                print ("     Effectiveness >=0 :                ",[round(1-results[c][0]+results[c][1],round_to)],file=output)
-                print ("     Effectiveness <=0 :                ",[round(results[c][0],round_to)],file=output)
-                print ("     Number of feasible points found :  ",[int(round(results[c][1]*self.npoints,0))],file=output)
+                print("Constraint h_"+str(c+1)+" :",file=output)
+                print("     Effectiveness >=0 :                ",[round(1-results[c][0]+results[c][1],round_to)],file=output)
+                print("     Effectiveness <=0 :                ",[round(results[c][0],round_to)],file=output)
+                print("     Number of feasible points found :  ",[int(round(results[c][1]*self.npoints,0))],file=output)
             for c in range(-self.ic_dim,0):
-                print ("Constraint g_"+str(c+self.ic_dim+1)+" : ",file=output)
-                print ("     Effectiveness >0 :                 ",[round(1-results[c][0],round_to)],file=output)
+                print("Constraint g_"+str(c+self.ic_dim+1)+" : ",file=output)
+                print("     Effectiveness >0 :                 ",[round(1-results[c][0],round_to)],file=output)
                 if self.ic_dim>1:
-                    print ("     Redundancy wrt. all other ic :     ",[round(redundancy[0][c],round_to)],file=output)
-                print ("     Number of feasible points found :  ",[int(round(results[c][0]*self.npoints,0))],file=output)  
+                    print("     Redundancy wrt. all other ic :     ",[round(redundancy[0][c],round_to)],file=output)
+                print("     Number of feasible points found :  ",[int(round(results[c][0]*self.npoints,0))],file=output)  
             if self.ic_dim>1:
-                print ("Pairwise redundancy (ic) :",file=output)
-                print ("_____|",end='',file=output)
+                print("Pairwise redundancy (ic) :",file=output)
+                print("_____|",end='',file=output)
                 for i in range(self.ic_dim-1):
                     print(("g"+str(i+1)).center(8),end='|',file=output)
                 print(("g"+str(self.ic_dim)).center(8),end='|',file=output)
@@ -1726,7 +1726,7 @@ class analysis:
                     print(file=output)
                     print((" g"+str(i+1)).ljust(5),end='|',file=output)
                     for j in range(self.ic_dim):
-                        print (str(round(redundancy[1][i][j],round_to)).center(8),end='|',file=output)
+                        print(str(round(redundancy[1][i][j],round_to)).center(8),end='|',file=output)
                 print(file=output)
         if output!=None:
             output.close()
@@ -1764,20 +1764,20 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        print ("-------------------------------------------------------------------------------",file=output)
-        print ("C-LINEARITY",file=output)
-        print ("-------------------------------------------------------------------------------",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
+        print("C-LINEARITY",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
         if self.c_dim==0:
-            print ("This is an unconstrained problem.",file=output)
+            print("This is an unconstrained problem.",file=output)
         else:
 
             results=self._c_lin(npairs,tol)
-            print ("Number of pairs of points used :        ",[self.c_lin_npairs],file=output)
+            print("Number of pairs of points used :        ",[self.c_lin_npairs],file=output)
             print(" "*5,"CONSTRAINT".center(25),"PROBABILITY OF LINEARITY".center(25),file=output)
             for c in range(self.c_dim-self.ic_dim):
-                print (" "*5,("h_"+str(c+1)).center(25),str([round(results[c],round_to)]).center(25),file=output)
+                print(" "*5,("h_"+str(c+1)).center(25),str([round(results[c],round_to)]).center(25),file=output)
             for c in range(-self.ic_dim,0):
-                print (" "*5,("g_"+str(self.c_dim-self.ic_dim+c)).center(25),str([round(results[c],round_to)]).center(25),file=output)
+                print(" "*5,("g_"+str(self.c_dim-self.ic_dim+c)).center(25),str([round(results[c],round_to)]).center(25),file=output)
         if output!=None:
             output.close()
 
@@ -1837,22 +1837,22 @@ class analysis:
                 raise ValueError(
                         "analysis.c_regression: format of arguments is incorrect")
 
-            print ("-------------------------------------------------------------------------------",file=output)
-            print ("C-REGRESSION",file=output)
-            print ("-------------------------------------------------------------------------------",file=output)
+            print("-------------------------------------------------------------------------------",file=output)
+            print("C-REGRESSION",file=output)
+            print("-------------------------------------------------------------------------------",file=output)
             if self.c_dim==0:
-                print ("This is an unconstrained problem.",file=output)
+                print("This is an unconstrained problem.",file=output)
             else:
                 properties=[]
                 for deg,inter,predi in zip(degree,interaction,pred):
                     properties.append(self._regression_properties(degree=deg,interaction=interaction,mode='c',pred=predi,tol=tol,w=None))
                 for c in range(self.c_dim):
                     if c<self.c_dim-self.ic_dim:
-                        print ("CONSTRAINT h_"+str(c+1)+" :",file=output)
+                        print("CONSTRAINT h_"+str(c+1)+" :",file=output)
                     else:
-                        print ("CONSTRAINT g_"+str(c-self.c_dim+self.ic_dim+1)+" :",file=output)
+                        print("CONSTRAINT g_"+str(c-self.c_dim+self.ic_dim+1)+" :",file=output)
                     spaces=[7,17,9,9,11,9,11]
-                    print ("DEGREE".center(spaces[0]),"F*".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
+                    print("DEGREE".center(spaces[0]),"F*".center(spaces[1]),"R2".center(spaces[2]),"R2adj".center(spaces[3]),"RMSE".center(spaces[4]),"R2pred".center(spaces[5]),"PRESS-RMSE".center(spaces[6]),file=output)
                     for deg,inter,prop in zip(degree,interaction,properties):
                         if inter:
                             print((str(deg)+'(i)').center(spaces[0]),end=' ',file=output)
@@ -1922,21 +1922,21 @@ class analysis:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
 
-        print ("-------------------------------------------------------------------------------",file=output)
-        print ("C-SENSITIVITY ",file=output)
-        print ("-------------------------------------------------------------------------------",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
+        print("C-SENSITIVITY ",file=output)
+        print("-------------------------------------------------------------------------------",file=output)
         if self.c_dim==0:
-                print ("This is an unconstrained problem.",file=output)
+                print("This is an unconstrained problem.",file=output)
         else:
             self._get_gradient(sample_size=sample_size,h=h,grad_tol=conv_tol,zero_tol=zero_tol,tmax=tmax,mode='c')
             g=self._grad_properties(tol=zero_tol,mode='c')
             for f in range(self.ic_dim):
                 if self.ic_dim>1:
-                    print ("CONSTRAINT g_"+str(f+1)+" :",file=output)
-                print ("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
-                print ("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
-                print ("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
-                print ("     Gradient sparsity :           ","["+str(round(self.c_grad_sparsity,round_to))+"]",file=output)
+                    print("CONSTRAINT g_"+str(f+1)+" :",file=output)
+                print("  Percentiles : ".ljust(28),"0".center(9),"25".center(9),"50".center(9),"75".center(9),"100".center(9),"",sep="|",file=output)
+                print("     Gradient norm :".ljust(28),str(round(g[0][f][0],round_to)).center(9),str(round(g[0][f][1],round_to)).center(9),str(round(g[0][f][2],round_to)).center(9),str(round(g[0][f][3],round_to)).center(9),str(round(g[0][f][4],round_to)).center(9),"",sep="|",file=output)
+                print("    |dFx|_max/|dFx|_min :".ljust(28),str(round(g[1][f][0],round_to)).center(9),str(round(g[1][f][1],round_to)).center(9),str(round(g[1][f][2],round_to)).center(9),str(round(g[1][f][3],round_to)).center(9),str(round(g[1][f][4],round_to)).center(9),"",sep="|",file=output)
+                print("     Gradient sparsity :           ","["+str(round(self.c_grad_sparsity,round_to))+"]",file=output)
 
             if output!=None:
                 output.close()
@@ -2263,9 +2263,9 @@ class analysis:
         else:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-        print ("--------------------------------------------------------------------------------",file=output)
-        print ("LOCAL SEARCH",file=output)
-        print ("--------------------------------------------------------------------------------",file=output)
+        print("--------------------------------------------------------------------------------",file=output)
+        print("LOCAL SEARCH",file=output)
+        print("--------------------------------------------------------------------------------",file=output)
         if output!=None:
             output.close()
         self._get_local_extrema(sample_size,algo,True,decomposition_method,weights,z,con2mo,True)
@@ -2277,22 +2277,22 @@ class analysis:
         self._cluster_local_extrema(variance_ratio,k,single_cluster_tolerance,kmax)
         if clusters_to_show=='all' or clusters_to_show>self.local_nclusters:
             clusters_to_show=self.local_nclusters
-        print ("Local searches performed :              ",self.local_initial_npoints,file=output)
-        print ("Quartiles of CPU time per search [ms]:  ",round(percentile(self.local_search_time,0),round_to),"/",round(percentile(self.local_search_time,25),round_to),"/",round(percentile(self.local_search_time,50),round_to),"/",round(percentile(self.local_search_time,75),round_to),"/",round(percentile(self.local_search_time,100),round_to),file=output)
+        print("Local searches performed :              ",self.local_initial_npoints,file=output)
+        print("Quartiles of CPU time per search [ms]:  ",round(percentile(self.local_search_time,0),round_to),"/",round(percentile(self.local_search_time,25),round_to),"/",round(percentile(self.local_search_time,50),round_to),"/",round(percentile(self.local_search_time,75),round_to),"/",round(percentile(self.local_search_time,100),round_to),file=output)
         if clusters_to_show>0:
-            print ("Number of clusters identified :         ",self.local_nclusters,file=output)
-            print ("Cluster properties (max. best "+str(clusters_to_show)+" clusters) :",file=output)
+            print("Number of clusters identified :         ",self.local_nclusters,file=output)
+            print("Cluster properties (max. best "+str(clusters_to_show)+" clusters) :",file=output)
             for i in range(min((self.local_nclusters,clusters_to_show))):
-                print ("     Cluster n. "+str(i+1)+' :',file=output)
-                print ("         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"%",file=output)
-                print ("         Cluster X_center :             ",[round(x,round_to) for x in self.local_cluster_x_centers[i]],file=output)
-                print ("         Mean objective value :         ",[round(f,round_to) for f in self.local_cluster_f_centers[i]],file=output)
-                print ("         F(X_center) :                  ",[round(f,round_to) for f in self.local_cluster_f[i]],file=output)
+                print("     Cluster n. "+str(i+1)+' :',file=output)
+                print("         Size:                          ",self.local_cluster_size[i],", ",100*round(self.local_cluster_size[i]/self.local_initial_npoints,4),"%",file=output)
+                print("         Cluster X_center :             ",[round(x,round_to) for x in self.local_cluster_x_centers[i]],file=output)
+                print("         Mean objective value :         ",[round(f,round_to) for f in self.local_cluster_f_centers[i]],file=output)
+                print("         F(X_center) :                  ",[round(f,round_to) for f in self.local_cluster_f[i]],file=output)
                 if self.c_dim>0:
-                    print ("         C(X_center) :                  ",[round(c,round_to) for c in self.local_cluster_c[i]],file=output)
-                print ("         Cluster span in F :            ",[round(s,round_to) for s in self.local_cluster_f_span[i]],file=output)
-                print ("         Cluster radius in X :          ",round(self.local_cluster_rx[i],round_to),file=output)
-                print ("         Radius of attraction :         ",round(self.local_cluster_rx0[i],round_to),file=output)
+                    print("         C(X_center) :                  ",[round(c,round_to) for c in self.local_cluster_c[i]],file=output)
+                print("         Cluster span in F :            ",[round(s,round_to) for s in self.local_cluster_f_span[i]],file=output)
+                print("         Cluster radius in X :          ",round(self.local_cluster_rx[i],round_to),file=output)
+                print("         Radius of attraction :         ",round(self.local_cluster_rx0[i],round_to),file=output)
         if output!=None:
             output.close()
 
@@ -2399,7 +2399,7 @@ class analysis:
                 else:
                     output=open(self.dir+'/log.txt','r+')
                     output.seek(0,2)
-                print ('WARNING: get_local_extrema is being transformed to MO by means of '+con2mo,file=output)
+                print('WARNING: get_local_extrema is being transformed to MO by means of '+con2mo,file=output)
                 if self.dir!=None:
                     output.close()
         else:
@@ -2436,9 +2436,9 @@ class analysis:
                     length+=len(word)+1
                     if length>80:
                         length=len(word)+1
-                        print ('\n'+word,end=' ',file=output)
+                        print('\n'+word,end=' ',file=output)
                     else:
-                        print (word,end=' ',file=output)
+                        print(word,end=' ',file=output)
                 print(file=output)
                 if self.dir!=None:
                     output.close()
@@ -2676,29 +2676,29 @@ class analysis:
                 output=open(self.dir+'/log.txt','r+')
                 output.seek(0,2)
 
-            print ("-------------------------------------------------------------------------------",file=output)
-            print ("LEVELSET FEATURES ",file=output)
-            print ("-------------------------------------------------------------------------------",file=output)
-            print ("         K tune :                       ",[k_tune],"",file=output)
-            print ("         K test :                       ",[k_test],"",file=output)
+            print("-------------------------------------------------------------------------------",file=output)
+            print("LEVELSET FEATURES ",file=output)
+            print("-------------------------------------------------------------------------------",file=output)
+            print("         K tune :                       ",[k_tune],"",file=output)
+            print("         K test :                       ",[k_test],"",file=output)
             for i in threshold:
                 svm_results=self._svm_p_values(threshold=i,k_test=k_test,k_tune=k_tune)
-                print ("Percentile",i," :",file=output)
-                print ("     Mean Misclassification Errors ",file=output)
+                print("Percentile",i," :",file=output)
+                print("     Mean Misclassification Errors ",file=output)
                 if linear:
-                    print ("         Linear Kernel :                ",[round(r,round_to) for r in svm_results[0]],"",file=output)
+                    print("         Linear Kernel :                ",[round(r,round_to) for r in svm_results[0]],"",file=output)
                 if quadratic:
-                    print ("         Quadratic Kernel :             ",[round(r,round_to) for r in svm_results[1]],"",file=output)
+                    print("         Quadratic Kernel :             ",[round(r,round_to) for r in svm_results[1]],"",file=output)
                 if nonlinear:
-                    print ("         Non-Linear Kernel (RBF):       ",[round(r,round_to) for r in svm_results[2]],"",file=output)
+                    print("         Non-Linear Kernel (RBF):       ",[round(r,round_to) for r in svm_results[2]],"",file=output)
                 if any([linear and quadratic, linear and nonlinear, quadratic and nonlinear]):
-                    print ("     P-Values :",file=output)
+                    print("     P-Values :",file=output)
                 if linear and quadratic:
-                    print ("         Linear/Quadratic :             ",[round(r,round_to) for r in svm_results[3]],"",file=output)
+                    print("         Linear/Quadratic :             ",[round(r,round_to) for r in svm_results[3]],"",file=output)
                 if linear and nonlinear:
-                    print ("         Linear/Nonlinear :             ",[round(r,round_to) for r in svm_results[4]],"",file=output)
+                    print("         Linear/Nonlinear :             ",[round(r,round_to) for r in svm_results[4]],"",file=output)
                 if quadratic and nonlinear:
-                    print ("         Quadratic/Nonlinear :          ",[round(r,round_to) for r in svm_results[5]],"",file=output)
+                    print("         Quadratic/Nonlinear :          ",[round(r,round_to) for r in svm_results[5]],"",file=output)
             if output!=None:
                 output.close()
 
@@ -2905,7 +2905,7 @@ class analysis:
             f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-            print ('*F-distribution plot : <figure_'+str(self.fignum)+'.png>',file=output)
+            print('*F-distribution plot : <figure_'+str(self.fignum)+'.png>',file=output)
             self.fignum+=1
             cla()
             clf()
@@ -2988,7 +2988,7 @@ class analysis:
                     f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
                     output=open(self.dir+'/log.txt','r+')
                     output.seek(0,2)
-                    print ('*X-PCP plot obj.'+str(obj+1)+' :    <figure_'+str(self.fignum)+'.png>',file=output)
+                    print('*X-PCP plot obj.'+str(obj+1)+' :    <figure_'+str(self.fignum)+'.png>',file=output)
                     self.fignum+=1
                     cla()
                     clf()
@@ -3068,9 +3068,9 @@ class analysis:
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
             if mode=='f':
-                print ('*Gradient/Jacobian sparsity plot : <figure_'+str(self.fignum)+'.png>',file=output)
+                print('*Gradient/Jacobian sparsity plot : <figure_'+str(self.fignum)+'.png>',file=output)
             else:
-                print ('*Constraints Gradient/Jacobian sparsity plot : <figure_'+str(self.fignum)+'.png>',file=output)
+                print('*Constraints Gradient/Jacobian sparsity plot : <figure_'+str(self.fignum)+'.png>',file=output)
             self.fignum+=1
             cla()
             clf()
@@ -3197,7 +3197,7 @@ class analysis:
             f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-            print ('*'+string+'Gradient/Jacobian PCP plot'+file_string+' : <figure_'+str(self.fignum)+'.png>',file=output)
+            print('*'+string+'Gradient/Jacobian PCP plot'+file_string+' : <figure_'+str(self.fignum)+'.png>',file=output)
             self.fignum+=1
             cla()
             clf()
@@ -3276,7 +3276,7 @@ class analysis:
                     aux='(global)'
                 else:
                     aux='(cluster n.'+str(i+1)+')'
-                print ('*Cluster PCP plot '+aux+' : <figure_'+str(self.fignum)+'.png>',file=output)
+                print('*Cluster PCP plot '+aux+' : <figure_'+str(self.fignum)+'.png>',file=output)
                 self.fignum+=1
                 cla()
                 clf()
@@ -3386,7 +3386,7 @@ class analysis:
             f.savefig(self.dir+'/figure_'+str(self.fignum)+'.png')
             output=open(self.dir+'/log.txt','r+')
             output.seek(0,2)
-            print ('*Cluster scatter plot (dimensions '+str([i+1 for i in dimensions])+') : <figure_'+str(self.fignum)+'.png>',file=output)
+            print('*Cluster scatter plot (dimensions '+str([i+1 for i in dimensions])+') : <figure_'+str(self.fignum)+'.png>',file=output)
             self.fignum+=1
             cla()
             clf()

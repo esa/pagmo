@@ -66,7 +66,7 @@ class py_pl2pl(base):
              -abs(self.__Vinf_0), -abs(self.__Vinf_0), -abs(self.__Vinf_f),
              -abs(self.__Vinf_f), -abs(self.__Vinf_f)] + [-1] * 3 * nseg,
             [3000, 1500, self.__sc.mass, abs(self.__Vinf_0),
-             abs(self.__Vinf_0), abs(self.__Vinf_0), abs(self.__Vinf_f), 
+             abs(self.__Vinf_0), abs(self.__Vinf_0), abs(self.__Vinf_f),
              abs(self.__Vinf_f), abs(self.__Vinf_f)] + [1] * 3 * nseg)
         self.__optimise4mass = optimise4mass
 
