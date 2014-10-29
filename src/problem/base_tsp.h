@@ -39,8 +39,8 @@ namespace pagmo { namespace problem {
  * Algorithms such as pagmo::algorithm::inverover and pagmo::aco can solve problem deriving
  * from this class as they make use of the base_tsp::distance and the base_tsp::get_encoding methods
  *
- * The virtual method base_tsp::distance must be reimplemented by the user in the derived class
- * and returns the distance between two cities
+ * The virtual method base_tsp::distance is pure and must be reimplemented by the user in the derived class
+ * returning the distance between two cities
  *
  * The sequence of cities visited can be encoded in one of the following ways:
  *
@@ -87,6 +87,7 @@ class __PAGMO_VISIBLE base_tsp: public base
         pagmo::decision_vector cities2randomkeys(const pagmo::decision_vector &, const pagmo::decision_vector &) const;
         //@}
 
+        // Pure virtual method returning the distance between cities
         virtual double distance(decision_vector::size_type, decision_vector::size_type) const = 0;
 
     private:

@@ -30,7 +30,7 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../population.h"
-#include "../problem/tsp.h"
+#include "../problem/base_tsp.h"
 #include "base.h"
 
 namespace pagmo { namespace algorithm {

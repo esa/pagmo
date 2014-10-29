@@ -184,48 +184,47 @@ class analysis:
             for i in range(npoints):
                 self.points.append([])
                 for j in range(self.dim):
-                    r=random()
-                    r=(r*self.ub[j]+(1-r)*self.lb[j])
-                    if j>=self.cont_dim:
-                        r=round(r,0)
+                    r = random()
+                    r = (r * self.ub[j] + (1 - r) * self.lb[j])
+                    if j >= self.cont_dim:
+                        r = round(r, 0)
                     self.points[i].append(r)
                 self.f.append(list(self.prob.objfun(self.points[i])))
         else:
-            if method=='sobol':
-                sampler=sobol(self.dim,first)
-            elif method=='lhs':
-                sampler=lhs(self.dim,npoints)
-            elif method=='faure':
-                sampler=faure(self.dim,first)
-            elif method=='halton':
-                sampler=halton(self.dim,first)
+            if method == 'sobol':
+                sampler = sobol(self.dim, first)
+            elif method == 'lhs':
+                sampler = lhs(self.dim, npoints)
+            elif method == 'faure':
+                sampler = faure(self.dim, first)
+            elif method == 'halton':
+                sampler = halton(self.dim, first)
             else:
                 raise ValueError(
                     "analysis.sample: method specified is not valid. choose 'sobol', 'lhs', 'faure','halton', 'montecarlo' or 'pop'")
             for i in range(npoints):
-                temp=list(sampler.next()) #sample in the unit hypercube
+                temp = list(sampler.next())  # sample in the unit hypercube
                 for j in range(self.dim):
-                    temp[j]=temp[j]*self.ub[j]+(1-temp[j])*self.lb[j] #resize
-                    if j>=self.cont_dim:
-                        temp[j]=round(temp[j],0) #round if necessary
+                    temp[j] = temp[j] * self.ub[j] + (1 - temp[j]) * self.lb[j]  # resize
+                    if j >= self.cont_dim:
+                        temp[j] = round(temp[j], 0)  # round if necessary
                 self.points.append(temp)
                 self.f.append(list(self.prob.objfun(temp)))
-        
-        self.f_offset=self._percentile(0)
-        self.f_span=self._ptp()
+
+        self.f_offset = self._percentile(0)
+        self.f_span = self._ptp()
         for i in range(self.f_dim):
-            if self.f_span[i]==0:
+            if self.f_span[i] == 0:
                 raise ValueError(
-                    "analysis.sample: your fitness function number "+str(i+1)+" appears to be constant. Please remove it.")
+                    "analysis.sample: your fitness function number " + str(i + 1) + " appears to be constant. Please remove it.")
         self._compute_constraints()
         self._scale_sample()
 
-
-        if self.dir!=None:
-            output=open(self.dir+'/log.txt','r+')
-            output.seek(0,2)
-            print("\n-------------------------------------------------------------------------------",file=output)
-            print('SAMPLED ['+str(npoints)+'] POINTS VIA',method,'METHOD FOR THE SUBSEQUENT TESTS',file=output)
+        if self.dir is not None:
+            output = open(self.dir + '/log.txt', 'r+')
+            output.seek(0, 2)
+            print("\n-------------------------------------------------------------------------------", file=output)
+            print('SAMPLED [' + str(npoints) + '] POINTS VIA', method, 'METHOD FOR THE SUBSEQUENT TESTS', file=output)
             output.close()
 
     def _scale_sample(self):
@@ -235,19 +234,18 @@ class analysis:
         """
         for i in range(self.npoints):
             for j in range(self.dim):
-                self.points[i][j]-=self.lb[j]
-                self.points[i][j]/=(self.ub[j]-self.lb[j])
+                self.points[i][j] -= self.lb[j]
+                self.points[i][j] /= (self.ub[j] - self.lb[j])
             for j in range(self.f_dim):
-                self.f[i][j]-=self.f_offset[j]
-                self.f[i][j]/=self.f_span[j]
+                self.f[i][j] -= self.f_offset[j]
+                self.f[i][j] /= self.f_span[j]
             for j in range(self.c_dim):
-                self.c[i][j]/=self.c_span[j]
-
+                self.c[i][j] /= self.c_span[j]
 
     ######################################################################################################################
-    #FITNESS DISTRIBUTION
+    # FITNESS DISTRIBUTION
     ######################################################################################################################
-    def f_distribution(self,percentile=[5,10,25,50,75],plot_f_distribution=True,plot_x_pcp=True,round_to=3):
+    def f_distribution(self, percentile=[5, 10, 25, 50, 75], plot_f_distribution=True, plot_x_pcp=True, round_to=3):
         """
         This function gives the user information about the f-distribution of the sampled search-space. All properties are shown per objective (each objective one column). To compute the fitness distribution (mean, std, percentile, skeweness and kurtosis),
         the fitness values have been scaled between 0 and 1.
@@ -280,10 +278,10 @@ class analysis:
         * Plot of f-distribution as probability density function.
         * X-PCP: pcp of chromosome of points in the sample grouped by fitness value ranges (percentiles).
         """
-        if self.dir==None:
-            output=None
+        if self.dir == None:
+            output = None
         else:
-            output=open(self.dir+'/log.txt','r+')
+            output=open(self.dir + '/log.txt','r+')
             output.seek(0,2)
 
         print("--------------------------------------------------------------------------------",file=output)

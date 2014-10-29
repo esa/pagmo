@@ -145,6 +145,26 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_unc_mo> > 
 	return retval;
 }
 
+// Wrapper to expose TSP problems.
+template <class Problem>
+static inline class_<Problem,bases<problem::base>,bases<problem::base_tsp> > tsp_problem_wrapper(const char *name, const char *descr)
+{
+	class_<Problem,bases<problem::base>,bases<problem::base_tsp> > retval(name,descr,init<const Problem &>());
+	retval.def(init<>());
+	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
+	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
+	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def("cpp_loads", &py_cpp_loads<Problem>);
+	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
+	retval.def("full2cities", &problem::base_tsp::full2cities);
+	retval.def("cities2full", &problem::base_tsp::cities2full);
+	retval.def("randomkeys2cities", &problem::base_tsp::randomkeys2cities);
+	retval.def("cities2randomkeys", &problem::base_tsp::cities2randomkeys);
+	retval.add_property("encoding", make_function(&problem::base_tsp::get_encoding, return_value_policy<copy_const_reference>()));
+	retval.add_property("n_cities", make_function(&problem::base_tsp::get_n_cities, return_value_policy<copy_const_reference>()));
+	return retval;
+}
+
 
 BOOST_PYTHON_MODULE(_problem) {
 	common_module_init();
@@ -361,19 +381,14 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("pretty", &problem::string_match::pretty);
 
 	// Travelling salesman problem (TSP) encoding enums
-	enum_<problem::tsp::encoding>("_tsp_encoding")
+	enum_<problem::base_tsp::encoding_type>("_tsp_encoding")
 		.value("FULL", problem::tsp::FULL)
 		.value("RANDOMKEYS", problem::tsp::RANDOMKEYS)
 		.value("CITIES", problem::tsp::CITIES);
 
 	// Travelling salesman problem (TSP)
-	problem_wrapper<problem::tsp>("tsp","Travelling salesman problem (TSP and ATSP)")
-		.def(init<const std::vector<std::vector<double> > &, const problem::tsp::encoding &>())
-		.def("full2cities", &problem::tsp::full2cities)
-		.def("cities2full", &problem::tsp::cities2full)
-		.def("randomkeys2cities", &problem::tsp::randomkeys2cities)
-		.def("cities2randomkeys", &problem::tsp::cities2randomkeys)
-		.add_property("encoding", make_function(&problem::tsp::get_encoding, return_value_policy<copy_const_reference>()))
+	tsp_problem_wrapper<problem::tsp>("tsp","Travelling salesman problem (TSP and ATSP)")
+		.def(init<const std::vector<std::vector<double> > &, const problem::base_tsp::encoding_type &>())
 		.add_property("weights", make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
 
 	// SCH

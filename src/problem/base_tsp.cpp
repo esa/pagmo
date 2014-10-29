@@ -43,7 +43,7 @@ namespace pagmo { namespace problem {
             1, nc, nic, 0.0
         ), 
         m_encoding(encoding), 
-        m_n_cities((encoding==FULL ? n_cities*(n_cities-1): n_cities)) 
+        m_n_cities(n_cities)
     {
         switch( m_encoding ) {
             case FULL:
@@ -73,7 +73,6 @@ namespace pagmo { namespace problem {
      */
     pagmo::decision_vector base_tsp::full2cities(const pagmo::decision_vector &x) const
     {
-
         pagmo::decision_vector retval(m_n_cities,0);
         pagmo::population::size_type next_city,cur_city = 0;
         retval[0]=cur_city;

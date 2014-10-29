@@ -25,13 +25,22 @@
 #include <iostream>
 #include <iomanip>
 #include "src/problem/tsp.h"
+#include "src/problem/base_tsp.h"
 
 using namespace pagmo;
 
 // Example in C++ of the use of PaGMO 1.1.5
 int main()
 {
-	problem::tsp prob;
+	std::vector<double> dumb(3,0);
+	std::vector<std::vector<double> > m_weights(3,dumb);
+	m_weights[0][1] = 1;
+	m_weights[0][2] = 1;
+	m_weights[2][1] = 1;
+	m_weights[1][0] = 1;
+	m_weights[2][0] = 1;
+	m_weights[1][2] = 1;
+	problem::tsp prob(m_weights, problem::base_tsp::FULL);
 	problem::tsp prob2;
 	std::cout << prob << std::endl;
 	

@@ -132,13 +132,13 @@ void nn_tsp::evolve(population &pop) const
 	//change representation of tour
 	population::size_type best_idx = pop.get_best_idx();
 	switch( prob->get_encoding() ) {
-	    case problem::tsp::FULL:
+	    case problem::base_tsp::FULL:
 	        pop.set_x(best_idx,prob->cities2full(best_tour));
 	        break;
-	    case problem::tsp::RANDOMKEYS:
+	    case problem::base_tsp::RANDOMKEYS:
 	        pop.set_x(best_idx,prob->cities2randomkeys(best_tour,pop.get_individual(best_idx).cur_x));
 	        break;
-	    case problem::tsp::CITIES:
+	    case problem::base_tsp::CITIES:
 	        pop.set_x(best_idx,best_tour);
 	        break;
 	}

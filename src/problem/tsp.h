@@ -50,6 +50,8 @@ class __PAGMO_VISIBLE tsp: public base_tsp
 
         tsp();
         tsp(const std::vector<std::vector<double> >&, const base_tsp::encoding_type & = FULL);
+
+        /// Copy constructor for polymorphic objects (deep copy)
         base_ptr clone() const;
 
         const std::vector<std::vector<double> >& get_weights() const;

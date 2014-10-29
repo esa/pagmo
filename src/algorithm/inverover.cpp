@@ -31,7 +31,7 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../population.h"
-#include "../problem/tsp.h"
+#include "../problem/base_tsp.h"
 #include "../algorithm/nn_tsp.h"
 #include "base.h"
 #include "inverover.h"
@@ -74,16 +74,16 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
     void inverover::evolve(population &pop) const
     {
 
-	const problem::tsp* prob;
-	//check if problem is of type pagmo::problem::tsp
+	const problem::base_tsp* prob;
+	//check if problem is of type pagmo::problem::base_tsp
 	try
 	{
-		const problem::tsp& tsp_prob = dynamic_cast<const problem::tsp &>(pop.problem());
+		const problem::base_tsp& tsp_prob = dynamic_cast<const problem::base_tsp &>(pop.problem());
 		prob = &tsp_prob;
 	}
 	catch (const std::bad_cast& e)
 	{
-		pagmo_throw(value_error,"Problem not of type pagmo::problem::tsp");
+		pagmo_throw(value_error,"Problem not of type pagmo::problem::base_tsp");
 	}
 	
 	// Let's store some useful variables.
@@ -116,13 +116,13 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 		feasible = prob->feasibility_x(pop.get_individual(i).cur_x);
 		if(feasible){ //if feasible store it in my_pop
 			switch( prob->get_encoding() ) {
-			    case problem::tsp::FULL:
+			    case problem::base_tsp::FULL:
 			        my_pop[i] = prob->full2cities(pop.get_individual(i).cur_x);
 			        break;
-			    case problem::tsp::RANDOMKEYS:
+			    case problem::base_tsp::RANDOMKEYS:
 			        my_pop[i] = prob->randomkeys2cities(pop.get_individual(i).cur_x);
 			        break;
-			    case problem::tsp::CITIES:
+			    case problem::base_tsp::CITIES:
 			        my_pop[i] = pop.get_individual(i).cur_x;
 			        break;
 			}
@@ -243,13 +243,13 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 	//change representation of tour
     	for (size_t ii = 0; ii < NP; ii++) {
 			switch( prob->get_encoding() ) {
-			    case problem::tsp::FULL:
+			    case problem::base_tsp::FULL:
 			        pop.set_x(ii,prob->cities2full(my_pop[ii]));
 			        break;
-			    case problem::tsp::RANDOMKEYS:
+			    case problem::base_tsp::RANDOMKEYS:
 			        pop.set_x(ii,prob->cities2randomkeys(my_pop[ii],pop.get_individual(ii).cur_x));
 			        break;
-			    case problem::tsp::CITIES:
+			    case problem::base_tsp::CITIES:
 			        pop.set_x(ii,my_pop[ii]);
 			        break;
 			}

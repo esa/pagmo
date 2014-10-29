@@ -42,8 +42,6 @@ namespace pagmo { namespace problem {
         m_weights[1][0] = 1;
         m_weights[2][0] = 1;
         m_weights[1][2] = 1;
-        set_lb(0);
-        set_ub(1);
     }
 
     /// Constructor from weight matrix and encoding
@@ -271,7 +269,7 @@ namespace pagmo { namespace problem {
         oss << "\tWeight Matrix: \n";
         for (decision_vector::size_type i=0; i<get_n_cities() ; ++i)
         {
-            oss << "\t\t" << m_weights[i] << '\n';
+            oss << "\t\t" << m_weights.at(i) << '\n';
             if (i>5)
             {
                 oss << "\t\t..." << '\n';
@@ -283,3 +281,5 @@ namespace pagmo { namespace problem {
 
     
 }} //namespaces
+
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tsp)
