@@ -304,9 +304,9 @@ def example_2(
         topo=topology.barabasi_albert(
             3,
             3),
-    n_evolve=100,
-    n_isl=1024,
-    pop_size=20,
+        n_evolve=100,
+        n_isl=1024,
+        pop_size=20,
         color_code='rank'):
     from PyGMO import problem, algorithm, island, archipelago
     from matplotlib.pyplot import savefig, close
@@ -328,27 +328,3 @@ def example_2(
             n_color=color_code)
         savefig('archi%03d' % i, dpi=72)
         close()
-
-
-
-# def test_aco():
-#	from PyGMO import problem, algorithm, island
-#	from numpy import mean, std
-#	number_of_islands = 5
-#	number_of_individuals = 30
-#	number_of_generations = 50
-#	w = [ [0,1,100,1], [1,0,1,100], [100,1,0,1], [1, 100, 1, 0]]
-#	prob_list = [problem.tsp(w)]
-#	algo_list = [algorithm.aco(number_of_generations)]
-#	for j in range(0,len(prob_list)):
-#		print('Testing problem: ' + str(type(prob_list[j])) + ', Dimension: ' + str(prob_list[j].dimension))
-#		for algo in algo_list:
-#			print('        Testing algorithm: ' + str(algo))
-#			best = []
-#			best_x = []
-#			for i in range(0,number_of_islands):
-#				isl = island(prob_list[j],algo,number_of_individuals)
-#				best.append(isl.population.champion.f)
-#				best_x.append(isl.population.champion.x)
-#				print('                Best fitness:\t' + str(best[i]))
-#				print('                Best solution:\t' + str(best_x[i]))

@@ -1,5 +1,5 @@
 from PyGMO.problem._problem import cassini_1, gtoc_1, cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_incipit_cstrs, mga_part
-#from _problem import _gtoc_2_objective
+# from _problem import _gtoc_2_objective
 
 # Redefining the constructors of all problems to obtain good documentation
 # and allowing kwargs
@@ -172,37 +172,40 @@ def _sagas_ctor(self):
 sagas._orig_init = sagas.__init__
 sagas.__init__ = _sagas_ctor
 
-#gtoc_2.obj = _gtoc_2_objective
-# def _gtoc_2_ctor(self, ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10,  objective = gtoc_2.obj.MASS_TIME):
-#	"""
-#	Constructs a GTOC 2 Problem (Constrained Continuous Single-Objective)
-#
-#	NOTE: This problem is a quite faithful transcription of the problem used during the GTOC2 competition
-#	      It Transcribe the whole OCP resulting from the low-thrust dynamics into an NLP. As such it is very
-#	      difficult to find feasible solutions. Note that by default the asteroid sequence is the winning one
-#	      from Turin University.
-#
-#	USAGE: problem.gtoc_2(ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10, objective = gtoc_2.obj.MASS_TIME)
-#
-#	* ast1 id of the first asteroid to visit (Group 1:   0 - 95)
-#	* ast2 id of the second asteroid to visit (Group 2:  96 - 271)
-#	* ast3 id of the third asteroid to visit (Group 3: 272 - 571)
-#	* ast4 id of the fourth asteroid to visit (Group 4: 572 - 909)
-#	* n_seg number of segments to be used per leg
-#	* obj objective function in the enum {MASS,TIME,MASS_TIME}
-#	"""
-#
-# We construct the arg list for the original constructor exposed by boost_python
-#	arg_list=[]
-#	arg_list.append(ast1)
-#	arg_list.append(ast2)
-#	arg_list.append(ast3)
-#	arg_list.append(ast4)
-#	arg_list.append(n_seg)
-#	arg_list.append(objective)
-#	self._orig_init(*arg_list)
-#gtoc_2._orig_init = gtoc_2.__init__
-#gtoc_2.__init__ = _gtoc_2_ctor
+gtoc_2.obj = _gtoc_2_objective
+
+
+def _gtoc_2_ctor(self, ast1=815, ast2=300, ast3=110, ast4=47, n_seg=10, objective=gtoc_2.obj.MASS_TIME):
+    """
+    Constructs a GTOC 2 Problem (Constrained Continuous Single-Objective)
+
+    NOTE: This problem is a quite faithful transcription of the problem used during the GTOC2 competition
+        It Transcribe the whole OCP resulting from the low-thrust dynamics into an NLP. As such it is very
+          difficult to find feasible solutions. Note that by default the asteroid sequence is the winning one
+          from Turin University.
+
+    USAGE: problem.gtoc_2(ast1 = 815, ast2 = 300, ast3 = 110, ast4 = 47, n_seg = 10, objective = gtoc_2.obj.MASS_TIME)
+
+    * ast1 id of the first asteroid to visit (Group 1:   0 - 95)
+    * ast2 id of the second asteroid to visit (Group 2:  96 - 271)
+    * ast3 id of the third asteroid to visit (Group 3: 272 - 571)
+    * ast4 id of the fourth asteroid to visit (Group 4: 572 - 909)
+    * n_seg number of segments to be used per leg
+    * obj objective function in the enum {MASS,TIME,MASS_TIME}
+    """
+
+    # We construct the arg list for the original constructor exposed by
+    # boost_python
+    arg_list = []
+    arg_list.append(ast1)
+    arg_list.append(ast2)
+    arg_list.append(ast3)
+    arg_list.append(ast4)
+    arg_list.append(n_seg)
+    arg_list.append(objective)
+    self._orig_init(*arg_list)
+gtoc_2._orig_init = gtoc_2.__init__
+gtoc_2.__init__ = _gtoc_2_ctor
 
 
 from PyKEP import planet_ss, epoch, planet_js
@@ -787,7 +790,8 @@ def _part_plot(x, units, axis, seq, start_mjd2000, vinf_in):
         # Lambert arc to reach Earth during (1-nu2)*T2 (second segment)
         dt = (1 - x[4 * i + 2]) * T[i] * DAY2SEC
         l = lambert_problem(r, r_P[i + 1], dt, common_mu, False, False)
-        plot_lambert(l, sol=0, color='r', legend=False, units=units, N=500, ax=axis)
+        plot_lambert(
+            l, sol=0, color='r', legend=False, units=units, N=500, ax=axis)
         v_end_l = l.get_v2()[0]
         v_beg_l = l.get_v1()[0]
 
@@ -890,7 +894,8 @@ def _mga_1dsm_tof_plot(self, x):
 
     # 2 - We plot the first leg
     r_P0, v_P0 = seq[0].eph(epoch(x[0]))
-    plot_planet(seq[0], t0=epoch(x[0]), color=(0.8, 0.6, 0.8), legend=True, units = AU, ax=axis)
+    plot_planet(seq[0], t0=epoch(x[0]), color=(
+        0.8, 0.6, 0.8), legend=True, units = AU, ax=axis)
     r_P1, v_P1 = seq[1].eph(epoch(x[0] + x[5]))
     theta = 2 * pi * x[1]
     phi = acos(2 * x[2] - 1) - pi / 2
