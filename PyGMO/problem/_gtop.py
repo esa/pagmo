@@ -1,5 +1,5 @@
-from PyGMO.problem._problem import cassini_1, gtoc_1, cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_incipit_cstrs, mga_part
-# from _problem import _gtoc_2_objective
+from PyGMO.problem._problem import cassini_1, gtoc_1, gtoc_2, cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_incipit_cstrs, mga_part
+from _problem import _gtoc_2_objective
 
 # Redefining the constructors of all problems to obtain good documentation
 # and allowing kwargs

@@ -343,7 +343,7 @@ class analysis:
               round(i, round_to) for i in self._kurtosis()], file=output)
         print("Number of peaks of f-distribution :     ",
               self._n_peaks_f(), file=output)
-        if output not None:
+        if output is not None:
             output.close()
         if plot_f_distribution:
             self.plot_f_distr()
