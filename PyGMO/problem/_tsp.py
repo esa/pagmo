@@ -104,8 +104,7 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
 
     # We construct the list of edges (u,v) containing
     # the indices of the cities visited
-    edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)]
-    + [(edgelist[-1], edgelist[0])]
+    edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)] + [(edgelist[-1], edgelist[0])]
     if bias is None:
         bias = max([max(d) for d in weights])
 

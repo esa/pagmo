@@ -160,8 +160,8 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_tsp> > tsp
 	retval.def("cities2full", &problem::base_tsp::cities2full);
 	retval.def("randomkeys2cities", &problem::base_tsp::randomkeys2cities);
 	retval.def("cities2randomkeys", &problem::base_tsp::cities2randomkeys);
-	retval.add_property("encoding", make_function(&problem::base_tsp::get_encoding, return_value_policy<copy_const_reference>()));
-	retval.add_property("n_cities", make_function(&problem::base_tsp::get_n_cities, return_value_policy<copy_const_reference>()));
+	retval.add_property("encoding", &problem::base_tsp::get_encoding);
+	retval.add_property("n_cities", &problem::base_tsp::get_n_cities);
 	return retval;
 }
 
