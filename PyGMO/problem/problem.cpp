@@ -56,7 +56,7 @@ static inline tuple find_city_subsequence_wrapper(const pagmo::problem::tsp_cs& 
 	double retval_p, retval_l;
 	decision_vector::size_type retval_it_l, retval_it_r;
     p.find_city_subsequence(tour,retval_p,retval_l,retval_it_l,retval_it_r);
-	return boost::python::make_tuple(retval_p,retval_l,retval_it_r,retval_it_r);
+	return boost::python::make_tuple(retval_p,retval_l,retval_it_l,retval_it_r);
 }
 
 // Transforms an Eigen Matrix into a std::vector<std::vector<double> >

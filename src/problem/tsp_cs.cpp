@@ -84,8 +84,8 @@ namespace pagmo { namespace problem {
      * Checks if a matrix (std::vector<std::vector<double>>) 
      * is square or bidirectional (e.g. no one way links between vertices).
      * If none of the two conditions are true, we can not have a tsp problem.
-     * @param matrix - the adjacency matrix (two dimensional std::vector)
-     * @throws pagmo_throw - matrix is not square and/or graph is not bidirectional
+     * @param[in] matrix - the adjacency matrix (two dimensional std::vector)
+     * @throws value_error if matrix is not square and/or graph is not bidirectional
      */
     void tsp_cs::check_weights(const std::vector<std::vector<double> > &matrix) const 
     {   
@@ -153,8 +153,8 @@ namespace pagmo { namespace problem {
                 break;
            }
         }
-        find_city_subsequence(x, cum_p, saved_length, dumb1, dumb2);
-        f[0] = cum_p + (1 - m_min_value) * n_cities + saved_length / m_max_path_length;
+        find_city_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
+        f[0] = -(cum_p + (1 - m_min_value) * n_cities + saved_length / m_max_path_length);
         return;
     }
 
@@ -165,6 +165,20 @@ namespace pagmo { namespace problem {
     }
 
 
+    /// Computes the best subpath of an hamilonian path satisfying the max_path_length constraint
+    /**
+     * Computes the best subpath of an hamilonian path satisfying the max_path_length constraint.
+     * If the input tour does not represent an Hamiltonian path, (i.e. its an unfeasible chromosome)
+     * the algorithm behaviour is undefined
+     *
+     * @param[in]  tour the hamiltonian path encoded with a CITIES encoding (i.e. the list of cities ids)
+     * @param[out] retval_p the total cumulative value of the subpath
+     * @param[out] retval_l the total cumulative length of the subpath
+     * @param[out] retval_it_l the id of the city where the subpath starts
+     * @param[out] retval_it_r the id of the city where the subpath ends
+     * @throws value_error if the input tour length is not equal to the city number
+
+     */
     void tsp_cs::find_city_subsequence(const decision_vector& tour, double& retval_p, double& retval_l, decision_vector::size_type& retval_it_l, decision_vector::size_type& retval_it_r) const
     {
         if (tour.size() != get_n_cities())
@@ -230,7 +244,6 @@ namespace pagmo { namespace problem {
                 saved_length += m_weights[tour[it_l % n_cities]][tour[(it_l + 1) % n_cities]];
                 cum_p -= m_values[it_l];
                 it_l += 1;
-
                 // We update the various retvals only if the new subpath is valid
                 if (saved_length > 0)
                 {
