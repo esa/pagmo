@@ -190,7 +190,7 @@ namespace pagmo { namespace problem {
     /**
      * @return reference to m_n_cities
      */
-     decision_vector::size_type base_tsp::get_n_cities() const
+    decision_vector::size_type base_tsp::get_n_cities() const
     { 
         return m_n_cities; 
     }
