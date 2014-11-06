@@ -261,7 +261,12 @@ BOOST_PYTHON_MODULE(_algorithm) {
 	algorithm_wrapper<algorithm::bee_colony>("bee_colony","Artificial Bee Colony optimization (ABC) algorithm.")
 		.def(init<optional<int,int> >());
 
-	//InverOver    
+	//InverOver initialization type enum
+	enum_<algorithm::inverover::initialization_type>("_tsp_ini_type")
+		.value("random", algorithm::inverover::random)
+		.value("nn", algorithm::inverover::nn);	
+
+	//InverOver   
         algorithm_wrapper<algorithm::inverover>("inverover","InverOver Genetic Algorithm.")
 		.def(init<optional<int, double, pagmo::algorithm::inverover::initialization_type> >());
 

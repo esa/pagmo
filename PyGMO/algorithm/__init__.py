@@ -1222,6 +1222,45 @@ def _cmaes_ctor(
 cmaes._orig_init = cmaes.__init__
 cmaes.__init__ = _cmaes_ctor
 
+def _inverover_ctor(
+        self,
+        gen=100000,
+        ri=0.05,
+        type="random"):
+    """
+    Constructs a Inverover algorithm
+
+    REF: "Inver-over Operator for the TSP"
+    G Tao, Z Michalewicz, Parallel Problem Solving from Nature - PPSN V, 1998.
+    https://cs.adelaide.edu.au/~zbyszek/Papers/p44.pdf
+
+    USAGE: algorithm.inverover(gen=100000, ri=0.05, type="random")
+
+    * gen: number of generations
+    * ri: probability for a random inversion (mutation probability)
+    * ini_type: algorithm that is used for the initialization of the population
+           1. "random"	random initialization with feasible tours
+           2. "nn"	using the Nearest-Neighbor algorithm
+    """
+
+    from PyGMO.algorithm._algorithm import _tsp_ini_type
+    inverover.ini_type = _tsp_ini_type
+
+    # We set the defaults or the kwargs
+    arg_list = []
+    arg_list.append(gen)
+    arg_list.append(ri)
+    if type == "random":
+        ini_type = self.ini_type.random
+    elif type == "nn":
+        ini_type = self.ini_type.nn
+    else:
+        raise ValueError("Unrecognized initialization type")
+
+    arg_list.append(ini_type)
+    self._orig_init(*arg_list)
+inverover._orig_init = inverover.__init__
+inverover.__init__ = _inverover_ctor
 
 def _monte_carlo_ctor(self, iter=10000):
     """

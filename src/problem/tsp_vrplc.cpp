@@ -22,7 +22,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "tsp.h"
+#include "tsp_vrplc.h"
 #include "../population.h"
 
 namespace pagmo { namespace problem {
@@ -32,7 +32,7 @@ namespace pagmo { namespace problem {
      * This constructs a 3-cities symmetric problem (naive TSP) 
      * with weight matrix [[0,1,1][1,0,1][1,1,0]] and RANDOMKEYS encoding
      */
-    tsp::tsp() : base_tsp(3, 0, 0 , base_tsp::RANDOMKEYS), m_weights()
+    tsp_vrplc::tsp_vrplc() : base_tsp(3, 0, 0 , base_tsp::RANDOMKEYS), m_weights(), m_capacity()
     {
         std::vector<double> dumb(3,0);
         m_weights = std::vector<std::vector<double> > (3,dumb);
@@ -42,6 +42,7 @@ namespace pagmo { namespace problem {
         m_weights[1][0] = 1;
         m_weights[2][0] = 1;
         m_weights[1][2] = 1;
+	m_capacity = 1.1;
     }
 
     /// Constructor from weight matrix and encoding
@@ -50,20 +51,20 @@ namespace pagmo { namespace problem {
      * @param[in] weights an std::vector of std::vector representing a square matrix.
      * @param[in] encoding a pagmo::problem::tsp::encoding representing the chosen encoding
      */
-    tsp::tsp(const std::vector<std::vector<double> >& weights, const base_tsp::encoding_type& encoding): 
+    tsp_vrplc::tsp_vrplc(const std::vector<std::vector<double> >& weights, const base_tsp::encoding_type& encoding, const double& capacity): 
         base_tsp(weights.size(), 
             compute_dimensions(weights.size(), encoding)[0],
             compute_dimensions(weights.size(), encoding)[1],
             encoding
-        ),  m_weights(weights)
+        ),  m_weights(weights), m_capacity(capacity)
     {
         check_weights(m_weights);
     }
 
     /// Clone method.
-    base_ptr tsp::clone() const
+    base_ptr tsp_vrplc::clone() const
     {
-        return base_ptr(new tsp(*this));
+        return base_ptr(new tsp_vrplc(*this));
     }
 
     /// Checks if we can instantiate a TSP or ATSP problem
@@ -74,12 +75,12 @@ namespace pagmo { namespace problem {
      * @param matrix - the adjacency matrix (two dimensional std::vector)
      * @throws pagmo_throw - matrix is not square and/or graph is not bidirectional
      */
-    void tsp::check_weights(const std::vector<std::vector<double> > &matrix) const 
+    void tsp_vrplc::check_weights(const std::vector<std::vector<double> > &matrix) const 
     {   
         decision_vector::size_type n_cols = matrix.size();
         
         for (decision_vector::size_type i = 0; i < n_cols; ++i) {
-            decision_vector::size_type n_rows = matrix[i].size();
+            decision_vector::size_type n_rows = matrix.at(i).size();
             // check if the matrix is square
             if (n_rows != n_cols)
                 pagmo_throw(value_error, "adjacency matrix is not square");
@@ -89,13 +90,13 @@ namespace pagmo { namespace problem {
                     pagmo_throw(value_error, "main diagonal elements must all be zeros.");
                 if (i != j && !matrix.at(i).at(j)) // fully connected
                     pagmo_throw(value_error, "adjacency matrix contains zero values.");
-                if (i != j && (!matrix.at(i).at(j)) == matrix[i][j]) // fully connected
+                if (i != j && (!matrix.at(i).at(j)) == matrix.at(i).at(j)) // fully connected
                     pagmo_throw(value_error, "adjacency matrix contains NaN values.");                    
             }
         }
     }
 
-    boost::array<int, 2> tsp::compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type encoding)
+    boost::array<int, 2> tsp_vrplc::compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type encoding)
     {
         boost::array<int,2> retval;
         switch( encoding ) {
@@ -115,49 +116,74 @@ namespace pagmo { namespace problem {
         return retval;
     }
 
-    void tsp::objfun_impl(fitness_vector &f, const decision_vector& x) const 
+    void tsp_vrplc::objfun_impl(fitness_vector &f, const decision_vector& x) const 
     {
-        f[0]=0;
+	f[0] = 0;
+	double stl = 0;
         decision_vector tour;
         decision_vector::size_type n_cities = get_n_cities();
         switch( get_encoding() ) {
             case FULL:
             {
                 tour = full2cities(x);
-                for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
-                    f[0] += m_weights[tour[i]][tour[i+1]];
-                }
-                f[0]+= m_weights[tour[n_cities-1]][tour[0]];
                 break;
             }
             case RANDOMKEYS:
             {
                 tour = randomkeys2cities(x);
-                for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
-                        f[0] += m_weights[tour[i]][tour[i+1]];
-                }
-        	   f[0]+= m_weights[tour[n_cities-1]][tour[0]];
-                break;
-	       }
+		break;
+	    }
             case CITIES:
-	       {
-    	        for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
-                		f[0] += m_weights[x[i]][x[i+1]];
-            	}
-            	f[0]+= m_weights[x[n_cities-1]][x[0]];
+	    {
+		tour = x;
                 break;
-	       }
+	    }
         }
+	for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
+	    stl += m_weights[tour[i]][tour[i+1]];
+	    if(stl > m_capacity){
+		stl = 0;
+		f[0] += 1;}
+		else{
+            	    f[0] += (m_weights[tour[i]][tour[i+1]])/(n_cities*m_capacity);
+		}
+            }
         return;
     }
+    
+    /// Returns the list of tours
+    /**
+     * Constructs a TSP with the input weight matrix and the selected encoding
+     * @param[in] x an std::vector
+     */
+    const std::vector<std::vector<double> > tsp_vrplc::return_tours(const decision_vector& x)
+    {
+	std::vector<std::vector<double> > tours;
+	double stl = 0;
+        decision_vector::size_type n_cities = get_n_cities();
+	std::vector<double> cur_tour;
+	for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
+	    cur_tour.push_back(x[i]);
+	    stl += m_weights[x[i]][x[i+1]];
+	    if(stl > m_capacity){
+		stl = 0;
+		tours.push_back(cur_tour);
+		cur_tour.erase(cur_tour.begin(),cur_tour.end());
+	    }
+	}
+	cur_tour.push_back(x[n_cities-1]);
+	tours.push_back(cur_tour);
+	return tours;
+    }
+	
 
-    size_t tsp::compute_idx(const size_t i, const size_t j, const size_t n) const
+    size_t compute_idx2(const size_t i, const size_t j, const size_t n) 
     {
         pagmo_assert( i!=j && i<n && j<n );
         return i*(n-1) + j - (j>i? 1:0);
     }
 
-    void tsp::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
+    void tsp_vrplc::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
     {
         decision_vector::size_type n_cities = get_n_cities();
 
@@ -171,8 +197,8 @@ namespace pagmo { namespace problem {
                     c[i+n_cities] = 0;
                     for (size_t j = 0; j < n_cities; j++) {
                         if(i==j) continue; // ignoring main diagonal
-                        decision_vector::size_type rows = compute_idx(i, j, n_cities);
-                        decision_vector::size_type cols = compute_idx(j, i, n_cities);
+                        decision_vector::size_type rows = compute_idx2(i, j, n_cities);
+                        decision_vector::size_type cols = compute_idx2(j, i, n_cities);
                         c[i] += x[rows];
                         c[i+n_cities] += x[cols];
                     }
@@ -190,7 +216,7 @@ namespace pagmo { namespace problem {
                     for (size_t j = 0; j < n_cities; j++) 
                     {
                         if (current_city==j) continue;
-                        if (x[compute_idx(current_city, j, n_cities)] == 1) 
+                        if (x[compute_idx2(current_city, j, n_cities)] == 1) 
                         {
                             next_city = j;
                             break;
@@ -203,7 +229,7 @@ namespace pagmo { namespace problem {
                     for (size_t j = 1; j < n_cities; j++) 
                     {
                         if (i==j) continue;
-                        c[2*n_cities+count] = u[i]-u[j] + (n_cities+1) * x[compute_idx(i, j, n_cities)] - n_cities;
+                        c[2*n_cities+count] = u[i]-u[j] + (n_cities+1) * x[compute_idx2(i, j, n_cities)] - n_cities;
                         count++;
                     }
                 }
@@ -226,7 +252,7 @@ namespace pagmo { namespace problem {
     }
 
     /// Definition of distance function
-    double tsp::distance(decision_vector::size_type i, decision_vector::size_type j) const
+    double tsp_vrplc::distance(decision_vector::size_type i, decision_vector::size_type j) const
     {
         return m_weights[i][j];
     }
@@ -235,13 +261,22 @@ namespace pagmo { namespace problem {
     /**
      * @return reference to m_weights
      */
-    const std::vector<std::vector<double> >&  tsp::get_weights() const
+    const std::vector<std::vector<double> >&  tsp_vrplc::get_weights() const
     { 
         return m_weights; 
     }
 
+    /// Getter for m_capacity
+    /**
+     * @return reference to m_capacity
+     */
+    const double&  tsp_vrplc::get_capacity() const
+    { 
+        return m_capacity; 
+    }
+
     /// Returns the problem name
-    std::string tsp::get_name() const
+    std::string tsp_vrplc::get_name() const
     {
         return "Travelling Salesman Problem (TSP-ATSP)";
     }
@@ -250,7 +285,7 @@ namespace pagmo { namespace problem {
     /**
      * @return a std::string containing a list of vertices and edges
      */
-    std::string tsp::human_readable_extra() const 
+    std::string tsp_vrplc::human_readable_extra() const 
     {
         std::ostringstream oss;
         oss << "\n\tNumber of cities: " << get_n_cities() << '\n';
@@ -269,7 +304,7 @@ namespace pagmo { namespace problem {
         oss << "\tWeight Matrix: \n";
         for (decision_vector::size_type i=0; i<get_n_cities() ; ++i)
         {
-            oss << "\t\t" << m_weights[i] << '\n';
+            oss << "\t\t" << m_weights.at(i) << '\n';
             if (i>5)
             {
                 oss << "\t\t..." << '\n';
@@ -282,4 +317,4 @@ namespace pagmo { namespace problem {
     
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tsp)
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tsp_vrplc)

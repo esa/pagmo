@@ -1,14 +1,13 @@
-from PyGMO.problem._problem import tsp, tsp_cs, _tsp_encoding
+from PyGMO.problem._problem import tsp_vrplc, _tsp_encoding
 
 
 # Renaming and placing the enums
-tsp.encoding_type = _tsp_encoding
-tsp_cs.encoding_type = _tsp_encoding
+tsp_vrplc.encoding_type = _tsp_encoding
 
 
-def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
+def _tsp_vrplc_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full", capacity=1):
     """
-        Constructs Travelling Salesman Problem (TSP or ATSP)
+        Constructs Vehicle routing problem with limited capacity
         The problem encoding can be of three different types as
         selected by the type kwarg
 
@@ -35,11 +34,12 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
         Constructs a Travelling Salesman problem
         (Constrained Integer Single-Objective)
 
-        USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys")
+        USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys", capacity=1)
 
          * weights: Square matrix with zero diagonal
             entries containing the cities distances.
          * type: encoding type. One of "cities","randomkeys","full"
+         * capacity: double
     """
 
     # We construct the arg list for the original constructor exposed by
@@ -47,21 +47,22 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
     arg_list = []
     arg_list.append(weights)
     if type == "full":
-        encoding_type = tsp.encoding_type.FULL
+        encoding_type = self.encoding_type.FULL
     elif type == "randomkeys":
-        encoding_type = tsp.encoding_type.RANDOMKEYS
+        encoding_type = self.encoding_type.RANDOMKEYS
     elif type == "cities":
-        encoding_type = tsp.encoding_type.CITIES
+        encoding_type = self.encoding_type.CITIES
     else:
         raise ValueError("Unrecognized encoding type")
 
     arg_list.append(encoding_type)
+    arg_list.append(capacity)
     self._orig_init(*arg_list)
-tsp._orig_init = tsp.__init__
-tsp.__init__ = _tsp_ctor
+tsp_vrplc._orig_init = tsp_vrplc.__init__
+tsp_vrplc.__init__ = _tsp_vrplc_ctor
 
 
-def _plot_tsp(self, x, node_size=10, edge_color='r',
+def _plot_tsp_vrplc(self, x, node_size=10, edge_color='r',
               edge_width=1, bias=None, node_color=None, pos=None):
     """
         Plots a tour represented in the chromosome x
@@ -89,32 +90,36 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     from matplotlib import pyplot as plt
     import networkx as nx
     import numpy as np
-    from PyGMO.problem import tsp
+    from PyGMO.problem import tsp_vrplc
 
     fig = plt.gcf()
 
     # We extract few informations on the problem
     weights = self.weights
     n_cities = len(weights[0])
-    if self.encoding == _tsp_encoding.RANDOMKEYS:
-        edgelist = self.randomkeys2cities(x)
-    elif self.encoding == _tsp_encoding.CITIES:
-        edgelist = x
-    elif self.encoding == _tsp_encoding.FULL:
-        edgelist = self.full2cities(x)
+    if self.encoding == self.encoding_type.RANDOMKEYS:
+        chromosome = self.randomkeys2cities(x)
+    elif self.encoding == self.encoding_type.CITIES:
+        chromosome = x
+    elif self.encoding == self.encoding_type.FULL:
+        chromosome = self.full2cities(x)
 
     # We construct the list of edges (u,v) containing
-    # the indices of the cities visited and we here distinguish between tsp types
-    if type(self) == tsp:
-        edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)] + [(edgelist[-1], edgelist[0])]
-    elif type(self == tsp_cs):
-        _, _, id1, id2 = self.find_city_subsequence(x)
-        if id1 <= id2:
-            edgelist = edgelist[id1:(id2 + 1) % n_cities]
-        else:
-            edgelist = edgelist[id1:] + edgelist[:id2 + 1]
-        edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(len(edgelist) - 1)]
+    # the indices of the cities visited
+    # edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)] + [(edgelist[-1], edgelist[0])]
+    mstl = 1000
+    stl = 0
+    N = 1
+    edgelist = [(chromosome[0],chromosome[1])]
+    for i in range(1,n_cities - 1):
+	stl += weights[int(chromosome[i])][int(chromosome[i+1])]
+	if stl > mstl:
+	    stl = 0
+	    N += 1
+	else:
+	    edgelist += [(chromosome[i],chromosome[i+1])]
 
+    print(N)
     if bias is None:
         bias = max([max(d) for d in weights])
 	
@@ -182,6 +187,7 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
         # In case of a non euclidian TSP we create a spring model
         if prob_is_eucl is False:
             pos = nx.layout.spring_layout(G)
+            print("WTF")
     if node_color is None:
         node_color = [0.4] * n_cities
 
@@ -192,6 +198,4 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     fig.canvas.draw()
     plt.show()
     return pos
-
-tsp.plot = _plot_tsp
-tsp_cs.plot = _plot_tsp
+tsp_vrplc.plot = _plot_tsp_vrplc

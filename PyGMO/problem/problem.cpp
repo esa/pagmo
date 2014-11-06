@@ -390,14 +390,21 @@ BOOST_PYTHON_MODULE(_problem) {
 
 	// Travelling salesman problem (TSP) encoding enums
 	enum_<problem::base_tsp::encoding_type>("_tsp_encoding")
-		.value("FULL", problem::tsp::FULL)
-		.value("RANDOMKEYS", problem::tsp::RANDOMKEYS)
-		.value("CITIES", problem::tsp::CITIES);
+		.value("FULL", problem::base_tsp::FULL)
+		.value("RANDOMKEYS", problem::base_tsp::RANDOMKEYS)
+		.value("CITIES", problem::base_tsp::CITIES);
 
 	// Travelling salesman problem (TSP)
 	tsp_problem_wrapper<problem::tsp>("tsp","Travelling salesman problem (TSP and ATSP)")
 		.def(init<const std::vector<std::vector<double> > &, const problem::base_tsp::encoding_type &>())
 		.add_property("weights", make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
+
+	// Travelling salesman problem, vehicle routing problem with limited capacity variant (TSP-VRPLC)
+	tsp_problem_wrapper<problem::tsp_vrplc>("tsp_vrplc","Vehicle routing problem with limited capacity (TSP-VRPLC)")
+		.def(init<const std::vector<std::vector<double> > &, const problem::base_tsp::encoding_type &, const double&>())
+		.def("return_tours",&problem::tsp_vrplc::return_tours,"Compute and return list of tours.")
+		.add_property("weights", make_function(&problem::tsp_vrplc::get_weights, return_value_policy<copy_const_reference>()))
+		.add_property("capacity", make_function(&problem::tsp_vrplc::get_capacity, return_value_policy<copy_const_reference>()));
 
 	// Travelling salesman problem, city-selection variant (TSP-CS)
 	tsp_problem_wrapper<problem::tsp_cs>("tsp_cs","City-selection Travelling Salesman Problem (TSP-CS)")

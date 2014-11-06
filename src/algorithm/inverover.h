@@ -60,7 +60,7 @@ public:
 		random = 0,
 		nn = 1
 	};
-	inverover(int gen = 10000, double ri = 0.05, initialization_type ini_type = nn);
+	inverover(int gen = 10000, double ri = 0.05, initialization_type ini_type = random);
         base_ptr clone() const;
         void evolve(population &) const;
         std::string get_name() const;
