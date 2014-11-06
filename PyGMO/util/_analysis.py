@@ -2067,8 +2067,7 @@ class analysis:
             if plot_inverted_pcp and self.c_dim > 1:
                 self.plot_gradient_pcp(mode='c', invert=True)
 
-
-# CONSTRAINTS
+    # CONSTRAINTS
     def _c_lin(self, n_pairs=0, threshold=10 ** (-10)):
         """
         Tests the probability of linearity  of the constraint violation distributions obtained. A

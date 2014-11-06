@@ -75,8 +75,8 @@ class __PAGMO_VISIBLE base_tsp: public base
 
         /** @name Getters.*/
         //@{
-        const encoding_type& get_encoding() const;
-        const decision_vector::size_type& get_n_cities() const;
+        encoding_type get_encoding() const;
+        decision_vector::size_type get_n_cities() const;
         //@}
 
         /** @name Converters between encodings.*/

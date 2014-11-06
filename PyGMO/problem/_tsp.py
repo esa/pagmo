@@ -1,8 +1,9 @@
-from PyGMO.problem._problem import tsp, _tsp_encoding
+from PyGMO.problem._problem import tsp, tsp_cs, _tsp_encoding
 
 
 # Renaming and placing the enums
 tsp.encoding_type = _tsp_encoding
+tsp_cs.encoding_type = _tsp_encoding
 
 
 def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
@@ -95,17 +96,25 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     # We extract few informations on the problem
     weights = self.weights
     n_cities = len(weights[0])
-    if self.encoding == tsp.encoding_type.RANDOMKEYS:
+    if self.encoding == _tsp_encoding.RANDOMKEYS:
         edgelist = self.randomkeys2cities(x)
-    elif self.encoding == tsp.encoding_type.CITIES:
+    elif self.encoding == _tsp_encoding.CITIES:
         edgelist = x
-    elif self.encoding == tsp.encoding_type.FULL:
+    elif self.encoding == _tsp_encoding.FULL:
         edgelist = self.full2cities(x)
 
     # We construct the list of edges (u,v) containing
-    # the indices of the cities visited
-    edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)]
-    + [(edgelist[-1], edgelist[0])]
+    # the indices of the cities visited and we here distinguish between tsp types
+    if type(self) == tsp:
+        edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)] + [(edgelist[-1], edgelist[0])]
+    elif type(self == tsp_cs):
+        _, _, id1, id2 = self.find_city_subsequence(x)
+        if id1 <= id2:
+            edgelist = edgelist[id1:(id2 + 1) % n_cities]
+        else:
+            edgelist = edgelist[id1:] + edgelist[:id2 + 1]
+        edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(len(edgelist) - 1)]
+
     if bias is None:
         bias = max([max(d) for d in weights])
 
@@ -173,7 +182,6 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
         # In case of a non euclidian TSP we create a spring model
         if prob_is_eucl is False:
             pos = nx.layout.spring_layout(G)
-            print("WTF")
     if node_color is None:
         node_color = [0.4] * n_cities
 
@@ -184,4 +192,6 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     fig.canvas.draw()
     plt.show()
     return pos
+
 tsp.plot = _plot_tsp
+tsp_cs.plot = _plot_tsp

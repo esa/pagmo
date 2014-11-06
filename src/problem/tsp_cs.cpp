@@ -219,8 +219,8 @@ namespace pagmo { namespace problem {
                 {
                     retval_p = cum_p;
                     retval_l = saved_length;
-                    retval_it_l = it_l;
-                    retval_it_r = it_r;
+                    retval_it_l = it_l % n_cities;
+                    retval_it_r = it_r % n_cities;
                 }
                 else if (cum_p == retval_p)
                 {
@@ -228,8 +228,8 @@ namespace pagmo { namespace problem {
                     {
                         retval_p = cum_p;
                         retval_l = saved_length;
-                        retval_it_l = it_l;
-                        retval_it_r = it_r;
+                        retval_it_l = it_l % n_cities;
+                        retval_it_r = it_r % n_cities;
                     }
                 }
             }
@@ -252,8 +252,8 @@ namespace pagmo { namespace problem {
                     {
                         retval_p = cum_p;
                         retval_l = saved_length;
-                        retval_it_l = it_l;
-                        retval_it_r = it_r;
+                        retval_it_l = it_l % n_cities;
+                        retval_it_r = it_r % n_cities;
                     }
                     else if (cum_p == retval_p)
                     {
@@ -261,8 +261,8 @@ namespace pagmo { namespace problem {
                         {
                             retval_p = cum_p;
                             retval_l = saved_length;
-                            retval_it_l = it_l;
-                            retval_it_r = it_r;
+                            retval_it_l = it_l % n_cities;
+                            retval_it_r = it_r % n_cities;
                         }
                     }
                 }
