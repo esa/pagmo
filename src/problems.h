@@ -51,7 +51,6 @@
 #include "problem/inventory.h"
 #include "problem/michalewicz.h"
 #include "problem/dejong.h"
-#include "problem/tsp.h"
 #include "problem/sch.h"
 #include "problem/fon.h"
 #include "problem/pol.h"
@@ -77,6 +76,7 @@
 #include "problem/robust.h"
 #include "problem/con2uncon.h"
 #include "problem/tsp.h"
+#include "problem/tsp_vrplc.h"
 
 // GSL problems.
 #ifdef PAGMO_ENABLE_GSL

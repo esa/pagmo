@@ -96,18 +96,19 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     weights = self.weights
     n_cities = len(weights[0])
     if self.encoding == tsp.encoding_type.RANDOMKEYS:
-        edgelist = self.randomkeys2cities(x)
+        chromosome = self.randomkeys2cities(x)
     elif self.encoding == tsp.encoding_type.CITIES:
-        edgelist = x
+        chromosome = x
     elif self.encoding == tsp.encoding_type.FULL:
-        edgelist = self.full2cities(x)
+        chromosome = self.full2cities(x)
 
     # We construct the list of edges (u,v) containing
     # the indices of the cities visited
     edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)] + [(edgelist[-1], edgelist[0])]
+
     if bias is None:
         bias = max([max(d) for d in weights])
-
+	
     # We create a networkx graph
     G = nx.Graph()
 
