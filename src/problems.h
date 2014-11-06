@@ -77,6 +77,7 @@
 #include "problem/con2uncon.h"
 #include "problem/tsp.h"
 #include "problem/tsp_vrplc.h"
+#include "problem/tsp_cs.h"
 
 // GSL problems.
 #ifdef PAGMO_ENABLE_GSL

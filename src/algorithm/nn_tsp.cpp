@@ -40,8 +40,7 @@ namespace pagmo { namespace algorithm {
  * @param[in] start_city First City in the tour.
 */
 
-nn_tsp::nn_tsp(int start_city)
-	:base(),m_start_city(start_city)
+nn_tsp::nn_tsp(int start_city) : base(),m_start_city(start_city)
 {
 }
 
@@ -60,11 +59,11 @@ return base_ptr(new nn_tsp(*this));
  */
 void nn_tsp::evolve(population &pop) const
 {
-	const problem::tsp* prob;
-	//check if problem is of type pagmo::problem::tsp
+	const problem::base_tsp* prob;
+	//check if problem is of type pagmo::problem::base_tsp
 	try
 	{
-	    prob = &dynamic_cast<const problem::tsp &>(pop.problem());
+	    prob = &dynamic_cast<const problem::base_tsp &>(pop.problem());
 	}
 	catch (const std::bad_cast& e)
 	{
@@ -72,7 +71,6 @@ void nn_tsp::evolve(population &pop) const
 	}
 
 	// Let's store some useful variables.
-	const std::vector<std::vector<double> > &weights = prob->get_weights();
 	const problem::base::size_type Nv = prob->get_n_cities();
 
 	//create individuals
@@ -112,17 +110,18 @@ void nn_tsp::evolve(population &pop) const
 			min_idx = 0;
 			nxt_city = not_visited[0];
 			for (size_t l = 1; l < Nv-j; l++) {
-				if(weights[new_tour[j-1]][not_visited[l]] < weights[new_tour[j-1]][nxt_city]){
+				if(prob->distance(new_tour[j-1], not_visited[l]) < prob->distance(new_tour[j-1], nxt_city) )
+			{
 					min_idx = l;		
 					nxt_city = not_visited[l];}
 			}
 			new_tour[j] = nxt_city;
-			length_new_tour += weights[new_tour[j-1]][nxt_city];
+			length_new_tour += prob->distance(new_tour[j-1], nxt_city);
 			std::swap(not_visited[min_idx],not_visited[Nv-j-1]);
 		}
 		new_tour[Nv-1] = not_visited[0];
-		length_new_tour += weights[new_tour[Nv-2]][new_tour[Nv-1]];
-		length_new_tour += weights[new_tour[Nv-1]][new_tour[0]];
+		length_new_tour += prob->distance(new_tour[Nv-2], new_tour[Nv-1]);
+		length_new_tour += prob->distance(new_tour[Nv-1], new_tour[0]);
 		if(i == first_city || length_new_tour < length_best_tour){
 			best_tour = new_tour;
 			length_best_tour = length_new_tour;
