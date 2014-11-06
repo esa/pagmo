@@ -399,8 +399,8 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def(init<const std::vector<std::vector<double> > &, const problem::base_tsp::encoding_type &>())
 		.add_property("weights", make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
 
-	// Vehicle routing problem with limited capacity
-	tsp_problem_wrapper<problem::tsp_vrplc>("tsp_vrplc","Vehicle routing problem with limited capacity")
+	// Travelling salesman problem, vehicle routing problem with limited capacity variant (TSP-VRPLC)
+	tsp_problem_wrapper<problem::tsp_vrplc>("tsp_vrplc","Vehicle routing problem with limited capacity (TSP-VRPLC)")
 		.def(init<const std::vector<std::vector<double> > &, const problem::base_tsp::encoding_type &, const double&>())
 		.def("return_tours",&problem::tsp_vrplc::return_tours,"Compute and return list of tours.")
 		.add_property("weights", make_function(&problem::tsp_vrplc::get_weights, return_value_policy<copy_const_reference>()))
