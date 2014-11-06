@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_TSP_H
-#define PAGMO_PROBLEM_TSP_H
+#ifndef PAGMO_PROBLEM_TSP_CS_H
+#define PAGMO_PROBLEM_TSP_CS_H
 
 #include <boost/array.hpp>
 #include <vector>
@@ -34,29 +34,42 @@
 
 namespace pagmo { namespace problem {
 
-/// A static Travelling Salesman Problem
+/// The City-Selection Travelling Salesman Problem
 /**
- * This is a class representing the classic Travelling Salesman Problem. The problem
- * is that of finding the shortest Hamiltonian path in a weighted, bidirectional graph.
+ * This is a class representing a new variant of the TSP which was firstly introduced (by us)
+ * in the context of asteroid/space debris selection problems. 
+ * 
+ * Given a fully connected graph (V,E), where E is a list of weighted edges and V a list of valued vertices, the problem is that
+ * of finding a path of length \f$ l<l^* \f$ accumulating the largest possible vertex value.
+ * We encode a solution to this problem as an Hamiltonian path and evaluate its merit finding, along it, 
+ * the best sequence satisfying the \f$ l<l^* \f$ constraint. Denoting its cumulated vertex value with \f$ P \f$ we also compute, 
+ * along it, \f$ \epsilon = |l-l^*| \in [0,1] \f$. 
+ * The problem will then be that of finding the Hamiltonian path maximizing \f$ P \f$ and having the largest \f$ \frac{\epsilon}{l^*} \f$.
  *
- * The base_tsp::distance is thus defined as the (i,j) element of a matrix represented as
- * a std::vector<std::vector<double> >
+ * NOTE: if \f$ l^* \f$ is larger than than the shortest Hamiltonian path (i.e. the solution to the static TSP), the solution
+ * to this problem is the solution to the static TSP. If \f$ l^* \f$ is, instead, smaller than the minimum weight across edges,
+ * the solution to this problem is trivial and its global minimum is exactly \f$ \max V \f$ (corrsponding to \f$ P=\max V  \f$ and \f$ \epsilon = l^* \f$).
  *
  * @author Dario Izzo (dario.izzo@gmail.com)
- * @author Annalisa Riccardi
  */
 
-class __PAGMO_VISIBLE tsp: public base_tsp
+class __PAGMO_VISIBLE tsp_cs: public base_tsp
 {
     public:
 
-        tsp();
-        tsp(const std::vector<std::vector<double> >&, const base_tsp::encoding_type & = CITIES);
+        /// Constructors
+        tsp_cs();
+        tsp_cs(const std::vector<std::vector<double> >&, const std::vector<double>&, const double, const base_tsp::encoding_type & = CITIES);
 
-        /// Copy constructor for polymorphic objects (deep copy)
+        /// Copy constructor for polymorphic objects
         base_ptr clone() const;
 
+        /** @name Getters*/
+        //@{
         const std::vector<std::vector<double> >& get_weights() const;
+        const std::vector<double>& get_values() const;
+        double get_max_path_length() const;
+        //@}
 
         /** @name Implementation of virtual methods*/
         //@{
@@ -64,6 +77,8 @@ class __PAGMO_VISIBLE tsp: public base_tsp
         std::string human_readable_extra() const;
         double distance(decision_vector::size_type, decision_vector::size_type) const;
         //@}
+
+        void find_city_subsequence(const decision_vector &, double &, double &, decision_vector::size_type &, decision_vector::size_type &) const;
 
     private:
         static boost::array<int, 2> compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type);
@@ -79,14 +94,18 @@ class __PAGMO_VISIBLE tsp: public base_tsp
         {
             ar & boost::serialization::base_object<base_tsp>(*this);
             ar & m_weights;
+            ar & const_cast<double &>(m_max_path_length);
         }
 
     private:
         std::vector<std::vector<double> > m_weights;
+        std::vector<double> m_values;
+        const double m_max_path_length;
+        double m_min_value;
 };
 
 }}  //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp)
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp_cs)
 
-#endif  //PAGMO_PROBLEM_TSP_H
+#endif  //PAGMO_PROBLEM_TSP_CS_H

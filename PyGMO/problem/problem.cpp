@@ -51,6 +51,14 @@
 using namespace boost::python;
 using namespace pagmo;
 
+static inline tuple find_city_subsequence_wrapper(const pagmo::problem::tsp_cs& p, const decision_vector& tour)
+{
+	double retval_p, retval_l;
+	decision_vector::size_type retval_it_l, retval_it_r;
+    p.find_city_subsequence(tour,retval_p,retval_l,retval_it_l,retval_it_r);
+	return boost::python::make_tuple(retval_p,retval_l,retval_it_r,retval_it_r);
+}
+
 // Transforms an Eigen Matrix into a std::vector<std::vector<double> >
 std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::rotated & p) {
 	Eigen::MatrixXd rot = p.get_rotation_matrix();
@@ -68,7 +76,7 @@ std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::
 }
 
 // wrapper of a decompose method
-static inline fitness_vector compute_decomposed_fitness_wrapper(const problem::decompose &p, const fitness_vector &original_fit, const fitness_vector &weights) {
+static inline fitness_vector compute_decomposed_fitness_wrapper(const problem::decompose& p, const fitness_vector &original_fit, const fitness_vector &weights) {
 	fitness_vector retval(1);
 	p.compute_decomposed_fitness(retval,original_fit,weights);
 	return retval;
@@ -390,6 +398,14 @@ BOOST_PYTHON_MODULE(_problem) {
 	tsp_problem_wrapper<problem::tsp>("tsp","Travelling salesman problem (TSP and ATSP)")
 		.def(init<const std::vector<std::vector<double> > &, const problem::base_tsp::encoding_type &>())
 		.add_property("weights", make_function(&problem::tsp::get_weights, return_value_policy<copy_const_reference>()));
+
+	// Travelling salesman problem, city-selection variant (TSP-CS)
+	tsp_problem_wrapper<problem::tsp_cs>("tsp_cs","City-selection Travelling Salesman Problem (TSP-CS)")
+		.def(init<const std::vector<std::vector<double> > &, const std::vector<double>&, const double, const problem::base_tsp::encoding_type &>())
+		.def("find_city_subsequence", &find_city_subsequence_wrapper)
+		.add_property("weights", make_function(&problem::tsp_cs::get_weights, return_value_policy<copy_const_reference>()))
+		.add_property("values",  make_function(&problem::tsp_cs::get_values, return_value_policy<copy_const_reference>()))
+		.add_property("max_path_length",  &problem::tsp_cs::get_max_path_length);
 
 	// SCH
 	problem_wrapper<problem::sch>("sch","Shaffer's study problem.");
