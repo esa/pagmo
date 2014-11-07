@@ -32,7 +32,7 @@ namespace pagmo { namespace problem {
      * This constructs a 3-cities symmetric problem (naive TSP) 
      * with weight matrix [[0,1,1][1,0,1][1,1,0]] and RANDOMKEYS encoding
      */
-    tsp_vrplc::tsp_vrplc() : base_tsp(3, 0, 0 , base_tsp::RANDOMKEYS), m_weights(), m_capacity()
+    tsp_vrplc::tsp_vrplc() : base_tsp(3, 0, 0 , base_tsp::RANDOMKEYS), m_weights(), m_capacity(1.1)
     {
         std::vector<double> dumb(3,0);
         m_weights = std::vector<std::vector<double> > (3,dumb);
@@ -42,14 +42,14 @@ namespace pagmo { namespace problem {
         m_weights[1][0] = 1;
         m_weights[2][0] = 1;
         m_weights[1][2] = 1;
-	m_capacity = 1.1;
     }
 
-    /// Constructor from weight matrix and encoding
+    /// Constructor from weight matrix, encoding and capacity
     /**
      * Constructs a TSP with the input weight matrix and the selected encoding
      * @param[in] weights an std::vector of std::vector representing a square matrix.
      * @param[in] encoding a pagmo::problem::tsp::encoding representing the chosen encoding
+     * @param[in] capacity maximum vehicle capacity
      */
     tsp_vrplc::tsp_vrplc(const std::vector<std::vector<double> >& weights, const base_tsp::encoding_type& encoding, const double& capacity): 
         base_tsp(weights.size(), 
@@ -58,6 +58,10 @@ namespace pagmo { namespace problem {
             encoding
         ),  m_weights(weights), m_capacity(capacity)
     {
+        if (m_capacity <= 0)
+        {
+            pagmo_throw(value_error, "Maximum vehicle capacity needs to be strictly positive");
+        }
         check_weights(m_weights);
     }
 
@@ -72,8 +76,9 @@ namespace pagmo { namespace problem {
      * Checks if a matrix (std::vector<std::vector<double>>) 
      * is square or bidirectional (e.g. no one way links between vertices).
      * If none of the two conditions are true, we can not have a tsp problem.
-     * @param matrix - the adjacency matrix (two dimensional std::vector)
-     * @throws pagmo_throw - matrix is not square and/or graph is not bidirectional
+     *
+     * @param matrix the adjacency matrix (two dimensional std::vector)
+     * @throws pagmo_throw matrix is not square and/or graph is not bidirectional
      */
     void tsp_vrplc::check_weights(const std::vector<std::vector<double> > &matrix) const 
     {   
@@ -118,8 +123,8 @@ namespace pagmo { namespace problem {
 
     void tsp_vrplc::objfun_impl(fitness_vector &f, const decision_vector& x) const 
     {
-	f[0] = 0;
-	double stl = 0;
+        f[0] = 0;
+        double stl = 0;
         decision_vector tour;
         decision_vector::size_type n_cities = get_n_cities();
         switch( get_encoding() ) {
@@ -131,53 +136,60 @@ namespace pagmo { namespace problem {
             case RANDOMKEYS:
             {
                 tour = randomkeys2cities(x);
-		break;
-	    }
-            case CITIES:
-	    {
-		tour = x;
                 break;
-	    }
-        }
-	for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
-	    stl += m_weights[tour[i]][tour[i+1]];
-	    if(stl > m_capacity){
-		stl = 0;
-		f[0] += 1;}
-		else{
-            	    f[0] += (m_weights[tour[i]][tour[i+1]])/(n_cities*m_capacity);
-		}
             }
+            case CITIES:
+            {
+                tour = x;
+                break;
+            }
+        }
+        for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
+            stl += m_weights[tour[i]][tour[i+1]];
+            if(stl > m_capacity)
+            {
+                stl = 0;
+                f[0] += 1;
+            }
+            else
+            {
+                f[0] += (m_weights[tour[i]][tour[i+1]])/(n_cities*m_capacity);
+            }
+        }
         return;
     }
     
-    /// Returns the list of tours
+    /// Returns the tours
     /**
-     * Constructs a TSP with the input weight matrix and the selected encoding
-     * @param[in] x an std::vector
+     * This function takes an Hamiltonian path and brakes it down in the sub-tours
+     *
+     * @param[in] x a tour in the CITIES encoding
+     * @return an std::vector<std::vector<double> > containing the subtours (city indexes)
      */
-    const std::vector<std::vector<double> > tsp_vrplc::return_tours(const decision_vector& x)
+    std::vector<std::vector<double> > tsp_vrplc::return_tours(const decision_vector& x) const
     {
-	std::vector<std::vector<double> > tours;
-	double stl = 0;
+        std::vector<std::vector<double> > tours;
+        double stl = 0;
         decision_vector::size_type n_cities = get_n_cities();
-	std::vector<double> cur_tour;
-	for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
-	    cur_tour.push_back(x[i]);
-	    stl += m_weights[x[i]][x[i+1]];
-	    if(stl > m_capacity){
-		stl = 0;
-		tours.push_back(cur_tour);
-		cur_tour.erase(cur_tour.begin(),cur_tour.end());
-	    }
-	}
-	cur_tour.push_back(x[n_cities-1]);
-	tours.push_back(cur_tour);
-	return tours;
+        std::vector<double> cur_tour;
+        for (decision_vector::size_type i=0; i<n_cities-1; ++i) 
+        {
+            cur_tour.push_back(x[i]);
+            stl += m_weights[x[i]][x[i+1]];
+            if(stl > m_capacity)
+            {
+                    stl = 0;
+                    tours.push_back(cur_tour);
+                    cur_tour.erase(cur_tour.begin(),cur_tour.end());
+            }
+        }
+        cur_tour.push_back(x[n_cities-1]);
+        tours.push_back(cur_tour);
+        return tours;
     }
-	
+    
 
-    size_t compute_idx2(const size_t i, const size_t j, const size_t n) 
+    size_t tsp_vrplc::compute_idx(const size_t i, const size_t j, const size_t n) const
     {
         pagmo_assert( i!=j && i<n && j<n );
         return i*(n-1) + j - (j>i? 1:0);
@@ -195,10 +207,11 @@ namespace pagmo { namespace problem {
                 for (size_t i = 0; i < n_cities; i++) {
                     c[i] = 0;
                     c[i+n_cities] = 0;
-                    for (size_t j = 0; j < n_cities; j++) {
+                    for (size_t j = 0; j < n_cities; j++) 
+                    {
                         if(i==j) continue; // ignoring main diagonal
-                        decision_vector::size_type rows = compute_idx2(i, j, n_cities);
-                        decision_vector::size_type cols = compute_idx2(j, i, n_cities);
+                        decision_vector::size_type rows = compute_idx(i, j, n_cities);
+                        decision_vector::size_type cols = compute_idx(j, i, n_cities);
                         c[i] += x[rows];
                         c[i+n_cities] += x[cols];
                     }
@@ -211,12 +224,13 @@ namespace pagmo { namespace problem {
                 //      we start always out tour from the first city, without loosing generality
                 size_t next_city = 0,current_city = 0;
                 std::vector<int> u(n_cities);
-                for (size_t i = 0; i < n_cities; i++) {
+                for (size_t i = 0; i < n_cities; i++) 
+                {
                     u[current_city] = i+1;
                     for (size_t j = 0; j < n_cities; j++) 
                     {
                         if (current_city==j) continue;
-                        if (x[compute_idx2(current_city, j, n_cities)] == 1) 
+                        if (x[compute_idx(current_city, j, n_cities)] == 1) 
                         {
                             next_city = j;
                             break;
@@ -229,7 +243,7 @@ namespace pagmo { namespace problem {
                     for (size_t j = 1; j < n_cities; j++) 
                     {
                         if (i==j) continue;
-                        c[2*n_cities+count] = u[i]-u[j] + (n_cities+1) * x[compute_idx2(i, j, n_cities)] - n_cities;
+                        c[2*n_cities+count] = u[i]-u[j] + (n_cities+1) * x[compute_idx(i, j, n_cities)] - n_cities;
                         count++;
                     }
                 }
@@ -251,7 +265,7 @@ namespace pagmo { namespace problem {
         return;
     }
 
-    /// Definition of distance function
+    /// Definition of the distance function
     double tsp_vrplc::distance(decision_vector::size_type i, decision_vector::size_type j) const
     {
         return m_weights[i][j];
@@ -278,7 +292,7 @@ namespace pagmo { namespace problem {
     /// Returns the problem name
     std::string tsp_vrplc::get_name() const
     {
-        return "Travelling Salesman Problem (TSP-ATSP)";
+        return "Vehicle Routing Problem with Limited Vehicle Capacity";
     }
 
     /// Extra human readable info for the problem.
@@ -301,6 +315,7 @@ namespace pagmo { namespace problem {
                 oss << "CITIES" << '\n';
                 break;
         }
+        oss << "\tMaximum vehicle capacity: " << m_capacity << std::endl;
         oss << "\tWeight Matrix: \n";
         for (decision_vector::size_type i=0; i<get_n_cities() ; ++i)
         {

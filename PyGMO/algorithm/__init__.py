@@ -1222,6 +1222,7 @@ def _cmaes_ctor(
 cmaes._orig_init = cmaes.__init__
 cmaes.__init__ = _cmaes_ctor
 
+
 def _inverover_ctor(
         self,
         gen=100000,
@@ -1261,6 +1262,7 @@ def _inverover_ctor(
     self._orig_init(*arg_list)
 inverover._orig_init = inverover.__init__
 inverover.__init__ = _inverover_ctor
+
 
 def _monte_carlo_ctor(self, iter=10000):
     """

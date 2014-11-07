@@ -55,19 +55,20 @@ class __PAGMO_VISIBLE tsp_vrplc: public base_tsp
         base_ptr clone() const;
 
         const std::vector<std::vector<double> >& get_weights() const;
-	const double& get_capacity() const;
+        const double& get_capacity() const;
 
         /** @name Implementation of virtual methods*/
         //@{
         std::string get_name() const;
         std::string human_readable_extra() const;
         double distance(decision_vector::size_type, decision_vector::size_type) const;
-	const std::vector<std::vector<double> > return_tours(const decision_vector& x);
+        std::vector<std::vector<double> > return_tours(const decision_vector& x) const;
         //@}
 
     private:
         static boost::array<int, 2> compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type);
         void check_weights(const std::vector<std::vector<double> >&) const;
+        size_t compute_idx(const size_t i, const size_t j, const size_t n) const;
 
         void objfun_impl(fitness_vector&, const decision_vector&) const;
         void compute_constraints_impl(constraint_vector&, const decision_vector&) const;
@@ -78,12 +79,12 @@ class __PAGMO_VISIBLE tsp_vrplc: public base_tsp
         {
             ar & boost::serialization::base_object<base_tsp>(*this);
             ar & m_weights;
-	    ar & m_capacity;
+            ar & const_cast<double&>(m_capacity);
         }
 
     private:
         std::vector<std::vector<double> > m_weights;
-	double m_capacity;
+        const double m_capacity;
 };
 
 }}  //namespaces

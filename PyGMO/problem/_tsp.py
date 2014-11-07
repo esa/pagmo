@@ -1,12 +1,13 @@
-from PyGMO.problem._problem import tsp, tsp_cs, _tsp_encoding
+from PyGMO.problem._problem import tsp, tsp_cs, tsp_vrplc, _tsp_encoding
 
 
 # Renaming and placing the enums
 tsp.encoding_type = _tsp_encoding
 tsp_cs.encoding_type = _tsp_encoding
+tsp_vrplc.encoding_type = _tsp_encoding
 
 
-def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
+def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities"):
     """
         Constructs Travelling Salesman Problem (TSP or ATSP)
         The problem encoding can be of three different types as
@@ -37,8 +38,7 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
 
         USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys")
 
-         * weights: Square matrix with zero diagonal
-            entries containing the cities distances.
+         * weights: Square matrix with zero diagonal entries containing the cities distances.
          * type: encoding type. One of "cities","randomkeys","full"
     """
 
@@ -59,6 +59,66 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="full"):
     self._orig_init(*arg_list)
 tsp._orig_init = tsp.__init__
 tsp.__init__ = _tsp_ctor
+
+
+def _tsp_vrplc_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities", capacity=1.1):
+    """
+        Constructs Vehicle routing problem with limited capacity.
+        This is a variant to the TSP that asks to find n-tours of length
+        smaller than the maximum vehicle capacity that visit all cities.
+        The objective is to minimize n
+
+        The problem encoding can be of three different types as
+        selected by the type kwarg
+
+        1-"cities"
+        This encoding represents the ids of the cities visited
+        directly in the chromosome. It will
+        thus create a constrained problem as only permutation of the
+        cities ids are valid (e.g. [0,2,1,5,0] is not
+        a valid chromosome)
+
+        2-"randomkeys"
+        This encoding, first introduced in the paper
+        Bean, J. C. (1994). Genetic algorithms and random keys for
+        sequencing and optimization. ORSA journal on computing, 6(2), 154-160.
+        It creates a box constrained problem without any constraint.
+        It essentially represents the tour as a sequence of doubles bounded
+        in [0,1]. The tour is reconstructed by the argsort of the sequence.
+        (e.g. [0.34,0.12,0.76,0.03] -> [3,1,0,2])
+
+        3-"full"
+        In the full encoding the TSP is represented as a integer linear
+        programming problem. The details can be found in
+        http://en.wikipedia.org/wiki/Travelling_salesman_problem
+        Constructs a Travelling Salesman problem
+        (Constrained Integer Single-Objective)
+
+        USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys", capacity=1)
+
+         * weights: Square matrix with zero diagonal entries containing the cities distances.
+         * type: encoding type. One of "cities","randomkeys","full"
+         * capacity: maximum vehicle capacity
+    """
+
+    # We construct the arg list for the original constructor exposed by
+    # boost_python
+    arg_list = []
+    arg_list.append(weights)
+    if type == "full":
+        encoding_type = self.encoding_type.FULL
+    elif type == "randomkeys":
+        encoding_type = self.encoding_type.RANDOMKEYS
+    elif type == "cities":
+        encoding_type = self.encoding_type.CITIES
+    else:
+        raise ValueError("Unrecognized encoding type")
+
+    arg_list.append(encoding_type)
+    arg_list.append(capacity)
+    self._orig_init(*arg_list)
+tsp_vrplc._orig_init = tsp_vrplc.__init__
+tsp_vrplc.__init__ = _tsp_vrplc_ctor
 
 
 def _plot_tsp(self, x, node_size=10, edge_color='r',
@@ -107,17 +167,29 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     # the indices of the cities visited and we here distinguish between tsp types
     if type(self) == tsp:
         edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(n_cities - 1)] + [(edgelist[-1], edgelist[0])]
-    elif type(self == tsp_cs):
+    elif type(self) == tsp_cs:
         _, _, id1, id2 = self.find_city_subsequence(x)
         if id1 <= id2:
             edgelist = edgelist[id1:(id2 + 1) % n_cities]
         else:
             edgelist = edgelist[id1:] + edgelist[:id2 + 1]
         edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(len(edgelist) - 1)]
+    elif type(self) == tsp_vrplc:
+            mstl = 1000
+            stl = 0
+            N = 1
+            edgelist = [(chromosome[0], chromosome[1])]
+            for i in range(1, n_cities - 1):
+                stl += weights[int(chromosome[i])][int(chromosome[i + 1])]
+                if stl > mstl:
+                    stl = 0
+                    N += 1
+                else:
+                    edgelist += [(chromosome[i], chromosome[i + 1])]
 
     if bias is None:
         bias = max([max(d) for d in weights])
-	
+
     # We create a networkx graph
     G = nx.Graph()
 
@@ -195,3 +267,4 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
 
 tsp.plot = _plot_tsp
 tsp_cs.plot = _plot_tsp
+tsp_vrplc.plot = _plot_tsp
