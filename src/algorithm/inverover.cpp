@@ -169,7 +169,7 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 			for (size_t j = 0; j < starting_notes.size(); j++) {
 					starting_notes[j] = j;
 			}
-			std::shuffle(starting_notes.begin(), starting_notes.end(), m_urng);
+			//std::shuffle(starting_notes.begin(), starting_notes.end(), m_urng);
 			for (size_t ii = 0; ii < not_feasible.size(); ii++) {
 				i = not_feasible[ii];
 				pagmo::population one_ind_pop(pop.problem(), 1);

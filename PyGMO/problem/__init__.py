@@ -10,7 +10,6 @@ from PyGMO.problem._example_stochastic import py_example_stochastic
 from PyGMO.problem._pl2pl import py_pl2pl
 from PyGMO.problem._mo import *
 from PyGMO.problem._tsp import *
-from PyGMO.problem._tsp_vrplc import *
 
 # If GTOP database support is active import interplanetary trajectory problems
 try:
