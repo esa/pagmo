@@ -25,7 +25,7 @@ island and that, in reality, is a helper function returning automatically the co
          pop = population(prob,20)
          isl = island(algo,pop)
 
-   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.problem)prob, (int)N [, migr_prob=1., s_policy = best_s_policy(1), r_policy=fair_r_policy(1)])
+   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.problem)prob, (int)N=0 [, migr_prob=1., s_policy = best_s_policy(1), r_policy=fair_r_policy(1)])
 
       Constructs an island directly from a problem. The resulting population (of size N) will be evolved by algo. 
       Migration occurs with probability migr_prob at the end of each evolution if the *island* belongs to an :class:`PyGMO.archipelago`
