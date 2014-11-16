@@ -133,11 +133,11 @@ class __PAGMO_VISIBLE python_island: public island
 		{
 			int n_pythonic_items = 0;
 			try {
-				dynamic_cast<algorithm::python_base &>(*m_algo);
+				algorithm::python_base trial = dynamic_cast<algorithm::python_base &>(*m_algo);
 				++n_pythonic_items;
 			} catch (const std::bad_cast &) {}
 			try {
-				dynamic_cast<problem::python_base const &>(m_pop.problem());
+				const problem::python_base trial = dynamic_cast<problem::python_base const &>(m_pop.problem());
 				++n_pythonic_items;
 			} catch (const std::bad_cast &) {}
 			return (n_pythonic_items > 0);
