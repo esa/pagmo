@@ -1,21 +1,27 @@
 PROJECT(PaGMO)
 
-# Setting Mac OS X specific variables
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	MESSAGE(STATUS "OS X detected: ${CMAKE_SYSTEM_NAME}")
-	SET(CMAKE_MACOSX_RPATH OFF)
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-ENABLE_TESTING()
-
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12.2)
-
 # List of directories to search for CMake modules.
 # Commands like include() and find_package() search for files in directories listed
 # by this variable before checking the default modules that come with CMake.
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
+ENABLE_TESTING()
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12.2)
 
-# We define compiler flags
+MESSAGE(STATUS "OS detected: ${CMAKE_SYSTEM_NAME}")
+MESSAGE(STATUS "CXX Compiler detected: ${CMAKE_CXX_COMPILER_ID}")
+
+# Setting OS specific variables
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	SET(CMAKE_MACOSX_RPATH OFF)
+	SET(CMAKE_OSX_ROOT "")
+	SET(CMAKE_OSX_DEPLOYMENT_TARGET "")
+	# Homebrew directory added to path
+	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+MESSAGE(STATUS "CMake Library search path: ${CMAKE_LIBRARY_PATH}")
+
+# Setting compiler secific flags
 INCLUDE(CheckCXXCompilerFlag)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	CHECK_CXX_COMPILER_FLAG(-ftemplate-depth=256 CLANG_TEMPLATE_DEPTH)
@@ -58,18 +64,20 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   # using Visual Studio C++
 endif()
 
-CHECK_CXX_COMPILER_FLAG(-std=c++0x ALL_C0X)
-IF(ALL_C0X)
-	MESSAGE(STATUS "Enabling '-std=c++0x' compiler flag")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-ENDIF(ALL_C0X)
-
+# The following flags will be tried on all compilers
 CHECK_CXX_COMPILER_FLAG(-std=c++11 ALL_C11)
 IF(ALL_C11)
 	MESSAGE(STATUS "Enabling '-std=c++11' compiler flag")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ENDIF(ALL_C11)
 
+IF(NOT ALL_C11)
+	CHECK_CXX_COMPILER_FLAG(-std=c++0x ALL_C0X)
+	IF(ALL_C0X)
+		MESSAGE(STATUS "Enabling '-std=c++0x' compiler flag")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+	ENDIF(ALL_C0X)
+ENDIF(NOT ALL_C11)
 
 # Initialise (empty) list of libraries to link against.
 SET(MANDATORY_LIBRARIES "")
