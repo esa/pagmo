@@ -36,13 +36,9 @@ namespace pagmo { namespace util { namespace hv_algorithm {
  */
 double fpl::compute(std::vector<fitness_vector> &points, const fitness_vector &r_point) const
 {
-	// Prepare the initial data to suit the original code
+	// Prepare the initial data to suit the signature of the function 'fpli_hv'
 	unsigned int fdim = points[0].size();
 	double* data = new double[points.size() * fdim];
-	double refpoint[fdim];
-	for (unsigned int d_idx = 0 ; d_idx < fdim ; ++d_idx) {
-		refpoint[d_idx] = r_point[d_idx];
-	}
 	unsigned int data_idx = 0;
 	for (unsigned int p_idx = 0 ; p_idx < points.size() ; ++p_idx) {
 		for (unsigned int d_idx = 0 ; d_idx < fdim ; ++d_idx) {
@@ -50,7 +46,7 @@ double fpl::compute(std::vector<fitness_vector> &points, const fitness_vector &r
 		}
 	}
 
-	double hv = fpli_hv(data, fdim, points.size(), refpoint);
+	double hv = fpli_hv(data, fdim, points.size(), &(r_point[0]));
 	delete[] data;
 	return hv;
 }
