@@ -94,7 +94,7 @@ def _tsp_vrplc_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="citie
         Constructs a Travelling Salesman problem
         (Constrained Integer Single-Objective)
 
-        USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys", capacity=1)
+        USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys", capacity=1.1)
 
          * weights: Square matrix with zero diagonal entries containing the cities distances.
          * type: encoding type. One of "cities","randomkeys","full"
@@ -150,9 +150,8 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     import networkx as nx
     import numpy as np
     from PyGMO.problem import tsp
-
     fig = plt.gcf()
-
+	
     # We extract few informations on the problem
     weights = self.weights
     n_cities = len(weights[0])
@@ -175,15 +174,13 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
             edgelist = edgelist[id1:] + edgelist[:id2 + 1]
         edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(len(edgelist) - 1)]
     elif type(self) == tsp_vrplc:
-            mstl = 1000
             stl = 0
-            N = 1
+	    chromosome = edgelist
             edgelist = [(chromosome[0], chromosome[1])]
             for i in range(1, n_cities - 1):
                 stl += weights[int(chromosome[i])][int(chromosome[i + 1])]
-                if stl > mstl:
+                if stl > self.capacity:
                     stl = 0
-                    N += 1
                 else:
                     edgelist += [(chromosome[i], chromosome[i + 1])]
 
@@ -260,7 +257,7 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     nx.draw_networkx_nodes(G, pos=pos, node_size=node_size,
                            cmap=plt.cm.Blues, node_color=node_color)
     nx.draw_networkx_edges(G, pos, edgelist=edgelist,
-                           width=edge_width, alpha=0.2, edge_color=edge_color)
+                           width=edge_width, alpha=1, edge_color=edge_color)
     fig.canvas.draw()
     plt.show()
     return pos

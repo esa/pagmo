@@ -123,7 +123,7 @@ namespace pagmo { namespace problem {
 
     void tsp_vrplc::objfun_impl(fitness_vector &f, const decision_vector& x) const 
     {
-        f[0] = 0;
+        f[0] = 1;
         double stl = 0;
         decision_vector tour;
         decision_vector::size_type n_cities = get_n_cities();
