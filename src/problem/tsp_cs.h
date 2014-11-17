@@ -95,11 +95,13 @@ class __PAGMO_VISIBLE tsp_cs: public base_tsp
             ar & boost::serialization::base_object<base_tsp>(*this);
             ar & m_weights;
             ar & const_cast<double &>(m_max_path_length);
+	    ar & m_min_value;
+	    ar & m_values;
         }
 
     private:
         std::vector<std::vector<double> > m_weights;
-        std::vector<double> m_values;
+        std::vector<double> m_values ;
         const double m_max_path_length;
         double m_min_value;
 };
