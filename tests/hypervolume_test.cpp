@@ -60,21 +60,21 @@ public:
 
 		// create correct algorithm object
 		if (method_name == "hv2d") {
-			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hv2d());
+			m_method = util::hv_algorithm::hv2d().clone();
 		} else if (method_name == "hv3d") {
-			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hv3d());
+			m_method = util::hv_algorithm::hv3d().clone();
 		} else if (method_name == "hv4d") {
-			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hv4d());
+			m_method = util::hv_algorithm::hv4d().clone();
 		} else if (method_name == "wfg") {
-			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::wfg());
+			m_method = util::hv_algorithm::wfg().clone();
 		} else if (method_name == "fpl") {
-			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::fpl());
+			m_method = util::hv_algorithm::fpl().clone();
 		} else if (method_name == "hoy") {
-			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::hoy());
+			m_method = util::hv_algorithm::hoy().clone();
 		} else if (method_name == "bf_approx") {
-			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::bf_approx());
+			m_method = util::hv_algorithm::bf_approx().clone();
 		} else if (method_name == "bf_fpras") {
-			m_method = util::hv_algorithm::base_ptr(new util::hv_algorithm::bf_fpras(0.1, 0.1));
+			m_method = util::hv_algorithm::bf_fpras(0.1, 0.1).clone();
 		} else {
 			output << "Unknown method (" << method_name << ") .. exiting\n";
 			exit(1);
