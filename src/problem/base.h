@@ -27,6 +27,10 @@
 #ifndef PAGMO_PROBLEM_BASE_H
 #define PAGMO_PROBLEM_BASE_H
 
+// This define was added for a MSVC compilation fix and later removed as it creates a potential
+// problem when testing pagmo in debug
+// #define BOOST_CB_DISABLE_DEBUG 
+
 #include <algorithm>
 #include <boost/circular_buffer.hpp>
 #include <boost/numeric/conversion/cast.hpp>

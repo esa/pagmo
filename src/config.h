@@ -81,9 +81,6 @@ environments, PaGMO can employ MPI (Message Passing Interface) to distribute the
 	#define __PAGMO_VISIBLE_FUNC
 #endif
 
-// We avoid this bug http://stackoverflow.com/questions/2331613/problem-creating-a-circular-buffer-in-shared-memory-using-boost 
-#define BOOST_CB_DISABLE_DEBUG 
-
 /// Root PaGMO namespace.
 namespace pagmo {}
 

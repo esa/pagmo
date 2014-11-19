@@ -266,9 +266,9 @@ void pade::evolve(population &pop) const
 	const pagmo::migration::worst_r_policy replacement_policy(m_T);
 
 	//We create all the decomposed problems (one for each individual)
-	std::vector<pagmo::problem::decompose*> problems_vector;
+	std::vector<pagmo::problem::base_ptr> problems_vector;
 	for(pagmo::population::size_type i=0; i<NP;++i) {
-		problems_vector.push_back(new pagmo::problem::decompose(prob, m_method,weights[i],m_z));
+		problems_vector.push_back(pagmo::problem::decompose(prob, m_method,weights[i],m_z).clone());
 	}
 
 	//We create a pseudo-random permutation of the problem indexes
@@ -289,13 +289,13 @@ void pade::evolve(population &pop) const
 		unsigned int j = 0;
 		while(selected_list[j]) j++; //get to the first not already selected individual
 
-		problems_vector[shuffle[i]]->compute_decomposed_fitness(dec_fit, pop.get_individual(j).cur_f);
+		dynamic_cast<const pagmo::problem::decompose &>(*problems_vector[shuffle[i]]).compute_decomposed_fitness(dec_fit, pop.get_individual(j).cur_f);
 		double minFit = dec_fit[0];
 		int minFitPos = j;
 
 		for(;j < NP; ++j) { //find the minimum fitness individual for problem i
 			if(!selected_list[j]) { //just consider individuals which have not been selected already
-				problems_vector[shuffle[i]]->compute_decomposed_fitness(dec_fit, pop.get_individual(j).cur_f);
+				dynamic_cast<const pagmo::problem::decompose &>(*problems_vector[shuffle[i]]).compute_decomposed_fitness(dec_fit, pop.get_individual(j).cur_f);
 				if(dec_fit[0] < minFit) {
 					minFit = dec_fit[0];
 					minFitPos = j;
