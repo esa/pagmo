@@ -167,15 +167,15 @@ hv_algorithm::base_ptr hypervolume::get_best_compute(const fitness_vector &r_poi
 	unsigned int fdim = r_point.size();
 	unsigned int n = m_points.size();
 	if (fdim == 2) {
-		return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
+		return hv_algorithm::hv2d().clone();
 	} else if (fdim == 3) {
-		return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
+		return hv_algorithm::hv3d().clone();
 	} else if (fdim == 4) {
-		return hv_algorithm::base_ptr(new hv_algorithm::hv4d());
+		return hv_algorithm::hv4d().clone();
 	} else if (fdim == 5 && n < 80) {
-		return hv_algorithm::base_ptr(new hv_algorithm::fpl());
+		return hv_algorithm::fpl().clone();
 	} else {
-		return hv_algorithm::base_ptr(new hv_algorithm::wfg());
+		return hv_algorithm::wfg().clone();
 	}
 }
 
@@ -190,11 +190,11 @@ hv_algorithm::base_ptr hypervolume::get_best_contributions(const fitness_vector 
 {
 	unsigned int fdim = r_point.size();
 	if (fdim == 2) {
-		return hv_algorithm::base_ptr(new hv_algorithm::hv2d());
+		return hv_algorithm::hv2d().clone();
 	} else if (fdim == 3) {
-		return hv_algorithm::base_ptr(new hv_algorithm::hv3d());
+		return hv_algorithm::hv3d().clone();
 	} else {
-		return hv_algorithm::base_ptr(new hv_algorithm::wfg());
+		return hv_algorithm::wfg().clone();
 	}
 }
 
