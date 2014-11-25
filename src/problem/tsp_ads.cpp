@@ -26,11 +26,14 @@
 #include "../exceptions.h"
 #include "../population.h"
 #include "../keplerian_toolbox/astro_constants.h"
+#include "../keplerian_toolbox/lambert_problem.h"
+#include "../keplerian_toolbox/core_functions/array3D_operations.h"
+#include "../keplerian_toolbox/epoch.h"
 
 
 namespace pagmo { namespace problem {
 
-    /// Constructor
+       /// Constructor
     /**
      * Constructs a TSP - Asteroids-Debris Selection Problem from 
      * path length and the chosen encoding
@@ -45,8 +48,8 @@ namespace pagmo { namespace problem {
     tsp_ads::tsp_ads (            
         const std::vector<kep_toolbox::planet_ptr>& planets, 
         const std::vector<double>& values,
-        const double max_path_lenght, 
-        const std::vector<double>&  times, 
+        const double max_DV, 
+        const std::vector<double>&  epochs, 
         const double waiting_time, 
         const base_tsp::encoding_type & encoding
         ) : base_tsp(
@@ -54,12 +57,12 @@ namespace pagmo { namespace problem {
                 compute_dimensions(planets.size(), encoding)[0],
                 compute_dimensions(planets.size(), encoding)[1],
                 encoding
-        ),  m_planets(planets), m_values(values), m_max_DV(max_DV), m_times(times), m_waiting_time(waiting_time)
+        ),  m_planets(planets), m_values(values), m_max_DV(max_DV), m_epochs(epochs), m_waiting_time(waiting_time)
     {
         if (planets.size() != values.size()){
             pagmo_throw(value_error, "Planet list must have the same size as values list");
         }
-        if (planets.size() != times.size()){
+        if (planets.size() != epochs.size()){
             pagmo_throw(value_error, "Planet list must have the same size as times list");
         }
         if (planets.size() < 3 ){
@@ -77,7 +80,7 @@ namespace pagmo { namespace problem {
         return base_ptr(new tsp_ads(*this));
     }
 
-    boost::array<int, 2> tsp_cs::compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type encoding)
+    boost::array<int, 2> tsp_ads::compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type encoding)
     {
         boost::array<int,2> retval;
         switch( encoding ) {
@@ -122,16 +125,16 @@ namespace pagmo { namespace problem {
                 break;
            }
         }
-        find_city_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
-        f[0] = -(cum_p + (1 - m_min_value) * n_cities + saved_length / m_max_path_length);
+        find_best_selection(tour, cum_p, saved_length, dumb1, dumb2);
+        f[0] = -(cum_p + (1 - m_min_value) * n_cities + saved_length / m_max_DV);
         return;
     }
 
 
-    /// Computes the best subpath of an hamilonian path satisfying the max_path_length constraint
+    /// Finds, in a hamiltonian path, the best subsequence satisfying the max_DV constraint
     /**
-     * Computes the best subpath of an hamilonian path satisfying the max_path_length constraint.
-     * If the input tour does not represent an Hamiltonian path, (i.e. its an unfeasible chromosome)
+     * Finds, in a hamiltonian path, the best subsequence satisfying the max_DV constraint
+     * If the input planet sequence does not represent an Hamiltonian path, (i.e. its an unfeasible chromosome)
      * the algorithm behaviour is undefined
      *
      * @param[in]  tour the hamiltonian path encoded with a CITIES encoding (i.e. the list of cities ids)
@@ -154,7 +157,7 @@ namespace pagmo { namespace problem {
         decision_vector::size_type it_l = 0, it_r = 0;
         bool cond_r = true, cond_l = true;
         double cum_p = m_values[tour[0]];
-        double saved_length = m_max_path_length;
+        double saved_length = m_max_DV;
 
         // We initialize the starting values
         retval_p = cum_p;
@@ -163,13 +166,12 @@ namespace pagmo { namespace problem {
         retval_it_r = it_r;
 
         // Main body of the double loop
-
         while(cond_l)
         {
             while(cond_r) 
             {
                 // We increment the right "pointer" updating the value and length of the path
-                saved_length -= m_weights[tour[it_r % n_cities]][tour[(it_r + 1) % n_cities]];
+                saved_length -= distance_lambert(tour[it_r % n_cities], tour[(it_r + 1) % n_cities]);
                 cum_p += m_values[(it_r + 1) % n_cities];
                 it_r += 1;
 
@@ -195,6 +197,11 @@ namespace pagmo { namespace problem {
                         retval_it_r = it_r % n_cities;
                     }
                 }
+
+                if (it_r==n_cities-1) 
+                {
+                    goto EndOfLoop;
+                }
             }
             // We get out if all cities are included in the current path
             if (it_l % n_cities == it_r % n_cities)
@@ -204,7 +211,7 @@ namespace pagmo { namespace problem {
             else
             {
                 // We increment the left "pointer" updating the value and length of the path
-                saved_length += m_weights[tour[it_l % n_cities]][tour[(it_l + 1) % n_cities]];
+                saved_length += distance_lambert(tour[it_l % n_cities], tour[(it_l + 1) % n_cities]);
                 cum_p -= m_values[it_l];
                 it_l += 1;
                 // We update the various retvals only if the new subpath is valid
@@ -235,6 +242,8 @@ namespace pagmo { namespace problem {
                 }
             }
         }
+EndOfLoop:
+    return;
     }
 
     size_t tsp_ads::compute_idx(const size_t i, const size_t j, const size_t n) const
@@ -321,6 +330,7 @@ namespace pagmo { namespace problem {
     {
         // TODO: Edelbaum here instead? (see paper from Gatto-Casalino)
         using namespace std;
+        double DV1=0, DV2=0, Vi=0, Vf=0;
         double MU = m_planets[i]->get_mu_central_body();
         kep_toolbox::array6D elements1 =  m_planets[i]->get_elements();
         kep_toolbox::array6D elements2 =  m_planets[j]->get_elements();
@@ -337,14 +347,14 @@ namespace pagmo { namespace problem {
         // radius of apocenter starting orbit (km)
         double ra1 = a1 * (1. + e1);
         // radius of apocenter target orbit(km)
-        double ra2 = a2 * (1. + e2)
+        double ra2 = a2 * (1. + e2);
         // relative inclination between orbits
-        cosiREL = cos(i1) * cos(i2) + sin(i1) * sin(i2) * cos(W1) * cos(W2) + sin(i1) * sin(i2) * sin(W1) * sin(W2);
+        double cosiREL = cos(i1) * cos(i2) + sin(i1) * sin(i2) * cos(W1) * cos(W2) + sin(i1) * sin(i2) * sin(W1) * sin(W2);
 
         // radius of pericenter target orbit(km)
-        double rp2 = a2 * (1. - e2)
+        double rp2 = a2 * (1. - e2);
         // radius of pericenter starting orbit (km)
-        double rp1 = a1 * (1. - e1)
+        double rp1 = a1 * (1. - e1);
 
         if (ra1 > ra2) { // Strategy is Apocenter-Pericenter
             Vi = sqrt(MU * (2. / ra1 - 1. / a1));
@@ -365,6 +375,35 @@ namespace pagmo { namespace problem {
         return DV1 + DV2;
     }
 
+    /// Computation of the distance between two planets using Lambert model
+    /**
+     * @parameter[in] i index of the first orbiting object
+     * @parameter[in] j index of the second orbiting object
+     * @return the distance between m_planets[i] and m_planets[j]
+     */
+    double tsp_ads::distance_lambert(decision_vector::size_type dep, decision_vector::size_type arr) const
+    {
+        using namespace std;
+        double t1 = m_epochs[dep];
+        double t2 = m_epochs[arr];
+        if (t2<=t1) 
+        {
+            pagmo_throw(value_error, "Epoch at arrival smaller than epoch at departure");
+        }
+        kep_toolbox::array3D r1,v1,r2,v2,DV1,DV2;
+
+        //Ephemerides computations
+        m_planets[dep]->get_eph(kep_toolbox::epoch(t1, kep_toolbox::epoch::MJD2000), r1, v1);
+        m_planets[arr]->get_eph(kep_toolbox::epoch(t2, kep_toolbox::epoch::MJD2000), r2, v2);
+
+        // Lambert's problem solution
+        kep_toolbox::lambert_problem l(r1, r1, (t2 - t1) * ASTRO_DAY2SEC, m_planets[dep]->get_mu_central_body(), 0, 0);
+        kep_toolbox::diff(DV1, l.get_v1()[0], v1);
+        kep_toolbox::diff(DV2, l.get_v2()[0], v2);
+        
+        return kep_toolbox::norm(DV1) + kep_toolbox::norm(DV2);
+    }
+
     /// Getter for m_planets
     /**
      * @return const reference to m_planets
@@ -378,7 +417,7 @@ namespace pagmo { namespace problem {
     /**
      * @return m_max_DV
      */
-    const double tsp_ads::get_max_DV() const
+    double tsp_ads::get_max_DV() const
     { 
         return m_max_DV; 
     }
@@ -397,16 +436,16 @@ namespace pagmo { namespace problem {
     /**
      * @return const reference to m_times
      */
-    decision_vector tsp_ads::get_times() const
+    const decision_vector& tsp_ads::get_epochs() const
     { 
-        return m_times; 
+        return m_epochs; 
     }
 
     /// Getter for m_waiting_time
     /**
      * @return m_waiting_time
      */
-    const double tsp_ads::get_waiting_time() const
+    double tsp_ads::get_waiting_time() const
     { 
         return m_waiting_time; 
     }
@@ -424,7 +463,7 @@ namespace pagmo { namespace problem {
     std::string tsp_ads::human_readable_extra() const 
     {
         std::ostringstream oss;
-        oss << "\n\tNumber of cities: " << get_n_cities() << '\n';
+        oss << "\n\tNumber of planets: " << get_n_cities() << '\n';
         oss << "\tEncoding: ";
         switch( get_encoding()  ) {
             case FULL:
@@ -437,18 +476,18 @@ namespace pagmo { namespace problem {
                 oss << "CITIES" << '\n';
                 break;
         }
-        oss << "\tCities Values: " << m_values << std::endl;
-        oss << "\tMax path length: " << m_max_path_length << '\n';
-        oss << "\tWeight Matrix: \n";
-        for (decision_vector::size_type i=0; i<get_n_cities() ; ++i)
+        oss << "\tPlanets Names: " << std::endl << "\t\t[";
+        for (auto i = 0u; i < m_planets.size(); ++i)
         {
-            oss << "\t\t" << m_weights.at(i) << '\n';
-            if (i>5)
-            {
-                oss << "\t\t..." << '\n';
-                break;
-            }
+            oss << m_planets[i]->get_name() << ", ";
+            if (i == 4) break;
         }
+
+        oss << "]" << std::endl << "\tEpochs: " << m_epochs << "\n";
+        oss << "\tPlanets Values: " << m_values << std::endl;
+        oss << "\tSpacecraft DV: " << m_max_DV << " [m/s]\n";
+        
+
         return oss.str();
     }
 

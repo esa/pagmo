@@ -76,6 +76,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/string_match.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp_cs.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp_vrplc.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/michalewicz.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dejong.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/sch.cpp
@@ -102,8 +103,6 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/noisy.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/robust.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/con2uncon.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp_vrplc.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/barabasi_albert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/clustered_ba.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/topology/ageing_clustered_ba.cpp
@@ -150,6 +149,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger_full.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/tandem.cpp
+	    ${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp_ads.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
 #		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_flyby.cpp
 #		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp

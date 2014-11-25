@@ -32,6 +32,7 @@
 #include "./base_tsp.h"
 #include "../serialization.h"
 #include "../keplerian_toolbox/planet.h"
+#include "../keplerian_toolbox/planet_ss.h"
 
 namespace pagmo { namespace problem {
 
@@ -45,10 +46,9 @@ namespace pagmo { namespace problem {
  * 
  * The idea is that this problem can be used in a bi-level optimization where m_times is optimized in the outer layer 
  *
- * The information about transfer times is contained in the data member m_times which contains \f$ [t_0,T_1,T_2,T_3,....T_{N-1}] \f$
- * where \f$ t_0 \f$ is the mission starting epoch (MJD2000) and \f$ T_i \f$ is the transfer time (in days) from \f$ x[i-1]\f$ to \f$ x[i]\f$.
+ * The information about arrival epochs is contained in the data member m_epochs (MJD2000) 
  * 
- * The possibility to use a waiting time is also provided via the data member m_waiting_time (in days)
+ * The possibility to use a waiting time \f$ WT \f$ is also provided via the data member m_waiting_time (in days)
  *
  * @author Dario Izzo (dario.izzo@gmail.com)
  */
@@ -59,10 +59,10 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
 
         /// Constructor
         tsp_ads(
-            const std::vector<kep_toolbox::planet_ptr>& planets, 
-            const std::vector<double>& values,
-            const double max_DV, 
-            const std::vector<double>&  times, 
+            const std::vector<kep_toolbox::planet_ptr>& planets = {kep_toolbox::planet_ss("venus").clone(), kep_toolbox::planet_ss("earth").clone(), kep_toolbox::planet_ss("venus").clone()}, 
+            const std::vector<double>& values = {1.,1.,1.},
+            const double max_DV = 3000, 
+            const std::vector<double>&  epochs = {1200, 1550, 1940}, 
             const double waiting_time = 0., 
             const base_tsp::encoding_type & encoding = CITIES
         );
@@ -77,14 +77,14 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
         //@{
         const std::vector<kep_toolbox::planet_ptr>& get_planets() const;
         const std::vector<double>& get_values() const;
-        double get_max_path_length() const;
-        const decision_vector& get_times() const;
+        double get_max_DV() const;
+        const decision_vector& get_epochs() const;
         double get_waiting_time() const;
         //@}
 
         /** @name Setters*/
         //@{
-        void set_times(const decision_vector &);
+        void set_epochs(const decision_vector &);
         //@}
 
         /** @name Implementation of virtual methods*/
@@ -93,6 +93,7 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
         std::string human_readable_extra() const;
         double distance(decision_vector::size_type, decision_vector::size_type) const;
         //@}
+        double distance_lambert(decision_vector::size_type, decision_vector::size_type) const;
 
     private:
         static boost::array<int, 2> compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type);
@@ -107,20 +108,20 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
         void serialize(Archive &ar, const unsigned int)
         {
             ar & boost::serialization::base_object<base_tsp>(*this);
-            ar & const_cast<std::vector<kep_toolbox::planet_ptr> &>m_planets;
-            ar & m_values;
+            ar & const_cast<std::vector<kep_toolbox::planet_ptr> &>(m_planets);
+            ar & const_cast<std::vector<double> &>(m_values);
             ar & const_cast<double &>(m_max_DV);
-            ar & m_times;
-            ar & m_waiting;
+            ar & m_epochs;
+            ar & const_cast<double &>(m_waiting_time);
             ar & m_min_value;
         }
 
     private:
         const std::vector<kep_toolbox::planet_ptr> m_planets;
-        std::vector<double> m_values;
+        const std::vector<double> m_values;
         const double m_max_DV;
-        decision_vector m_times;
-        double m_waiting_time;
+        decision_vector m_epochs;
+        const double m_waiting_time;
 
         // this data member is set in the constructor as the minimum in m_values and is used in the objecive function
         double m_min_value;
