@@ -171,7 +171,7 @@ namespace pagmo { namespace problem {
             while(cond_r) 
             {
                 // We increment the right "pointer" updating the value and length of the path
-                saved_length -= distance_lambert(tour[it_r % n_cities], tour[(it_r + 1) % n_cities]);
+                saved_length -= distance_lambert(tour[it_r % n_cities], tour[(it_r + 1) % n_cities], m_epochs[it_r % n_cities],  m_epochs[(it_r + 1) % n_cities]);
                 cum_p += m_values[(it_r + 1) % n_cities];
                 it_r += 1;
 
@@ -211,7 +211,7 @@ namespace pagmo { namespace problem {
             else
             {
                 // We increment the left "pointer" updating the value and length of the path
-                saved_length += distance_lambert(tour[it_l % n_cities], tour[(it_l + 1) % n_cities]);
+                saved_length += distance_lambert(tour[it_l % n_cities], tour[(it_l + 1) % n_cities], m_epochs[it_l % n_cities], m_epochs[(it_l + 1) % n_cities]);
                 cum_p -= m_values[it_l];
                 it_l += 1;
                 // We update the various retvals only if the new subpath is valid
@@ -377,15 +377,15 @@ EndOfLoop:
 
     /// Computation of the distance between two planets using Lambert model
     /**
-     * @parameter[in] i index of the first orbiting object
-     * @parameter[in] j index of the second orbiting object
-     * @return the distance between m_planets[i] and m_planets[j]
+     * @parameter[in] dep index of the first orbiting object
+     * @parameter[in] arr index of the second orbiting object
+     * @parameter[in] t1 epoch (MJD2000) at departure
+     * @parameter[in] t2 epoch (MJD2000) at arrival
+     * @return the distance between m_planets[dep] and m_planets[arr]
      */
-    double tsp_ads::distance_lambert(decision_vector::size_type dep, decision_vector::size_type arr) const
+    double tsp_ads::distance_lambert(decision_vector::size_type dep, decision_vector::size_type arr, const double t1, const double t2) const
     {
         using namespace std;
-        double t1 = m_epochs[dep];
-        double t2 = m_epochs[arr];
         if (t2<=t1) 
         {
             pagmo_throw(value_error, "Epoch at arrival smaller than epoch at departure");
@@ -397,7 +397,7 @@ EndOfLoop:
         m_planets[arr]->get_eph(kep_toolbox::epoch(t2, kep_toolbox::epoch::MJD2000), r2, v2);
 
         // Lambert's problem solution
-        kep_toolbox::lambert_problem l(r1, r1, (t2 - t1) * ASTRO_DAY2SEC, m_planets[dep]->get_mu_central_body(), 0, 0);
+        kep_toolbox::lambert_problem l(r1, r2, (t2 - t1) * ASTRO_DAY2SEC, m_planets[dep]->get_mu_central_body(), 0, 0);
         kep_toolbox::diff(DV1, l.get_v1()[0], v1);
         kep_toolbox::diff(DV2, l.get_v2()[0], v2);
         
@@ -439,6 +439,16 @@ EndOfLoop:
     const decision_vector& tsp_ads::get_epochs() const
     { 
         return m_epochs; 
+    }
+
+    /// Setter for m_times
+    /**
+     * @return const reference to m_times
+     */
+    void tsp_ads::set_epochs(const decision_vector& ep_in) 
+    { 
+        reset_caches();
+        m_epochs = ep_in; 
     }
 
     /// Getter for m_waiting_time

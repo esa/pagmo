@@ -36,6 +36,22 @@ int main()
 	//We instantiate the algorithm differential evolution with 500 generations
     std::cout << prob << std::endl;
 
+    pagmo::population pop(prob,20);
+    std::vector<double> x(3);
+    x = {0,1,2};
+    pop.push_back(x);
+    x = {0,2,1};
+    pop.push_back(x);
+    x = {1,0,2};
+    pop.push_back(x);
+    x = {1,2,0};
+    pop.push_back(x);
+    x = {2,1,0};
+    pop.push_back(x);
+    x = {2,0,1};
+    pop.push_back(x);
+    std::cout << pop << std::endl;
+
 	
 	return 0;
 }

@@ -59,9 +59,9 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
 
         /// Constructor
         tsp_ads(
-            const std::vector<kep_toolbox::planet_ptr>& planets = {kep_toolbox::planet_ss("venus").clone(), kep_toolbox::planet_ss("earth").clone(), kep_toolbox::planet_ss("venus").clone()}, 
+            const std::vector<kep_toolbox::planet_ptr>& planets = {kep_toolbox::planet_ss("venus").clone(), kep_toolbox::planet_ss("earth").clone(), kep_toolbox::planet_ss("mars").clone()}, 
             const std::vector<double>& values = {1.,1.,1.},
-            const double max_DV = 3000, 
+            const double max_DV = 30000, 
             const std::vector<double>&  epochs = {1200, 1550, 1940}, 
             const double waiting_time = 0., 
             const base_tsp::encoding_type & encoding = CITIES
@@ -93,7 +93,7 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
         std::string human_readable_extra() const;
         double distance(decision_vector::size_type, decision_vector::size_type) const;
         //@}
-        double distance_lambert(decision_vector::size_type, decision_vector::size_type) const;
+        double distance_lambert(decision_vector::size_type, decision_vector::size_type, const double, const double) const;
 
     private:
         static boost::array<int, 2> compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type);

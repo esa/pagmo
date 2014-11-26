@@ -635,9 +635,14 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("betas",&problem::mga_part::get_betas, &problem::mga_part::set_betas,"bounds on the beta angles for the different legs")
 		.add_property("rps",&problem::mga_part::get_rps, &problem::mga_part::set_rps,"bounds on the periplanet heights for the different legs");
 
-	//problem_wrapper<problem::mga_target_event>("mga_target_event", "A part of the gtoc7 problem")
-	//	.def(init< optional <kep_toolbox::planet_ptr, kep_toolbox::planet_ptr, kep_toolbox::epoch, double, bool > >());
-
+	// Travelling salesman problem, Asteroids / Debris Selection TSP (TSP-ADS)
+	tsp_problem_wrapper<problem::tsp_ads>("tsp_ads","Asteroids / Debris Selection TSP (TSP-ADS)")
+		.def(init<optional<const std::vector<kep_toolbox::planet_ptr>&, const std::vector<double>&, const double, const std::vector<double>&, const double, const problem::base_tsp::encoding_type & > >())
+        .add_property("planets", make_function(&problem::tsp_ads::get_planets, return_value_policy<copy_const_reference>()) )
+        .add_property("values", make_function(&problem::tsp_ads::get_values, return_value_policy<copy_const_reference>()) )
+        .add_property("epochs", make_function(&problem::tsp_ads::get_epochs, return_value_policy<copy_const_reference>()), &problem::tsp_ads::set_epochs, "epoch schedule")
+        .add_property("max_DV", &problem::tsp_ads::get_max_DV )
+        .add_property("waiting_time", &problem::tsp_ads::get_waiting_time );
 #endif
 
 #ifdef PAGMO_ENABLE_GSL

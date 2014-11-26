@@ -151,7 +151,7 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     import numpy as np
     from PyGMO.problem import tsp
     fig = plt.gcf()
-	
+
     # We extract few informations on the problem
     weights = self.weights
     n_cities = len(weights[0])
@@ -174,15 +174,15 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
             edgelist = edgelist[id1:] + edgelist[:id2 + 1]
         edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(len(edgelist) - 1)]
     elif type(self) == tsp_vrplc:
-            stl = 0
-	    chromosome = edgelist
-            edgelist = [(chromosome[0], chromosome[1])]
-            for i in range(1, n_cities - 1):
-                stl += weights[int(chromosome[i])][int(chromosome[i + 1])]
-                if stl > self.capacity:
-                    stl = 0
-                else:
-                    edgelist += [(chromosome[i], chromosome[i + 1])]
+        stl = 0
+        chromosome = edgelist
+        edgelist = [(chromosome[0], chromosome[1])]
+        for i in range(1, n_cities - 1):
+            stl += weights[int(chromosome[i])][int(chromosome[i + 1])]
+            if stl > self.capacity:
+                stl = 0
+            else:
+                edgelist += [(chromosome[i], chromosome[i + 1])]
 
     if bias is None:
         bias = max([max(d) for d in weights])
