@@ -71,7 +71,7 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
         base_ptr clone() const;
 
         /// Given an hamiltonian path finds the best subtours (accounting for the Lambert's problem)
-        void find_best_selection(const decision_vector &, double &, double &, decision_vector::size_type &, decision_vector::size_type &) const;
+        void find_subsequence(const decision_vector &, double &, double &, decision_vector::size_type &, decision_vector::size_type &) const;
 
         /** @name Getters*/
         //@{

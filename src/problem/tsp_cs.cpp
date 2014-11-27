@@ -153,7 +153,7 @@ namespace pagmo { namespace problem {
                 break;
            }
         }
-        find_city_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
+        find_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
         f[0] = -(cum_p + (1 - m_min_value) * n_cities + saved_length / m_max_path_length);
         return;
     }
@@ -179,7 +179,7 @@ namespace pagmo { namespace problem {
      * @throws value_error if the input tour length is not equal to the city number
 
      */
-    void tsp_cs::find_city_subsequence(const decision_vector& tour, double& retval_p, double& retval_l, decision_vector::size_type& retval_it_l, decision_vector::size_type& retval_it_r) const
+    void tsp_cs::find_subsequence(const decision_vector& tour, double& retval_p, double& retval_l, decision_vector::size_type& retval_it_l, decision_vector::size_type& retval_it_r) const
     {
         if (tour.size() != get_n_cities())
         {

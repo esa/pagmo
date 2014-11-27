@@ -78,7 +78,7 @@ class __PAGMO_VISIBLE tsp_cs: public base_tsp
         double distance(decision_vector::size_type, decision_vector::size_type) const;
         //@}
 
-        void find_city_subsequence(const decision_vector &, double &, double &, decision_vector::size_type &, decision_vector::size_type &) const;
+        void find_subsequence(const decision_vector &, double &, double &, decision_vector::size_type &, decision_vector::size_type &) const;
 
     private:
         static boost::array<int, 2> compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type);
