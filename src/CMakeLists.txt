@@ -149,7 +149,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/messenger_full.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/tandem.cpp
-	    ${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp_ads.cpp
+	    ${CMAKE_CURRENT_SOURCE_DIR}/problem/tsp_ds.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/laplace.cpp
 #		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_flyby.cpp
 #		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp

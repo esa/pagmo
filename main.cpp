@@ -32,7 +32,7 @@ using namespace pagmo;
 int main()
 {
 	//We instantiate the problem Schwefel with dimension 50
-	pagmo::problem::tsp_ads prob;
+	pagmo::problem::tsp_ds prob;
 	//We instantiate the algorithm differential evolution with 500 generations
     std::cout << prob << std::endl;
 

@@ -59,7 +59,6 @@
 #include "problem/tsp.h"
 #include "problem/tsp_vrplc.h"
 #include "problem/tsp_cs.h"
-#include "problem/tsp_ads.h"
 #include "problem/fon.h"
 #include "problem/pol.h"
 #include "problem/kur.h"
@@ -106,9 +105,10 @@
         #include "problem/mga_1dsm_alpha.h"
         #include "problem/mga_1dsm_tof.h"
         #include "problem/mga_incipit.h"
-		#include "problem/mga_incipit_cstrs.h"
+	#include "problem/mga_incipit_cstrs.h"
         #include "problem/mga_part.h"
-		#include "problem/mga_target_event.h"
+	#include "problem/mga_target_event.h"
+        #include "problem/tsp_ds.h"
 #endif
 
 #endif

@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PAGMO_PROBLEM_TSP_ADS_H
-#define PAGMO_PROBLEM_TSP_ADS_H
+#ifndef PAGMO_PROBLEM_TSP_DS_H
+#define PAGMO_PROBLEM_TSP_DS_H
 
 #include <vector>
 #include <string>
@@ -33,45 +33,44 @@
 #include "../serialization.h"
 #include "../keplerian_toolbox/planet.h"
 #include "../keplerian_toolbox/planet_ss.h"
+#include "../keplerian_toolbox/astro_constants.h"
 
 namespace pagmo { namespace problem {
 
-/// The TSP - Asteroids-Debris Selection Problem
+/// The TSP - Debris Selection Problem
 /**
- * This is a class representing a new variant of the TSP which refines the pagmo::problem::tsp_cs problem adding time.
- * While in the City Selection Problem (pagmo::problem::tsp_cs)
- * the objective function computes the cost of transferring between cities using a static weight matrix, here it is
- * computed using a Lambert's orbital transfer model where the transfer times are stored in the m_times data members. 
- * The distance virtual method is instead providing  a time independent approximation to such a distance.
+ * This is a class representing a new variant of the TSP where the cities are orbiting
+ * objects and must be visited with a predefined schedule. 
  * 
- * The idea is that this problem can be used in a bi-level optimization where m_times is optimized in the outer layer 
+ * The cost of transferring from one orbiting object to the next is computed by means of a three impulse approximation
+ * that uses the orbital element at epoch.
  *
- * The information about arrival epochs is contained in the data member m_epochs (MJD2000) 
+ * The distance virtual method is instead providing the same computations using the initial orbital elements (i.e.
+ * not propagating them)
  * 
- * The possibility to use a waiting time \f$ WT \f$ is also provided via the data member m_waiting_time (in days)
+ * The information about the schedule is contained in the data member m_epochs (MJD2000) 
  *
  * @author Dario Izzo (dario.izzo@gmail.com)
  */
 
-class __PAGMO_VISIBLE tsp_ads: public base_tsp
+class __PAGMO_VISIBLE tsp_ds: public base_tsp
 {
     public:
 
         /// Constructor
-        tsp_ads(
+        tsp_ds(
             const std::vector<kep_toolbox::planet_ptr>& planets = {kep_toolbox::planet_ss("venus").clone(), kep_toolbox::planet_ss("earth").clone(), kep_toolbox::planet_ss("mars").clone()}, 
             const std::vector<double>& values = {1.,1.,1.},
             const double max_DV = 30000, 
             const std::vector<double>&  epochs = {1200, 1550, 1940}, 
-            const double waiting_time = 0., 
             const base_tsp::encoding_type & encoding = CITIES
         );
 
         /// Copy constructor for polymorphic objects
         base_ptr clone() const;
 
-        /// Given an hamiltonian path finds the best subtours (accounting for the Lambert's problem)
-        void find_subsequence(const decision_vector &, double &, double &, decision_vector::size_type &, decision_vector::size_type &) const;
+        /// Given an hamiltonian path finds the best subtour
+        void find_subsequence(const decision_vector &, double &, double &, decision_vector::size_type &, decision_vector::size_type &, const bool = false) const;
 
         /** @name Getters*/
         //@{
@@ -79,12 +78,6 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
         const std::vector<double>& get_values() const;
         double get_max_DV() const;
         const decision_vector& get_epochs() const;
-        double get_waiting_time() const;
-        //@}
-
-        /** @name Setters*/
-        //@{
-        void set_epochs(const decision_vector &);
         //@}
 
         /** @name Implementation of virtual methods*/
@@ -93,7 +86,6 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
         std::string human_readable_extra() const;
         double distance(decision_vector::size_type, decision_vector::size_type) const;
         //@}
-        double distance_lambert(decision_vector::size_type, decision_vector::size_type, const double, const double) const;
 
     private:
         static boost::array<int, 2> compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type);
@@ -103,6 +95,11 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
         void objfun_impl(fitness_vector&, const decision_vector&) const;
         void compute_constraints_impl(constraint_vector&, const decision_vector&) const;
 
+        double three_impulses(double, double, double, double, double, double, double, double) const;
+        void precompute_ephemerides() const;
+        void compute_DVs(const decision_vector&, bool = false) const;
+        double distance_3_imp(const decision_vector::size_type, const decision_vector::size_type, const size_t) const;
+
         friend class boost::serialization::access;
         template <class Archive>
         void serialize(Archive &ar, const unsigned int)
@@ -111,26 +108,33 @@ class __PAGMO_VISIBLE tsp_ads: public base_tsp
             ar & const_cast<std::vector<kep_toolbox::planet_ptr> &>(m_planets);
             ar & const_cast<std::vector<double> &>(m_values);
             ar & const_cast<double &>(m_max_DV);
-            ar & m_epochs;
-            ar & const_cast<double &>(m_waiting_time);
+            ar & const_cast<std::vector<double> &>(m_epochs);
             ar & m_min_value;
+            precompute_ephemerides();
         }
 
     private:
         const std::vector<kep_toolbox::planet_ptr> m_planets;
         const std::vector<double> m_values;
         const double m_max_DV;
-        decision_vector m_epochs;
-        const double m_waiting_time;
+        const decision_vector m_epochs;
+        const double m_mu;
 
         // this data member is set in the constructor as the minimum in m_values and is used in the objecive function
         double m_min_value;
+
+
+        // These are to preallocate memory
+        mutable std::vector<double> m_DV;
+        mutable std::vector<std::vector<kep_toolbox::array3D> >m_eph_r;
+        mutable std::vector<std::vector<kep_toolbox::array3D> >m_eph_v;
+        mutable std::vector<std::vector<kep_toolbox::array6D> >m_eph_el;
 
 
 };
 
 }}  //namespaces
 
-BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp_ads)
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::tsp_ds)
 
-#endif  //PAGMO_PROBLEM_TSP_ADS_H
+#endif  //PAGMO_PROBLEM_TSP_DS_H

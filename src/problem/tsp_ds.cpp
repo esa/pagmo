@@ -22,42 +22,40 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include "tsp_ads.h"
+#include "tsp_ds.h"
 #include "../exceptions.h"
 #include "../population.h"
 #include "../keplerian_toolbox/astro_constants.h"
 #include "../keplerian_toolbox/lambert_problem.h"
 #include "../keplerian_toolbox/core_functions/array3D_operations.h"
+#include "../keplerian_toolbox/core_functions/ic2par.h"
 #include "../keplerian_toolbox/epoch.h"
 
 
 namespace pagmo { namespace problem {
 
-       /// Constructor
+    /// Constructor
     /**
-     * Constructs a TSP - Asteroids-Debris Selection Problem from 
-     * path length and the chosen encoding
+     * Constructs a TSP - Debris Selection Problem 
      *
      * @param[in] planets         an std::vector of kep_toolbox::planet_ptr containing the orbiting objects one wants to visit
      * @param[in] values          a std::vector representing the value (score) of a visit (is the same order as planets)
      * @param[in] max_DV          the maximum DV available on board the spacecraft (corresponding to max_path_length parameter in the problem::tsp_cs problem)
      * @param[in] times           an std::vector of doubles containing [t0,T1,T2,...] the starting mission epoch and the time of flights between orbiting objects
-     * @param[in] waiting_time    waiting time at one orbiting object before the next transfer starts (i.e. t_0+T_1+waiting_time+.....) 
      * @param[in] encoding        a pagmo::problem::tsp::encoding representing the chosen encoding
      */
-    tsp_ads::tsp_ads (            
+    tsp_ds::tsp_ds (            
         const std::vector<kep_toolbox::planet_ptr>& planets, 
         const std::vector<double>& values,
         const double max_DV, 
         const std::vector<double>&  epochs, 
-        const double waiting_time, 
         const base_tsp::encoding_type & encoding
         ) : base_tsp(
                 planets.size(), 
                 compute_dimensions(planets.size(), encoding)[0],
                 compute_dimensions(planets.size(), encoding)[1],
                 encoding
-        ),  m_planets(planets), m_values(values), m_max_DV(max_DV), m_epochs(epochs), m_waiting_time(waiting_time)
+        ),  m_planets(planets), m_values(values), m_max_DV(max_DV), m_epochs(epochs), m_mu(planets[0]->get_mu_central_body()), m_DV(values.size() - 1)
     {
         if (planets.size() != values.size()){
             pagmo_throw(value_error, "Planet list must have the same size as values list");
@@ -69,38 +67,24 @@ namespace pagmo { namespace problem {
             pagmo_throw(value_error, "Planet list must contain at least 3 elements");
         }
 
-        //TODO: check that all planets have the same mu
-
+        for (auto pl_ptr : m_planets) 
+        {
+            if (pl_ptr->get_mu_central_body() != m_mu) 
+            {
+               pagmo_throw(value_error, "All planets in planet list must have the same gravity constant"); 
+            }
+        }
         m_min_value = *std::min(m_values.begin(), m_values.end());
+        precompute_ephemerides();
     }
 
     /// Clone method.
-    base_ptr tsp_ads::clone() const
+    base_ptr tsp_ds::clone() const
     {
-        return base_ptr(new tsp_ads(*this));
+        return base_ptr(new tsp_ds(*this));
     }
 
-    boost::array<int, 2> tsp_ads::compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type encoding)
-    {
-        boost::array<int,2> retval;
-        switch( encoding ) {
-            case FULL:
-                retval[0] = n_cities*(n_cities-1)+2;
-                retval[1] = (n_cities-1)*(n_cities-2);
-                break;
-            case RANDOMKEYS:
-                retval[0] = 0;
-                retval[1] = 0;
-                break;
-            case CITIES:
-                retval[0] = 1;
-                retval[1] = 0;
-                break;
-        }
-        return retval;
-    }
-
-    void tsp_ads::objfun_impl(fitness_vector &f, const decision_vector& x) const 
+    void tsp_ds::objfun_impl(fitness_vector &f, const decision_vector& x) const 
     {
         f[0]=0;
         decision_vector tour;
@@ -112,24 +96,23 @@ namespace pagmo { namespace problem {
             case FULL:
             {
                 tour = full2cities(x);
+                find_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
                 break;
             }
             case RANDOMKEYS:
             {
                 tour = randomkeys2cities(x);
+                find_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
                 break;
            }
             case CITIES:
            {
-                tour = x;
-                break;
+                find_subsequence(x, cum_p, saved_length, dumb1, dumb2);
            }
         }
-        find_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
         f[0] = -(cum_p + (1 - m_min_value) * n_cities + saved_length / m_max_DV);
         return;
     }
-
 
     /// Finds, in a hamiltonian path, the best subsequence satisfying the max_DV constraint
     /**
@@ -145,7 +128,7 @@ namespace pagmo { namespace problem {
      * @throws value_error if the input tour length is not equal to the city number
 
      */
-    void tsp_ads::find_subsequence(const decision_vector& tour, double& retval_p, double& retval_l, decision_vector::size_type& retval_it_l, decision_vector::size_type& retval_it_r) const
+    void tsp_ds::find_subsequence(const decision_vector& tour, double& retval_p, double& retval_l, decision_vector::size_type& retval_it_l, decision_vector::size_type& retval_it_r, const bool static_computations) const
     {
         if (tour.size() != get_n_cities())
         {
@@ -165,18 +148,21 @@ namespace pagmo { namespace problem {
         retval_it_l = it_l;
         retval_it_r = it_r;
 
+        // We precompute all DVs (stred in m_DV)
+        compute_DVs(tour, static_computations);
+
         // Main body of the double loop
         while(cond_l)
         {
             while(cond_r) 
             {
                 // We increment the right "pointer" updating the value and length of the path
-                saved_length -= distance_lambert(tour[it_r % n_cities], tour[(it_r + 1) % n_cities], m_epochs[it_r % n_cities],  m_epochs[(it_r + 1) % n_cities]);
-                cum_p += m_values[(it_r + 1) % n_cities];
+                saved_length -= m_DV[it_r];
+                cum_p += m_values[(it_r + 1)];
                 it_r += 1;
 
                 // We update the various retvals only if the new subpath is valid
-                if (saved_length < 0 || (it_l % n_cities == it_r % n_cities))
+                if (saved_length < 0 || (it_l == it_r))
                 {
                     cond_r = false;
                 }
@@ -184,8 +170,8 @@ namespace pagmo { namespace problem {
                 {
                     retval_p = cum_p;
                     retval_l = saved_length;
-                    retval_it_l = it_l % n_cities;
-                    retval_it_r = it_r % n_cities;
+                    retval_it_l = it_l;
+                    retval_it_r = it_r;
                 }
                 else if (cum_p == retval_p)
                 {
@@ -193,8 +179,8 @@ namespace pagmo { namespace problem {
                     {
                         retval_p = cum_p;
                         retval_l = saved_length;
-                        retval_it_l = it_l % n_cities;
-                        retval_it_r = it_r % n_cities;
+                        retval_it_l = it_l;
+                        retval_it_r = it_r;
                     }
                 }
 
@@ -204,14 +190,14 @@ namespace pagmo { namespace problem {
                 }
             }
             // We get out if all cities are included in the current path
-            if (it_l % n_cities == it_r % n_cities)
+            if (it_l == it_r)
             {
                 cond_l = false;
             }
             else
             {
                 // We increment the left "pointer" updating the value and length of the path
-                saved_length += distance_lambert(tour[it_l % n_cities], tour[(it_l + 1) % n_cities], m_epochs[it_l % n_cities], m_epochs[(it_l + 1) % n_cities]);
+                saved_length += m_DV[it_l];
                 cum_p -= m_values[it_l];
                 it_l += 1;
                 // We update the various retvals only if the new subpath is valid
@@ -222,8 +208,8 @@ namespace pagmo { namespace problem {
                     {
                         retval_p = cum_p;
                         retval_l = saved_length;
-                        retval_it_l = it_l % n_cities;
-                        retval_it_r = it_r % n_cities;
+                        retval_it_l = it_l;
+                        retval_it_r = it_r;
                     }
                     else if (cum_p == retval_p)
                     {
@@ -231,8 +217,8 @@ namespace pagmo { namespace problem {
                         {
                             retval_p = cum_p;
                             retval_l = saved_length;
-                            retval_it_l = it_l % n_cities;
-                            retval_it_r = it_r % n_cities;
+                            retval_it_l = it_l;
+                            retval_it_r = it_r;
                         }
                     }
                 }
@@ -246,13 +232,13 @@ EndOfLoop:
     return;
     }
 
-    size_t tsp_ads::compute_idx(const size_t i, const size_t j, const size_t n) const
+    size_t tsp_ds::compute_idx(const size_t i, const size_t j, const size_t n) const
     {
         pagmo_assert( i!=j && i<n && j<n );
         return i*(n-1) + j - (j>i? 1:0);
     }
 
-    void tsp_ads::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
+    void tsp_ds::compute_constraints_impl(constraint_vector &c, const decision_vector& x) const 
     {
         decision_vector::size_type n_cities = get_n_cities();
 
@@ -326,12 +312,10 @@ EndOfLoop:
      * @parameter[in] j index of the second orbiting object
      * @return the distance between m_planets[i] and m_planets[j]
      */
-    double tsp_ads::distance(decision_vector::size_type i, decision_vector::size_type j) const
+    double tsp_ds::distance(decision_vector::size_type i, decision_vector::size_type j) const
     {
         // TODO: Edelbaum here instead? (see paper from Gatto-Casalino)
         using namespace std;
-        double DV1=0, DV2=0, Vi=0, Vf=0;
-        double MU = m_planets[i]->get_mu_central_body();
         kep_toolbox::array6D elements1 =  m_planets[i]->get_elements();
         kep_toolbox::array6D elements2 =  m_planets[j]->get_elements();
 
@@ -344,6 +328,83 @@ EndOfLoop:
         double i2 = elements2[2];
         double W2 = elements2[3];
         double e2 = elements2[1];
+        return three_impulses(a1,i1,W1,e1,a2,i2,W2,e2);
+    }
+
+    boost::array<int, 2> tsp_ds::compute_dimensions(decision_vector::size_type n_cities, base_tsp::encoding_type encoding)
+    {
+        boost::array<int,2> retval;
+        switch( encoding ) {
+            case FULL:
+                retval[0] = n_cities*(n_cities-1)+2;
+                retval[1] = (n_cities-1)*(n_cities-2);
+                break;
+            case RANDOMKEYS:
+                retval[0] = 0;
+                retval[1] = 0;
+                break;
+            case CITIES:
+                retval[0] = 1;
+                retval[1] = 0;
+                break;
+        }
+        return retval;
+    }
+
+    void tsp_ds::precompute_ephemerides() const 
+    {
+        kep_toolbox::array3D dumb0;
+        std::vector<kep_toolbox::array3D> dumb1(m_planets.size(),dumb0);
+        std::vector<std::vector<kep_toolbox::array3D> >dumb2(m_epochs.size(),dumb1);
+        m_eph_r = dumb2;
+        m_eph_v = dumb2;
+
+        kep_toolbox::array6D dumb3;
+        std::vector<kep_toolbox::array6D> dumb4(m_planets.size(),dumb3);
+        std::vector<std::vector<kep_toolbox::array6D> >dumb5(m_epochs.size(),dumb4);
+        m_eph_el = dumb5;
+        // Precompute all ephemerides
+        for (auto i = 0u; i < m_epochs.size(); ++i) 
+        {
+            for (auto j = 0u; j < m_planets.size(); ++j) {
+                try
+                {
+                    m_planets[j]->get_eph(kep_toolbox::epoch(m_epochs[i], kep_toolbox::epoch::MJD2000), m_eph_r[i][j], m_eph_v[i][j]);
+                    kep_toolbox::ic2par(m_eph_r[i][j], m_eph_v[i][j], m_mu, m_eph_el[i][j]);
+                }
+                catch( ... )
+                {
+                    std::cout << *m_planets[j] << std::endl;
+                    std::cout << "At epoch: " << m_epochs[i] << std::endl;
+                    std::cout << "planet idx: " << j << std::endl;
+                    pagmo_throw(value_error, "Ephemerides computations caused an error (planet above)");
+                }
+            }
+        }
+
+    }
+
+    void tsp_ds::compute_DVs(const decision_vector& tour, bool static_computations) const 
+    {
+        if (!static_computations)
+        {
+            for (auto i = 0u; i < get_n_cities() - 1;  ++i) 
+            {
+                m_DV[i] = distance_3_imp(tour[i], tour[(i + 1)], i);
+            }
+        } else {
+            for (auto i = 0u; i < get_n_cities() - 1;  ++i) 
+            {
+                m_DV[i] = distance(tour[i], tour[(i + 1)]);
+            }
+        }
+    }
+
+    double tsp_ds::three_impulses(double a1, double i1, double W1, double e1, double a2, double i2, double W2, double e2) const
+    {
+        using namespace std;
+        double Vi,Vf, DV1,DV2;
+
         // radius of apocenter starting orbit (km)
         double ra1 = a1 * (1. + e1);
         // radius of apocenter target orbit(km)
@@ -357,58 +418,46 @@ EndOfLoop:
         double rp1 = a1 * (1. - e1);
 
         if (ra1 > ra2) { // Strategy is Apocenter-Pericenter
-            Vi = sqrt(MU * (2. / ra1 - 1. / a1));
-            Vf = sqrt(MU * (2. / ra1 - 2. / (rp2 + ra1)));
+            Vi = sqrt(m_mu * (2. / ra1 - 1. / a1));
+            Vf = sqrt(m_mu * (2. / ra1 - 2. / (rp2 + ra1)));
             // Change Inclination + pericenter change
             DV1 = sqrt(Vi * Vi + Vf * Vf - 2. * Vi * Vf * cosiREL);
             // Apocenter Change
-            DV2 = sqrt(MU) * abs(sqrt(2. / rp2 - 2. / (rp2 + ra1)) - sqrt(2. / rp2 - 2. / (rp2 + ra2)));
+            DV2 = sqrt(m_mu) * abs(sqrt(2. / rp2 - 2. / (rp2 + ra1)) - sqrt(2. / rp2 - 2. / (rp2 + ra2)));
         }
         else {  // (ra1<ra2) Strategy is Pericenter-Apocenter
             // Apocenter Raise
-            DV1 = sqrt(MU) * abs(sqrt(2. / rp1 - 2. / (rp1 + ra1)) - sqrt(2. / rp1 - 2. / (rp1 + ra2)));
-            Vi = sqrt(MU * (2. / ra2 - 2. / (rp1 + ra2)));
-            Vf = sqrt(MU * (2. / ra2 - 1. / a2));
+            DV1 = sqrt(m_mu) * abs(sqrt(2. / rp1 - 2. / (rp1 + ra1)) - sqrt(2. / rp1 - 2. / (rp1 + ra2)));
+            Vi = sqrt(m_mu * (2. / ra2 - 2. / (rp1 + ra2)));
+            Vf = sqrt(m_mu * (2. / ra2 - 1. / a2));
             // Change Inclination + apocenter change
             DV2 = sqrt(abs(Vi * Vi + Vf * Vf - 2 * Vi * Vf * cosiREL));
         }
         return DV1 + DV2;
     }
 
+
+
     /// Computation of the distance between two planets using Lambert model
     /**
      * @parameter[in] dep index of the first orbiting object
      * @parameter[in] arr index of the second orbiting object
-     * @parameter[in] t1 epoch (MJD2000) at departure
-     * @parameter[in] t2 epoch (MJD2000) at arrival
+     * @parameter[in] ep_idx index of the epoch
      * @return the distance between m_planets[dep] and m_planets[arr]
      */
-    double tsp_ads::distance_lambert(decision_vector::size_type dep, decision_vector::size_type arr, const double t1, const double t2) const
+
+    double tsp_ds::distance_3_imp(const decision_vector::size_type dep, const decision_vector::size_type arr, const size_t ep_idx) const
     {
-        using namespace std;
-        if (t2<=t1) 
-        {
-            pagmo_throw(value_error, "Epoch at arrival smaller than epoch at departure");
-        }
-        kep_toolbox::array3D r1,v1,r2,v2,DV1,DV2;
-
-        //Ephemerides computations
-        m_planets[dep]->get_eph(kep_toolbox::epoch(t1, kep_toolbox::epoch::MJD2000), r1, v1);
-        m_planets[arr]->get_eph(kep_toolbox::epoch(t2, kep_toolbox::epoch::MJD2000), r2, v2);
-
-        // Lambert's problem solution
-        kep_toolbox::lambert_problem l(r1, r2, (t2 - t1) * ASTRO_DAY2SEC, m_planets[dep]->get_mu_central_body(), 0, 0);
-        kep_toolbox::diff(DV1, l.get_v1()[0], v1);
-        kep_toolbox::diff(DV2, l.get_v2()[0], v2);
-        
-        return kep_toolbox::norm(DV1) + kep_toolbox::norm(DV2);
+        // Computing the orbital parameters
+        return three_impulses(m_eph_el[ep_idx][dep][0], m_eph_el[ep_idx][dep][2], m_eph_el[ep_idx][dep][3], m_eph_el[ep_idx][dep][1], m_eph_el[ep_idx][arr][0], m_eph_el[ep_idx][arr][2], m_eph_el[ep_idx][arr][3], m_eph_el[ep_idx][arr][1]);
     }
+
 
     /// Getter for m_planets
     /**
      * @return const reference to m_planets
      */
-    const std::vector<kep_toolbox::planet_ptr>& tsp_ads::get_planets() const
+    const std::vector<kep_toolbox::planet_ptr>& tsp_ds::get_planets() const
     { 
         return m_planets; 
     }
@@ -417,7 +466,7 @@ EndOfLoop:
     /**
      * @return m_max_DV
      */
-    double tsp_ads::get_max_DV() const
+    double tsp_ds::get_max_DV() const
     { 
         return m_max_DV; 
     }
@@ -427,7 +476,7 @@ EndOfLoop:
     /**
      * @return const reference to m_values
      */
-    const std::vector<double>&  tsp_ads::get_values() const
+    const std::vector<double>&  tsp_ds::get_values() const
     { 
         return m_values; 
     }
@@ -436,41 +485,22 @@ EndOfLoop:
     /**
      * @return const reference to m_times
      */
-    const decision_vector& tsp_ads::get_epochs() const
+    const decision_vector& tsp_ds::get_epochs() const
     { 
         return m_epochs; 
     }
 
-    /// Setter for m_times
-    /**
-     * @return const reference to m_times
-     */
-    void tsp_ads::set_epochs(const decision_vector& ep_in) 
-    { 
-        reset_caches();
-        m_epochs = ep_in; 
-    }
-
-    /// Getter for m_waiting_time
-    /**
-     * @return m_waiting_time
-     */
-    double tsp_ads::get_waiting_time() const
-    { 
-        return m_waiting_time; 
-    }
-
     /// Returns the problem name
-    std::string tsp_ads::get_name() const
+    std::string tsp_ds::get_name() const
     {
-        return "Asteroids / Debris Selection TSP (TSP-ADS)";
+        return "Debris Selection TSP (TSP-DS)";
     }
 
     /// Extra human readable info for the problem.
     /**
      * @return a std::string containing a list of vertices and edges
      */
-    std::string tsp_ads::human_readable_extra() const 
+    std::string tsp_ds::human_readable_extra() const 
     {
         std::ostringstream oss;
         oss << "\n\tNumber of planets: " << get_n_cities() << '\n';
@@ -486,7 +516,7 @@ EndOfLoop:
                 oss << "CITIES" << '\n';
                 break;
         }
-        oss << "\tPlanets Names: " << std::endl << "\t\t[";
+        oss << "\tObjects Names: " << std::endl << "\t\t[";
         for (auto i = 0u; i < m_planets.size(); ++i)
         {
             oss << m_planets[i]->get_name() << ", ";
@@ -494,14 +524,13 @@ EndOfLoop:
         }
 
         oss << "]" << std::endl << "\tEpochs: " << m_epochs << "\n";
-        oss << "\tPlanets Values: " << m_values << std::endl;
+        oss << "\ttObjects Values: " << m_values << std::endl;
         oss << "\tSpacecraft DV: " << m_max_DV << " [m/s]\n";
         
-
         return oss.str();
     }
 
     
 }} //namespaces
 
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tsp_ads)
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::tsp_ds)

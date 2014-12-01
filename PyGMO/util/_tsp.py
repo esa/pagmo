@@ -153,8 +153,9 @@ def tle2tsp(tlefilename, verbose=False):
     * filename: A string containin the file name (assumed to be in the working directory)
     * verbose: Activates some screen output to show the progress.
 
-    * [out] -> weights
+    * [out] -> static weights computed using the three impulse approximation
     * [out] -> el a list containing the orbital elements of the TLE orbits (a,e,i,W,w,M) in SI units
+    * [out] -> planet_list a list containing all planets objects in the tle files
 
     """
     from PyKEP import planet_tle
@@ -183,4 +184,4 @@ def tle2tsp(tlefilename, verbose=False):
     for source in planet_list:
         elements.append(source.orbital_elements)
 
-    return weights, elements
+    return weights, elements, planet_list
