@@ -36,7 +36,7 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities"):
         Constructs a Travelling Salesman problem
         (Constrained Integer Single-Objective)
 
-        USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys")
+        USAGE: problem.tsp(weights = [0,1,2],[1,0,5],[2,5,0], type="randomkeys")
 
          * weights: Square matrix with zero diagonal entries containing the cities distances.
          * type: encoding type. One of "cities","randomkeys","full"
