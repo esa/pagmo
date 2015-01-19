@@ -93,19 +93,26 @@ def _print_matrix(mat, show_all=False):
 from PyGMO import *
 
 
-def _three_impulse(pl1, pl2):
+def _three_impulse(pl1, pl2, ep1=None, ep2=None):
     from math import cos, sqrt, sin
     MU = pl1.mu_central_body
 
-    a1 = pl1.orbital_elements[0]
-    i1 = pl1.orbital_elements[2]
-    W1 = pl1.orbital_elements[3]
-    e1 = pl1.orbital_elements[1]
+    if ep1 is None or ep2 is None:
+        a1 = pl1.orbital_elements[0]
+        i1 = pl1.orbital_elements[2]
+        W1 = pl1.orbital_elements[3]
+        e1 = pl1.orbital_elements[1]
 
-    a2 = pl2.orbital_elements[0]
-    i2 = pl2.orbital_elements[2]
-    W2 = pl2.orbital_elements[3]
-    e2 = pl2.orbital_elements[1]
+        a2 = pl2.orbital_elements[0]
+        i2 = pl2.orbital_elements[2]
+        W2 = pl2.orbital_elements[3]
+        e2 = pl2.orbital_elements[1]
+    else:
+        from PyKEP import ic2par
+        r1, v1 = pl1.eph(ep1)
+        a1, e1, i1, W1, _, _ = ic2par(r1, v1, MU)        
+        r2, v2 = pl2.eph(ep2)
+        a2, e2, i2, W2, _, _ = ic2par(r2, v2, MU)        
 
     ra1 = a1 * (1 + e1)
     # radius of apocenter starting orbit (km)
