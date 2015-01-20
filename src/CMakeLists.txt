@@ -94,8 +94,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/death_penalty.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cstrs_self_adaptive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/antibodies_problem.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/scaled.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/scaled.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/decompose.cpp
@@ -237,6 +237,13 @@ IF(ENABLE_IPOPT)
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/ipopt_cpp_wrapper/ipopt_problem.cpp
 	)
 ENDIF(ENABLE_IPOPT)
+
+# Additional files for WORHP support.
+IF(ENABLE_WORHP)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/worhp.cpp
+	)
+ENDIF(ENABLE_WORHP)
 
 # PaGMO MPI bits
 IF(ENABLE_MPI)

@@ -113,14 +113,14 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
 
 IF(BUILD_PYGMO)
-	# Detect default Python version  
+	# Detect default Python version
 	IF(NOT DEFINED PYGMO_PYTHON_VERSION)
 	       INCLUDE(FindPythonInterp)
 	       IF(NOT PYTHONINTERP_FOUND)
 	       	      MESSAGE(FATAL_ERROR "Unable to locate Python interpreter. Turn off BUILD_PYGMO please.")
 	       ELSE(NOT PYTHONINTERP_FOUND)
 	       	      MESSAGE(STATUS "Python version ${PYTHON_VERSION_STRING} found.")
-		      # Build Option: build with specific specific Python compatibility 
+		      # Build Option: build with specific specific Python compatibility
 		      SET(PYGMO_PYTHON_VERSION ${PYTHON_VERSION_STRING} CACHE STRING "Build PyGMO with specific Python compatibility.")
 		      SET(PYGMO_PYTHON_VERSION_CACHED "0" CACHE STRING "Track changes to PYGMO_PYTHON_VERSION. DO NOT CHANGE.")
 		      SET(PYGMO_PYTHON_FINDER ON CACHE BOOL "Find automatically Python interpreter and libraries based on PYGMO_PYTHON_VERSION")
@@ -145,6 +145,9 @@ OPTION(ENABLE_SNOPT "Enable support for SNOPT minimiser." OFF)
 
 # Build Option: IPOPT optimiser.
 OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
+
+# Build Option: WORHP optimiser.
+OPTION(ENABLE_WORHP "Enable support for WORHP minimiser." OFF)
 
 # Build Option: support for MPI clustering.
 OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
@@ -419,6 +422,19 @@ IF(ENABLE_IPOPT)
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} ${LAPACK_LINKER_FLAGS}")
 ENDIF(ENABLE_IPOPT)
 
+# If SNOPT support is requested, look for the libraries.
+IF(ENABLE_WORHP)
+	FIND_LIBRARY(WORHP_LIBRARY NAMES worhp)
+	FIND_PATH(WORHP_INCLUDE_DIR NAMES worhp.h)
+	IF(NOT WORHP_LIBRARY OR NOT WORHP_INCLUDE_DIR)
+		MESSAGE(FATAL_ERROR "WORHP support was requested, but the library could not be located. The library should be called 'libworhp')")
+	ENDIF(NOT WORHP_LIBRARY OR NOT WORHP_INCLUDE_DIR)
+	MESSAGE(STATUS "WORHP library: ${WORHP_LIBRARY}")
+	MESSAGE(STATUS "WORHP include dir: ${WORHP_INCLUDE_DIR}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${WORHP_LIBRARY} -lgfortran)
+	ADD_DEFINITIONS(-DPAGMO_ENABLE_WORHP)
+	INCLUDE_DIRECTORIES("${WORHP_INCLUDE_DIR}")
+ENDIF(ENABLE_WORHP)
 
 
 # Add the directory for the PaGMO library.
