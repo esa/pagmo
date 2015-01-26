@@ -32,26 +32,14 @@ using namespace pagmo;
 int main()
 {
 	//We instantiate the problem Schwefel with dimension 50
-	pagmo::problem::tsp_ds prob;
+	pagmo::problem::zdt prob(1,10);
 	//We instantiate the algorithm differential evolution with 500 generations
-    std::cout << prob << std::endl;
+	pagmo::algorithm::pade algo;
 
-    pagmo::population pop(prob,20);
-    std::vector<double> x(3);
-    x = {0,1,2};
-    pop.push_back(x);
-    x = {0,2,1};
-    pop.push_back(x);
-    x = {1,0,2};
-    pop.push_back(x);
-    x = {1,2,0};
-    pop.push_back(x);
-    x = {2,1,0};
-    pop.push_back(x);
-    x = {2,0,1};
-    pop.push_back(x);
-    std::cout << pop << std::endl;
-
+	//1 - Evolution takes place on the same thread as main
+	//We instantiate a population containing 20 candidate solutions to the Schwefel problem
+	pagmo::population pop(prob,20);
+	algo.evolve(pop);
 	
 	return 0;
 }

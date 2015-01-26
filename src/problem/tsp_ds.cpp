@@ -74,7 +74,6 @@ namespace pagmo { namespace problem {
                pagmo_throw(value_error, "All planets in planet list must have the same gravity constant"); 
             }
         }
-        m_min_value = *std::min(m_values.begin(), m_values.end());
         precompute_ephemerides();
     }
 
@@ -89,28 +88,29 @@ namespace pagmo { namespace problem {
         f[0]=0;
         decision_vector tour;
         decision_vector::size_type n_cities = get_n_cities();
-        double cum_p, saved_length;
+        double cum_p, ham_path_len;
         decision_vector::size_type dumb1, dumb2;
 
         switch( get_encoding() ) {
             case FULL:
             {
                 tour = full2cities(x);
-                find_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
+                find_subsequence(tour, cum_p, ham_path_len, dumb1, dumb2);
                 break;
             }
             case RANDOMKEYS:
             {
                 tour = randomkeys2cities(x);
-                find_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
+                find_subsequence(tour, cum_p, ham_path_len, dumb1, dumb2);
                 break;
            }
             case CITIES:
            {
-                find_subsequence(x, cum_p, saved_length, dumb1, dumb2);
+                find_subsequence(x, cum_p, ham_path_len, dumb1, dumb2);
            }
         }
-        f[0] = -(cum_p + (1 - m_min_value) * n_cities + saved_length / m_max_DV);
+
+        f[0] = -(cum_p) - (1 - ham_path_len / (n_cities * m_max_DV));
         return;
     }
 
@@ -122,7 +122,7 @@ namespace pagmo { namespace problem {
      *
      * @param[in]  tour the hamiltonian path encoded with a CITIES encoding (i.e. the list of cities ids)
      * @param[out] retval_p the total cumulative value of the subpath
-     * @param[out] retval_l the total cumulative length of the subpath
+     * @param[out] retval_l the total length of the Hamiltonian path
      * @param[out] retval_it_l the id of the city where the subpath starts
      * @param[out] retval_it_r the id of the city where the subpath ends
      * @throws value_error if the input tour length is not equal to the city number
@@ -158,7 +158,7 @@ namespace pagmo { namespace problem {
             {
                 // We increment the right "pointer" updating the value and length of the path
                 saved_length -= m_DV[it_r];
-                cum_p += m_values[(it_r + 1)];
+                cum_p += m_values[tour[(it_r + 1)]];
                 it_r += 1;
 
                 // We update the various retvals only if the new subpath is valid
@@ -198,7 +198,7 @@ namespace pagmo { namespace problem {
             {
                 // We increment the left "pointer" updating the value and length of the path
                 saved_length += m_DV[it_l];
-                cum_p -= m_values[it_l];
+                cum_p -= m_values[tour[it_l]];
                 it_l += 1;
                 // We update the various retvals only if the new subpath is valid
                 if (saved_length > 0)
@@ -229,7 +229,11 @@ namespace pagmo { namespace problem {
             }
         }
 EndOfLoop:
-    return;
+	retval_l = 0;
+	for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
+    	    retval_l += m_DV[i];
+	}
+    	return;
     }
 
     size_t tsp_ds::compute_idx(const size_t i, const size_t j, const size_t n) const
@@ -489,6 +493,15 @@ EndOfLoop:
     { 
         return m_epochs; 
     }
+    
+    /// Getter for m_eph_el
+    /**
+     * @return const reference to m_eph_el
+     */
+    //const std::vector<std::vector<kep_toolbox::array6D>>& tsp_ds::get_eph_el() const
+    //{ 
+    //    return m_eph_el; 
+    //}
 
     /// Returns the problem name
     std::string tsp_ds::get_name() const

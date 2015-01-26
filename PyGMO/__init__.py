@@ -21,23 +21,6 @@
 # Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-from PyGMO import core, algorithm, migration, problem, topology, test, util
-from PyGMO.util import hypervolume, hv_algorithm
-
-__doc__ = 'PyGMO is a pretty cool guy. it kills aliens and doesnt afraid of anything...'
-__all__ = ['core', 'algorithm', 'migration',
-           'problem', 'topology', 'test', 'util']
-__version__ = '1.1.5'
-
-# For convenience, bring all core classes into the root namespace when
-# importing *.
-from PyGMO.core import *
-__all__ += [name for name in dir(core) if not name.startswith('_')]
-
-problem_list = problem._get_problem_list()
-algorithm_list = algorithm._get_algorithm_list()
-island_list = core._get_island_list()
-
 # Fill up the __extensions__ variable with all detected extensions
 __extensions__ = {
     'nlopt': False,
@@ -49,16 +32,6 @@ __extensions__ = {
     'networkx': False,
     'vpython': False,
     'pykep': False}
-if "nlopt" in str(algorithm._get_algorithm_list()):
-    __extensions__['nlopt'] = True
-if "gsl" in str(algorithm._get_algorithm_list()):
-    __extensions__['gsl'] = True
-if "snopt" in str(algorithm._get_algorithm_list()):
-    __extensions__['snopt'] = True
-if "ipopt" in str(algorithm._get_algorithm_list()):
-    __extensions__['ipopt'] = True
-if "cassini" in str(problem._get_problem_list()):
-    __extensions__['gtop'] = True
 try:
     from scipy import __version__ as __scipy_version__
     __extensions__['scipy'] = True
@@ -79,6 +52,39 @@ try:
     __extensions__['pykep'] = True
 except ImportError:
     pass
+
+# NOTE: we may now test for extensions scipy, networkx, vpython and pykep, but not algos or problems
+from PyGMO import core, algorithm, migration, problem, topology, test, util
+from PyGMO.util import hypervolume, hv_algorithm
+
+if "nlopt" in str(algorithm._get_algorithm_list()):
+    __extensions__['nlopt'] = True
+if "gsl" in str(algorithm._get_algorithm_list()):
+    __extensions__['gsl'] = True
+if "snopt" in str(algorithm._get_algorithm_list()):
+    __extensions__['snopt'] = True
+if "ipopt" in str(algorithm._get_algorithm_list()):
+    __extensions__['ipopt'] = True
+if "cassini" in str(problem._get_problem_list()):
+    __extensions__['gtop'] = True
+# NOTE: All extensions are now detected
+
+__doc__ = 'PyGMO is a pretty cool guy. it kills aliens and doesnt afraid of anything...'
+__all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test', 'util']
+__version__ = '1.1.5'
+
+# For convenience, bring all core classes into the root namespace when
+# importing *.
+from PyGMO.core import *
+__all__ += [name for name in dir(core) if not name.startswith('_')]
+
+problem_list = problem._get_problem_list()
+algorithm_list = algorithm._get_algorithm_list()
+island_list = core._get_island_list()
+
+
+
+
 
 
 def run_test(n_trials=200, pop_size=20, n_gen=500):

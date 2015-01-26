@@ -109,7 +109,6 @@ class __PAGMO_VISIBLE tsp_ds: public base_tsp
             ar & const_cast<std::vector<double> &>(m_values);
             ar & const_cast<double &>(m_max_DV);
             ar & const_cast<std::vector<double> &>(m_epochs);
-            ar & m_min_value;
             precompute_ephemerides();
         }
 
@@ -120,17 +119,11 @@ class __PAGMO_VISIBLE tsp_ds: public base_tsp
         const decision_vector m_epochs;
         const double m_mu;
 
-        // this data member is set in the constructor as the minimum in m_values and is used in the objecive function
-        double m_min_value;
-
-
-        // These are to preallocate memory
+        // These are to pre-allocate memory
         mutable std::vector<double> m_DV;
         mutable std::vector<std::vector<kep_toolbox::array3D> >m_eph_r;
         mutable std::vector<std::vector<kep_toolbox::array3D> >m_eph_v;
         mutable std::vector<std::vector<kep_toolbox::array6D> >m_eph_el;
-
-
 };
 
 }}  //namespaces

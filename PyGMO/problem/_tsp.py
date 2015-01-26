@@ -151,6 +151,7 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     import numpy as np
     from PyGMO.problem import tsp
     fig = plt.gcf()
+    axis = plt.gca()
 
     # We extract few informations on the problem
     weights = self.weights
@@ -255,9 +256,9 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
         node_color = [0.4] * n_cities
 
     nx.draw_networkx_nodes(G, pos=pos, node_size=node_size,
-                           cmap=plt.cm.Blues, node_color=node_color)
+                           cmap=plt.cm.Blues, node_color=node_color, ax=axis)
     nx.draw_networkx_edges(G, pos, edgelist=edgelist,
-                           width=edge_width, alpha=1, edge_color=edge_color)
+                           width=edge_width, alpha=1, edge_color=edge_color, ax=axis)
     fig.canvas.draw()
     plt.show()
     return pos

@@ -43,12 +43,13 @@ namespace pagmo { namespace problem {
  * of finding a path of length \f$ l<l^* \f$ accumulating the largest possible vertex value.
  * We encode a solution to this problem as an Hamiltonian path and evaluate its merit finding, along it, 
  * the best sequence satisfying the \f$ l<l^* \f$ constraint. Denoting its cumulated vertex value with \f$ P \f$ we also compute, 
- * along it, \f$ \epsilon = |l-l^*| \in [0,1] \f$. 
- * The problem will then be that of finding the Hamiltonian path maximizing \f$ P \f$ and having the largest \f$ \frac{\epsilon}{l^*} \f$.
+ * the length of the whole Hamiltonian path, \f$ L \f$. 
+ *
+ * The problem will then be that of finding the Hamiltonian path maximizing \f$ P \f$ and having the largest \f$ L \f$.
  *
  * NOTE: if \f$ l^* \f$ is larger than than the shortest Hamiltonian path (i.e. the solution to the static TSP), the solution
  * to this problem is the solution to the static TSP. If \f$ l^* \f$ is, instead, smaller than the minimum weight across edges,
- * the solution to this problem is trivial and its global minimum is exactly \f$ \max V \f$ (corrsponding to \f$ P=\max V  \f$ and \f$ \epsilon = l^* \f$).
+ * the solution to this problem is trivial and its global minimum is exactly \f$ \max V \f$ (corrsponding to \f$ P=\max V  \f$.
  *
  * @author Dario Izzo (dario.izzo@gmail.com)
  */
@@ -94,16 +95,16 @@ class __PAGMO_VISIBLE tsp_cs: public base_tsp
         {
             ar & boost::serialization::base_object<base_tsp>(*this);
             ar & m_weights;
+            ar & m_values;
             ar & const_cast<double &>(m_max_path_length);
-	    ar & m_min_value;
-	    ar & m_values;
+	        ar & m_max_edge_length;
         }
 
     private:
         std::vector<std::vector<double> > m_weights;
         std::vector<double> m_values ;
         const double m_max_path_length;
-        double m_min_value;
+        double m_max_edge_length;
 };
 
 }}  //namespaces
