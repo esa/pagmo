@@ -89,4 +89,3 @@ def _print_matrix(mat, show_all=False):
         numpy.set_printoptions(threshold='nan')
 
     print(numpy.array(mat))
-
