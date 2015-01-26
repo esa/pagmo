@@ -3240,7 +3240,7 @@ class analysis:
             ylabels = [str(i) for i in range(1, dim + 1)]
             xticks(xlocs, [x.format(xlocs[i]) for i, x in enumerate(xlabels)])
             yticks(ylocs, [y.format(ylocs[i]) for i, y in enumerate(ylabels)])
-        except IndexError, ValueError:
+        except (IndexError, ValueError):
             pass
         f = plot.get_figure()
         if self.dir is None:
@@ -3375,7 +3375,7 @@ class analysis:
                     'g' + str(i + 1) for i in range(self.ic_dim)]
                 xticks(xlocs, [x.format(xlocs[i])
                                for i, x in enumerate(xlabels)])
-            except IndexError, ValueError:
+            except (IndexError, ValueError):
                 pass
         f = plot.get_figure()
         if self.dir is None:
