@@ -51,11 +51,22 @@
 using namespace boost::python;
 using namespace pagmo;
 
-static inline tuple find_city_subsequence_wrapper(const pagmo::problem::tsp_cs& p, const decision_vector& tour)
+
+// wrapper for the find_subsequence method of tsp_cs
+static inline tuple find_subsequence_wrapper_cs(const problem::tsp_cs& p, const decision_vector& tour)
 {
 	double retval_p, retval_l;
 	decision_vector::size_type retval_it_l, retval_it_r;
-    p.find_city_subsequence(tour,retval_p,retval_l,retval_it_l,retval_it_r);
+    p.find_subsequence(tour,retval_p,retval_l,retval_it_l,retval_it_r);
+	return boost::python::make_tuple(retval_p,retval_l,retval_it_l,retval_it_r);
+}
+
+// wrapper for the find_subsequence method of tsp_ads
+static inline tuple find_subsequence_wrapper_ds(const problem::tsp_ds& p, const decision_vector& tour, const bool static_computations)
+{
+	double retval_p, retval_l;
+	decision_vector::size_type retval_it_l, retval_it_r;
+    p.find_subsequence(tour,retval_p,retval_l,retval_it_l,retval_it_r, static_computations);
 	return boost::python::make_tuple(retval_p,retval_l,retval_it_l,retval_it_r);
 }
 
@@ -409,7 +420,7 @@ BOOST_PYTHON_MODULE(_problem) {
 	// Travelling salesman problem, city-selection variant (TSP-CS)
 	tsp_problem_wrapper<problem::tsp_cs>("tsp_cs","City-selection Travelling Salesman Problem (TSP-CS)")
 		.def(init<const std::vector<std::vector<double> > &, const std::vector<double>&, const double, const problem::base_tsp::encoding_type &>())
-		.def("find_city_subsequence", &find_city_subsequence_wrapper)
+		.def("find_city_subsequence", &find_subsequence_wrapper_cs)
 		.add_property("weights", make_function(&problem::tsp_cs::get_weights, return_value_policy<copy_const_reference>()))
 		.add_property("values",  make_function(&problem::tsp_cs::get_values, return_value_policy<copy_const_reference>()))
 		.add_property("max_path_length",  &problem::tsp_cs::get_max_path_length);
@@ -624,7 +635,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("get_sequence", &problem::mga_incipit_cstrs::get_sequence)
 		.add_property("tof",make_function(&problem::mga_incipit_cstrs::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_incipit_cstrs::set_tof,"bound on the times of flight for the different legs");
 
-
 	problem_wrapper<problem::mga_part>("mga_part", "A part of the Jupiter moon tour from gtoc6")
 		.def(init< optional <std::vector<kep_toolbox::planet_ptr>, std::vector<std::vector<double> >, kep_toolbox::epoch, kep_toolbox::array3D > >())
 		.def("pretty", &problem::mga_part::pretty)
@@ -635,9 +645,14 @@ BOOST_PYTHON_MODULE(_problem) {
 		.add_property("betas",&problem::mga_part::get_betas, &problem::mga_part::set_betas,"bounds on the beta angles for the different legs")
 		.add_property("rps",&problem::mga_part::get_rps, &problem::mga_part::set_rps,"bounds on the periplanet heights for the different legs");
 
-	//problem_wrapper<problem::mga_target_event>("mga_target_event", "A part of the gtoc7 problem")
-	//	.def(init< optional <kep_toolbox::planet_ptr, kep_toolbox::planet_ptr, kep_toolbox::epoch, double, bool > >());
-
+	// Travelling salesman problem, Asteroids / Debris Selection TSP (TSP-ADS)
+	tsp_problem_wrapper<problem::tsp_ds>("tsp_ds","Debris Selection TSP (TSP-DS)")
+		.def(init<optional<const std::vector<kep_toolbox::planet_ptr>&, const std::vector<double>&, const double, const std::vector<double>&, const problem::base_tsp::encoding_type & > >())
+		.def("find_subsequence", &find_subsequence_wrapper_ds)
+        .add_property("planets", make_function(&problem::tsp_ds::get_planets, return_value_policy<copy_const_reference>()) )
+        .add_property("values", make_function(&problem::tsp_ds::get_values, return_value_policy<copy_const_reference>()) )
+        .add_property("epochs", make_function(&problem::tsp_ds::get_epochs, return_value_policy<copy_const_reference>()), "epoch schedule")
+        .add_property("max_DV", &problem::tsp_ds::get_max_DV );
 #endif
 
 #ifdef PAGMO_ENABLE_GSL
@@ -648,7 +663,6 @@ BOOST_PYTHON_MODULE(_problem) {
 		.def("simulate", &problem::spheres::simulate)
 		.def("get_nn_weights", &problem::spheres::get_nn_weights)
 		.add_property("seed",&problem::spheres::get_seed,&problem::spheres::set_seed,"Random seed used in the objective function evaluation.");
-
 
 	//problem_wrapper<problem::spheres_q>("spheres_q", "Spheres problem, a neurocontroller for the MIT test-bed (body-axis perception-action)")
 	//	.def(init< optional<int,int,double,unsigned int> >())

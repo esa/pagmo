@@ -45,7 +45,7 @@ namespace pagmo { namespace problem {
         m_weights[1][2] = 1;
 
         m_values = std::vector<double>(3,1.0);
-        m_min_value = 1;
+        m_max_edge_length = 1;
     }
 
     /// Constructor
@@ -70,7 +70,15 @@ namespace pagmo { namespace problem {
         {
             pagmo_throw(value_error,"Size of weight matrix and values vector must be equal");
         }
-        m_min_value = *std::min(m_values.begin(), m_values.end());
+
+        m_max_edge_length = 0;
+        for (std::vector<std::vector<double> >::size_type  i=0; i < weights.size(); ++i)
+        {
+            for (std::vector<std::vector<double> >::size_type j=0; j < weights.size(); ++j)
+            {
+                m_max_edge_length = (weights[i][j] > m_max_edge_length) ? (weights[i][j]) : (m_max_edge_length);
+            }
+        }
     }
 
     /// Clone method.
@@ -153,9 +161,18 @@ namespace pagmo { namespace problem {
                 break;
            }
         }
-        find_city_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
-        f[0] = -(cum_p + (1 - m_min_value) * n_cities + saved_length / m_max_path_length);
-        return;
+        // We compute the maximal open walk
+        find_subsequence(tour, cum_p, saved_length, dumb1, dumb2);
+
+        // We compute the length of the whole Hamiltonian path
+	    double ham_path_len = 0;
+	    for (decision_vector::size_type i=0; i<n_cities-1; ++i) 
+        {
+            ham_path_len += m_weights[tour[i]][tour[i+1]];
+        }
+
+        f[0] = -(cum_p) - (1 - ham_path_len / (n_cities * m_max_edge_length));
+	    return;
     }
 
     size_t tsp_cs::compute_idx(const size_t i, const size_t j, const size_t n) const
@@ -179,7 +196,7 @@ namespace pagmo { namespace problem {
      * @throws value_error if the input tour length is not equal to the city number
 
      */
-    void tsp_cs::find_city_subsequence(const decision_vector& tour, double& retval_p, double& retval_l, decision_vector::size_type& retval_it_l, decision_vector::size_type& retval_it_r) const
+    void tsp_cs::find_subsequence(const decision_vector& tour, double& retval_p, double& retval_l, decision_vector::size_type& retval_it_l, decision_vector::size_type& retval_it_r) const
     {
         if (tour.size() != get_n_cities())
         {
@@ -207,7 +224,7 @@ namespace pagmo { namespace problem {
             {
                 // We increment the right "pointer" updating the value and length of the path
                 saved_length -= m_weights[tour[it_r % n_cities]][tour[(it_r + 1) % n_cities]];
-                cum_p += m_values[(it_r + 1) % n_cities];
+                cum_p += m_values[tour[(it_r + 1) % n_cities]];
                 it_r += 1;
 
                 // We update the various retvals only if the new subpath is valid
@@ -242,7 +259,7 @@ namespace pagmo { namespace problem {
             {
                 // We increment the left "pointer" updating the value and length of the path
                 saved_length += m_weights[tour[it_l % n_cities]][tour[(it_l + 1) % n_cities]];
-                cum_p -= m_values[it_l];
+                cum_p -= m_values[tour[it_l]];
                 it_l += 1;
                 // We update the various retvals only if the new subpath is valid
                 if (saved_length > 0)

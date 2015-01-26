@@ -185,7 +185,18 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 	
 	std::vector<fitness_vector>  fitness(NP, fitness_vector(1));
 	for(size_t i=0; i < NP; i++){
-    		fitness[i] = prob->objfun(my_pop[i]);
+			switch( prob->get_encoding() ) 
+			{
+			    case problem::base_tsp::FULL:
+			        fitness[i] = prob->objfun(prob->full2cities(my_pop[i]));
+			        break;
+			    case problem::base_tsp::RANDOMKEYS:
+			        fitness[i] = prob->objfun(prob->cities2randomkeys(my_pop[i], pop.get_individual(i).cur_x));
+			        break;
+			    case problem::base_tsp::CITIES:
+			        fitness[i] = prob->objfun(my_pop[i]);
+			        break;
+			}
 	}
 	
 	decision_vector tmp_tour(Nv);
@@ -230,7 +241,18 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 				}
 			} //end of while loop (looping over a single indvidual)
 			if(changed){
-				fitness_tmp = prob->objfun(tmp_tour);
+				switch( prob->get_encoding() ) 
+				{
+				    case problem::base_tsp::FULL:
+				        fitness_tmp = prob->objfun(prob->full2cities(tmp_tour));
+				        break;
+				    case problem::base_tsp::RANDOMKEYS: //using "randomly" index 0 as a temporary template
+				        fitness_tmp = prob->objfun(prob->cities2randomkeys(tmp_tour, pop.get_individual(0).cur_x));
+				        break;
+				    case problem::base_tsp::CITIES:
+				        fitness_tmp = prob->objfun(tmp_tour);
+				        break;
+				}
 				if(prob->compare_fitness(fitness_tmp,fitness[i1])){ //replace individual?
 					my_pop[i1] = tmp_tour;
 					fitness[i1][0] = fitness_tmp[0];

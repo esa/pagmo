@@ -36,7 +36,7 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities"):
         Constructs a Travelling Salesman problem
         (Constrained Integer Single-Objective)
 
-        USAGE: problem.tsp(matrix = [0,1,2],[1,0,5],[2,5,0], type="randomkeys")
+        USAGE: problem.tsp(weights = [0,1,2],[1,0,5],[2,5,0], type="randomkeys")
 
          * weights: Square matrix with zero diagonal entries containing the cities distances.
          * type: encoding type. One of "cities","randomkeys","full"
@@ -151,7 +151,8 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
     import numpy as np
     from PyGMO.problem import tsp
     fig = plt.gcf()
-	
+    axis = plt.gca()
+
     # We extract few informations on the problem
     weights = self.weights
     n_cities = len(weights[0])
@@ -174,15 +175,15 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
             edgelist = edgelist[id1:] + edgelist[:id2 + 1]
         edgelist = [(edgelist[i], edgelist[i + 1]) for i in range(len(edgelist) - 1)]
     elif type(self) == tsp_vrplc:
-            stl = 0
-	    chromosome = edgelist
-            edgelist = [(chromosome[0], chromosome[1])]
-            for i in range(1, n_cities - 1):
-                stl += weights[int(chromosome[i])][int(chromosome[i + 1])]
-                if stl > self.capacity:
-                    stl = 0
-                else:
-                    edgelist += [(chromosome[i], chromosome[i + 1])]
+        stl = 0
+        chromosome = edgelist
+        edgelist = [(chromosome[0], chromosome[1])]
+        for i in range(1, n_cities - 1):
+            stl += weights[int(chromosome[i])][int(chromosome[i + 1])]
+            if stl > self.capacity:
+                stl = 0
+            else:
+                edgelist += [(chromosome[i], chromosome[i + 1])]
 
     if bias is None:
         bias = max([max(d) for d in weights])
@@ -255,9 +256,9 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
         node_color = [0.4] * n_cities
 
     nx.draw_networkx_nodes(G, pos=pos, node_size=node_size,
-                           cmap=plt.cm.Blues, node_color=node_color)
+                           cmap=plt.cm.Blues, node_color=node_color, ax=axis)
     nx.draw_networkx_edges(G, pos, edgelist=edgelist,
-                           width=edge_width, alpha=1, edge_color=edge_color)
+                           width=edge_width, alpha=1, edge_color=edge_color, ax=axis)
     fig.canvas.draw()
     plt.show()
     return pos
