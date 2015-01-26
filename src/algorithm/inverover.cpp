@@ -212,17 +212,16 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 					pos2_c2 = (pos2_c1 == Nv-1? 0:pos2_c1+1);
 					pos1_c2 = std::find(tmp_tour.begin(),tmp_tour.end(),my_pop[i2][pos2_c2])-tmp_tour.begin();
 				}
-				stop = (abs(pos1_c1-pos1_c2)==1 || abs(pos1_c1-pos1_c2)==Nv-1);
+				stop = (std::abs(pos1_c1-pos1_c2)==1 || std::abs(pos1_c1-pos1_c2)==Nv-1);
 				if(!stop){
 					changed = true;
 					if(pos1_c1<pos1_c2){
-						for(size_t l=0; l < (double (pos1_c2-pos1_c1-1)/2); l++){
+						for(size_t l = 0; l < (double (pos1_c2-pos1_c1-1u)/2); ++l){
 							std::swap(tmp_tour[pos1_c1+1+l],tmp_tour[pos1_c2-l]);}
 					}
 					else{
 						//inverts the section from c1 to c2 (see documentation Note3)
-						
-						for(size_t l=0; l < (double (Nv-(pos1_c1-pos1_c2)-1)/2); l++){
+						for(size_t l=0; l < (double (Nv-(pos1_c1-pos1_c2)-1)/2); ++l){
 							std::swap(tmp_tour[pos1_c1+1+l - (pos1_c1+1+l>Nv-1? Nv:0)],tmp_tour[pos1_c2-l + (pos1_c2<l? Nv:0)]);}
 						
 					}
