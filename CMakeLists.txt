@@ -52,7 +52,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wnoexcept -Wdisabled-optimization")
 	# Suggested for multithreaded code.
-	ADD_DEFINITIONS(-D_REENTRANT)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # using Intel C++
 	CHECK_CXX_COMPILER_FLAG(-mieee-fp INTEL_IEEE_COMPLIANT)
