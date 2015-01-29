@@ -109,8 +109,8 @@ namespace pagmo { namespace problem {
                 find_subsequence(x, cum_p, ham_path_len, dumb1, dumb2);
            }
         }
-
-        f[0] = -(cum_p) - (1 - ham_path_len / (n_cities * m_max_DV));
+        ham_path_len = std::accumulate(m_DV.begin(), m_DV.end(), 0.0);
+        f[0] = -(cum_p + 1 - ham_path_len / (n_cities * m_max_DV));    
         return;
     }
 
@@ -122,7 +122,7 @@ namespace pagmo { namespace problem {
      *
      * @param[in]  tour the hamiltonian path encoded with a CITIES encoding (i.e. the list of cities ids)
      * @param[out] retval_p the total cumulative value of the subpath
-     * @param[out] retval_l the total length of the Hamiltonian path
+     * @param[out] retval_l the total saved length of the Hamiltonian path
      * @param[out] retval_it_l the id of the city where the subpath starts
      * @param[out] retval_it_r the id of the city where the subpath ends
      * @throws value_error if the input tour length is not equal to the city number
@@ -148,7 +148,7 @@ namespace pagmo { namespace problem {
         retval_it_l = it_l;
         retval_it_r = it_r;
 
-        // We precompute all DVs (stred in m_DV)
+        // We precompute all DVs (stored in m_DV)
         compute_DVs(tour, static_computations);
 
         // Main body of the double loop
@@ -229,10 +229,6 @@ namespace pagmo { namespace problem {
             }
         }
 EndOfLoop:
-	retval_l = 0;
-	for (decision_vector::size_type i=0; i<n_cities-1; ++i) {
-    	    retval_l += m_DV[i];
-	}
     	return;
     }
 

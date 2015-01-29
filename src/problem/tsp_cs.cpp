@@ -190,7 +190,7 @@ namespace pagmo { namespace problem {
      *
      * @param[in]  tour the hamiltonian path encoded with a CITIES encoding (i.e. the list of cities ids)
      * @param[out] retval_p the total cumulative value of the subpath
-     * @param[out] retval_l the total cumulative length of the subpath
+     * @param[out] retval_l the total saved cumulative length of the subpath
      * @param[out] retval_it_l the id of the city where the subpath starts
      * @param[out] retval_it_r the id of the city where the subpath ends
      * @throws value_error if the input tour length is not equal to the city number

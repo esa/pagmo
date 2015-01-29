@@ -226,17 +226,26 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 				stop = (std::abs(pos1_c1-pos1_c2)==1 || std::abs(pos1_c1-pos1_c2)==Nv-1);
 				if(!stop){
 					changed = true;
-					if(pos1_c1<pos1_c2){
-						for(size_t l = 0; l < (double (pos1_c2-pos1_c1-1u)/2); ++l){
-							std::swap(tmp_tour[pos1_c1+1+l],tmp_tour[pos1_c2-l]);}
+					if(pos1_c1<pos1_c2)
+					{
+						for(size_t l = 0; l < (double (pos1_c2-pos1_c1-1u)/2); ++l)
+						{
+							std::swap(tmp_tour[pos1_c1+1+l],tmp_tour[pos1_c2-l]);
+						}
+						pos1_c1 = pos1_c2; 
 					}
-					else{
+					else
+					{
 						//inverts the section from c1 to c2 (see documentation Note3)
-						for(size_t l=0; l < (double (Nv-(pos1_c1-pos1_c2)-1)/2); ++l){
-							std::swap(tmp_tour[pos1_c1+1+l - (pos1_c1+1+l>Nv-1? Nv:0)],tmp_tour[pos1_c2-l + (pos1_c2<l? Nv:0)]);}
-						
+						//for(size_t l=0; l < (double (Nv-(pos1_c1-pos1_c2)-1)/2); ++l){
+						//	std::swap(tmp_tour[pos1_c1+1+l - (pos1_c1+1+l>Nv-1? Nv:0)],tmp_tour[pos1_c2-l + (pos1_c2<l? Nv:0)]);}
+						for(size_t l = 0; l < (double (pos1_c1-pos1_c2-1u)/2); ++l)
+						{
+							std::swap(tmp_tour[pos1_c2+1+l],tmp_tour[pos1_c1-l]);
+						}
+						pos1_c1 = pos1_c2 + 1;
 					}
-					pos1_c1 = pos1_c2; //better performance than original Inver-Over (shorter tour in less time)
+					//pos1_c1 = pos1_c2; //better performance than original Inver-Over (shorter tour in less time)
 				}
 			} //end of while loop (looping over a single indvidual)
 			if(changed){
