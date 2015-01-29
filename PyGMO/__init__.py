@@ -69,7 +69,7 @@ if "cassini" in str(problem._get_problem_list()):
     __extensions__['gtop'] = True
 # NOTE: All extensions are now detected
 
-__doc__ = 'PyGMO is a pretty cool guy. it kills aliens and doesnt afraid of anything...'
+__doc__ = 'PyGMO is a pretty cool guy. It kills aliens and does not afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test', 'util']
 __version__ = '1.1.5'
 

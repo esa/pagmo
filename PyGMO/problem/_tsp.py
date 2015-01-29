@@ -1,10 +1,11 @@
-from PyGMO.problem._problem import tsp, tsp_cs, tsp_vrplc, _tsp_encoding
-
+from PyGMO.problem._problem import tsp, tsp_cs, tsp_ds, tsp_vrplc, _tsp_encoding
+from PyGMO import __extensions__
 
 # Renaming and placing the enums
 tsp.encoding_type = _tsp_encoding
-tsp_cs.encoding_type = _tsp_encoding
 tsp_vrplc.encoding_type = _tsp_encoding
+tsp_cs.encoding_type = _tsp_encoding
+tsp_ds.encoding_type = _tsp_encoding
 
 
 def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities"):
@@ -44,21 +45,81 @@ def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities"):
 
     # We construct the arg list for the original constructor exposed by
     # boost_python
+
+    from PyGMO.problem._problem import _tsp_encoding
+
+    def encoding_type(x):
+        return {
+            "cities": _tsp_encoding.CITIES,
+            "randomkeys": _tsp_encoding.RANDOMKEYS,
+            "full": _tsp_encoding.FULL
+        }[x]
+
     arg_list = []
     arg_list.append(weights)
-    if type == "full":
-        encoding_type = tsp.encoding_type.FULL
-    elif type == "randomkeys":
-        encoding_type = tsp.encoding_type.RANDOMKEYS
-    elif type == "cities":
-        encoding_type = tsp.encoding_type.CITIES
-    else:
-        raise ValueError("Unrecognized encoding type")
-
-    arg_list.append(encoding_type)
+    arg_list.append(encoding_type(type))
     self._orig_init(*arg_list)
 tsp._orig_init = tsp.__init__
 tsp.__init__ = _tsp_ctor
+
+
+def _tsp_cs_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], values=[1, 1, 1], max_path_length=2, type="cities"):
+    """
+        Constructs Travelling Salesman Problem City-Selection (TSP-CS)
+        The problem encoding can be of three different types as
+        selected by the type kwarg
+
+        1-"cities"
+        This encoding represents the ids of the cities visited
+        directly in the chromosome. It will
+        thus create a constrained problem as only permutation of the
+        cities ids are valid (e.g. [0,2,1,5,0] is not
+        a valid chromosome)
+
+        2-"randomkeys"
+        This encoding, first introduced in the paper
+        Bean, J. C. (1994). Genetic algorithms and random keys for
+        sequencing and optimization. ORSA journal on computing, 6(2), 154-160.
+        It creates a box constrained problem without any constraint.
+        It essentially represents the tour as a sequence of doubles bounded
+        in [0,1]. The tour is reconstructed by the argsort of the sequence.
+        (e.g. [0.34,0.12,0.76,0.03] -> [3,1,0,2])
+
+        3-"full"
+        In the full encoding the TSP is represented as a integer linear
+        programming problem. The details can be found in
+        http://en.wikipedia.org/wiki/Travelling_salesman_problem
+        Constructs a Travelling Salesman problem
+        (Constrained Integer Single-Objective)
+
+        USAGE: problem.tsp_cs(weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], values=[1, 1, 1], max_path_length=2, type="cities")
+
+         * weights: Square matrix with zero diagonal entries containing the cities distances.
+         * values: The city values.
+         * max_path_length: maximum length the salesman can walk
+         * type: encoding type. One of "cities","randomkeys","full"
+    """
+
+    # We construct the arg list for the original constructor exposed by
+    # boost_python
+
+    from PyGMO.problem._problem import _tsp_encoding
+
+    def encoding_type(x):
+        return {
+            "cities": _tsp_encoding.CITIES,
+            "randomkeys": _tsp_encoding.RANDOMKEYS,
+            "full": _tsp_encoding.FULL
+        }[x]
+
+    arg_list = []
+    arg_list.append(weights)
+    arg_list.append(values)
+    arg_list.append(max_path_length)
+    arg_list.append(encoding_type(type))
+    self._orig_init(*arg_list)
+tsp_cs._orig_init = tsp_cs.__init__
+tsp_cs.__init__ = _tsp_cs_ctor
 
 
 def _tsp_vrplc_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities", capacity=1.1):
@@ -101,20 +162,20 @@ def _tsp_vrplc_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="citie
          * capacity: maximum vehicle capacity
     """
 
+    from PyGMO.problem._problem import _tsp_encoding
+
+    def encoding_type(x):
+        return {
+            "cities": _tsp_encoding.CITIES,
+            "randomkeys": _tsp_encoding.RANDOMKEYS,
+            "full": _tsp_encoding.FULL
+        }[x]
+
     # We construct the arg list for the original constructor exposed by
     # boost_python
     arg_list = []
     arg_list.append(weights)
-    if type == "full":
-        encoding_type = self.encoding_type.FULL
-    elif type == "randomkeys":
-        encoding_type = self.encoding_type.RANDOMKEYS
-    elif type == "cities":
-        encoding_type = self.encoding_type.CITIES
-    else:
-        raise ValueError("Unrecognized encoding type")
-
-    arg_list.append(encoding_type)
+    arg_list.append(encoding_type(type))
     arg_list.append(capacity)
     self._orig_init(*arg_list)
 tsp_vrplc._orig_init = tsp_vrplc.__init__
@@ -266,3 +327,64 @@ def _plot_tsp(self, x, node_size=10, edge_color='r',
 tsp.plot = _plot_tsp
 tsp_cs.plot = _plot_tsp
 tsp_vrplc.plot = _plot_tsp
+
+if __extensions__["pykep"] is True:
+    def _tsp_ds_ctor(self, planets, values, max_DV, epochs, type="cities"):
+        """
+            Constructs Travelling Salesman Problem City-Selection (TSP-CS)
+            The problem encoding can be of three different types as
+            selected by the type kwarg
+
+            1-"cities"
+            This encoding represents the ids of the cities visited
+            directly in the chromosome. It will
+            thus create a constrained problem as only permutation of the
+            cities ids are valid (e.g. [0,2,1,5,0] is not
+            a valid chromosome)
+
+            2-"randomkeys"
+            This encoding, first introduced in the paper
+            Bean, J. C. (1994). Genetic algorithms and random keys for
+            sequencing and optimization. ORSA journal on computing, 6(2), 154-160.
+            It creates a box constrained problem without any constraint.
+            It essentially represents the tour as a sequence of doubles bounded
+            in [0,1]. The tour is reconstructed by the argsort of the sequence.
+            (e.g. [0.34,0.12,0.76,0.03] -> [3,1,0,2])
+
+            3-"full"
+            In the full encoding the TSP is represented as a integer linear
+            programming problem. The details can be found in
+            http://en.wikipedia.org/wiki/Travelling_salesman_problem
+            Constructs a Travelling Salesman problem
+            (Constrained Integer Single-Objective)
+
+            USAGE: problem.tsp_cs(weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], values=[1, 1, 1], max_path_length=2, type="cities")
+
+             * planets: list of planets
+             * values: list of planets values
+             * max_DV: maximum DV on-board
+             * epochs: list of allowed epochs for the visit (in MJD2000)
+             * type: encoding type. One of "cities","randomkeys","full"
+        """
+
+        # We construct the arg list for the original constructor exposed by
+        # boost_python
+
+        from PyGMO.problem._problem import _tsp_encoding
+
+        def encoding_type(x):
+            return {
+                "cities": _tsp_encoding.CITIES,
+                "randomkeys": _tsp_encoding.RANDOMKEYS,
+                "full": _tsp_encoding.FULL
+            }[x]
+
+        arg_list = []
+        arg_list.append(planets)
+        arg_list.append(values)
+        arg_list.append(max_DV)
+        arg_list.append(epochs)
+        arg_list.append(encoding_type(type))
+        self._orig_init(*arg_list)
+    tsp_ds._orig_init = tsp_ds.__init__
+    tsp_ds.__init__ = _tsp_ds_ctor

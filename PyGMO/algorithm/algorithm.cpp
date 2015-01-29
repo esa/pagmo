@@ -263,8 +263,8 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	//InverOver initialization type enum
 	enum_<algorithm::inverover::initialization_type>("_tsp_ini_type")
-		.value("random", algorithm::inverover::random)
-		.value("nn", algorithm::inverover::nn);	
+		.value("RANDOM", algorithm::inverover::random)
+		.value("NN", algorithm::inverover::nn);	
 
 	//InverOver   
         algorithm_wrapper<algorithm::inverover>("inverover","InverOver Genetic Algorithm.")

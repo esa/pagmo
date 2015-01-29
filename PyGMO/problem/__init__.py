@@ -10,12 +10,11 @@ from PyGMO.problem._example_stochastic import py_example_stochastic
 from PyGMO.problem._pl2pl import py_pl2pl
 from PyGMO.problem._mo import *
 from PyGMO.problem._tsp import *
+from PyGMO import __extensions__
 
 # If GTOP database support is active import interplanetary trajectory problems
-try:
+if __extensions__["gtop"] is True:
     from PyGMO.problem._gtop import *
-except ImportError:
-    pass
 
 # If GSL support is active import mit_sphere
 try:

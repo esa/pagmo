@@ -1223,11 +1223,7 @@ cmaes._orig_init = cmaes.__init__
 cmaes.__init__ = _cmaes_ctor
 
 
-def _inverover_ctor(
-        self,
-        gen=100000,
-        ri=0.05,
-        type="random"):
+def _inverover_ctor(self, gen=100000, ri=0.05, type="random"):
     """
     Constructs a Inverover algorithm
 
@@ -1245,20 +1241,18 @@ def _inverover_ctor(
     """
 
     from PyGMO.algorithm._algorithm import _tsp_ini_type
-    inverover.ini_type = _tsp_ini_type
+
+    def initialization_type(x):
+        return {
+            "random": _tsp_ini_type.RANDOM,
+            "nn": _tsp_ini_type.NN
+        }[x]
 
     # We set the defaults or the kwargs
     arg_list = []
     arg_list.append(gen)
     arg_list.append(ri)
-    if type == "random":
-        ini_type = self.ini_type.random
-    elif type == "nn":
-        ini_type = self.ini_type.nn
-    else:
-        raise ValueError("Unrecognized initialization type")
-
-    arg_list.append(ini_type)
+    arg_list.append(initialization_type(type))
     self._orig_init(*arg_list)
 inverover._orig_init = inverover.__init__
 inverover.__init__ = _inverover_ctor
