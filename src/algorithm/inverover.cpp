@@ -223,7 +223,7 @@ inverover::inverover(int gen, double ri, initialization_type ini_type)
 					pos2_c2 = (pos2_c1 == Nv-1? 0:pos2_c1+1);
 					pos1_c2 = std::find(tmp_tour.begin(),tmp_tour.end(),my_pop[i2][pos2_c2])-tmp_tour.begin();
 				}
-				stop = (std::abs(pos1_c1-pos1_c2)==1 || std::abs(pos1_c1-pos1_c2)==Nv-1);
+				stop = (std::abs(int(pos1_c1-pos1_c2))==1 || std::abs(int(pos1_c1-pos1_c2))==Nv-1);
 				if(!stop){
 					changed = true;
 					if(pos1_c1<pos1_c2)
