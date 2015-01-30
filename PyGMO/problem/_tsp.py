@@ -358,7 +358,7 @@ if __extensions__["pykep"] is True:
             Constructs a Travelling Salesman problem
             (Constrained Integer Single-Objective)
 
-            USAGE: problem.tsp_cs(weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], values=[1, 1, 1], max_path_length=2, type="cities")
+            USAGE: problem.tsp_cs(planets, values, max_DV, epochs, type="cities"):
 
              * planets: list of planets
              * values: list of planets values

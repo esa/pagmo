@@ -72,6 +72,12 @@ return base_ptr(new inverover(*this));
  *
  * @param[in,out] pop input/output pagmo::population to be evolved.
  */
+ /// Evolve implementation.
+    /**
+     * Runs the Inverover algorithm for the number of generations specified in the constructor.
+     *
+     * @param[in,out] pop input/output pagmo::population to be evolved.
+     */
 void inverover::evolve(population &pop) const
 {
 
@@ -244,8 +250,8 @@ for(int iter = 0; iter < m_gen; iter++){
 				else{
 					//inverts the section from c1 to c2 (see documentation Note3)
 					for(size_t l=0; l < (double (pos1_c1-pos1_c2-1)/2); l++){
-						std::swap(tmp_tour[pos1_c2+1+l],tmp_tour[pos1_c1-l]);}	
-				pos1_c1 = pos1_c2+1;				
+						std::swap(tmp_tour[pos1_c2+l],tmp_tour[pos1_c1-l-1]);}	
+				pos1_c1 = (pos1_c2 == 0? Nv-1:pos1_c2-1);				
 				}
 				
 			}
