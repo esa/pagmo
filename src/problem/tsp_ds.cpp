@@ -112,7 +112,7 @@ namespace pagmo { namespace problem {
            }
         }
         ham_path_len = std::accumulate(m_DV.begin(), m_DV.end(), 0.0);
-        f[0] = -(cum_p + 1 - ham_path_len / (n_cities * m_max_DV) / 100);    
+        f[0] = -(cum_p + 1 - ham_path_len / (n_cities * m_max_DV) / 10);    
         return;
     }
 
