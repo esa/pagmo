@@ -36,7 +36,7 @@ namespace pagmo { namespace problem {
  * @param[in] dim global dimension of the problem.
  * @param[in] seed random number generator seed
  */
-base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng(seed), m_seed(seed)
+base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng(seed), m_urng(seed), m_seed(seed)
 {
 }
 
@@ -50,7 +50,7 @@ base_stochastic::base_stochastic(int dim, unsigned int seed) : base(dim), m_drng
  * @param[in] c_tol constraints tolerance (equal for all constraints)
  * @param[in] seed random number generator seed
 */
-base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const double &c_tol, unsigned int seed): base((int)n, ni, nf, nc, nic, c_tol), m_drng(seed), m_seed(seed)
+base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const double &c_tol, unsigned int seed): base((int)n, ni, nf, nc, nic, c_tol), m_drng(seed), m_urng(seed), m_seed(seed)
 {
 }
 
@@ -64,7 +64,7 @@ base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const d
  * @param[in] c_tol constraints tolerance std::vector
  * @param[in] seed random number generator seed
 */
-base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const std::vector<double> &c_tol, unsigned int seed): base((int)n, ni, nf, nc, nic, c_tol), m_drng(seed), m_seed(seed)
+base_stochastic::base_stochastic(int n, int ni, int nf, int nc, int nic, const std::vector<double> &c_tol, unsigned int seed): base((int)n, ni, nf, nc, nic, c_tol), m_drng(seed), m_urng(seed), m_seed(seed)
 {
 }
 

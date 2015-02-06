@@ -69,12 +69,15 @@ class __PAGMO_VISIBLE base_stochastic : public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_drng;
+			ar & m_urng; 
 			ar & m_seed;
 		}
 		
 	protected:
-		/// Random number generator to be used in the objective function
-		mutable rng_double				m_drng;
+		/// Random number generator for double-precision floating point values.
+		mutable rng_double	m_drng;
+		/// Random number generator for unsigned integer values.
+		mutable rng_uint32	m_urng;
 		/// Seed of the random number generator
 		mutable unsigned int			m_seed;
 
