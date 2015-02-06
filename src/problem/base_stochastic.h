@@ -39,7 +39,7 @@ namespace pagmo{ namespace problem {
  *
  * These types of problems, in PaGMO, need to
  * iherit from this base class and reimplement the pagmo::problem::base class virtual method objfun_impl
- * starting with the following line that sets the seed: m_drng.seed(m_seed);
+ * starting with the following lines setting the rngs seed: m_drng.seed(m_seed); m_urng.seed(m_seed);
  *
  * Look at pagmo::problem::inventory and pagmo::problem::spheres for a typical example.
  *
