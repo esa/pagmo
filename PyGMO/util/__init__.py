@@ -142,7 +142,7 @@ def _hypervolume_compute(self, r=None, algorithm=None, *args, **kwargs):
         raise TypeError(
             "Incorrect combination of args/kwargs, type 'hypervolume.compute?' for usage")
 
-    r = _HypervolumeValidationlidation.handle_refpoint(self, r)
+    r = _HypervolumeValidation.handle_refpoint(self, r)
     args = []
     args.append(r)
     if algorithm:

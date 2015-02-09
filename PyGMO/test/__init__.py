@@ -27,7 +27,7 @@ import unittest as _ut
 class _serialization_test(_ut.TestCase):
 
     def test_pickle(self):
-        from PyGMO import archipelago, island_list, problem_list, algorithm_list, problem
+        from PyGMO import archipelago, island_list, problem_list, algorithm_list, problem, algorithm
         import pickle
         from copy import deepcopy
         # We remove some problems that cannot be constructed without external
@@ -38,7 +38,6 @@ class _serialization_test(_ut.TestCase):
         for isl in island_list:
             for prob in prob_list:
                 for algo in algorithm_list:
-                    print(isl, type(prob()), type(algo()))
                     a = archipelago()
                     a.push_back(isl(algo(), prob(), 20))
                     a.push_back(isl(algo(), prob(), 20))
