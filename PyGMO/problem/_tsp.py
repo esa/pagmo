@@ -1,11 +1,14 @@
-from PyGMO.problem._problem import tsp, tsp_cs, tsp_ds, tsp_vrplc, _tsp_encoding
+from PyGMO.problem._problem import tsp, tsp_cs, tsp_vrplc, _tsp_encoding
 from PyGMO import __extensions__
+if __extensions__["gtop"] is True:
+    from PyGMO.problem._problem import tsp_ds
+    tsp_ds.encoding_type = _tsp_encoding
 
 # Renaming and placing the enums
 tsp.encoding_type = _tsp_encoding
 tsp_vrplc.encoding_type = _tsp_encoding
 tsp_cs.encoding_type = _tsp_encoding
-tsp_ds.encoding_type = _tsp_encoding
+
 
 
 def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities"):
@@ -328,7 +331,7 @@ tsp.plot = _plot_tsp
 tsp_cs.plot = _plot_tsp
 tsp_vrplc.plot = _plot_tsp
 
-if __extensions__["pykep"] is True:
+if __extensions__["gtop"] is True:
     def _tsp_ds_ctor(self, planets, values, max_DV, epochs, type="cities"):
         """
             Constructs Travelling Salesman Problem City-Selection (TSP-CS)
