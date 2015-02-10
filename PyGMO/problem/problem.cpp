@@ -40,6 +40,7 @@
 #include "../../src/serialization.h"
 #include "../../src/types.h"
 #include "../../src/config.h"
+#include "../../src/problem/tsp_ds.h"
 #include "../utils.h"
 #include "python_base.h"
 #include "python_base_stochastic.h"
