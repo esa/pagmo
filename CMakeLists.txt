@@ -1,92 +1,10 @@
 PROJECT(PaGMO)
 
-# List of directories to search for CMake modules.
-# Commands like include() and find_package() search for files in directories listed
-# by this variable before checking the default modules that come with CMake.
-SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake_modules)
+# We enable cmake test capability
 ENABLE_TESTING()
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12.2)
 
-MESSAGE(STATUS "OS detected: ${CMAKE_SYSTEM_NAME}")
-MESSAGE(STATUS "CXX Compiler detected: ${CMAKE_CXX_COMPILER_ID}")
-
-# Setting OS specific variables
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	SET(CMAKE_MACOSX_RPATH OFF)
-	SET(CMAKE_OSX_ROOT "")
-	SET(CMAKE_OSX_DEPLOYMENT_TARGET "")
-	# Homebrew directory added to path
-	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-MESSAGE(STATUS "CMake Library search path: ${CMAKE_LIBRARY_PATH}")
-
-# Setting compiler secific flags
-INCLUDE(CheckCXXCompilerFlag)
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	CHECK_CXX_COMPILER_FLAG(-ftemplate-depth=256 CLANG_TEMPLATE_DEPTH)
-	IF(CLANG_TEMPLATE_DEPTH)
-		MESSAGE(STATUS "Enabling '-ftemplate-depth=256' compiler flag required since boost 1.54.")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-depth=256")
-	ENDIF(CLANG_TEMPLATE_DEPTH)
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	CHECK_CXX_COMPILER_FLAG(-fmessage-length=0 GNUCXX_MESSAGE_LENGTH)
-	IF(GNUCXX_MESSAGE_LENGTH)
-		MESSAGE(STATUS "Enabling '-fmessage-length=0' compiler flag.")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
-	ENDIF(GNUCXX_MESSAGE_LENGTH)
-	CHECK_CXX_COMPILER_FLAG(-Wnon-virtual-dtor GNUCXX_VIRTUAL_DTOR)
-	IF(GNUCXX_VIRTUAL_DTOR)
-		MESSAGE(STATUS "Enabling '-Wnon-virtual-dtor' compiler flag.")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor")
-	ENDIF(GNUCXX_VIRTUAL_DTOR)
-	CHECK_CXX_COMPILER_FLAG(-Wno-deprecated GNUCXX_NO_DEPRECATED)
-	IF(GNUCXX_NO_DEPRECATED)
-		MESSAGE(STATUS "Enabling '-Wno-deprecated' compiler flag.")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated")
-	ENDIF(GNUCXX_NO_DEPRECATED)
-	CHECK_CXX_COMPILER_FLAG(-Wno-ignored-qualifiers GNUCXX_IGNORED_QUALIFIERS)
-	IF(GNUCXX_IGNORED_QUALIFIERS)
-		MESSAGE(STATUS "Enabling '-Wno-ignored-qualifiers' compiler flag.")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
-	ENDIF(GNUCXX_IGNORED_QUALIFIERS)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing -Wall -Wextra -Wnoexcept -Wdisabled-optimization")
-	# Suggested for multithreaded code.
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-  # using Intel C++
-	CHECK_CXX_COMPILER_FLAG(-mieee-fp INTEL_IEEE_COMPLIANT)
-	IF(INTEL_IEEE_COMPLIANT)
-			MESSAGE(STATUS "Enabling '-mieee-fp' compiler flag to get IEEE compliant code")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mieee-fp")
-	ENDIF(INTEL_IEEE_COMPLIANT)
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  # using Visual Studio C++
-endif()
-
-# The following flags will be tried on all compilers
-CHECK_CXX_COMPILER_FLAG(-std=c++11 ALL_C11)
-IF(ALL_C11)
-	MESSAGE(STATUS "Enabling '-std=c++11' compiler flag")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-ENDIF(ALL_C11)
-
-IF(NOT ALL_C11)
-	CHECK_CXX_COMPILER_FLAG(-std=c++0x ALL_C0X)
-	IF(ALL_C0X)
-		MESSAGE(STATUS "Enabling '-std=c++0x' compiler flag")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-	ENDIF(ALL_C0X)
-ENDIF(NOT ALL_C11)
-
-# Initialise (empty) list of libraries to link against.
-SET(MANDATORY_LIBRARIES "")
-
-# Look for the math library and if found set it as mandatory
-FIND_LIBRARY(SYSTEM_M_LIBRARY NAMES m)
-IF(SYSTEM_M_LIBRARY)
-	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SYSTEM_M_LIBRARY})
-	MESSAGE(STATUS "m library found: ${SYSTEM_M_LIBRARY}")
-ENDIF(SYSTEM_M_LIBRARY)
+# We set the minimum required cmake version
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 # Set default build type to "Release", change it in the GUI if you need to build with debug.
 IF(NOT CMAKE_BUILD_TYPE)
@@ -95,14 +13,29 @@ IF(NOT CMAKE_BUILD_TYPE)
 	FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-# Use CMake's 2.6 new policy for library paths.
-IF(COMMAND CMAKE_POLICY)
-	CMAKE_POLICY(SET CMP0003 NEW)
-ENDIF(COMMAND CMAKE_POLICY)
+#Some screen output
+MESSAGE(STATUS "OS detected: ${CMAKE_SYSTEM_NAME}")
+MESSAGE(STATUS "CXX Compiler detected: ${CMAKE_CXX_COMPILER_ID}")
+
+# Setting OS specific cmake variables
+# 1 - OSX
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	SET(CMAKE_MACOSX_RPATH OFF)
+	SET(CMAKE_OSX_ROOT "")
+	SET(CMAKE_OSX_DEPLOYMENT_TARGET "")
+	# Homebrew directory added to path
+	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+# 2 - NONE
+
+# Some screen output
+MESSAGE(STATUS "CMake additional search path for libraries: ${CMAKE_LIBRARY_PATH}")
+
+# We set compiler specific flags
+INCLUDE(cmake_scripts/set_compiler_flags.cmake)
 
 # Provides build options to CMake.
-
-# Build Option: when active the file main.cpp is built and linked to the PaGMO static library.
+# Build Option: when active headers will be installed in the CMAKE_INSTALL_PREFIX/include directory 
 OPTION(INSTALL_HEADERS "Installs the header files" OFF)
 
 # Build Option: when active the file main.cpp is built and linked to the PaGMO static library.
@@ -110,23 +43,6 @@ OPTION(BUILD_MAIN "Build 'main.cpp'." ON)
 
 # Build Option: when active the bindings to Python are compiled and linked (installation).
 OPTION(BUILD_PYGMO "Build Python bindings." OFF)
-
-IF(BUILD_PYGMO)
-	# Detect default Python version  
-	IF(NOT DEFINED PYGMO_PYTHON_VERSION)
-	       INCLUDE(FindPythonInterp)
-	       IF(NOT PYTHONINTERP_FOUND)
-	       	      MESSAGE(FATAL_ERROR "Unable to locate Python interpreter. Turn off BUILD_PYGMO please.")
-	       ELSE(NOT PYTHONINTERP_FOUND)
-	       	      MESSAGE(STATUS "Python version ${PYTHON_VERSION_STRING} found.")
-		      # Build Option: build with specific specific Python compatibility 
-		      SET(PYGMO_PYTHON_VERSION ${PYTHON_VERSION_STRING} CACHE STRING "Build PyGMO with specific Python compatibility.")
-		      SET(PYGMO_PYTHON_VERSION_CACHED "0" CACHE STRING "Track changes to PYGMO_PYTHON_VERSION. DO NOT CHANGE.")
-		      SET(PYGMO_PYTHON_FINDER ON CACHE BOOL "Find automatically Python interpreter and libraries based on PYGMO_PYTHON_VERSION")
-		      mark_as_advanced(PYGMO_PYTHON_VERSION_CACHED)
-	       ENDIF(NOT PYTHONINTERP_FOUND)
-	ENDIF(NOT DEFINED PYGMO_PYTHON_VERSION)
-ENDIF(BUILD_PYGMO)
 
 # Build Option: when active the GTOP database problems are built.
 OPTION(ENABLE_GTOP_DATABASE "Build GTOP database problems (interplanetary transfers)." OFF)
@@ -163,12 +79,12 @@ SET(DYNAMIC_LIB_PAGMO_BUILD_FLAGS "-DBOOST_SERIALIZATION_DYN_LINK=1")
 # Setting the boost libraries needed for PaGMO
 SET(REQUIRED_BOOST_LIBS system serialization thread)
 IF(BUILD_PYGMO)
-	INCLUDE(PaGMOPythonSetup)
-	IF(PYGMO_PYTHON_VERSION LESS 3)
+	INCLUDE(cmake_scripts/python_setup.cmake)
+	IF(PYTHON_VERSION_MAJOR LESS 3)
 		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python)
-	ELSE(PYGMO_PYTHON_VERSION LESS 3)
+	ELSE(PYTHON_VERSION_MAJOR LESS 3)
 		SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} python3)
-	ENDIF(PYGMO_PYTHON_VERSION LESS 3)
+	ENDIF(PYTHON_VERSION_MAJOR LESS 3)
 ENDIF(BUILD_PYGMO)
 IF(ENABLE_GTOP_DATABASE)
 	SET(REQUIRED_BOOST_LIBS ${REQUIRED_BOOST_LIBS} date_time)
@@ -277,7 +193,7 @@ IF(ENABLE_GSL)
 		MESSAGE(FATAL_ERROR "GSL support was requested, but either the library or the include files could not be located.")
 	ENDIF(NOT GSL_GSL_LIBRARY OR NOT GSL_INCLUDE_DIR)
 	MESSAGE(STATUS "Running the GSL version checker.")
-	TRY_RUN(SUFFICIENT_GSL_VERSION_RUN SUFFICIENT_GSL_VERSION_COMPILE ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_modules/gsl_version.cpp
+	TRY_RUN(SUFFICIENT_GSL_VERSION_RUN SUFFICIENT_GSL_VERSION_COMPILE ${CMAKE_BINARY_DIR}/compile_tests/ ${CMAKE_SOURCE_DIR}/cmake_scripts/gsl_version.cpp
 		COMPILE_DEFINITIONS "${CMAKE_CCXX_FLAGS} -I\"${Boost_INCLUDE_DIRS}\" -I\"${GSL_INCLUDE_DIR}\"" RUN_OUTPUT_VARIABLE SUFFICIENT_GSL_VERSION_OUTPUT)
 	MESSAGE(STATUS "GSL version checker output: ${SUFFICIENT_GSL_VERSION_OUTPUT}")
 	IF(NOT SUFFICIENT_GSL_VERSION_COMPILE)
@@ -337,7 +253,13 @@ IF(ENABLE_SNOPT)
 	ENDIF(NOT SNOPT_F2C_LIBRARY)
 	MESSAGE(STATUS "f2c library: ${SNOPT_F2C_LIBRARY}")
 
-		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_SNOPT_LIBRARY} ${SNOPT_SNPRINT_LIBRARY} ${SNOPT_F2C_LIBRARY} -lgfortran)
+	FIND_LIBRARY(SNOPT_GFORTRAN_LIBRARY NAMES gfortran)
+	IF(NOT SNOPT_GFORTRAN_LIBRARY)
+		MESSAGE(FATAL_ERROR "SNOPT support was requested, but the gfortran library could not be located.")
+	ENDIF(NOT SNOPT_GFORTRAN_LIBRARY)
+	MESSAGE(STATUS "gfortran library: ${SNOPT_GFORTRAN_LIBRARY}")
+
+		SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${SNOPT_SNOPT_LIBRARY} ${SNOPT_SNPRINT_LIBRARY} ${SNOPT_F2C_LIBRARY} ${SNOPT_GFORTRAN_LIBRARY})
 
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_SNOPT)
 ENDIF(ENABLE_SNOPT)
