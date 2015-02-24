@@ -70,11 +70,9 @@ class __PAGMO_VISIBLE island: public base_island
 	public:
 		island(const island &);
 		explicit island(const algorithm::base &, const problem::base &, int = 0,
-			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
 		explicit island(const algorithm::base &, const population &,
-			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
 		island &operator=(const island &);

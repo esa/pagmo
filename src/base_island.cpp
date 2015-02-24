@@ -57,20 +57,14 @@ namespace pagmo
  * @param[in] a algorithm::base which will be associated to the island.
  * @param[in] p problem::base to which the internal population will be associated.
  * @param[in] n number of individuals in the internal population.
- * @param[in] migr_prob migration probability.
  * @param[in] s_policy migration::base_s_policy for the island.
  * @param[in] r_policy migration::base_r_policy for the island.
  *
  * @throws pagmo::value_error if migration probability is outside the [0,1] range.
  */
-base_island::base_island(const algorithm::base &a, const problem::base &p, int n, const double &migr_prob,
+base_island::base_island(const algorithm::base &a, const problem::base &p, int n,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	m_algo(a.clone()),m_pop(p,n),m_archi(0),m_evo_time(0),m_migr_prob(migr_prob),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
-{
-	if (m_migr_prob < 0 || m_migr_prob > 1) {
-		pagmo_throw(value_error,"invalid migration probability");
-	}
-}
+	m_algo(a.clone()),m_pop(p,n),m_archi(0),m_evo_time(0),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone()) { }
 
 /// Copy constructor.
 /**
@@ -84,7 +78,6 @@ base_island::base_island(const base_island &isl):m_pop(isl.get_population())
 	m_algo = isl.m_algo->clone();
 	m_archi = isl.m_archi;
 	m_evo_time = isl.m_evo_time;
-	m_migr_prob = isl.m_migr_prob;
 	m_s_policy = isl.m_s_policy->clone();
 	m_r_policy = isl.m_r_policy->clone();
 	m_evo_thread.reset(0);
@@ -96,20 +89,14 @@ base_island::base_island(const base_island &isl):m_pop(isl.get_population())
  *
  * @param[in] a algorithm::base which will be associated to the island.
  * @param[in] pop population that will be contained in the island.
- * @param[in] migr_prob migration probability.
  * @param[in] s_policy migration::base_s_policy for the island.
  * @param[in] r_policy migration::base_r_policy for the island.
  *
  * @throws pagmo::value_error if migration probability is outside the [0,1] range.
  */
-base_island::base_island(const algorithm::base &a, const population &pop, const double &migr_prob,
+base_island::base_island(const algorithm::base &a, const population &pop,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	m_algo(a.clone()),m_pop(pop),m_archi(0),m_evo_time(0),m_migr_prob(migr_prob),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone())
-{
-	if (m_migr_prob < 0 || m_migr_prob > 1) {
-		pagmo_throw(value_error,"invalid migration probability");
-	}
-}
+	m_algo(a.clone()),m_pop(pop),m_archi(0),m_evo_time(0),m_s_policy(s_policy.clone()),m_r_policy(r_policy.clone()) { }
 
 /// Assignment operator.
 /**
@@ -130,7 +117,6 @@ base_island &base_island::operator=(const base_island &isl)
 		m_pop = isl.m_pop;
 		m_archi = isl.m_archi;
 		m_evo_time = isl.m_evo_time;
-		m_migr_prob = isl.m_migr_prob;
 		m_s_policy = isl.m_s_policy->clone();
 		m_r_policy = isl.m_r_policy->clone();
 		m_evo_thread.reset(0);
@@ -175,7 +161,6 @@ std::string base_island::human_readable_terse() const
 	oss << "Island type: " << get_name() << "\n\n";
 	oss << *m_algo << "\n\n";
 	oss << "Evolution time: " << m_evo_time << " milliseconds\n\n";
-	oss << "Migration probability: " << m_migr_prob * 100 << "%\n\n";
 	oss << *m_s_policy << '\n';
 	oss << *m_r_policy << '\n';
 	oss << m_pop.human_readable_terse() << '\n';
@@ -198,7 +183,6 @@ std::string base_island::human_readable() const
 	oss << "Island type: " << get_name() << "\n\n";
 	oss << *m_algo << "\n\n";
 	oss << "Evolution time: " << m_evo_time << " milliseconds\n\n";
-	oss << "Migration probability: " << m_migr_prob * 100 << "%\n\n";
 	oss << *m_s_policy << '\n';
 	oss << *m_r_policy << '\n';
 	oss << m_pop.human_readable();
@@ -519,16 +503,6 @@ population::size_type base_island::get_size() const
 {
 	join();
 	return m_pop.size();
-}
-
-/// Migration probability.
-/**
- * @return migration probability.
- */
-double base_island::get_migration_probability() const
-{
-	join();
-	return m_migr_prob;
 }
 
 /// Get a copy of the selection policy.

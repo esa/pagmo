@@ -321,7 +321,7 @@ void pade::evolve(population &pop) const
 				decomposed_pop.push_back(X[j]);
 			}
 		}
-		arch.push_back(pagmo::island(*m_solver,decomposed_pop, 1.0, selection_policy, replacement_policy));
+		arch.push_back(pagmo::island(*m_solver,decomposed_pop, selection_policy, replacement_policy));
 	}
 
 	topology::custom topo;

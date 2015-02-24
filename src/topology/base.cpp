@@ -314,6 +314,9 @@ void base::add_edge(const vertices_size_type &n, const vertices_size_type &m)
  * @param[in] w weight (migration probability)
  */
 void base::set_weight(const base::e_descriptor &e, double w) {
+	if (w < 0.0 || w > 1.0) {
+		pagmo_throw(value_error,"invalid migration probability");
+	}
 	m_graph[e].migr_probability = w;
 }
 

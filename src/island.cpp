@@ -39,9 +39,9 @@ namespace pagmo
 /**
  * @see pagmo::base_island constructors.
  */
-island::island(const algorithm::base &a, const problem::base &p, int n, const double &migr_prob,
+island::island(const algorithm::base &a, const problem::base &p, int n,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(a,p,n,migr_prob,s_policy,r_policy)
+	base_island(a,p,n,s_policy,r_policy)
 {}
 
 /// Copy constructor.
@@ -55,9 +55,9 @@ island::island(const island &isl):base_island(isl)
 /**
  * @see pagmo::base_island constructors.
  */
-island::island(const algorithm::base &a, const population &pop, const double &migr_prob,
+island::island(const algorithm::base &a, const population &pop,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(a,pop,migr_prob,s_policy,r_policy)
+	base_island(a,pop,s_policy,r_policy)
 {}
 
 /// Assignment operator.

@@ -83,15 +83,13 @@ class __PAGMO_VISIBLE python_island: public island
 		};
 	public:
 		explicit python_island(const algorithm::base &algo, const problem::base &prob, int n = 0,
-			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
-			island(algo,prob,n,migr_prob,s_policy,r_policy),m_gstate() {}
+			island(algo,prob,n,s_policy,r_policy),m_gstate() {}
 		explicit python_island(const algorithm::base &algo, const population &pop,
-			const double &migr_prob = 1,
 			const migration::base_s_policy &s_policy = migration::best_s_policy(),
 			const migration::base_r_policy &r_policy = migration::fair_r_policy()):
-			island(algo,pop,migr_prob,s_policy,r_policy),m_gstate() {}
+			island(algo,pop,s_policy,r_policy),m_gstate() {}
 		python_island(const python_island &isl):island(isl),m_gstate() {}
 		~python_island()
 		{

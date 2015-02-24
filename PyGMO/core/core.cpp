@@ -338,8 +338,8 @@ BOOST_PYTHON_MODULE(_core)
 		.def_pickle(generic_pickle_suite<population::champion_type>());
 
 	// Base island class for Python implementation.
-	class_<python_base_island, boost::noncopyable>("_base_island",init<const algorithm::base &, const problem::base &, optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const algorithm::base &, const population &, optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+	class_<python_base_island, boost::noncopyable>("_base_island",init<const algorithm::base &, const problem::base &, optional<int,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const algorithm::base &, const population &, optional<const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def("__repr__",&base_island::human_readable)
 		.def("__len__", &base_island::get_size)
 		.def("get_evolution_time", &base_island::get_evolution_time,"Gives the evolution time in milliseconds.")
@@ -355,15 +355,14 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("population",&base_island::get_population, &base_island::set_population)
 		.add_property("s_policy",&base_island::get_s_policy)
 		.add_property("r_policy",&base_island::get_r_policy)
-		.add_property("migration_probability",&base_island::get_migration_probability)
 		// Virtual methods.
 		.def("get_name", &base_island::get_name,&python_base_island::default_get_name)
 		.def("_perform_evolution",&python_base_island::py_perform_evolution)
 		.def_pickle(python_base_island_pickle_suite());
 
 	// Local island class.
-	class_<python_island,bases<base_island> >("local_island", "Local island class.",init<const algorithm::base &, const problem::base &, optional<int,const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
-		.def(init<const algorithm::base &, const population &, optional<const double &,const migration::base_s_policy &,const migration::base_r_policy &> >())
+	class_<python_island,bases<base_island> >("local_island", "Local island class.",init<const algorithm::base &, const problem::base &, optional<int,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const algorithm::base &, const population &, optional<const migration::base_s_policy &,const migration::base_r_policy &> >())
 		.def(init<const python_island &>())
 		.def("__copy__", &Py_copy_from_ctor<python_island>)
 		.def("__deepcopy__", &Py_deepcopy_from_ctor<python_island>)

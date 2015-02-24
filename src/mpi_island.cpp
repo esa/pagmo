@@ -57,18 +57,18 @@ boost::scoped_ptr<std::set<int> > mpi_island::m_available_processors;
 /**
  * @see pagmo::base_island constructors.
  */
-mpi_island::mpi_island(const algorithm::base &a, const problem::base &p, int n, const double &migr_prob,
+mpi_island::mpi_island(const algorithm::base &a, const problem::base &p, int n,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(a,p,n,migr_prob,s_policy,r_policy)
+	base_island(a,p,n,s_policy,r_policy)
 {}
 
 /// Constructor from population.
 /**
  * @see pagmo::base_island constructors.
  */
-mpi_island::mpi_island(const algorithm::base &a, const population &pop, const double &migr_prob,
+mpi_island::mpi_island(const algorithm::base &a, const population &pop,
 	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(a,pop,migr_prob,s_policy,r_policy)
+	base_island(a,pop,s_policy,r_policy)
 {}
 
 /// Copy constructor.

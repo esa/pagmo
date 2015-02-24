@@ -83,11 +83,9 @@ class __PAGMO_VISIBLE mpi_island: public base_island
 	public:
 		mpi_island(const mpi_island &);
 		explicit mpi_island(const algorithm::base &, const problem::base &, int = 0,
-			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
 		explicit mpi_island(const algorithm::base &, const population &,
-			const double & = 1,
 			const migration::base_s_policy & = migration::best_s_policy(),
 			const migration::base_r_policy & = migration::fair_r_policy());
 		mpi_island &operator=(const mpi_island &);
