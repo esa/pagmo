@@ -308,7 +308,7 @@ void base::add_edge(const vertices_size_type &n, const vertices_size_type &m)
 
 /// Sets the migration probability
 /**
- * Set the migration probability referenced by edge descriptor 'e'
+ * Set the weight (migration probability) referenced by edge descriptor e
  *
  * @param[in] e edge_descriptor
  * @param[in] w weight (migration probability)
@@ -333,7 +333,7 @@ double base::get_weight(const base::e_descriptor &e) {
 
 /// Sets the migration probability
 /**
- * Set the migration probability for the whole topology
+ * Set the weight (migration probability) for each edge in the topology
  *
  * @param[in] w weight (migration probability) of each edge in the topology
  */
@@ -346,7 +346,7 @@ void base::set_weight(double w) {
 
 /// Sets the migration probability
 /**
- * Set the migration probability for each out-edge of the vertex n.
+ * Set the weight (migration probability) for each edge outgoing from the vertex n.
  *
  * @param[in] n index of the first vertex in the graph
  * @param[in] w weight (migration probability) for each out-edge from vertex n.
@@ -361,7 +361,7 @@ void base::set_weight(const vertices_size_type &n, double w) {
 
 /// Sets the migration probability
 /**
- * Set the migration probability for given edge
+ * Set the weight (migration probability) for edge going from n to m
  *
  * @param[in] n index of the first vertex in the graph
  * @param[in] m index of the second vertex in the graph
@@ -378,7 +378,7 @@ void base::set_weight(const vertices_size_type &n, const vertices_size_type &m, 
 
 /// Get the migration probability
 /**
- * Returns the migration probability for given edge
+ * Returns the weight (migration probability) for the edge going from vertex n to m
  *
  * @param[in] n index of the first vertex in the graph
  * @param[in] m index of the second vertex in the graph
