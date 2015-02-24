@@ -116,9 +116,12 @@ def run_full_test_suite():
     """Run the complete test suite for PyGMO."""
     from PyGMO import test
     from PyGMO.test._hypervolume_tests import get_hv_suite
+    from PyGMO.test._topology_tests import get_topology_test_suite
     suite = _ut.TestLoader().loadTestsFromModule(test)
-    # Add hypervolume suite explicitly
+
+    # Add external suites explicitly
     suite.addTests(get_hv_suite())
+    suite.addTests(get_topology_test_suite())
 
     _ut.TextTestRunner(verbosity=2).run(suite)
 
@@ -127,3 +130,9 @@ def run_hv_test_suite():
     """Run the hypervolume test suite."""
     from PyGMO.test._hypervolume_tests import get_hv_suite
     _ut.TextTestRunner(verbosity=2).run(get_hv_suite())
+
+
+def run_topology_test_suite():
+    """Run the hypervolume test suite."""
+    from PyGMO.test._topology_tests import get_topology_test_suite
+    _ut.TextTestRunner(verbosity=2).run(get_topology_test_suite())

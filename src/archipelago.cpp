@@ -460,7 +460,12 @@ void archipelago::pre_evolution(base_island &isl)
 						// Get the immigrants from the outbox of the random island. Note the redundant information in the last
 						// argument of the function.
 						pagmo_assert(m_migr_map[rn_isl_idx].size() <= 1);
-						build_immigrants_vector(immigrants,*m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx]);
+
+						double next_rng = m_drng();
+						double migr_prob = m_topology->get_weight(rn_isl_idx, isl_idx);
+						if (next_rng < migr_prob) {
+							build_immigrants_vector(immigrants,*m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx]);
+						}
 						break;
 					}
 					case broadcast:
@@ -470,7 +475,11 @@ void archipelago::pre_evolution(base_island &isl)
 						for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
 							const size_type src_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[i]);
 							pagmo_assert(m_migr_map[src_isl_idx].size() <= 1);
-							build_immigrants_vector(immigrants,*m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx]);
+							double next_rng = m_drng();
+							double migr_prob = m_topology->get_weight(src_isl_idx, isl_idx);
+							if (next_rng < migr_prob) {
+								build_immigrants_vector(immigrants,*m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx]);
+							}
 						}
 					}
 				}
@@ -478,28 +487,21 @@ void archipelago::pre_evolution(base_island &isl)
 	}
 	//2. Insert immigrants into population.
 	if (immigrants.size()) {
-		double next_rng;
-		{
-			lock_type lock(m_migr_mutex);
-			next_rng = m_drng();
-		}
-		if (next_rng < isl.m_migr_prob) {
-			// We re-evaluate the incoming individuals according
-			// to destination island's problem. This will make sure that stochastic problems
-			// are correctly dealt with
-			reevaluate_immigrants(immigrants,isl);
-			// We then insert the incoming individuals into the population, storing how many from where
-			std::vector<std::pair<population::size_type, size_type> > rec_history;
-			rec_history = isl.accept_immigrants(immigrants);
-			lock_type lock(m_migr_mutex);
-			// Record the migration history.
-			for (size_t i =0; i< rec_history.size(); ++i) {
-				m_migr_hist.push_back( boost::make_tuple(
-					rec_history[i].first,
-					rec_history[i].second,
-					locate_island(isl) )
-				);
-			}
+		// We re-evaluate the incoming individuals according
+		// to destination island's problem. This will make sure that stochastic problems
+		// are correctly dealt with
+		reevaluate_immigrants(immigrants,isl);
+		// We then insert the incoming individuals into the population, storing how many from where
+		std::vector<std::pair<population::size_type, size_type> > rec_history;
+		rec_history = isl.accept_immigrants(immigrants);
+		lock_type lock(m_migr_mutex);
+		// Record the migration history.
+		for (size_t i =0; i< rec_history.size(); ++i) {
+			m_migr_hist.push_back( boost::make_tuple(
+				rec_history[i].first,
+				rec_history[i].second,
+				isl_idx)
+			);
 		}
 	}
 }
@@ -535,7 +537,11 @@ void archipelago::post_evolution(base_island &isl)
 							// For one-to-one migration choose a random neighbour island and put immigrants to its inbox.
 							boost::uniform_int<std::vector<topology::base::vertices_size_type>::size_type> u_int(0,adj_islands.size() - 1);
 							const size_type chosen_adj = boost::numeric_cast<size_type>(adj_islands[u_int(m_urng)]);
-							m_migr_map[chosen_adj][isl_idx].insert(m_migr_map[chosen_adj][isl_idx].end(),emigrants.begin(),emigrants.end());
+							double next_rng = m_drng();
+							double migr_prob = m_topology->get_weight(isl_idx, chosen_adj);
+							if (next_rng < migr_prob) {
+								m_migr_map[chosen_adj][isl_idx].insert(m_migr_map[chosen_adj][isl_idx].end(),emigrants.begin(),emigrants.end());
+							}
 							break;
 						}
 						case broadcast:
@@ -543,9 +549,13 @@ void archipelago::post_evolution(base_island &isl)
 							lock_type lock(m_migr_mutex);
 							// For broadcast migration put immigrants to all neighbour islands' inboxes.
 							for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < adj_islands.size(); ++i) {
-								m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx]
-									.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
-									emigrants.begin(),emigrants.end());
+								double next_rng = m_drng();
+								double migr_prob = m_topology->get_weight(isl_idx, adj_islands[i]);
+								if (next_rng < migr_prob) {
+									m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx]
+										.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
+										emigrants.begin(),emigrants.end());
+								}
 							}
 						}
 					}

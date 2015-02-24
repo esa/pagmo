@@ -333,3 +333,20 @@ def _unconnected_ctor(self, nodes=0):
         self.push_back()
 unconnected._orig_init = unconnected.__init__
 unconnected.__init__ = _unconnected_ctor
+
+
+def _custom_add_edge(self, n, m, weight = 1.0):
+    """
+    Adds and edge to a custom topology with an optional weight argument.
+
+    USAGE: top.add_edge(0, 1, weight=1.0)
+    * weight: Edge weight between vertices 0 and 1
+    """
+
+    arg_list = []
+    arg_list.append(n)
+    arg_list.append(m)
+    arg_list.append(weight)
+    self._orig_add_edge(*arg_list)
+custom._orig_add_edge = custom.add_edge
+custom.add_edge = _custom_add_edge
