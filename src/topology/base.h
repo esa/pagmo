@@ -75,9 +75,7 @@ typedef boost::shared_ptr<base> base_ptr;
 class __PAGMO_VISIBLE base
 {
 	protected:
-		/**
-		 * Structure defining the edge property, containing the probability of migration.
-		 */
+		// Structure defining the edge property, containing the probability of migration.
 		struct edge_properties {
 			double migr_probability;  // migration probability for the edge representation
 			friend class boost::serialization::access;
@@ -88,21 +86,20 @@ class __PAGMO_VISIBLE base
 			}
 		};
 
-		// Useful shortcut typedefs for graph-related types. The graph is directed and bidirectional,
-		// since we need access to both in and out edges.
-		// Underlying graph type for the representation of the topology.
-		/**
-		 * The graph is a directed and bidirectional adjacency list.
-		 */
+		// The underlying graph type for the representation of the topology and shortcut typedefs for graph-related types.
+		// The graph is bidirectional, since we want to distinguish the migration direction for both ways.
+		// We use std::vector for VertexList and OutEdgeList, as we rarely update the structure and access the vertices by index.
+		// We use std::list for EdgeList since we mostly iterate over the global edge list.
 		typedef boost::adjacency_list<
-			boost::vecS,
-			boost::vecS,
-			boost::bidirectionalS,
-			boost::no_property,
-			edge_properties,
-			boost::no_property,
-			boost::listS
+			boost::vecS,            // std::vector for list of adjacent vertices (OutEdgeList)
+			boost::vecS,            // std::vector for the list of vertices (VertexList)
+			boost::bidirectionalS,  // we require bi-directional edges for topology (Directed)
+			boost::no_property,     // no vertex properties (VertexProperties)
+			edge_properties,        // edge property stores migration probability (EdgeProperties)
+			boost::no_property,     // no graph properties (GraphProperties)
+			boost::listS            // std::list for of the graph's edge list (EdgeList)
 		> graph_type;
+
 		/// Iterator over the vertices.
 		typedef boost::graph_traits<graph_type>::vertex_iterator v_iterator;
 		/// Iterator over the edges.
@@ -145,7 +142,7 @@ class __PAGMO_VISIBLE base
 		void push_back();
 		double get_average_shortest_path_length() const;
 		double get_clustering_coefficient() const;
-		std::vector<double> get_degree_distribution();
+		std::vector<double> get_degree_distribution() const;
 		bool are_adjacent(const vertices_size_type &, const vertices_size_type &) const;
 		bool are_inv_adjacent(const vertices_size_type &,const vertices_size_type &) const;
 		std::vector<vertices_size_type> get_v_adjacent_vertices(const vertices_size_type &) const;
@@ -155,7 +152,7 @@ class __PAGMO_VISIBLE base
 		void set_weight(double);
 		void set_weight(const vertices_size_type &, double);
 		void set_weight(const vertices_size_type &, const vertices_size_type &, double);
-		double get_weight(const vertices_size_type &, const vertices_size_type &);
+		double get_weight(const vertices_size_type &, const vertices_size_type &) const;
 		//@}
 	protected:
 		/** @name Low-level graph access and manipulation methods. */
@@ -180,7 +177,7 @@ class __PAGMO_VISIBLE base
 	private:
 		void check_vertex_index(const vertices_size_type &) const;
 		void set_weight(const e_descriptor &, double);
-		double get_weight(const e_descriptor &);
+		double get_weight(const e_descriptor &) const;
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)

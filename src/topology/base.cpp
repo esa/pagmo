@@ -302,7 +302,6 @@ void base::add_edge(const vertices_size_type &n, const vertices_size_type &m)
 	}
 	const std::pair<e_descriptor,bool> result = boost::add_edge(boost::vertex(n,m_graph),boost::vertex(m,m_graph),m_graph);
 	pagmo_assert(result.second);
-	//set_weight(n, m, 1.0);
 	set_weight(result.first, 1.0);
 }
 
@@ -327,7 +326,7 @@ void base::set_weight(const base::e_descriptor &e, double w) {
  * @param[in] e edge_descriptor
  * @param[in] w weight (migration probability)
  */
-double base::get_weight(const base::e_descriptor &e) {
+double base::get_weight(const base::e_descriptor &e) const {
 	return m_graph[e].migr_probability;
 }
 
@@ -384,7 +383,7 @@ void base::set_weight(const vertices_size_type &n, const vertices_size_type &m, 
  * @param[in] m index of the second vertex in the graph
  * @param[in] w weight (migration probability) for given edge
  */
-double base::get_weight(const vertices_size_type &n, const vertices_size_type &m)
+double base::get_weight(const vertices_size_type &n, const vertices_size_type &m) const
 {
 	if (!are_adjacent(n, m)) {
 		pagmo_throw(value_error,"cannot get edge weight, vertices are not connected");
@@ -524,7 +523,7 @@ double base::get_clustering_coefficient() const
 }
 
 /// Constructs the Degree Distribution
-std::vector<double> base::get_degree_distribution()
+std::vector<double> base::get_degree_distribution() const
 {
     // First, find the maximum degree of any node and define the output vector
     std::pair<v_iterator, v_iterator> vertices;

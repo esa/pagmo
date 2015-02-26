@@ -84,7 +84,7 @@ BOOST_PYTHON_MODULE(_topology) {
 	typedef void (topology::base::*set_weight_edge)(const topology::base::vertices_size_type &, const topology::base::vertices_size_type&, double);
 	typedef void (topology::base::*set_weight_vertex)(const topology::base::vertices_size_type &, double);
 	typedef void (topology::base::*set_weight_all)(double);
-	typedef double (topology::base::*get_weight_double)(const topology::base::vertices_size_type &, const topology::base::vertices_size_type&);
+	typedef double (topology::base::*get_weight_double)(const topology::base::vertices_size_type &, const topology::base::vertices_size_type&) const;
 
 	class_<topology::base,boost::noncopyable>("_base",no_init)
 		.def("__repr__", &topology::base::human_readable)
