@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef CONVERT_DATES_H
-#define CONVERT_DATES_H
+#ifndef KEP_TOOLBOX_CONVERT_DATES_H
+#define KEP_TOOLBOX_CONVERT_DATES_H
 
 namespace kep_toolbox {
     inline double jd2mjd(const double & in){
@@ -46,4 +46,4 @@ namespace kep_toolbox {
     }
 }
 
-#endif // CONVERT_DATES_H
+#endif // KEP_TOOLBOX_CONVERT_DATES_H

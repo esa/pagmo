@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -23,8 +23,8 @@
  *****************************************************************************/
 
 
-#ifndef STUMPFF_H
-#define STUMPFF_H
+#ifndef KEP_TOOLBOX_STUMPFF_H
+#define KEP_TOOLBOX_STUMPFF_H
 
 #include<cmath>
 
@@ -64,4 +64,4 @@ inline double stumpff_c(const double x) {
 
 }
 
-#endif //STUMPFF_H
+#endif // KEP_TOOLBOX_STUMPFF_H

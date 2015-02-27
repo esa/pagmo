@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEPLERIAN_TOOLBOX_LAMBERT_3D_H
-#define KEPLERIAN_TOOLBOX_LAMBERT_3D_H
+#ifndef KEP_TOOLBOX_LAMBERT_3D_H
+#define KEP_TOOLBOX_LAMBERT_3D_H
 
 #include<cmath>
 
@@ -125,4 +125,4 @@ inline int lambert_3d (vettore3D &v1, vettore3D &v2, double &a, double &p,
 }
 } //namespaces
 
-#endif // KEPLERIAN_TOOLBOX_LAMBERT_3D_H
+#endif // KEP_TOOLBOX_LAMBERT_3D_H

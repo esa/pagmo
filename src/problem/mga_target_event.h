@@ -33,8 +33,8 @@
 #include "base.h"
 
 #include "../keplerian_toolbox/epoch.h"
-#include "../keplerian_toolbox/planet.h"
-#include "../keplerian_toolbox/planet_ss.h"
+#include "../keplerian_toolbox/planets/planet.h"
+#include "../keplerian_toolbox/planets/planet_ss.h"
 
 
 namespace pagmo{ namespace problem {

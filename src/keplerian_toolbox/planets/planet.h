@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,21 +22,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PLANET_H
-#define PLANET_H
+#ifndef KEP_TOOLBOX_PLANET_H
+#define KEP_TOOLBOX_PLANET_H
 
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/optional.hpp>
 #include <string>
 #include <vector>
 
-// Serialization code
-#include "serialization.h"
-#include "config.h"
-// Serialization code (END)
-#include"exceptions.h"
-#include "astro_constants.h"
-#include "epoch.h"
+#include "../serialization.h"
+#include "../config.h"
+#include "../exceptions.h"
+#include "../astro_constants.h"
+#include "../epoch.h"
 
 namespace kep_toolbox{
 
@@ -58,6 +57,8 @@ typedef boost::shared_ptr<planet> planet_ptr;
 
 class __KEP_TOOL_VISIBLE planet
 {
+
+	static const array6D default_elements;
 	friend std::ostream &operator<<(std::ostream &, const planet &);
 public:
 	/// Constructor
@@ -71,20 +72,42 @@ public:
 		* \param[in] safe_radius mimimual radius that is safe during a fly-by of the planet (SI units)
 		* \param[in] name C++ string containing the planet name. Default value is "Unknown"
 		*/
-	planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double &radius, const double &safe_radius, const std::string &name = "Unknown");
-	planet():mean_motion(0),ref_mjd2000(0), radius(0), safe_radius(0), mu_self(0), mu_central_body(0), cached_epoch(epoch(0)), cached_r(array3D()), cached_v(array3D()) {}
+	planet(const epoch& ref_epoch  = kep_toolbox::epoch(0), const array6D& elem = default_elements, const double & mu_central_body = 0.1, const double &mu_self = 0.1, const double &radius = 0.1, const double &safe_radius = 0.1, const std::string &name = "Unknown");
+
+	/// Constructor
+	/**
+		* Constructs a planet from its position at epoch and its physical parameters
+		* \param[in] ref_epoch epoch to which the elements are referred to
+		* \param[in] r0 A STL vector containing the planet position
+		* \param[in] v0 A STL vector containing the planet velociy
+		* \param[in] mu_central_body The gravitational parameter of the attracting body (SI units)
+		* \param[in] mu_self The gravitational parameter of the planet (SI units)
+		* \param[in] radius radius of the planet (SI units)
+		* \param[in] safe_radius mimimual radius that is safe during a fly-by of the planet (SI units)
+		* \param[in] name C++ string containing the planet name. Default value is "Unknown"
+	*/
+	planet(const epoch& ref_epoch, const array3D& r0, const array3D& v0, const double & mu_central_body, const double &mu_self, const double &radius, const double &safe_radius, const std::string &name = "Unknown");
+
 	/// Polymorphic copy constructor.
 	virtual planet_ptr clone() const;
 	virtual ~planet();
 	/** @name Getters */
 	//@{
-	/// Gets the planet position and velocity
+	/// Gets the planet position and velocity from epoch
 	/**
 		* \param[in] when Epoch in which ephemerides are required
 		* \param[out] r Planet position at epoch (SI units)
 		* \param[out] v Planet velocity at epoch (SI units)
 		*/
-	virtual void get_eph(const epoch& when, array3D &r, array3D &v) const;
+	void get_eph(const epoch& when, array3D &r, array3D &v) const; 
+
+	/// Gets the planet position and velocity from mjd2000
+	/**
+		* \param[in]  when mjd2000 in which ephemerides are required
+		* \param[out] r Planet position at epoch (SI units)
+		* \param[out] v Planet velocity at epoch (SI units)
+		*/
+	void get_eph(const double mjd2000, array3D &r, array3D &v) const;
 
 	/// Getter for the central body gravitational parameter
 	/**
@@ -198,8 +221,10 @@ protected:
 	* \param[in] name C++ string containing the planet name. Default value is "Unknown"
 	*/
 	void build_planet(const epoch& ref_epoch, const array6D& elem, const double & mu_central_body, const double &mu_self, const double & radius, const double & safe_radius, const std::string &name = "Unknown");
+
 private:
-// Serialization code
+	virtual void eph_impl(const double mjd2000, array3D &r, array3D &v) const;
+
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -211,9 +236,6 @@ private:
 		ar & safe_radius;
 		ar & mu_self;
 		ar & mu_central_body;
-		ar & cached_epoch;
-		ar & cached_r;
-		ar & cached_v;
 		ar & m_name;
 	}
 // Serialization code (END)
@@ -226,7 +248,7 @@ protected:
 	double safe_radius;
 	double mu_self;
 	double mu_central_body;
-	mutable epoch cached_epoch;
+	mutable boost::optional<double> cached_epoch_mjd2000;
 	mutable array3D cached_r;
 	mutable array3D cached_v;
 
@@ -241,4 +263,4 @@ __KEP_TOOL_VISIBLE std::ostream &operator<<(std::ostream &s, const planet &body)
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(kep_toolbox::planet)
 // Serialization code (END)
 
-#endif // PLANET_H
+#endif // KEP_TOOLBOX_PLANET_H

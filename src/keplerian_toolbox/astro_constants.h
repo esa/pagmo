@@ -22,16 +22,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef ASTRO_CONSTANTS_H
-#define ASTRO_CONSTANTS_H
+#ifndef KEP_TOOLBOX_ASTRO_CONSTANTS_H
+#define KEP_TOOLBOX_ASTRO_CONSTANTS_H
 
 //#include<boost/math/constants/constants.hpp>
-#include<boost/array.hpp>
+#include <boost/array.hpp>
 #include <boost/lexical_cast.hpp>
 
-#define ASTRO_AU 149597870660.0
+#define ASTRO_AU 149597870691.0
 #define ASTRO_JR 71492000.0 
-#define ASTRO_MU_SUN 1.32712428e20
+#define ASTRO_MU_SUN 1.32712440018e20
 #define ASTRO_EARTH_VELOCITY 29784.6905
 #define ASTRO_DEG2RAD (M_PI/*boost::math::constants::pi<double>()*//180.0)
 #define ASTRO_RAD2DEG (180.0/*boost::math::constants::pi<double>()*/ /M_PI)
@@ -75,5 +75,19 @@ namespace std
 		os << ']';
 		return os;
 	}
+
+	inline ostream &operator<<(ostream &os, const std::vector<double> &v)
+	{
+		os << '[';
+		for (kep_toolbox::array3D::size_type i = 0; i < v.size(); ++i) {
+			os << boost::lexical_cast<std::string>(v[i]);
+			if (i != v.size() - 1) {
+				os << ", ";
+			}
+		}
+		os << ']';
+		return os;
+	}
+
 }
-#endif // ASTRO_CONSTANTS_H
+#endif // KEP_TOOLBOX_ASTRO_CONSTANTS_H

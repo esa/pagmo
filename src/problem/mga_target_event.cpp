@@ -30,8 +30,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include "mga_target_event.h"
-#include "../keplerian_toolbox/epoch.h"
-#include "../keplerian_toolbox/planet.h"
 #include "../keplerian_toolbox/core_functions/propagate_lagrangian.h"
 #include "../keplerian_toolbox/astro_constants.h"
 #include "../keplerian_toolbox/lambert_problem.h"

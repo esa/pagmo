@@ -31,8 +31,8 @@
 #include "../types.h"
 #include "./base_tsp.h"
 #include "../serialization.h"
-#include "../keplerian_toolbox/planet.h"
-#include "../keplerian_toolbox/planet_ss.h"
+#include "../keplerian_toolbox/planets/planet.h"
+#include "../keplerian_toolbox/planets/planet_ss.h"
 #include "../keplerian_toolbox/astro_constants.h"
 
 namespace pagmo { namespace problem {

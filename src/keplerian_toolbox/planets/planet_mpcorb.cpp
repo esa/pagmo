@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,11 +22,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include<fstream>
-#include<boost/algorithm/string.hpp>
+#include <fstream>
+#include <boost/algorithm/string.hpp>
 
-#include"planet_mpcorb.h"
-#include"exceptions.h"
+#include "planet_mpcorb.h"
+#include "../exceptions.h"
 
 static const int mpcorb_format[12][2] =
 {

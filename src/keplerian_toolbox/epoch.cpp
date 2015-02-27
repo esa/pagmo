@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -34,12 +34,6 @@
 namespace kep_toolbox {
 using namespace boost::gregorian;
 using namespace boost::posix_time;
-
-/// Constructor.
-/**
- * Constructs an epoch initializing its mjd2000 to 0
- */
-epoch::epoch():mjd2000_m(0) {}
 
 /// Constructor.
 /**

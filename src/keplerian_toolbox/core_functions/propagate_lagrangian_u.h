@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -23,16 +23,16 @@
  *****************************************************************************/
 
 
-#ifndef PROPAGATE_LAGRANGIAN_U_H
-#define PROPAGATE_LAGRANGIAN_U_H
+#ifndef KEP_TOOLBOX_PROPAGATE_LAGRANGIAN_U_H
+#define KEP_TOOLBOX_PROPAGATE_LAGRANGIAN_U_H
 
-#include<boost/bind.hpp>
-#include<boost/math/tools/roots.hpp>
+#include <boost/bind.hpp>
+#include <boost/math/tools/roots.hpp>
 
-#include"../astro_constants.h"
-#include"../numerics/newton_raphson.h"
-#include"kepler_equations.h"
-#include"stumpff.h"
+#include "../astro_constants.h"
+#include "../numerics/newton_raphson.h"
+#include "kepler_equations.h"
+#include "stumpff.h"
 
 
 
@@ -118,4 +118,4 @@ void propagate_lagrangian_u(T& r0, T& v0, const double &t, const double &mu = 1)
 }
 }
 
-#endif // PROPAGATE_LAGRANGIAN_U_H
+#endif // KEP_TOOLBOX_PROPAGATE_LAGRANGIAN_U_H

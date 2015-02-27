@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,15 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef ASTEROID_GTOC5_H
-#define ASTEROID_GTOC5_H
-
-// Serialization code
-#include "serialization.h"
-// Serialization code (END)
+#ifndef KEP_TOOLBOX_ASTEROID_GTOC5_H
+#define KEP_TOOLBOX_ASTEROID_GTOC5_H
 
 #include "planet.h"
-#include "config.h"
+#include "../serialization.h"
+#include "../config.h"
 
 namespace kep_toolbox{
 
@@ -76,4 +73,4 @@ private:
 BOOST_CLASS_EXPORT_KEY(kep_toolbox::asteroid_gtoc5);
 // Serialization code (END)
 
-#endif //ASTEROID_GTOC5_H
+#endif // KEP_TOOLBOX_ASTEROID_GTOC5_H

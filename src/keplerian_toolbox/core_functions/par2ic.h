@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -23,11 +23,11 @@
  *****************************************************************************/
 
 
-#ifndef PAR2IC_H
-#define PAR2IC_H
+#ifndef KEP_TOOLBOX_PAR2IC_H
+#define KEP_TOOLBOX_PAR2IC_H
 
 
-#include<cmath>
+#include <cmath>
 
 namespace kep_toolbox {
 template<class vettore3D, class vettore6D>
@@ -108,4 +108,4 @@ void par2ic(const vettore6D& E, const double &mu, vettore3D& r0, vettore3D& v0)
     return;
 }
 }
-#endif // PAR2IC_H
+#endif // KEP_TOOLBOX_PAR2IC_H

@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,11 +22,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEPLER_EQUATIONS_H
-#define KEPLER_EQUATIONS_H
+#ifndef KEP_TOOLBOX_KEPLER_EQUATIONS_H
+#define KEP_TOOLBOX_KEPLER_EQUATIONS_H
 
-#include<cmath>
-#include"stumpff.h"
+#include <cmath>
+#include "stumpff.h"
+#include "array3D_operations.h"
 
 namespace kep_toolbox {
     //With the eccentric anomaly (E)
@@ -51,6 +52,19 @@ namespace kep_toolbox {
         return ( -DN -DH + sigma0/sqrta * (cosh(DH) - 1) + (1 - R / a) * sinh(DH) );
     }
 
+	//Barker time of flight equation
+	inline double barker(const array3D& r1, const array3D& r2, const double mu){
+		double R1 = norm(r1);
+		double R2 = norm(r2);
+		array3D r21;
+		diff(r21,r2,r1);
+		double R21 = norm(r21);
+		double x = r1[0]*r2[1]-r1[1]*r2[0];
+		double sigma;
+		sigma = (x > 0) ? 1 : ((x < 0) ? -1 : 0);
+		return ( pow(R1+R2+R21,1.5) - sigma*pow(R1+R2-R21,1.5) )/(6.0*sqrt(mu));
+	}
+
     inline double d_kepDH(const double& DH, const double& sigma0, const double& sqrta, const double& a, const double& R){
         return ( -1 + sigma0 / sqrta * sinh(DH) + (1 - R / a) * cosh(DH) );
     }
@@ -68,4 +82,4 @@ namespace kep_toolbox {
         return ( retval );
     }
 }
-#endif // KEPLER_EQUATIONS_H
+#endif // KEP_TOOLBOX_KEPLER_EQUATIONS_H

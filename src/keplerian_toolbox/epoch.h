@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEPLERIAN_TOOLBOX_EPOCH_H
-#define KEPLERIAN_TOOLBOX_EPOCH_H
+#ifndef KEP_TOOLBOX_EPOCH_H
+#define KEP_TOOLBOX_EPOCH_H
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -64,8 +64,7 @@ public:
 
 	/** @name Constructors */
 	//@{
-	epoch();
-	epoch(const double &epoch_in, type epoch_type = MJD2000);
+	epoch(const double &epoch_in = 0, type epoch_type = MJD2000);
 	epoch(const boost::gregorian::greg_year &year, const boost::gregorian::greg_month &month, const boost::gregorian::greg_day &day);
 	epoch(const boost::posix_time::ptime& posix_time);
 	//@}
@@ -107,4 +106,4 @@ __KEP_TOOL_VISIBLE epoch epoch_from_iso_string(const std::string date);
 
 } // end of namespace kep_toolbox
 
-#endif // KEPLERIAN_TOOLBOX_EPOCH_H
+#endif // KEP_TOOLBOX_EPOCH_H

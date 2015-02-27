@@ -28,11 +28,12 @@
 #include <string>
 #include <sstream>
 
+#include "gtoc_2.h"
+#include "../keplerian_toolbox/astro_constants.h"
 #include "../exceptions.h"
-#include "../keplerian_toolbox/keplerian_toolbox.h"
 #include "../types.h"
 #include "base.h"
-#include "gtoc_2.h"
+
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;

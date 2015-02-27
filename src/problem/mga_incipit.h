@@ -32,7 +32,7 @@
 #include "../types.h"
 #include "../types.h"
 #include "base.h"
-#include "../keplerian_toolbox/planet_js.h"
+#include "../keplerian_toolbox/planets/planet_js.h"
 #include "../keplerian_toolbox/epoch.h"
 
 

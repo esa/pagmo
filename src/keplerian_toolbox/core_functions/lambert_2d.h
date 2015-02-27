@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEPLERIAN_TOOLBOX_LAMBERT_2D_H
-#define KEPLERIAN_TOOLBOX_LAMBERT_2D_H
+#ifndef KEP_TOOLBOX_LAMBERT_2D_H
+#define KEP_TOOLBOX_LAMBERT_2D_H
 
 #include<boost/bind.hpp>
 #include<cmath>
@@ -41,7 +41,7 @@
 namespace kep_toolbox {
 
 inline double tof_curve(const double& ix,const double& s,const double& c,const double& tof,const int &lw){
-	return ( log( kep_toolbox::x2tof(exp(ix)-1,s,c,lw,0) )-log(tof) );
+    return ( log( kep_toolbox::x2tof(exp(ix)-1,s,c,lw,0) )-log(tof) );
 }
 
 inline double tof_curve_multi_rev(const double& ix,const double& s,const double& c,const double& tof,const int &lw, const int &N){
@@ -113,7 +113,8 @@ inline int lambert_2d(double &vr1, double &vt1, double &vr2, double &vt2, double
     if (N==0) { //no multi-rev
         double ia = -0.69314718056; //log(1 - .5);
         double ib = 0.4054651081;   //log(1 + .5);
-		retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve,_1,s,c,tof,lw), ASTRO_MAX_ITER,1e-12);
+        retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve,_1,s,c,tof,lw), ASTRO_MAX_ITER,1e-12);
+
         x = exp(ia)-1.0;
     }
     else {	//multiple revolutions solution
@@ -124,7 +125,7 @@ inline int lambert_2d(double &vr1, double &vt1, double &vr2, double &vt2, double
 		ia = 1.0;
 		ib = 0.5;
 	}
-		retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve_multi_rev,_1,s,c,tof,lw,N), ASTRO_MAX_ITER,1e-12);
+        retval = regula_falsi(ia,ib, boost::bind(kep_toolbox::tof_curve_multi_rev,_1,s,c,tof,lw,N), ASTRO_MAX_ITER,1e-12);
         x = (exp(ia*D_ALP)-1.0) / (exp(ia*D_ALP)+1.0);
     }
 
@@ -162,4 +163,4 @@ inline int lambert_2d(double &vr1, double &vt1, double &vr2, double &vt2, double
 }
 } //namespaces
 
-#endif // KEPLERIAN_TOOLBOX_LAMBERT_2D_H
+#endif // KEP_TOOLBOX_LAMBERT_2D_H

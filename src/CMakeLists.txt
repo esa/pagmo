@@ -155,7 +155,7 @@ IF(ENABLE_GTOP_DATABASE)
 #		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_launch.cpp
 #		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_rendezvous.cpp
 #		${CMAKE_CURRENT_SOURCE_DIR}/problem/gtoc5_self_flyby.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
+#		${CMAKE_CURRENT_SOURCE_DIR}/problem/earth_planet.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/sample_return.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_alpha.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/problem/mga_1dsm_tof.cpp
@@ -172,19 +172,26 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/Astro_Functions.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/time2distance.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/AstroToolbox/propagateKEP.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_ss.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_js.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planet_mpcorb.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/asteroid_gtoc2.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/asteroid_gtoc5.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/epoch.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/lambert_problem.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/fb_traj.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg_s.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/spacecraft.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/core_functions/jorba.c
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/asteroid_gtoc2.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/asteroid_gtoc5.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/asteroid_gtoc7.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet_mpcorb.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet_ss.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet_js.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet_tle.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/Util.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/Tle.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/SolarPosition.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/SGP4.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/OrbitalElements.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/Observer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/Eci.cpp
 	)
 ENDIF(ENABLE_GTOP_DATABASE)
 

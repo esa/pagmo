@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -21,12 +21,12 @@
  *   Free Software Foundation, Inc.,                                         *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
-#ifndef FB_CON_H
-#define FB_CON_H
+#ifndef KEP_TOOLBOX_FB_CON_H
+#define KEP_TOOLBOX_FB_CON_H
 
-#include<cmath>
+#include <cmath>
 
-#include"../planet.h"
+#include "../planets/planet.h"
 
 /// Compute fly-by constraints
 /**
@@ -59,4 +59,4 @@ inline void fb_con(double& eq_V2, double& ineq_delta, const vettore3D& v_rel_in,
 }
 } // namespace end
 
-#endif // FB_CON_H
+#endif // KEP_TOOLBOX_FB_CON_H

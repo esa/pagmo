@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,76 +22,60 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PLANET_MPCORB_H
-#define PLANET_MPCORB_H
-
-#include <string>
-
-// Serialization code
-#include "serialization.h"
-// Serialization code (END)
+#ifndef KEP_TOOLBOX_PLANET_SS_H
+#define KEP_TOOLBOX_PLANET_SS_H
 
 #include "planet.h"
-#include "config.h"
-
+#include "../serialization.h"
+#include "../config.h"
 
 namespace kep_toolbox{
 
-/// Minor Planet (keplerian)
+/// Solar System Planet (keplerian)
 /**
  * This class derives from the planet class and allow to instantiate planets of
- * from the MPCORB database using their names or row id. The file MPCORB.DAT is searched
- * in the current directory.
+ * the solar system by referring to their common names. The ephemeris used
+ * are low_precision ephemeris taken from http://ssd.jpl.nasa.gov/txt/p_elem_t1.txt
+ * valid in the timeframe 1800AD - 2050 AD
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
 
-class __KEP_TOOL_VISIBLE planet_mpcorb : public planet
+class __KEP_TOOL_VISIBLE planet_ss : public planet
 {
 public:
 	/**
-	 * Construct a minor planet from a line of the MPCORB.DAT file. Default value is the MPCORB.DAT line
-	 * for the dwarf planet Ceres.
-	 * \param[in] name a string containing one line of MPCORB.DAT
+	 * Construct a planet from its common name (e.g. VENUS)
+	 * \param[in] name a string describing a planet
 	 */
-	planet_mpcorb(const std::string & = "00001    3.34  0.12 K107N 113.41048   72.58976   80.39321   10.58682  0.0791382  0.21432817   2.7653485  0 MPO110568  6063  94 1802-2006 0.61 M-v 30h MPCW       0000      (1) Ceres              20061025");
+	planet_ss(const std::string & = "earth");
 	planet_ptr clone() const;
-	static epoch packed_date2epoch(std::string);
-	double get_H() const {return m_H;};
-	unsigned int get_n_observations() const {return m_n_observations;};
-	unsigned int get_n_oppositions() const {return m_n_oppositions;};
-	unsigned int get_year_of_discovery() const {return m_year_of_discovery;};
-
+	/// Computes the planet/system position and velocity w.r.t the Sun
+	/**
+		* \param[in] when Epoch in which ephemerides are required
+		* \param[out] r Planet position at epoch (SI units)
+		* \param[out] v Planet velocity at epoch (SI units)
+		*/
 private:
-// Serialization code
+	void eph_impl(const double mjd2000, array3D &r, array3D &v) const;
+
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<planet>(*this);
-		ar & m_H;
-		ar & m_n_observations;
-		ar & m_n_oppositions;
-		ar & m_year_of_discovery;
+		ar & jpl_elements;
+		ar & jpl_elements_dot;
 	}
-// Serialization code (END)
 
-	static int packed_date2number(char c);
-	// Absolute Magnitude
-	double m_H;
-	// Number of observations
-	unsigned int m_n_observations;
-	// Number of oppositions
-	unsigned int m_n_oppositions;
-	// Year the asteroid was first discovered
-	unsigned int m_year_of_discovery;
+
+	array6D jpl_elements;
+	array6D jpl_elements_dot;
 };
 
 
 } /// End of namespace kep_toolbox
 
-// Serialization code
-BOOST_CLASS_EXPORT_KEY(kep_toolbox::planet_mpcorb);
-// Serialization code (END)
+BOOST_CLASS_EXPORT_KEY(kep_toolbox::planet_ss)
 
-#endif // PLANET_MPCORB_H
+#endif // KEP_TOOLBOX_PLANET_SS_H

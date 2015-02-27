@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,8 +22,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef CLOSEST_DISTANCE_H
-#define CLOSEST_DISTANCE_H
+#ifndef KEP_TOOLBOX_CLOSEST_DISTANCE_H
+#define KEP_TOOLBOX_CLOSEST_DISTANCE_H
 
 #include<cmath>
 
@@ -32,8 +32,8 @@
  * This template function returns the closest distance along a keplerian orbit defined by r1,v1,r2,v2. This can be or not the
  * periplanet, depending on the geometry.
  *
- * \param[in] d_min minimum distance along the defined orbit
- * \param[in] ra apoapsis radius
+ * \param[out] d_min minimum distance along the defined orbit
+ * \param[out] ra apoapsis radius
  * \param[in] r0 initial position vector (of dimension 3)
  * \param[in] v0 initial velocity vector (of dimension 3)
  * \param[in] r1 final position vector (of dimension 3)
@@ -119,4 +119,4 @@ void closest_distance(double& d_min, double& ra, const vettore3D& r0, const vett
     return;
 }
 }
-#endif // CLOSEST_DISTANCE_H
+#endif // KEP_TOOLBOX_CLOSEST_DISTANCE_H

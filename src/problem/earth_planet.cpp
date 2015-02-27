@@ -36,7 +36,7 @@
 #include "base.h"
 #include "earth_planet.h"
 #include "../keplerian_toolbox/sims_flanagan/codings.h"
-#include "../keplerian_toolbox/planet_ss.h"
+#include "../keplerian_toolbox/planets/planet_ss.h"
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;

@@ -29,7 +29,7 @@
 #include <boost/archive/text_iarchive.hpp>
 
 #include "../src/pagmo.h"
-#include "../src/keplerian_toolbox/planet_ss.h"
+#include "../src/keplerian_toolbox/planets/planet_ss.h"
 #include "../src/keplerian_toolbox/epoch.h"
 
 #include "../src/Eigen/Dense"

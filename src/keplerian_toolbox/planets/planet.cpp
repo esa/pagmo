@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -24,14 +24,17 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <boost/none.hpp>
 
 #include "planet.h"
-#include"core_functions/ic2par.h"
-#include"core_functions/par2ic.h"
-#include"core_functions/convert_anomalies.h"
-#include"exceptions.h"
+#include "../core_functions/ic2par.h"
+#include "../core_functions/par2ic.h"
+#include "../core_functions/convert_anomalies.h"
+#include "../exceptions.h"
 
 namespace kep_toolbox{
+
+const array6D planet::default_elements = {{1.0,0.1,0.1,0.1,0.1,0.1}};
 
 planet::planet(const epoch& ref_epoch, const array6D& orbital_elements_, const double & mu_central_body_, const double &mu_self_, const double & radius_, const double & safe_radius_, const std::string &name_)
 {
@@ -57,6 +60,27 @@ planet::planet(const epoch& ref_epoch, const array6D& orbital_elements_, const d
 	planet::build_planet(ref_epoch, orbital_elements_, mu_central_body_, mu_self_, radius_, safe_radius_, name_);
 }
 
+planet::planet(const epoch& ref_epoch, const array3D& r0, const array3D& v0, const double & mu_central_body_, const double &mu_self_, const double & radius_, const double & safe_radius_, const std::string &name_)
+{
+	if (radius_ <= 0) {
+		throw_value_error("The planet radius needs to be strictly positive");
+	}
+	if (mu_central_body_ <= 0) {
+		throw_value_error("The central body gravitational parameter needs to be strictly positive");
+	}
+	if (mu_self_ <= 0) {
+		throw_value_error("The gravitational parameter of the planet needs to be strictly positive");
+	}
+	for (int i = 0; i < 3; ++i) {
+		cached_r[i] = 0;
+		cached_v[i] = 0;
+	}
+	array6D orbital_elements;
+	ic2par(r0,v0, mu_central_body_, orbital_elements);
+	orbital_elements[5] = e2m(orbital_elements[5],orbital_elements[1]);
+	planet::build_planet(ref_epoch, orbital_elements, mu_central_body_, mu_self_, radius_, safe_radius_, name_);
+}
+
 
 planet_ptr planet::clone() const
 {
@@ -75,18 +99,27 @@ void planet::build_planet(const epoch& ref_epoch, const array6D& orbital_element
 	mean_motion = sqrt(mu_central_body / pow(keplerian_elements[0],3));
 }
 
+void planet::eph_impl(const double mjd2000, array3D &r, array3D &v) const{
+	double elements[6];
+	std::copy(keplerian_elements.begin(), keplerian_elements.end(), elements);
+	double dt = (mjd2000 - ref_mjd2000) * ASTRO_DAY2SEC;
+	elements[5] += mean_motion * dt;
+	elements[5] = m2e(elements[5],elements[1]);
+	par2ic(elements, mu_central_body, r, v);
+}
+
 void planet::get_eph(const epoch& when, array3D &r, array3D &v) const{
-	if(when.mjd2000() != cached_epoch.mjd2000() || cached_epoch.mjd2000() == 0) {
-		double elements[6];
-		std::copy(keplerian_elements.begin(), keplerian_elements.end(), elements);
-		double dt = (when.mjd2000() - ref_mjd2000) * ASTRO_DAY2SEC;
-		elements[5] += mean_motion * dt;
-		elements[5] = m2e(elements[5],elements[1]);
-		par2ic(elements, mu_central_body, cached_r, cached_v);
-		cached_epoch = when;
+		this->get_eph(when.mjd2000(), r, v);
+}
+
+void planet::get_eph(const double mjd2000, array3D &r, array3D &v) const {
+	if (cached_epoch_mjd2000 == boost::none || cached_epoch_mjd2000 != mjd2000)
+	{
+		this->eph_impl(mjd2000, cached_r, cached_v);
+		cached_epoch_mjd2000 = mjd2000;
 	}
 	r = cached_r;
-	v = cached_v;
+	v = cached_v; 
 }
 
 array3D planet::get_position(const epoch& when) const {
@@ -102,11 +135,12 @@ array3D planet::get_velocity(const epoch& when) const{
 }
 
 array6D planet::get_elements(const epoch& when) const{
-	array6D elements(keplerian_elements);
-	double dt = (when.mjd2000() - ref_mjd2000) * ASTRO_DAY2SEC;
-	elements[5] += mean_motion * dt;
-	elements[5] = fmod(elements[5],2*M_PI);
-	if (elements[5] < 0) elements[5] = 2*M_PI + elements[5];
+	array3D r,v;
+	array6D elements;
+	this->get_eph(when,r,v);
+	ic2par(r,v,mu_central_body,elements);
+	// As we want the mean anomaly we must convert (TODO: should we sum here the number of completed revs?)
+	elements[5] = e2m(elements[5], elements[1]);
 	return ( elements );
 }
 

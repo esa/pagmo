@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -23,8 +23,8 @@
  *****************************************************************************/
 
 #include "asteroid_gtoc5.h"
-#include "exceptions.h"
-#include "astro_constants.h"
+#include "../exceptions.h"
+#include "../astro_constants.h"
 
 double gtoc5_asteroids_data[7076][7] = {
 {55400,2.6932634,0.3160515,6.27657,321.51547,31.06329,350.70647},

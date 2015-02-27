@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -22,45 +22,48 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef PLANET_SS_H
-#define PLANET_SS_H
+#ifndef KEP_TOOLBOX_ASTEROID_GTOC2_H
+#define KEP_TOOLBOX_ASTEROID_GTOC2_H
 
-
-// Serialization code
-#include "serialization.h"
-// Serialization code (END)
-
-#include"planet.h"
-#include "config.h"
+#include "planet.h"
+#include "../serialization.h"
+#include "../config.h"
 
 namespace kep_toolbox{
 
-/// Solar System Planet (keplerian)
+/// A GTOC2 asteroid
 /**
- * This class derives from the planet class and allow to instantiate planets of
- * the solar system by referring to their common names. The ephemeris used
- * are low_precision ephemeris taken from http://ssd.jpl.nasa.gov/txt/p_elem_t1.txt
- * valid in the timeframe 1800AD - 2050 AD
+ * This class derives from the planet class and allow to instantiate asteroids
+ * from the Global Trajectory Optimization Competition (GTOC) 2nd edition
  *
+ * @see http://www.esa.int/gsp/ACT/mad/op/GTOC/index.htm
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 
-class __KEP_TOOL_VISIBLE planet_ss : public planet
+class __KEP_TOOL_VISIBLE asteroid_gtoc2 : public planet
 {
 public:
+	/// Constructor
 	/**
-	 * Construct a planet from its common name (e.g. VENUS)
+	 * Construct from a consecutive id from 0 to 910 (Earth). The order is that of the original
+	 * data file from JPL
+	 * Group 1:   0 - 95
+	 * Group 2:  96 - 271
+	 * Group 3: 272 - 571
+	 * Group 4: 572 - 909
+	 * Earth:   910
 	 * \param[in] name a string describing a planet
 	 */
-	planet_ss(const std::string & = "earth");
-	planet_ptr clone() const;
-	/// Computes the planet/system position and velocity w.r.t the Sun
+	asteroid_gtoc2(const int & = 0);
+
+	/// Getter
 	/**
-		* \param[in] when Epoch in which ephemerides are required
-		* \param[out] r Planet position at epoch (SI units)
-		* \param[out] v Planet velocity at epoch (SI units)
-		*/
-	void get_eph(const epoch& when, array3D &r, array3D &v) const;
+	 * Gets the group id of the asteroid as defined in the original JPL data file
+	 *
+	 */
+	int get_group() const;
+	planet_ptr clone() const;
 private:
 // Serialization code
 	friend class boost::serialization::access;
@@ -68,20 +71,15 @@ private:
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<planet>(*this);
-		ar & jpl_elements;
-		ar & jpl_elements_dot;
+		ar & m_group;
 	}
 // Serialization code (END)
-
-	array6D jpl_elements;
-	array6D jpl_elements_dot;
+	int m_group;
 };
-
-
-} /// End of namespace kep_toolbox
+} // Namespaces
 
 // Serialization code
-BOOST_CLASS_EXPORT_KEY(kep_toolbox::planet_ss)
+BOOST_CLASS_EXPORT_KEY(kep_toolbox::asteroid_gtoc2);
 // Serialization code (END)
 
-#endif // PLANET_SS_H
+#endif // KEP_TOOLBOX_ASTEROID_GTOC2_H

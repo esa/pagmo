@@ -33,7 +33,7 @@
 #include "../types.h"
 #include "../types.h"
 #include "base.h"
-#include "../keplerian_toolbox/planet_ss.h"
+#include "../keplerian_toolbox/planets/planet_ss.h"
 #include "../keplerian_toolbox/epoch.h"
 
 

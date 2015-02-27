@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Copyright (C) 2004-2012 The PyKEP development team,                     *
+ *   Copyright (C) 2004-2015 The PyKEP development team,                     *
  *   Advanced Concepts Team (ACT), European Space Agency (ESA)               *
  *   http://keptoolbox.sourceforge.net/index.html                            *
  *   http://keptoolbox.sourceforge.net/credits.html                          *
@@ -27,7 +27,7 @@
 
 #include "lambert_problem.h"
 #include "core_functions/array3D_operations.h"
-#include"exceptions.h"
+#include "exceptions.h"
 
 
 namespace kep_toolbox {
@@ -94,7 +94,6 @@ lambert_problem::lambert_problem(const array3D &r1, const array3D &r2, const dou
 	// 2 - We now have lambda, T and we will find all x
 	// 2.1 - Let us first detect the maximum number of revolutions for which there exists a solution
 	m_Nmax = T/M_PI;
-	m_Nmax = std::min(m_multi_revs,m_Nmax);
 	double T00 = acos(m_lambda) + m_lambda*sqrt(1.0-lambda2);
 	double T0 = (T00 + m_Nmax*M_PI);
 	double T1 = 2.0/3.0 * (1.0 - lambda3),DT=0.0,DDT=0.0,DDDT=0.0;
@@ -106,7 +105,7 @@ lambert_problem::lambert_problem(const array3D &r1, const array3D &r2, const dou
 			double x_old=0.0,x_new = 0.0;
 			while (1) {
 				dTdx(DT,DDT,DDDT,x_old,T_min);
-				if (!(DT == 0.0)) {
+				if (DT != 0.0) {
 						x_new = x_old - DT * DDT / (DDT * DDT - DT * DDDT / 2.0);
 				}
 				err=fabs(x_old-x_new);
@@ -123,7 +122,8 @@ lambert_problem::lambert_problem(const array3D &r1, const array3D &r2, const dou
 		}
 	}
 	// We exit this if clause with Mmax being the maximum number of revolutions
-	// for which there exists a solution.
+	// for which there exists a solution. We crop it to m_multi_revs
+	m_Nmax = std::min(m_multi_revs,m_Nmax);
 
 	// 2.2 We now allocate the memory for the output variables
 	m_v1.resize(m_Nmax * 2 +1);
@@ -135,9 +135,9 @@ lambert_problem::lambert_problem(const array3D &r1, const array3D &r2, const dou
 	// 3.1 0 rev solution
 	// 3.1.1 initial guess
 	if (T>=T00) {
-		m_x[0] = pow((T00/T),2.0/3.0) - 1.0;
+		m_x[0] = -(T-T00)/(T-T00+4);
 	} else if (T<=T1) {
-		m_x[0] = 2.0*T1/T - 1.0;
+		m_x[0] = T1*(T1-T) / ( 2.0/5.0*(1-lambda2*lambda3) * T ) + 1;
 	} else {
 		m_x[0] = pow((T/T00),0.69314718055994529 / log(T1/T00)) - 1.0;
 	}
