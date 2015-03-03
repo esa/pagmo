@@ -43,6 +43,7 @@
 #include "problem/golomb_ruler.h"
 #include "problem/griewank.h"
 #include "problem/himmelblau.h"
+#include "problem/identity.h"
 #include "problem/inventory.h"
 #include "problem/luksan_vlcek_1.h"
 #include "problem/luksan_vlcek_2.h"

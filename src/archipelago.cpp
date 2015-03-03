@@ -596,22 +596,28 @@ void archipelago::evolve(int n)
  * Will iteratively call island::evolve(n) on batches of b islands of the archipelago and then return.
  * Each batch will wait to complete the n evolves before ending. It is typically called with n=1 as 
  * for n>1 this set-up creates a strange effect on the migration flux (the first batch that evolves does not
- * make use of the islands in the remaining batches)
+ * make use of the islands in the remaining batches).
  *
  * \param[in] n number of time each island will be evolved.
  * \param[in] b the size of the batch of islands to evolve at the same time.
+ * \param[in] randomize determines whether evolve populations in index-order (randomize=false) or in random order (randomize=true)
  */
-void archipelago::evolve_batch(int n, unsigned int b)
+void archipelago::evolve_batch(int n, unsigned int b, bool randomize)
 {
 	join();
 	container_type::size_type arch_size = this->get_size();
-	// Variate generators
-	boost::uniform_int<int> pop_idx(0,arch_size-1);
-	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
-	// Shuffle to not bias towards low-indexes
-	std::vector<population::size_type> shuffle(arch_size);
-	for(population::size_type i=0; i < shuffle.size(); ++i) shuffle[i] = i;
-	std::random_shuffle(shuffle.begin(), shuffle.end(), p_idx);
+	// Order of populations to evolve, by default biased by the index (lowest first)
+	std::vector<population::size_type> pop_order(arch_size);
+	for(population::size_type i=0; i < pop_order.size(); ++i)
+		pop_order[i] = i;
+
+	// Optionally, randomize the order of populations (True by default)
+	if(randomize) {
+		// Variate generators
+		boost::uniform_int<int> pop_idx(0,arch_size-1);
+		boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
+		std::random_shuffle(pop_order.begin(), pop_order.end(), p_idx);
+	}
 	
 	for(size_type p = 0; p < arch_size/b + 1; ++p) {
 		if(p == arch_size/b) { //for the last batch of islands decrease the barrier
@@ -620,10 +626,10 @@ void archipelago::evolve_batch(int n, unsigned int b)
 			reset_barrier(b);
 		}
 		for(size_type i=0; i<b && p*b+i < arch_size; ++i) {
-			m_container[shuffle[p*b+i]]->evolve(n);
+			m_container[pop_order[p*b+i]]->evolve(n);
 		}
 		for(size_type i=0; i<b && p*b+i < arch_size; ++i) {
-			m_container[shuffle[p*b+i]]->join();
+			m_container[pop_order[p*b+i]]->join();
 		}
 	}
 }

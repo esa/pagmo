@@ -321,6 +321,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::michalewicz>("michalewicz","Michalewicz's function.")
 		.def(init<int, optional<int> >());
 
+	// Identity problem.
+	stochastic_problem_wrapper<problem::identity>("identity","Identity problem.")
+		.def(init<int>());
+
 	// Inventory problem.
 	stochastic_problem_wrapper<problem::inventory>("inventory","Inventory problem.")
 		.def(init<optional<int, int, int> >());
