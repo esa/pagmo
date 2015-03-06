@@ -3,7 +3,15 @@ compiler: g++
 before_install: 
     - sudo apt-get update -qq
     - sudo apt-get purge libboost*1.46*
-    - sudo apt-get install libboost1.55-all-dev
+    # Build boost manually because the version on travis is too old
+    - wget --no-verbose --output-document=boost-trunk.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download
+    - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
+    - export CMAKE_MODULE_PATH="$BOOST_ROOT"
+    - mkdir -p $BOOST_ROOT
+    - tar jxf boost-trunk.tar.bz2 --strip-components=1 -C $BOOST_ROOT
+    - (cd $BOOST_ROOT; ./bootstrap.sh --with-libraries=system,thread,serialization)
+    - (cd $BOOST_ROOT; ./b2 threading=multi --prefix=$BOOST_ROOT -d0 install)
+    - sudo apt-get install libboost-dev
 script:
     - mkdir build
     - cd build
