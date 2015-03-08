@@ -15,5 +15,10 @@ before_install:
 script:
     - mkdir build
     - cd build
-    - cmake ..
-    - make
+    - cmake .. -DENABLE_TESTS="ON" -DBUILD_PYGMO="on"
+    - make -j 9
+    - make test
+    - make install
+
+after_success:
+    - python -c "import PyGMO; print(PyGMO.__version__)"
