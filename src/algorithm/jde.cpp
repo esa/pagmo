@@ -581,6 +581,45 @@ std::string jde::human_readable_extra() const
 	return s.str();
 }
 
+// Helper function.
+/**
+ * Used to speed up evolve()'s way of selecting population members.
+ * Generate a random sample of 7 different elements, from {0..(NP - 1)} / {current_element}.
+ *
+ * @param[out] sample space holder for the selected elements
+ * @param[in] NP the "population size"
+ * @param[in] current_element this element will not be included in the final sample.
+ */
+void jde::generate_sample(std::vector<size_t> &sample, const size_t NP, const size_t current_element) const
+{
+	std::vector<size_t> elements;
+	size_t i;
+
+	// Add elements in order. Skip current_element.
+	for (i = 0; i < NP; ++i) {
+		if (i == current_element) {
+			continue;
+		}
+		elements.push_back(i);
+	}
+
+	// Shuffle elements.
+	for (i = 0; i < 7; ++i) {
+		// uniform_int<> rnd(a,b) gives values in the range [a,b] not [a,b).
+		// We have NP - 1 elements, therefore the range is [0, NP - i - 2].
+		boost::uniform_int<size_t> rnd_idx(0, NP - i - 2);
+		std::swap(elements[rnd_idx(m_urng)], elements[NP - i - 2]);
+	}
+
+	// Create sample of the first 7 elements.
+	if (sample.size() > 0) {
+		sample.erase(sample.begin(), sample.end());
+	}
+	for (i = 0; i < 7; ++i) {
+		sample.push_back(elements[i]);
+	}
+}
+
 }} //namespaces
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::algorithm::jde)

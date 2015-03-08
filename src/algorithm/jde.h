@@ -68,6 +68,7 @@ public:
 	base_ptr clone() const;
 	void evolve(population &) const;
 	std::string get_name() const;
+	void generate_sample(std::vector<size_t> &, const size_t, const size_t) const;
 
 protected:
 	std::string human_readable_extra() const;
