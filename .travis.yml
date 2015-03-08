@@ -1,0 +1,24 @@
+language: cpp
+compiler: clang 
+before_install: 
+    - sudo apt-get update -qq
+    - sudo apt-get purge libboost*1.46*
+    # Build boost manually because the version on travis is too old
+    - wget --no-verbose --output-document=boost-trunk.tar.bz2 http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download
+    - export BOOST_ROOT="$TRAVIS_BUILD_DIR/../boost-trunk"
+    - export CMAKE_MODULE_PATH="$BOOST_ROOT"
+    - mkdir -p $BOOST_ROOT
+    - tar jxf boost-trunk.tar.bz2 --strip-components=1 -C $BOOST_ROOT
+    - (cd $BOOST_ROOT; ./bootstrap.sh --with-libraries=system,thread,serialization,python)
+    - (cd $BOOST_ROOT; ./b2 threading=multi --prefix=$BOOST_ROOT -d0 install)
+    - sudo apt-get install libboost-dev python-dev
+script:
+    - mkdir build
+    - cd build
+    - cmake .. -DENABLE_TESTS="ON" -DBUILD_PYGMO="on" -DPYTHON_MODULES_DIR="~/local/python" -DCMAKE_INSTALL_PREFIX="~/local"
+    - make -j 9
+    - make test
+    - make install
+
+after_success:
+    - PYTHONPATH=~/local/python LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local/lib:$TRAVIS_BUILD_DIR/../boost-trunk/lib python -c "import PyGMO; print(PyGMO.__version__)"
