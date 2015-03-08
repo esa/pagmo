@@ -616,7 +616,7 @@ void jde::generate_sample(std::vector<size_t> &sample, const size_t NP, const si
 		sample.erase(sample.begin(), sample.end());
 	}
 	for (i = 0; i < 7; ++i) {
-		sample.push_back(elements[i]);
+		sample.push_back(elements[elements.size() - i - 1]);
 	}
 }
 
