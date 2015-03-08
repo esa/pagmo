@@ -189,38 +189,50 @@ void jde::evolve(population &pop) const
 
 		//Start of the loop through the deme
 		for (size_t i = 0; i < NP; ++i) {
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 2 !!!     */
-				r1 = p_idx();
-			} while (r1==i);
+			if (NP < 21) {
+				std::vector<size_t> sample;
+				generate_sample(sample, NP, i);
+				r1 = sample[0];
+				r2 = sample[1];
+				r3 = sample[2];
+				r4 = sample[3];
+				r5 = sample[4];
+				r6 = sample[5];
+				r7 = sample[6];
+			} else {
+				do {                       /* Pick a random population member */
+					/* Endless loop for NP < 2 !!!     */
+					r1 = p_idx();
+				} while (r1==i);
 
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 3 !!!     */
-				r2 = p_idx();
-			} while ((r2==i) || (r2==r1));
+				do {                       /* Pick a random population member */
+					/* Endless loop for NP < 3 !!!     */
+					r2 = p_idx();
+				} while ((r2==i) || (r2==r1));
 
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 4 !!!     */
-				r3 = p_idx();
-			} while ((r3==i) || (r3==r1) || (r3==r2));
+				do {                       /* Pick a random population member */
+					/* Endless loop for NP < 4 !!!     */
+					r3 = p_idx();
+				} while ((r3==i) || (r3==r1) || (r3==r2));
 
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 5 !!!     */
-				r4 = p_idx();
-			} while ((r4==i) || (r4==r1) || (r4==r2) || (r4==r3));
+				do {                       /* Pick a random population member */
+					/* Endless loop for NP < 5 !!!     */
+					r4 = p_idx();
+				} while ((r4==i) || (r4==r1) || (r4==r2) || (r4==r3));
 
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 6 !!!     */
-				r5 = p_idx();
-			} while ((r5==i) || (r5==r1) || (r5==r2) || (r5==r3) || (r5==r4));
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 7 !!!     */
-				r6 = p_idx();
-			} while ((r6==i) || (r6==r1) || (r6==r2) || (r6==r3) || (r6==r4) || (r6==r5));
-			do {                       /* Pick a random population member */
-				/* Endless loop for NP < 8 !!!     */
-				r7 = p_idx();
-			} while ((r7==i) || (r7==r1) || (r7==r2) || (r7==r3) || (r7==r4) || (r7==r5) || (r7==r6));
+				do {                       /* Pick a random population member */
+					/* Endless loop for NP < 6 !!!     */
+					r5 = p_idx();
+				} while ((r5==i) || (r5==r1) || (r5==r2) || (r5==r3) || (r5==r4));
+				do {                       /* Pick a random population member */
+					/* Endless loop for NP < 7 !!!     */
+					r6 = p_idx();
+				} while ((r6==i) || (r6==r1) || (r6==r2) || (r6==r3) || (r6==r4) || (r6==r5));
+				do {                       /* Pick a random population member */
+					/* Endless loop for NP < 8 !!!     */
+					r7 = p_idx();
+				} while ((r7==i) || (r7==r1) || (r7==r2) || (r7==r3) || (r7==r4) || (r7==r5) || (r7==r6));
+			}
 
 			// Adapt amplification factor and crossover probability
 			double F=0, CR=0;
