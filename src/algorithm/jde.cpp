@@ -187,18 +187,44 @@ void jde::evolve(population &pop) const
 			}
 		}
 
+		std::vector<size_t> elements;
+		if (NP < 21) {
+			// Add elements in order.
+			for (size_t i = 0; i < NP; ++i) {
+				elements.push_back(i);
+			}
+		}
+
 		//Start of the loop through the deme
 		for (size_t i = 0; i < NP; ++i) {
 			if (NP < 21) {
-				std::vector<size_t> sample;
-				generate_sample(sample, NP, i);
-				r1 = sample[0];
-				r2 = sample[1];
-				r3 = sample[2];
-				r4 = sample[3];
-				r5 = sample[4];
-				r6 = sample[5];
-				r7 = sample[6];
+				bool i_was_sampled = false;
+				size_t sampled_i_pos;
+				// Shuffle 8 elements.
+				// If 'i' is not picked, then we only use 7 of them.
+				for (size_t pos = 0; pos < 8; ++pos) {
+					// uniform_int<> rnd(a,b) gives values in the range [a,b] not [a,b).
+					boost::uniform_int<size_t> rnd_idx(0, NP - pos - 1);
+					size_t rnd = rnd_idx(m_urng);
+					if (elements[rnd] == i) {
+						i_was_sampled = true;
+						// Remember where we put i.
+						sampled_i_pos = NP - pos - 1;
+					}
+					std::swap(elements[rnd], elements[NP - pos - 1]);
+				}
+
+				if (i_was_sampled) {
+					std::swap(elements[sampled_i_pos], elements[NP - 7 - 1]);
+				}
+
+				r1 = elements[NP - 1];
+				r2 = elements[NP - 2];
+				r3 = elements[NP - 3];
+				r4 = elements[NP - 4];
+				r5 = elements[NP - 5];
+				r6 = elements[NP - 6];
+				r7 = elements[NP - 7];
 			} else {
 				do {                       /* Pick a random population member */
 					/* Endless loop for NP < 2 !!!     */
@@ -591,45 +617,6 @@ std::string jde::human_readable_extra() const
 	s << "xtol:" << m_xtol;
 
 	return s.str();
-}
-
-// Helper function.
-/**
- * Used to speed up evolve()'s way of selecting population members.
- * Generate a random sample of 7 different elements, from {0..(NP - 1)} / {current_element}.
- *
- * @param[out] sample space holder for the selected elements
- * @param[in] NP the "population size"
- * @param[in] current_element this element will not be included in the final sample.
- */
-void jde::generate_sample(std::vector<size_t> &sample, const size_t NP, const size_t current_element) const
-{
-	std::vector<size_t> elements;
-	size_t i;
-
-	// Add elements in order. Skip current_element.
-	for (i = 0; i < NP; ++i) {
-		if (i == current_element) {
-			continue;
-		}
-		elements.push_back(i);
-	}
-
-	// Shuffle elements.
-	for (i = 0; i < 7; ++i) {
-		// uniform_int<> rnd(a,b) gives values in the range [a,b] not [a,b).
-		// We have NP - 1 elements, therefore the range is [0, NP - i - 2].
-		boost::uniform_int<size_t> rnd_idx(0, NP - i - 2);
-		std::swap(elements[rnd_idx(m_urng)], elements[NP - i - 2]);
-	}
-
-	// Create sample of the first 7 elements.
-	if (sample.size() > 0) {
-		sample.erase(sample.begin(), sample.end());
-	}
-	for (i = 0; i < 7; ++i) {
-		sample.push_back(elements[elements.size() - i - 1]);
-	}
 }
 
 }} //namespaces
