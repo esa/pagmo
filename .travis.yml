@@ -15,10 +15,10 @@ before_install:
 script:
     - mkdir build
     - cd build
-    - cmake .. -DENABLE_TESTS="ON" -DBUILD_PYGMO="on"
+    - cmake .. -DENABLE_TESTS="ON" -DBUILD_PYGMO="on" -DPYTHON_MODULES_DIR="~/local/python" -DCMAKE_INSTALL_PREFIX="~/local"
     - make -j 9
     - make test
     - make install
 
 after_success:
-    - python -c "import PyGMO; print(PyGMO.__version__)"
+    - PYTHONPATH=~/local/python LD_LIBRARY_PATH=~/local/lib python -c "import PyGMO; print(PyGMO.__version__)"
