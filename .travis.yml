@@ -21,4 +21,4 @@ script:
     - make install
 
 after_success:
-    - PYTHONPATH=~/local/python LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local/lib python -c "import PyGMO; print(PyGMO.__version__)"
+    - PYTHONPATH=~/local/python LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local/lib:$TRAVIS_BUILD_DIR/../boost-trunk/lib python -c "import PyGMO; print(PyGMO.__version__)"
