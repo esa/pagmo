@@ -33,7 +33,7 @@
 
 using namespace pagmo;
 
-int test_archipelago_migration() {
+int test_distribution_type() {
 	std::vector<archipelago::distribution_type> types = {
 		archipelago::distribution_type::point_to_point,
 		archipelago::distribution_type::broadcast,
@@ -51,5 +51,5 @@ int test_archipelago_migration() {
 }
 
 int main() {
-	return test_archipelago_migration();
+	return test_distribution_type();
 }
