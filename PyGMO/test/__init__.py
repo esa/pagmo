@@ -117,11 +117,13 @@ def run_full_test_suite():
     from PyGMO import test
     from PyGMO.test._hypervolume_tests import get_hv_suite
     from PyGMO.test._topology_tests import get_topology_test_suite
+    from PyGMO.test._property_tests import get_property_test_suite
     suite = _ut.TestLoader().loadTestsFromModule(test)
 
     # Add external suites explicitly
     suite.addTests(get_hv_suite())
     suite.addTests(get_topology_test_suite())
+    suite.addTests(get_property_test_suite())
 
     _ut.TextTestRunner(verbosity=2).run(suite)
 
