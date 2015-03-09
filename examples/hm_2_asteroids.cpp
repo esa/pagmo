@@ -114,7 +114,7 @@ int main()
 				for (int k=0;k<n_multistart;++k){
 					std::cout << "\tTarget is: " << target.get_name() << ", Trial: " << k << std::endl;
 					archipelago a = pagmo::archipelago(topology::rim());
-					a.push_back(pagmo::island(algo3,prob,1,1,migration::best_s_policy(),migration::random_r_policy()));
+					a.push_back(pagmo::island(algo3,prob,1,migration::best_s_policy(),migration::random_r_policy()));
 					a.push_back(pagmo::island(algo1,prob,1));
 					a.push_back(pagmo::island(algo2,prob,20));
 					a.push_back(pagmo::island(algo1,prob,1));
