@@ -44,7 +44,6 @@ namespace pagmo { namespace topology {
  * Will build an empty topology.
  */
 base::base():m_graph() {}
-
 /// Copy constructor.
 /**
  * Will deep-copy all members.
@@ -303,9 +302,94 @@ void base::add_edge(const vertices_size_type &n, const vertices_size_type &m)
 	}
 	const std::pair<e_descriptor,bool> result = boost::add_edge(boost::vertex(n,m_graph),boost::vertex(m,m_graph),m_graph);
 	pagmo_assert(result.second);
-	// Assign weight 1 to the edge.
-	boost::property_map<graph_type,boost::edge_weight_t>::type w = boost::get(boost::edge_weight,m_graph);
-	w[result.first] = 1;
+	set_weight(result.first, 1.0);
+}
+
+/// Sets the migration probability
+/**
+ * Set the weight (migration probability) referenced by edge descriptor e
+ *
+ * @param[in] e edge_descriptor
+ * @param[in] w weight (migration probability)
+ */
+void base::set_weight(const base::e_descriptor &e, double w) {
+	if (w < 0.0 || w > 1.0) {
+		pagmo_throw(value_error,"invalid migration probability");
+	}
+	m_graph[e].migr_probability = w;
+}
+
+/// Sets the migration probability
+/**
+ * Set the migration probability referenced by edge descriptor 'e'
+ *
+ * @param[in] e edge_descriptor
+ * @param[in] w weight (migration probability)
+ */
+double base::get_weight(const base::e_descriptor &e) const {
+	return m_graph[e].migr_probability;
+}
+
+/// Sets the migration probability
+/**
+ * Set the weight (migration probability) for each edge in the topology
+ *
+ * @param[in] w weight (migration probability) of each edge in the topology
+ */
+void base::set_weight(double w) {
+	std::pair<e_iterator, e_iterator> es = boost::edges(m_graph);
+	for(; es.first != es.second; ++es.first) {
+		set_weight(*es.first, w);
+	}
+}
+
+/// Sets the migration probability
+/**
+ * Set the weight (migration probability) for each edge outgoing from the vertex n.
+ *
+ * @param[in] n index of the first vertex in the graph
+ * @param[in] w weight (migration probability) for each out-edge from vertex n.
+ */
+void base::set_weight(const vertices_size_type &n, double w) {
+	std::pair<a_iterator,a_iterator> adj_vertices = boost::adjacent_vertices(boost::vertex(n, m_graph), m_graph);
+	for(; adj_vertices.first != adj_vertices.second; ++adj_vertices.first) {
+		const std::pair<e_descriptor, bool> e = boost::edge(boost::vertex(n, m_graph), *adj_vertices.first, m_graph);
+		set_weight(e.first, w);
+	}
+}
+
+/// Sets the migration probability
+/**
+ * Set the weight (migration probability) for edge going from n to m
+ *
+ * @param[in] n index of the first vertex in the graph
+ * @param[in] m index of the second vertex in the graph
+ * @param[in] w weight (migration probability) for given edge
+ */
+void base::set_weight(const vertices_size_type &n, const vertices_size_type &m, double w)
+{
+	if (!are_adjacent(n, m)) {
+		pagmo_throw(value_error,"cannot set edge weight, vertices are not connected");
+	}
+	const std::pair<e_descriptor, bool> e = boost::edge(n, m, m_graph);
+	set_weight(e.first, w);
+}
+
+/// Get the migration probability
+/**
+ * Returns the weight (migration probability) for the edge going from vertex n to m
+ *
+ * @param[in] n index of the first vertex in the graph
+ * @param[in] m index of the second vertex in the graph
+ * @param[in] w weight (migration probability) for given edge
+ */
+double base::get_weight(const vertices_size_type &n, const vertices_size_type &m) const
+{
+	if (!are_adjacent(n, m)) {
+		pagmo_throw(value_error,"cannot get edge weight, vertices are not connected");
+	}
+	const std::pair<e_descriptor, bool> e = boost::edge(n, m, m_graph);
+	return get_weight(e.first);
 }
 
 /// Remove an edge.
@@ -377,10 +461,17 @@ base::edges_size_type base::get_number_of_edges() const
  */
 double base::get_average_shortest_path_length() const
 {
+	std::map<e_descriptor, int> map;
+	boost::associative_property_map<std::map<e_descriptor, int> > map2(map);
+	std::pair<e_iterator, e_iterator> es = boost::edges(m_graph);
+	for(; es.first != es.second; ++es.first) {
+		map2[(*es.first)] = 1;
+	}
+
 	// Output matrix.
 	std::vector<std::vector<int> > D(boost::numeric_cast<std::vector<std::vector<int> >::size_type>(get_number_of_vertices()),
 		std::vector<int>(boost::numeric_cast<std::vector<int>::size_type>(get_number_of_vertices())));
-	boost::johnson_all_pairs_shortest_paths(m_graph,D);
+	boost::johnson_all_pairs_shortest_paths(m_graph, D, weight_map(map2));
 	double retval = 0;
 	for (std::vector<std::vector<int> >::size_type i = 0; i < D.size(); ++i) {
 		for (std::vector<int>::size_type j = 0; j < D[i].size(); ++j) {
@@ -432,7 +523,7 @@ double base::get_clustering_coefficient() const
 }
 
 /// Constructs the Degree Distribution
-std::vector<double> base::get_degree_distribution()
+std::vector<double> base::get_degree_distribution() const
 {
     // First, find the maximum degree of any node and define the output vector
     std::pair<v_iterator, v_iterator> vertices;

@@ -460,7 +460,12 @@ void archipelago::pre_evolution(base_island &isl)
 						// Get the immigrants from the outbox of the random island. Note the redundant information in the last
 						// argument of the function.
 						pagmo_assert(m_migr_map[rn_isl_idx].size() <= 1);
-						build_immigrants_vector(immigrants,*m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx]);
+
+						double next_rng = m_drng();
+						double migr_prob = m_topology->get_weight(rn_isl_idx, isl_idx);
+						if (next_rng < migr_prob) {
+							build_immigrants_vector(immigrants,*m_container[rn_isl_idx],isl,m_migr_map[rn_isl_idx][rn_isl_idx]);
+						}
 						break;
 					}
 					case broadcast:
@@ -470,7 +475,11 @@ void archipelago::pre_evolution(base_island &isl)
 						for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < inv_adj_islands.size(); ++i) {
 							const size_type src_isl_idx = boost::numeric_cast<size_type>(inv_adj_islands[i]);
 							pagmo_assert(m_migr_map[src_isl_idx].size() <= 1);
-							build_immigrants_vector(immigrants,*m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx]);
+							double next_rng = m_drng();
+							double migr_prob = m_topology->get_weight(src_isl_idx, isl_idx);
+							if (next_rng < migr_prob) {
+								build_immigrants_vector(immigrants,*m_container[src_isl_idx],isl,m_migr_map[src_isl_idx][src_isl_idx]);
+							}
 						}
 					}
 				}
@@ -478,28 +487,21 @@ void archipelago::pre_evolution(base_island &isl)
 	}
 	//2. Insert immigrants into population.
 	if (immigrants.size()) {
-		double next_rng;
-		{
-			lock_type lock(m_migr_mutex);
-			next_rng = m_drng();
-		}
-		if (next_rng < isl.m_migr_prob) {
-			// We re-evaluate the incoming individuals according
-			// to destination island's problem. This will make sure that stochastic problems
-			// are correctly dealt with
-			reevaluate_immigrants(immigrants,isl);
-			// We then insert the incoming individuals into the population, storing how many from where
-			std::vector<std::pair<population::size_type, size_type> > rec_history;
-			rec_history = isl.accept_immigrants(immigrants);
-			lock_type lock(m_migr_mutex);
-			// Record the migration history.
-			for (size_t i =0; i< rec_history.size(); ++i) {
-				m_migr_hist.push_back( boost::make_tuple(
-					rec_history[i].first,
-					rec_history[i].second,
-					locate_island(isl) )
-				);
-			}
+		// We re-evaluate the incoming individuals according
+		// to destination island's problem. This will make sure that stochastic problems
+		// are correctly dealt with
+		reevaluate_immigrants(immigrants,isl);
+		// We then insert the incoming individuals into the population, storing how many from where
+		std::vector<std::pair<population::size_type, size_type> > rec_history;
+		rec_history = isl.accept_immigrants(immigrants);
+		lock_type lock(m_migr_mutex);
+		// Record the migration history.
+		for (size_t i =0; i< rec_history.size(); ++i) {
+			m_migr_hist.push_back( boost::make_tuple(
+				rec_history[i].first,
+				rec_history[i].second,
+				isl_idx)
+			);
 		}
 	}
 }
@@ -535,7 +537,11 @@ void archipelago::post_evolution(base_island &isl)
 							// For one-to-one migration choose a random neighbour island and put immigrants to its inbox.
 							boost::uniform_int<std::vector<topology::base::vertices_size_type>::size_type> u_int(0,adj_islands.size() - 1);
 							const size_type chosen_adj = boost::numeric_cast<size_type>(adj_islands[u_int(m_urng)]);
-							m_migr_map[chosen_adj][isl_idx].insert(m_migr_map[chosen_adj][isl_idx].end(),emigrants.begin(),emigrants.end());
+							double next_rng = m_drng();
+							double migr_prob = m_topology->get_weight(isl_idx, chosen_adj);
+							if (next_rng < migr_prob) {
+								m_migr_map[chosen_adj][isl_idx].insert(m_migr_map[chosen_adj][isl_idx].end(),emigrants.begin(),emigrants.end());
+							}
 							break;
 						}
 						case broadcast:
@@ -543,9 +549,13 @@ void archipelago::post_evolution(base_island &isl)
 							lock_type lock(m_migr_mutex);
 							// For broadcast migration put immigrants to all neighbour islands' inboxes.
 							for (std::vector<topology::base::vertices_size_type>::size_type i = 0; i < adj_islands.size(); ++i) {
-								m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx]
-									.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
-									emigrants.begin(),emigrants.end());
+								double next_rng = m_drng();
+								double migr_prob = m_topology->get_weight(isl_idx, adj_islands[i]);
+								if (next_rng < migr_prob) {
+									m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx]
+										.insert(m_migr_map[boost::numeric_cast<size_type>(adj_islands[i])][isl_idx].end(),
+										emigrants.begin(),emigrants.end());
+								}
 							}
 						}
 					}
@@ -586,22 +596,28 @@ void archipelago::evolve(int n)
  * Will iteratively call island::evolve(n) on batches of b islands of the archipelago and then return.
  * Each batch will wait to complete the n evolves before ending. It is typically called with n=1 as 
  * for n>1 this set-up creates a strange effect on the migration flux (the first batch that evolves does not
- * make use of the islands in the remaining batches)
+ * make use of the islands in the remaining batches).
  *
  * \param[in] n number of time each island will be evolved.
  * \param[in] b the size of the batch of islands to evolve at the same time.
+ * \param[in] randomize determines whether evolve populations in index-order (randomize=false) or in random order (randomize=true)
  */
-void archipelago::evolve_batch(int n, unsigned int b)
+void archipelago::evolve_batch(int n, unsigned int b, bool randomize)
 {
 	join();
 	container_type::size_type arch_size = this->get_size();
-	// Variate generators
-	boost::uniform_int<int> pop_idx(0,arch_size-1);
-	boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
-	// Shuffle to not bias towards low-indexes
-	std::vector<population::size_type> shuffle(arch_size);
-	for(population::size_type i=0; i < shuffle.size(); ++i) shuffle[i] = i;
-	std::random_shuffle(shuffle.begin(), shuffle.end(), p_idx);
+	// Order of populations to evolve, by default biased by the index (lowest first)
+	std::vector<population::size_type> pop_order(arch_size);
+	for(population::size_type i=0; i < pop_order.size(); ++i)
+		pop_order[i] = i;
+
+	// Optionally, randomize the order of populations (True by default)
+	if(randomize) {
+		// Variate generators
+		boost::uniform_int<int> pop_idx(0,arch_size-1);
+		boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > p_idx(m_urng,pop_idx);
+		std::random_shuffle(pop_order.begin(), pop_order.end(), p_idx);
+	}
 	
 	for(size_type p = 0; p < arch_size/b + 1; ++p) {
 		if(p == arch_size/b) { //for the last batch of islands decrease the barrier
@@ -610,10 +626,10 @@ void archipelago::evolve_batch(int n, unsigned int b)
 			reset_barrier(b);
 		}
 		for(size_type i=0; i<b && p*b+i < arch_size; ++i) {
-			m_container[shuffle[p*b+i]]->evolve(n);
+			m_container[pop_order[p*b+i]]->evolve(n);
 		}
 		for(size_type i=0; i<b && p*b+i < arch_size; ++i) {
-			m_container[shuffle[p*b+i]]->join();
+			m_container[pop_order[p*b+i]]->join();
 		}
 	}
 }

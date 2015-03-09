@@ -12,10 +12,10 @@ island and that, in reality, is a helper function returning automatically the co
    An island, in PyGMO, contains a :class:`PyGMO.population` and a :class:`PyGMO.algorithm` and is the object responsible
    to launch the thread that applies the :class:`PyGMO.algorithm` to evolve the :class:`PyGMO.population`
 
-   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.population)pop [, migr_prob=1., s_policy = best_s_policy(1), r_policy=fair_r_policy(1)])
+   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.population)pop [, s_policy = best_s_policy(1), r_policy=fair_r_policy(1)])
 
-      Constructs an island from a population. The population will be evolved by algo. Migration occurs with
-      probability migr_prob at the end of each evolution if the *island* belongs to a :class:`PyGMO.archipelago`
+      Constructs an island from a population. The population will be evolved by algo. Migration occurs
+      at the end of each evolution if the *island* belongs to a :class:`PyGMO.archipelago`
 
       .. code-block:: python
 
@@ -25,10 +25,10 @@ island and that, in reality, is a helper function returning automatically the co
          pop = population(prob,20)
          isl = island(algo,pop)
 
-   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.problem)prob, (int)N=0 [, migr_prob=1., s_policy = best_s_policy(1), r_policy=fair_r_policy(1)])
+   .. method:: PyGMO.island.__init__((PyGMO.algorithm)algo, (PyGMO.problem)prob, (int)N=0 [, s_policy = best_s_policy(1), r_policy=fair_r_policy(1)])
 
       Constructs an island directly from a problem. The resulting population (of size N) will be evolved by algo. 
-      Migration occurs with probability migr_prob at the end of each evolution if the *island* belongs to an :class:`PyGMO.archipelago`
+      Migration occurs at the end of each evolution if the *island* belongs to an :class:`PyGMO.archipelago`
 
       .. code-block:: python
 
@@ -40,7 +40,7 @@ island and that, in reality, is a helper function returning automatically the co
    .. method:: PyGMO.island.evolve((int)n)
   
       Evolves the :class:`PyGMO.population` in the *island* performing n calls to :class:`PyGMO.algorithm`.
-      At the end of each call migration occur with probability migr_prob if the *island*  belongs to a :class:`PyGMO.archipelago`.
+      At the end of each call migration occurs if the *island*  belongs to a :class:`PyGMO.archipelago`.
       Evolution happens in the background on a dedicated thread while the program flows continues.
       
       .. code-block:: python
@@ -126,10 +126,6 @@ island and that, in reality, is a helper function returning automatically the co
    .. attribute:: PyGMO.island.problem
 
       A copy of the :class:`PyGMO.problem` in the :class:`PyGMO.population`. Cannot be set or modified via its methods.
-
-   .. attribute:: PyGMO.island.migration_probability
-
-      The probability that migration occur at the end of each evolution. Cannot be set (maybe in future versions)
 
 .. class:: PyGMO.archipelago
 

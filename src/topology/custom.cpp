@@ -52,10 +52,12 @@ custom::custom(const base &t):base(t) {}
  *
  * @param[in] n first index.
  * @param[in] m second index.
+ * @param[in] migr_probability second index.
  */
-void custom::add_edge(int n, int m)
+void custom::add_edge(int n, int m, double migr_probability)
 {
 	base::add_edge(boost::numeric_cast<vertices_size_type>(n),boost::numeric_cast<vertices_size_type>(m));
+	base::set_weight(n, m, migr_probability);
 }
 
 /// Remove an edge.

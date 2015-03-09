@@ -64,7 +64,6 @@ def _generic_island_ctor(self, *args, **kwargs):
 
     Keyword arguments:
 
-            * *migr_prob* -- migration probability (defaults to 1)
             * *s_policy* -- migration selection policy (defaults to 'best selection' policy)
             * *r_policy* -- migration replacement policy (defaults to 'fair replacement' policy)
 
@@ -101,13 +100,6 @@ def _generic_island_ctor(self, *args, **kwargs):
     else:
         raise TypeError(
             "The second unnamed argument must be either a problem or a population.")
-
-    if 'migr_prob' in kwargs:
-        ctor_args.append(kwargs['migr_prob'])
-    else:
-        ctor_args.append(1.)
-    if not isinstance(ctor_args[-1], float):
-        raise TypeError("Migration probability must be a float.")
 
     if 's_policy' in kwargs:
         ctor_args.append(kwargs['s_policy'])

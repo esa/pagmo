@@ -22,66 +22,49 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
+#ifndef PAGMO_PROBLEM_IDENTITY_H
+#define PAGMO_PROBLEM_IDENTITY_H
+
 #include <string>
 
-#include "algorithm/base.h"
-#include "base_island.h"
-#include "island.h"
-#include "migration/base_r_policy.h"
-#include "migration/base_s_policy.h"
-#include "population.h"
-#include "problem/base.h"
+#include "../serialization.h"
+#include "../types.h"
+#include "base.h"
 
-namespace pagmo
-{
+namespace pagmo{ namespace problem {
 
-/// Constructor from problem::base, algorithm::base, number of individuals, migration probability and selection/replacement policies.
+/// Identity problem.
 /**
- * @see pagmo::base_island constructors.
+ * This is a box-constrained continuous multi-objecive problem.
+ * The objective function is the identity:
+ * \f[
+ * 	F \left(x_1,\ldots,x_n\right) = \left(x_1, \ldots, x_n\right)
+ * \f]
+ *
+ * The problem is intended to be used for testing other modules and algorithms.
+ *
+ * @author Krzysztof Nowak (knowak.ai@gmail.com)
  */
-island::island(const algorithm::base &a, const problem::base &p, int n,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(a,p,n,s_policy,r_policy)
-{}
 
-/// Copy constructor.
-/**
- * @see pagmo::base_island constructors.
- */
-island::island(const island &isl):base_island(isl)
-{}
-
-/// Constructor from population.
-/**
- * @see pagmo::base_island constructors.
- */
-island::island(const algorithm::base &a, const population &pop,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(a,pop,s_policy,r_policy)
-{}
-
-/// Assignment operator.
-island &island::operator=(const island &isl)
+class __PAGMO_VISIBLE identity : public base
 {
-	base_island::operator=(isl);
-	return *this;
-}
+	public:
+		identity(int n = 1);
+		base_ptr clone() const;
+		std::string get_name() const;
+	protected:
+		void objfun_impl(fitness_vector &, const decision_vector &) const;
+	private:
+		friend class boost::serialization::access;
+		template <class Archive>
+		void serialize(Archive &ar, const unsigned int)
+		{
+			ar & boost::serialization::base_object<base>(*this);
+		}
+};
 
-base_island_ptr island::clone() const
-{
-	return base_island_ptr(new island(*this));
-}
+}} //namespaces
 
-void island::perform_evolution(const algorithm::base &algo, population &pop) const
-{
-	algo.evolve(pop);
-}
+BOOST_CLASS_EXPORT_KEY(pagmo::problem::identity)
 
-std::string island::get_name() const
-{
-	return "Local thread island";
-}
-
-}
-
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::island)
+#endif

@@ -149,22 +149,6 @@ The replacement policy is set by the 'r_policy' kwarg in the island constructor
    isl = island(algo,prob,s_policy = best2)
 
 
-Migration Probability
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Default value: 1
-
-The migration probability determines whether migration occurs at all between calls of the evolve() method. 
-It is set by the 'migr_prob' kwarg of the island constructor.
-
-.. code-block:: python
-
-   from PyGMO import *
-   prob = problem.schwefel(15)
-   algo = algorithm.de(gen = 100) #instantiates differential evolution with default params and 100 generations
-   p = 0.5
-   isl = island(algo,prob,migr_prob = p)
-
 Migration Topology
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

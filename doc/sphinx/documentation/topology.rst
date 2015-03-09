@@ -16,7 +16,64 @@ The user will mainly use these classes in the following way:
   topo = topology.ring() #defines an empty ring topology
   archi = archipelago(algo,prob,8,20,topology=topo) #connects 8 islands in a ring topology
   archi.topology.draw() #requires networkx to be installed
+
+Migration Probability
+^^^^^^^^^^^^^^^^^^^^^
+When defining the migration paths (edges of the DAG in the topology), one of the parameters is the migration probability, by default equal to 1. It is possible to change it globally for all edges:
+
+.. code-block:: python
+
+  from PyGMO import *
+  topo = topology.fully_connected(5) # Defines a 5-vertex ring topology
+  topo.set_weight(0.5)  # Changing the migration probability to 0.5 for all edges
+
+specify a custom migration probability for all out-going edges of a node:
+
+.. code-block:: python
+
+  from PyGMO import *
+  topo = topology.fully_connected(3)  # Defines a 5-vertex ring topology
+  topo.set_weight(0.5)  # Change the migration probability to 0.5 for all edges
+  topo.set_weight(0, 0.1)  # Probability 0.1 for all out-going edges from island 0
+  topo.set_weight(2, 0.0)  # Probability 0.0 for all out-going edges from island 2 (effectively invalidating the migration path)
+
+.. image:: ../images/topos/topo_prob_fully_connected.png
+  :width: 220px
   
+or specify a custom migration probability for individual edges:
+
+.. code-block:: python
+
+  from PyGMO import *
+  topo = topology.one_way_ring(5)  # Defines a 5-vertex ring topology
+  topo.set_weight(1, 2, 0.5)  # Changing the migration probability to 0.5 for edge 1 -> 2
+  topo.set_weight(2, 3, 0.2)  # Changing the migration probability to 0.2 for edge 2 -> 3
+  topo.set_weight(3, 4, 0.1)  # Changing the migration probability to 0.1 for edge 3 -> 4
+  topo.set_weight(4, 0, 0.05)  # Changing the migration probability to 0.05 for edge 4 -> 0
+
+.. image:: ../images/topos/topo_prob_one_way_ring.png
+  :width: 220px
+
+The Classes
+-----------
+
+
+.. class:: PyGMO.topology.base()
+
+   Methods of the topology base class, shared by all topology objects.
+
+   .. method:: PyGMO.topology.base.set_weight((float)w)
+
+      Sets the weight for each edge in the topology.
+
+   .. method:: PyGMO.topology.base.set_weight((int)id, (float)w)
+
+      Sets the weight for each edge outgoing from the vertex id
+
+   .. method:: PyGMO.topology.base.set_weight((int)id1, (int)id2, (float)w)
+
+      Sets the weight for the edge between the vertices id1 and id2
+
 .. class:: PyGMO.topology.unconnected()
 
    Unconnected topology (this corresponds to do parallel independent runs of the algorithms)
@@ -273,9 +330,9 @@ The user will mainly use these classes in the following way:
     
       Adds a vertex
 
-   .. method:: PyGMO.topology.custom.add_edge((int)id1, (int)id2)
+   .. method:: PyGMO.topology.custom.add_edge((int)id1, (int)id2, (float)w)
 
-      Adds a directed adge from vertex id1 to vertex id2
+      Adds a directed adge from vertex id1 to vertex id2, with an optional weight 'w' between id1 and id2 (by default 1.0)
 
    .. method:: PyGMO.topology.custom.remove_edge((int)id1, (int)id2)
 

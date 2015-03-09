@@ -87,11 +87,9 @@ class __PAGMO_VISIBLE base_island
 		//@{
 		base_island(const base_island &);
 		explicit base_island(const algorithm::base &, const problem::base &, int,
-			const double &,
 			const migration::base_s_policy &,
 			const migration::base_r_policy &);
 		explicit base_island(const algorithm::base &, const population &,
-			const double &,
 			const migration::base_s_policy &,
 			const migration::base_r_policy &);
 		base_island &operator=(const base_island &);
@@ -139,7 +137,6 @@ class __PAGMO_VISIBLE base_island
 		void set_v(population::size_type, const decision_vector &);
 		problem::base_ptr get_problem() const;
 		population::size_type get_size() const;
-		double get_migration_probability() const;
 		migration::base_s_policy_ptr get_s_policy() const;
 		migration::base_r_policy_ptr get_r_policy() const;
 		population get_population() const;
@@ -166,8 +163,6 @@ class __PAGMO_VISIBLE base_island
 		archipelago				*m_archi;
 		/// Total time spent by the island on evolution (in milliseconds).
 		std::size_t				m_evo_time;
-		/// Migration probability.
-		double					m_migr_prob;
 		/// Migration selection policy.
 		migration::base_s_policy_ptr		m_s_policy;
 		/// Migration replacement policy.
@@ -185,7 +180,6 @@ class __PAGMO_VISIBLE base_island
 			ar & m_algo;
 			ar & m_pop;
 			ar & m_evo_time;
-			ar & m_migr_prob;
 			ar & m_s_policy;
 			ar & m_r_policy;
 			boost::serialization::split_member(ar, *this, version);

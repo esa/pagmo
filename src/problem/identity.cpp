@@ -22,66 +22,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#include <string>
+#include <boost/math/constants/constants.hpp>
+#include <cmath>
 
-#include "algorithm/base.h"
-#include "base_island.h"
-#include "island.h"
-#include "migration/base_r_policy.h"
-#include "migration/base_s_policy.h"
-#include "population.h"
-#include "problem/base.h"
+#include "../exceptions.h"
+#include "../types.h"
+#include "base.h"
+#include "identity.h"
 
-namespace pagmo
-{
+namespace pagmo { namespace problem {
 
-/// Constructor from problem::base, algorithm::base, number of individuals, migration probability and selection/replacement policies.
+/// Constructor from dimension.
 /**
- * @see pagmo::base_island constructors.
+ * Will construct an n-dimensional and n-objective Identity problem.
+ *
+ * @param[in] n integer dimension of the problem with n objectives.
+ *
+ * @see problem::base constructors.
  */
-island::island(const algorithm::base &a, const problem::base &p, int n,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(a,p,n,s_policy,r_policy)
-{}
+identity::identity(int n):base(n, 0, n) {
+	set_lb(-100);
+	set_ub(100);
+}
 
-/// Copy constructor.
-/**
- * @see pagmo::base_island constructors.
- */
-island::island(const island &isl):base_island(isl)
-{}
+/// Clone method.
+base_ptr identity::clone() const {
+	return base_ptr(new identity(*this));
+}
 
-/// Constructor from population.
-/**
- * @see pagmo::base_island constructors.
- */
-island::island(const algorithm::base &a, const population &pop,
-	const migration::base_s_policy &s_policy, const migration::base_r_policy &r_policy):
-	base_island(a,pop,s_policy,r_policy)
-{}
-
-/// Assignment operator.
-island &island::operator=(const island &isl)
+/// Implementation of the objective function.
+void identity::objfun_impl(fitness_vector &f, const decision_vector &x) const
 {
-	base_island::operator=(isl);
-	return *this;
+	pagmo_assert(x.size() == f.size());
+	decision_vector::size_type n = x.size();
+
+	for (decision_vector::size_type i=0; i<n; i++){
+		f[i] = x[i];
+	}
 }
 
-base_island_ptr island::clone() const
+std::string identity::get_name() const
 {
-	return base_island_ptr(new island(*this));
+	return "Identity";
 }
 
-void island::perform_evolution(const algorithm::base &algo, population &pop) const
-{
-	algo.evolve(pop);
-}
+}} //namespaces
 
-std::string island::get_name() const
-{
-	return "Local thread island";
-}
-
-}
-
-BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::island)
+BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::identity)

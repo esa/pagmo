@@ -81,15 +81,23 @@ static inline topology::base::edges_size_type topology_get_num_inv_adjacent_vert
 
 BOOST_PYTHON_MODULE(_topology) {
 	common_module_init();
+	typedef void (topology::base::*set_weight_edge)(const topology::base::vertices_size_type &, const topology::base::vertices_size_type&, double);
+	typedef void (topology::base::*set_weight_vertex)(const topology::base::vertices_size_type &, double);
+	typedef void (topology::base::*set_weight_all)(double);
+	typedef double (topology::base::*get_weight_double)(const topology::base::vertices_size_type &, const topology::base::vertices_size_type&) const;
 
 	class_<topology::base,boost::noncopyable>("_base",no_init)
 		.def("__repr__", &topology::base::human_readable)
 		.add_property("number_of_vertices",&topology::base::get_number_of_vertices)
 		.add_property("number_of_edges",&topology::base::get_number_of_edges)
 		.def("get_average_shortest_path_length",&topology::base::get_average_shortest_path_length,"Calculate average shortest path length.")
-                .def("get_clustering_coefficient",&topology::base::get_clustering_coefficient,"Calculate the clustering coefficient.")
-                .def("get_degree_distribution",&topology::base::get_degree_distribution,"Calculate the degree distribution.")
+		.def("get_clustering_coefficient",&topology::base::get_clustering_coefficient,"Calculate the clustering coefficient.")
+		.def("get_degree_distribution",&topology::base::get_degree_distribution,"Calculate the degree distribution.")
 		.def("push_back",&topology::base::push_back,"Add vertex to the topology and connect it.")
+		.def("set_weight",set_weight_edge(&topology::base::set_weight),"Set weight.")
+		.def("set_weight",set_weight_vertex(&topology::base::set_weight),"Set weight.")
+		.def("set_weight",set_weight_all(&topology::base::set_weight),"Set weight.")
+		.def("get_weight",get_weight_double(&topology::base::get_weight),"Get weight.")
 		.def("are_adjacent",&topology_are_adjacent,"Check whether two vertices are adjacent.")
 		.def("are_inv_adjacent",&topology_are_inv_adjacent,"Check whether two vertices are inversely adjacent.")
 		.def("get_adjacent_vertices",&topology_get_adjacent_vertices,"Return list of adjacent vertices.")
@@ -99,9 +107,9 @@ BOOST_PYTHON_MODULE(_topology) {
 
 	// Topologies.
 	topology_wrapper<topology::barabasi_albert>("barabasi_albert", "Barabasi-Albert topology.").def(init<optional<int,int> >());
-        topology_wrapper<topology::clustered_ba>("clustered_ba", "Clustered Barabasi-Albert topology.").def(init<optional<int,int,double> >());
-        topology_wrapper<topology::ageing_clustered_ba>("ageing_clustered_ba", "Clustered Barabasi-Albert with Ageing topology.").def(init<optional<int,int,double,int> >());
-        topology_wrapper<topology::custom>("custom", "Custom topology.")
+	topology_wrapper<topology::clustered_ba>("clustered_ba", "Clustered Barabasi-Albert topology.").def(init<optional<int,int,double> >());
+	topology_wrapper<topology::ageing_clustered_ba>("ageing_clustered_ba", "Clustered Barabasi-Albert with Ageing topology.").def(init<optional<int,int,double,int> >());
+	topology_wrapper<topology::custom>("custom", "Custom topology.")
 		.def(init<const topology::base &>())
 		.def("add_edge",&topology::custom::add_edge,"Add edge.")
 		.def("remove_edge",&topology::custom::remove_edge,"Remove edge.")
