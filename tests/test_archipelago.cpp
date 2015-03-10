@@ -40,7 +40,7 @@ int test_distribution_type() {
 	};
 	archipelago a;
 
-	for(auto it = types.begin(); it != types.end(); it++) {
+	for(auto it = types.begin(); it != types.end(); ++it) {
 		a.set_distribution_type(*it);
 		if(a.get_distribution_type() != *it) {
 			return 1;
