@@ -22,6 +22,10 @@ ADD_EXECUTABLE(test_rotated test_rotated.cpp)
 TARGET_LINK_LIBRARIES(test_rotated ${MANDATORY_LIBRARIES} pagmo_static)
 ADD_TEST(test_rotated test_rotated)
 
+ADD_EXECUTABLE(test_normalized test_normalized.cpp)
+TARGET_LINK_LIBRARIES(test_normalized ${MANDATORY_LIBRARIES} pagmo_static)
+ADD_TEST(test_normalized test_normalized)
+
 ADD_EXECUTABLE(test_noisy test_noisy.cpp)
 TARGET_LINK_LIBRARIES(test_noisy ${MANDATORY_LIBRARIES} pagmo_static)
 ADD_TEST(test_noisy test_noisy)
