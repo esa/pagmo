@@ -47,6 +47,16 @@ ackley::ackley(int n):base(n)
 	// Set bounds.
 	set_lb(-15.0);
 	set_ub(30);
+
+	// Initialise global minima vector vector vector vector
+	std::vector<decision_vector> best_x(1);
+	// The Ackley problem has only one global minimum: at (0, ..., 0)
+	// (the value for all dimensions is 0).
+	for(int i = 0; i < n; ++i) {
+		best_x[0].push_back(0);
+	}
+
+	set_best_x(best_x);
 }
 
 /// Clone method.

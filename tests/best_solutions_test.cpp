@@ -169,29 +169,33 @@ int main()
 			const std::vector<decision_vector> &best_x = best_tests[i].problem->get_best_x();
 			//browse the solutions set
 			for(std::vector<decision_vector>::size_type j=0; j<best_x.size(); j++) {
-				fitness_vector best_f_computed = best_tests[i].problem->get_best_f().at(j);
-				const fitness_vector &best_f = best_tests[i].best_f.at(j);
-
-				if(best_f.empty()) {
+				if(best_tests[i].best_f.empty()) {
 					std::cout << "Best fitness vector is not implemented." << std::endl;
 				}
 				else{
+					const fitness_vector &best_f = best_tests[i].best_f.at(j);
+					fitness_vector best_f_computed = best_tests[i].problem->get_best_f().at(j);
+
 					if(is_eq(best_f_computed, best_f, EPS)){
-					   std::cout << " fitness passes, ";
+						std::cout << " fitness passes, ";
 					}
 					else{
 						std::cout << " fitness failed!"<<std::endl;
 						return 1;
 					}
 				}
-				constraint_vector best_c_computed = best_tests[i].problem->get_best_c().at(j);
-				const constraint_vector &best_c = best_tests[i].best_c.at(j);
 
-
-				if(best_c.empty() && best_tests[i].problem->get_c_dimension()>0) {
+				// If the test-local best constraint vector is empty OR 
+				// the problem has a constraint vector dimension of zero,
+				// then the constraint vector is not implemented and this 
+				// check will be skipped.
+				if(best_tests[i].best_c.empty() || best_tests[i].problem->get_c_dimension() == 0) {
 					std::cout << "Best constraint vector is not implemented." << std::endl;
 				}
 				else {
+					const constraint_vector &best_c = best_tests[i].best_c.at(j);
+					constraint_vector best_c_computed = best_tests[i].problem->get_best_c().at(j);
+
 					if(is_eq(best_c_computed, best_c, EPS)){
 						std::cout << " constraints passes.";
 					}
