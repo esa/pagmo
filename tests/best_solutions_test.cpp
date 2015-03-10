@@ -185,6 +185,10 @@ int main()
 					}
 				}
 
+				// If the test-local best constraint vector is empty OR 
+				// the problem has a constraint vector dimension of zero,
+				// then the constraint vector is not implemented and this 
+				// check will be skipped.
 				if(best_tests[i].best_c.empty() || best_tests[i].problem->get_c_dimension() == 0) {
 					std::cout << "Best constraint vector is not implemented." << std::endl;
 				}
