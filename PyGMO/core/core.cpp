@@ -410,6 +410,7 @@ BOOST_PYTHON_MODULE(_core)
 			"   string representing the serialized C++ representation\n"
 		)
 		.add_property("topology", &archipelago::get_topology, &archipelago::set_topology,"Topology property.")
+		.add_property("distribution_type", &archipelago::get_distribution_type, &archipelago::set_distribution_type, "Distribution type property.")
 		.def_pickle(archipelago_pickle_suite());
 
 	// Archipelago's migration strategies.

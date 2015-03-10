@@ -50,6 +50,10 @@ ADD_EXECUTABLE(test_tsp test_tsp.cpp)
 TARGET_LINK_LIBRARIES(test_tsp ${MANDATORY_LIBRARIES} pagmo_static)
 ADD_TEST(test_tsp test_tsp)
 
+ADD_EXECUTABLE(test_archipelago test_archipelago.cpp)
+TARGET_LINK_LIBRARIES(test_archipelago ${MANDATORY_LIBRARIES} pagmo_static)
+ADD_TEST(test_archipelago test_archipelago)
+
 IF(ENABLE_MPI)
 	ADD_EXECUTABLE(mpi_torture_test mpi_torture_test.cpp)
         TARGET_LINK_LIBRARIES(mpi_torture_test ${MANDATORY_LIBRARIES} pagmo_static)
