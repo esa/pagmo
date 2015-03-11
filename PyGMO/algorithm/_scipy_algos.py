@@ -5,14 +5,10 @@ from PyGMO.algorithm._base import base
 
 class _scipy_base(base):
 
-    def __init__(self, solver_name, constrained):
+    def __init__(self, solver, constrained):
         base.__init__(self)
-        try:
-            exec('from scipy.optimize import %s as solver' % solver_name)
-            from numpy import concatenate, array
-        except ImportError:
-            raise ImportError(
-                'The necessary SciPy and/or NumPy classes/functions could not be imported')
+
+        from numpy import concatenate, array
         self.solver = solver
         self.constrained = constrained
     # Check if problem is compatible with the algorithm.
@@ -81,7 +77,8 @@ class scipy_fmin(_scipy_base):
         * disp: Set to True to print convergence messages
         * retall: Set to True to return list of solutions at each iteration
         """
-        _scipy_base.__init__(self, 'fmin', False)
+        from scipy.optimize import fmin as solver
+        _scipy_base.__init__(self, solver, False)
         self.xtol = xtol
         self.ftol = ftol
         self.maxiter = maxiter
@@ -165,7 +162,8 @@ class scipy_l_bfgs_b(_scipy_base):
                 calculating the gradient
         * screen_output: Set to True to print iterations
         """
-        _scipy_base.__init__(self, 'fmin_l_bfgs_b', False)
+        from scipy.optimize import fmin_l_bfgs_b as solver
+        _scipy_base.__init__(self, solver, False)
         self.maxfun = maxfun
         self.m = m
         self.factr = factr
@@ -245,7 +243,8 @@ class scipy_slsqp(_scipy_base):
         * screen_output: Set to True to print iterations
         """
 
-        _scipy_base.__init__(self, 'fmin_slsqp', True)
+        from scipy.optimize import fmin_slsqp as solver
+        _scipy_base.__init__(self, solver, True)
         self.max_iter = max_iter
         self.acc = acc
         self.epsilon = epsilon
@@ -332,7 +331,8 @@ class scipy_tnc(_scipy_base):
         * epsilon: The stepsize in a finite difference approximation for the objfun
         * screen_output: Set to True to print iterations
         """
-        _scipy_base.__init__(self, 'fmin_tnc', False)
+        from scipy.optimize import fmin_tnc as solver
+        _scipy_base.__init__(self, solver, False)
         self.maxfun = maxfun
         self.xtol = xtol
         self.ftol = ftol
@@ -404,7 +404,8 @@ class scipy_cobyla(_scipy_base):
         * rhoend: Final accuracy in the optimization (not precisely guaranteed). This is a lower bound on the size of the trust region.
         * screen_output: Set to True to print iterations
         """
-        _scipy_base.__init__(self, 'fmin_cobyla', True)
+        from scipy.optimize import fmin_cobyla as solver
+        _scipy_base.__init__(self, solver, True)
         self.max_fun = max_fun
         self.rho_end = rho_end
         self.screen_output = screen_output
