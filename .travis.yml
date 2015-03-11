@@ -45,5 +45,5 @@ script:
 
 after_success:
     - export PYTHONPATH=~/local/python
-    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local/lib:~/build/darioizzo/pagmo/boost/lib
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local/lib:~/build/esa/pagmo/boost/lib
     - python -c "import PyGMO; print(PyGMO.__version__)"
