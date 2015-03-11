@@ -41,7 +41,7 @@ script:
     - cmake .. -DBUILD_PYGMO="ON" -DENABLE_TESTS="ON" -DPYTHON_MODULES_DIR="~/local/python" -DCMAKE_INSTALL_PREFIX="~/local"
     - make -j4
     - make test 
-    - make install
+    - make install 
 
 after_success:
     - export PYTHONPATH=~/local/python
