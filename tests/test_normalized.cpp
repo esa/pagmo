@@ -57,8 +57,9 @@ bool is_eq(fitness_vector f1, fitness_vector f2, double eps)
 	return true;
 }
 
-// Test following invariants:
-// normalized(prob).objfun(dv) = prob.objfun(normalized(prob).denormalize(dv))
+// Test following invariant:
+// normalized(prob).objfun(dv) is equal to
+//   prob.objfun(normalized(prob).denormalize(dv))
 int test_normalized_invariant(
 	const std::vector<problem::base_ptr> &probs)
 {
@@ -100,7 +101,7 @@ int test_normalized_invariant(
 			p_test[k] = boost::uniform_real<double>(-1.0,1.0)(drng);
 		}
 
-		// normalized(prob).objfun(dv) = prob.objfun(normalized(prob).denormalize(dv))
+		// Check invariant.
 		decision_vector p_denormalized = norm.denormalize(p_test);
 		fitness_vector f_expected = cur_prob->objfun(p_denormalized);
 		fitness_vector f_actual = norm.objfun(p_test);
@@ -117,7 +118,8 @@ int test_normalized_invariant(
 	return 0;
 }
 
-// Ensure that when bounds are (-1, 1) then normalization doesn't have any effect.
+// Ensure that when bounds are (-1, 1),
+//   normalization doesn't have any effect.
 int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 {
 	rng_double drng = rng_generator::get<rng_double>();
