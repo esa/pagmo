@@ -72,13 +72,18 @@ int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 
 		if (dim != prob_norm.get_lb().size()) {
 			std::cout << " Unexpected bounds vector size" << std::endl;
+			std::cout << " Expected " << dim << " got " << prob_norm.get_lb().size();
 			return 1;
 		}
 
 		// Ensure normalization did not change the bounds.
 		if (!is_eq(prob_norm.get_lb(), cur_prob->get_lb(), EPS) ||
-				!is_eq(prob_norm.get_ub(), cur_prob->get_ub(), EPS)) {
+			!is_eq(prob_norm.get_ub(), cur_prob->get_ub(), EPS)) {
 			std::cout << " bounds failed!" << std::endl;
+			PRINT_VEC(prob_norm.get_lb());
+			PRINT_VEC(cur_prob->get_lb());
+			PRINT_VEC(prob_norm.get_ub());
+			PRINT_VEC(cur_prob->get_ub());
 			return 1;
 		}
 
@@ -87,8 +92,10 @@ int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 		// Ensure denormalize() is essentially a no-op.
 		decision_vector p_denormalized = prob_norm.denormalize(p_normalized);
 		if (!is_eq(p_denormalized, p_normalized, EPS)) {
-				std::cout << " denormalize failed!" << std::endl;
-				return 1;
+			std::cout << " denormalize failed!" << std::endl;
+			PRINT_VEC(p_denormalized);
+			PRINT_VEC(p_normalized);
+			return 1;
 		}
 
 		std::cout << " denormalize pass." << std::endl;
