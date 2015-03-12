@@ -71,7 +71,7 @@ if "cassini" in str(problem._get_problem_list()):
 
 __doc__ = 'PyGMO is a pretty cool guy. It kills aliens and does not afraid of anything...'
 __all__ = ['core', 'algorithm', 'migration', 'problem', 'topology', 'test', 'util']
-__version__ = '1.1.5'
+__version__ = '1.1.6'
 
 # For convenience, bring all core classes into the root namespace when
 # importing *.
