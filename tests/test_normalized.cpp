@@ -194,6 +194,19 @@ int main()
 		probs.push_back(problem::cec2009(i, dimension, true).clone());
 	}
 
+	// Add a few problems with extreme bounds.
+	problem::ackley ak(10);
+	ak.set_bounds(DBL_MIN, DBL_MAX);
+	probs.push_back(ak.clone());
+	ak.set_bounds((double)INT_MIN, (double)INT_MAX);
+	probs.push_back(ak.clone());
+	ak.set_bounds((double)INT_MIN, (double)(INT_MIN + 1));
+	probs.push_back(ak.clone());
+	ak.set_bounds(1.0 - DBL_EPSILON, 1.0 + DBL_EPSILON);
+	probs.push_back(ak.clone());
+	ak.set_bounds(0.0 - DBL_EPSILON, 0.0 + DBL_EPSILON);
+	probs.push_back(ak.clone());
+
 	return test_normalized_11(probs) ||
 		   test_normalized_invariant(probs);
 }
