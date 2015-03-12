@@ -62,6 +62,7 @@ class __PAGMO_VISIBLE shifted : public base_meta
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 	private:
 		void configure_shifted_bounds(const decision_vector &);
+		std::vector<decision_vector> transform_x(const std::vector<decision_vector> &) const;
 
 		friend class boost::serialization::access;
 		template <class Archive>

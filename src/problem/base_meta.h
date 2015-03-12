@@ -68,6 +68,11 @@ class __PAGMO_VISIBLE base_meta : public base
 		bool compare_fc_impl(const fitness_vector &f1, const constraint_vector &c1, const fitness_vector &f2, const constraint_vector &c2) const
 			{return m_original_problem->compare_fc_impl(f1,c1,f2,c2);}
 	private:
+		// Computing new optima from the optima of the original problem.
+		// Applicable to only some transformations.
+		virtual std::vector<decision_vector> transform_x(const std::vector<decision_vector> &) const
+			{ return std::vector<decision_vector>(); }
+
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)

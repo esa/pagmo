@@ -102,6 +102,16 @@ void scaled::compute_constraints_impl(constraint_vector &c, const decision_vecto
 	m_original_problem->compute_constraints(c, x);
 }
 
+/// Compute transformed vectors for the meta-problem from the original problem with the fitness scaled.
+/*
+ * @param[in] x vectors of the original problem
+ * @param[out] vectors of the scaled problem
+ */
+std::vector<decision_vector> scaled::transform_x(const std::vector<decision_vector> &x) const
+{
+	// Only the fitness is scaled, not the space itself.
+	return x;
+}
 
 std::string scaled::get_name() const
 {

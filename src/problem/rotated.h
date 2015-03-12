@@ -64,6 +64,7 @@ class __PAGMO_VISIBLE rotated : public base_meta
 
 	private:
 		void configure_new_bounds();
+		std::vector<decision_vector> transform_x(const std::vector<decision_vector> &) const;
 
 		decision_vector normalize_to_center(const decision_vector& x) const;
 		decision_vector denormalize_to_original(const decision_vector& x) const;

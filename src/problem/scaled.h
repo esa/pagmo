@@ -58,6 +58,7 @@ class __PAGMO_VISIBLE scaled : public base_meta
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 	private:
+		std::vector<decision_vector> transform_x(const std::vector<decision_vector> &) const;
 
 		friend class boost::serialization::access;
 		template <class Archive>

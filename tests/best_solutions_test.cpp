@@ -180,7 +180,7 @@ int main()
 						std::cout << " fitness passes, ";
 					}
 					else{
-						std::cout << " fitness failed!"<<std::endl;
+						std::cout << " fitness failed!" << std::endl;
 						return 1;
 					}
 				}
@@ -197,10 +197,10 @@ int main()
 					constraint_vector best_c_computed = best_tests[i].problem->get_best_c().at(j);
 
 					if(is_eq(best_c_computed, best_c, EPS)){
-						std::cout << " constraints passes.";
+						std::cout << " constraints passes." << std::endl;
 					}
 					else{
-						std::cout << " constraints failed!"<<std::endl;
+						std::cout << " constraints failed!" << std::endl;
 						return 1;
 					}
 				}
@@ -208,7 +208,6 @@ int main()
 		}
 	}
 
-	std::cout << std::endl;
 	return 0;
 }
 

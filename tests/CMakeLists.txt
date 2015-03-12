@@ -50,6 +50,10 @@ ADD_EXECUTABLE(test_tsp test_tsp.cpp)
 TARGET_LINK_LIBRARIES(test_tsp ${MANDATORY_LIBRARIES} pagmo_static)
 ADD_TEST(test_tsp test_tsp)
 
+ADD_EXECUTABLE(test_optima_transformations test_optima_transformations.cpp)
+TARGET_LINK_LIBRARIES(test_optima_transformations ${MANDATORY_LIBRARIES} pagmo_static)
+ADD_TEST(test_optima_transformations test_optima_transformations)
+
 ADD_EXECUTABLE(test_archipelago test_archipelago.cpp)
 TARGET_LINK_LIBRARIES(test_archipelago ${MANDATORY_LIBRARIES} pagmo_static)
 ADD_TEST(test_archipelago test_archipelago)

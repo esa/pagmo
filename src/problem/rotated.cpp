@@ -63,6 +63,8 @@ rotated::rotated(const base &p, const Eigen::MatrixXd &rotation ):
 		pagmo_throw(value_error,"Input problem has an integer dimension. Cannot rotate it.");
 	}
 	configure_new_bounds();
+	std::vector<decision_vector> new_best_x = transform_x(p.get_best_x());
+	set_best_x(new_best_x);
 }
 
 /**
@@ -107,6 +109,8 @@ rotated::rotated(const base &p,
 		pagmo_throw(value_error,"The input matrix seems not to be orthonormal (to a tolerance of 1e-5)");
 	}
 	configure_new_bounds();
+	std::vector<decision_vector> new_best_x = transform_x(p.get_best_x());
+	set_best_x(new_best_x);
 }
 
 /**
@@ -138,6 +142,8 @@ rotated::rotated(const base &p):
 		pagmo_throw(value_error,"Input problem has an integer dimension. Cannot rotate it.");
 	}
 	configure_new_bounds();
+	std::vector<decision_vector> new_best_x = transform_x(p.get_best_x());
+	set_best_x(new_best_x);
 }
 
 /// Clone method.
@@ -168,6 +174,39 @@ void rotated::configure_new_bounds()
 	// Expand the box to cover the whole original search space. We may here call directly
 	// the set_bounds(const double &, const double &) as all dimensions are now equal
 	set_bounds(-sqrt(2), sqrt(2));
+}
+
+/// Compute rotated vectors for the meta-problem from the original problem.
+/*
+ * @param[in] x vectors of the original problem
+ * @param[out] vectors x rotated
+ */
+std::vector<decision_vector> rotated::transform_x(const std::vector<decision_vector> &x) const
+{
+	const base::size_type cnt = x.size();
+	std::vector<decision_vector> new_x = x;
+
+	for (base::size_type i = 0; i < cnt; ++i) {
+		// 1. normalize the vector x[i]
+		decision_vector x_normed(x[i].size());
+		for (base::size_type j = 0; j < x[i].size(); ++j) {
+			x_normed[j] = (x[i][j] - m_normalize_translation[j]) / m_normalize_scale[j];
+		}
+
+		// 2. rotate the normalized vector 
+		Eigen::VectorXd x_normed_vec = Eigen::VectorXd::Zero(x_normed.size());
+		for (base::size_type j = 0; j < x_normed.size(); ++j) {
+			x_normed_vec(j) = x_normed[j];
+		}
+		Eigen::VectorXd x_rotated_vec = m_Rotate * x_normed_vec;
+
+		// Store the normalized and rotated vector
+		for (base::size_type j = 0; j < x[i].size(); ++j) {
+			new_x[i][j] = x_rotated_vec(j);
+		}
+	}
+
+	return new_x;
 }
 
 // Used to normalize the original upper and lower bounds
