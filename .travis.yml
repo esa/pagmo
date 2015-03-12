@@ -1,5 +1,5 @@
 language: cpp
-compiler: 
+compiler:
   # - gcc
   - clang
 
@@ -18,7 +18,7 @@ before_install:
   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test; fi
   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository --yes ppa:h-rayflood/llvm; fi
   - if [ "$CXX" == "clang++" ]; then sudo apt-get -qq update; fi
-  - if [ "$CXX" == "clang++" ]; then sudo apt-get -qq install libstdc++-4.8-dev clang-3.4; fi  
+  - if [ "$CXX" == "clang++" ]; then sudo apt-get -qq install libstdc++-4.8-dev clang-3.4; fi
   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
   - if [ "$CXX" == "clang++" ]; then export CC= "clang++-3.4"; fi
 
@@ -36,14 +36,15 @@ install:
   - export BOOST_ROOT=$(pwd)/boost
 
 script:
-    - mkdir build
-    - cd build
-    - cmake .. -DBUILD_PYGMO="ON" -DENABLE_TESTS="ON" -DPYTHON_MODULES_DIR="~/local/python" -DCMAKE_INSTALL_PREFIX="~/local"
-    - make -j4
-    - make test 
-    - make install 
+  - mkdir build
+  - cd build
+  - cmake .. -DBUILD_PYGMO="ON" -DENABLE_TESTS="ON" -DPYTHON_MODULES_DIR="~/local/python" -DCMAKE_INSTALL_PREFIX="~/local"
+  - make -j4
+  - make test
+  - make install
+  - export PYTHONPATH=~/local/python
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local/lib:${PWD%/build}/boost/lib
+  - python -c "from PyGMO import test; test.run_full_test_suite()"
 
 after_success:
-    - export PYTHONPATH=~/local/python
-    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local/lib:~/build/esa/pagmo/boost/lib
-    - python -c "import PyGMO; print(PyGMO.__version__)"
+  - python -c "import PyGMO; print(PyGMO.__version__)"
