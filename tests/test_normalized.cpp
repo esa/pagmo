@@ -37,12 +37,22 @@ using namespace pagmo;
 
 const double EPS = 10e-9;
 
-#define PRINT_VEC(x) do{ std::cout<<"[ " #x " ] = "; for(unsigned int iii=0;iii<(x).size();iii++) std::cout<<(x)[iii]<<" "; std::cout<<std::endl; } while(0);
+#define PRINT_VEC(x) do {                             \
+	std::cout << "[ " #x " ] = ";                     \
+	for(unsigned int iii=0; iii<(x).size(); iii++) {  \
+		std::cout<<(x)[iii]<<" ";                     \
+	}                                                 \
+	std::cout<<std::endl; } while(0);
 
-bool is_eq(fitness_vector f1, fitness_vector f2, double eps){
-	if(f1.size() != f2.size()) return false;
-	for(unsigned int i = 0; i < f1.size(); i++){
-		if(fabs(f1[i]-f2[i])>eps) return false;
+bool is_eq(fitness_vector f1, fitness_vector f2, double eps)
+{
+	if (f1.size() != f2.size()) {
+		return false;
+	}
+	for (size_t i = 0; i < f1.size(); i++) {
+		if (fabs(f1[i] - f2[i]) > eps) {
+			return false;
+		}
 	}
 	return true;
 }
@@ -110,7 +120,7 @@ int test_normalized_invariant(
 // Ensure that when bounds are (-1, 1) then normalization doesn't have any effect.
 int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 {
-	rng_double drng	= rng_generator::get<rng_double>();
+	rng_double drng = rng_generator::get<rng_double>();
 
 	std::cout << "Start batch testing with bounds (-1, 1)" << std::endl;
 
@@ -164,8 +174,6 @@ int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 }
 
 
-
-
 int main()
 {
 	int dimension = 40;
@@ -175,7 +183,6 @@ int main()
 	for (int i = 1; i <= 6; ++i) {
 		probs.push_back(problem::zdt(i, dimension).clone());
 	}
-
 	for (int i = 1; i <= 7; ++i) {
 		probs.push_back(problem::dtlz(i, dimension).clone());
 	}
