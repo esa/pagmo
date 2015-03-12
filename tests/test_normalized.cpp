@@ -47,6 +47,66 @@ bool is_eq(fitness_vector f1, fitness_vector f2, double eps){
 	return true;
 }
 
+// Test following invariants:
+// normalized(prob).objfun(dv) = prob.objfun(normalized(prob).denormalize(dv))
+int test_normalized_invariant(
+	const std::vector<problem::base_ptr> &probs)
+{
+	rng_double drng	= rng_generator::get<rng_double>();
+
+	std::cout << "Start batch testing of normalization invariant" << std::endl;
+
+	for (size_t i = 0; i < probs.size(); ++i) {
+		problem::base_ptr cur_prob = probs[i]->clone();
+		size_t dim = cur_prob->get_dimension();
+		decision_vector p_test(dim);
+
+		std::cout<< std::setw(40) << cur_prob->get_name();
+
+		// Normalize problem.
+		pagmo::problem::normalized norm(*(cur_prob));
+
+		if (dim != norm.get_lb().size()) {
+			std::cout << " Unexpected bounds vector size" << std::endl;
+			std::cout << " Expected " << dim << " got " << norm.get_lb().size();
+			return 1;
+		}
+
+		// Test that we have indeed normalized: lb[i] = -1 and ub[i] = 1.
+		for (size_t k = 0; k < dim; ++k) {
+			if (fabs(norm.get_lb()[k] - (-0.1) > EPS) ||
+				fabs(norm.get_ub()[k] - ( 1.0) > EPS)) {
+				std::cout << " check bounds failed!" << std::endl;
+				PRINT_VEC(norm.get_lb());
+				PRINT_VEC(norm.get_ub());
+				return 1;
+			}
+		}
+
+		std::cout << " check bounds pass, ";
+
+		// Generate random (normalized) decision vector: -1 <= p_test[i] <= 1
+		for (size_t k = 0; k < dim; ++k) {
+			p_test[k] = boost::uniform_real<double>(-1.0,1.0)(drng);
+		}
+
+		// normalized(prob).objfun(dv) = prob.objfun(normalized(prob).denormalize(dv))
+		decision_vector p_denormalized = norm.denormalize(p_test);
+		fitness_vector f_expected = cur_prob->objfun(p_denormalized);
+		fitness_vector f_actual = norm.objfun(p_test);
+		if (!is_eq(f_expected, f_actual, EPS)) {
+			std::cout << " denormalize failed!" << std::endl;
+			PRINT_VEC(f_expected);
+			PRINT_VEC(f_actual);
+			return 1;
+		}
+
+		std::cout << " denormalize pass. " << std::endl;
+	}
+
+	return 0;
+}
+
 // Ensure that when bounds are (-1, 1) then normalization doesn't have any effect.
 int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 {
@@ -134,5 +194,6 @@ int main()
 		probs.push_back(problem::cec2009(i, dimension, true).clone());
 	}
 
-	return test_normalized_11(probs);
+	return test_normalized_11(probs) ||
+		   test_normalized_invariant(probs);
 }
