@@ -27,13 +27,20 @@ import unittest as _ut
 class _serialization_test(_ut.TestCase):
 
     def test_pickle(self):
-        from PyGMO import archipelago, island_list, problem_list, algorithm_list, problem, algorithm
+        from PyGMO import archipelago, island_list, problem_list, algorithm_list, problem
         import pickle
         from copy import deepcopy
         # We remove some problems that cannot be constructed without external
         # txt data files
         prob_list = deepcopy(problem_list)
         prob_list.remove(problem.cec2013)
+
+        # Remove trajectory problems if PyKEP is not installed
+        try:
+            import PyKEP
+        except ImportError:
+            prob_list.remove(problem.py_pl2pl)
+
         print('')
         for isl in island_list:
             for prob in prob_list:
@@ -114,6 +121,7 @@ def run_island_torture_test_suite():
 
 def run_full_test_suite():
     """Run the complete test suite for PyGMO."""
+    import sys
     from PyGMO import test
     from PyGMO.test._hypervolume_tests import get_hv_suite
     from PyGMO.test._topology_tests import get_topology_test_suite
@@ -125,7 +133,8 @@ def run_full_test_suite():
     suite.addTests(get_topology_test_suite())
     suite.addTests(get_archipelago_test_suite())
 
-    _ut.TextTestRunner(verbosity=2).run(suite)
+    successful = _ut.TextTestRunner(verbosity=2).run(suite).wasSuccessful()
+    sys.exit(0 if successful else 1)
 
 
 def run_hv_test_suite():

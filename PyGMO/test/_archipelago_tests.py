@@ -1,6 +1,7 @@
 from PyGMO import topology, algorithm, problem, archipelago, distribution_type, migration_direction, island, population, migration
 import unittest
 
+
 class ArchipelagoTests(unittest.TestCase):
     """Test archipelago properties"""
 
@@ -89,7 +90,6 @@ class ArchipelagoTests(unittest.TestCase):
         top.set_weight(0.0)
         self.do_test_migr_setup(pop_xs, pop_xs, top, 1)
 
-
     def test_distribution_type(self):
         """Testing whether the distribution_type property works"""
 
@@ -102,6 +102,7 @@ class ArchipelagoTests(unittest.TestCase):
             a.distribution_type = dist_type
 
             self.assertEqual(a.distribution_type, dist_type)
+
 
 def get_archipelago_test_suite():
     suite = unittest.TestSuite()
