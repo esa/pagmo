@@ -48,54 +48,50 @@ bool is_eq(fitness_vector f1, fitness_vector f2, double eps){
 }
 
 // Ensure that when bounds are (-1, 1) then normalization doesn't have any effect.
-int test_normalized_11(const std::vector<problem::base_ptr> & probs)
+int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 {
 	rng_double drng	= rng_generator::get<rng_double>();
 
 	std::cout << "Start batch testing with bounds (-1, 1)" << std::endl;
 
 	for (size_t i = 0; i < probs.size(); ++i) {
-		size_t dim = probs[i]->get_dimension();
-		decision_vector normalized_decision_vec(dim);
+		problem::base_ptr cur_prob = probs[i]->clone();
+		size_t dim = cur_prob->get_dimension();
+		decision_vector p_normalized(dim);
 
-		std::cout<< std::setw(40) << probs[i]->get_name();
+		std::cout<< std::setw(40) << cur_prob->get_name();
 
 		// Generate a random decision vector with values in (-1, 1).
 		for (size_t k = 0; k < dim; ++k) {
-			normalized_decision_vec[k] = boost::uniform_real<double>(-1.0,1.0)(drng);
+			p_normalized[k] = boost::uniform_real<double>(-1.0,1.0)(drng);
 		}
 
-		probs[i]->set_bounds(-1.0, 1.0);
+		cur_prob->set_bounds(-1.0, 1.0);
 
-		pagmo::problem::normalized prob_norm(*(probs[i]));
-
+		pagmo::problem::normalized prob_norm(*(cur_prob));
 
 		if (dim != prob_norm.get_lb().size()) {
 			std::cout << " Unexpected bounds vector size" << std::endl;
 			return 1;
 		}
 
-		for (size_t k = 0; k < dim; ++k) {
-			if (fabs(prob_norm.get_lb()[k] - (-1.0)) > EPS ||
-				fabs(prob_norm.get_ub()[k] - (1.0)) > EPS) {
-					std::cout << " bounds failed!" << std::endl;
-					return 1;
-				}
+		// Ensure normalization did not change the bounds.
+		if (!is_eq(prob_norm.get_lb(), cur_prob->get_lb(), EPS) ||
+				!is_eq(prob_norm.get_ub(), cur_prob->get_ub(), EPS)) {
+			std::cout << " bounds failed!" << std::endl;
+			return 1;
 		}
 
 		std::cout << " bounds pass, ";
 
-		decision_vector denormalized_dv = prob_norm.denormalize(normalized_decision_vec);
-		for (size_t k = 0; k < dim; ++k) {
-			if (fabs(denormalized_dv[k] - normalized_decision_vec[k]) > EPS) {
+		// Ensure denormalize() is essentially a no-op.
+		decision_vector p_denormalized = prob_norm.denormalize(p_normalized);
+		if (!is_eq(p_denormalized, p_normalized, EPS)) {
 				std::cout << " denormalize failed!" << std::endl;
 				return 1;
-			}
 		}
 
 		std::cout << " denormalize pass." << std::endl;
-
-		// TODO: what happens if we denormalize values outside (-1, 1)?
 	}
 	return 0;
 }
