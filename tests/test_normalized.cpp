@@ -85,8 +85,8 @@ int test_normalized_invariant(
 
 		// Test that we have indeed normalized: lb[i] = -1 and ub[i] = 1.
 		for (size_t k = 0; k < dim; ++k) {
-			if (fabs(norm.get_lb()[k] - (-0.1) > EPS) ||
-				fabs(norm.get_ub()[k] - ( 1.0) > EPS)) {
+			if ((fabs(norm.get_lb()[k] - (-1.0)) > EPS) ||
+				(fabs(norm.get_ub()[k] - ( 1.0)) > EPS)) {
 				std::cout << " check bounds failed!" << std::endl;
 				PRINT_VEC(norm.get_lb());
 				PRINT_VEC(norm.get_ub());
