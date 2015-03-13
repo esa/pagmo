@@ -101,18 +101,33 @@ int test_normalized_invariant(
 			p_test[k] = boost::uniform_real<double>(-1.0,1.0)(drng);
 		}
 
-		// Check invariant.
+		// Check objfun invariant.
 		decision_vector p_denormalized = norm.denormalize(p_test);
 		fitness_vector f_expected = cur_prob->objfun(p_denormalized);
 		fitness_vector f_actual = norm.objfun(p_test);
 		if (!is_eq(f_expected, f_actual, EPS)) {
-			std::cout << " denormalize failed!" << std::endl;
+			std::cout << " objfun check failed!" << std::endl;
 			PRINT_VEC(f_expected);
 			PRINT_VEC(f_actual);
 			return 1;
 		}
 
-		std::cout << " denormalize pass. " << std::endl;
+		std::cout << " objfun invariant pass, ";
+
+
+		// Check compute_constraints invariant.
+		constraint_vector c_expected(cur_prob->get_c_dimension());
+		constraint_vector c_actual(norm.get_c_dimension());
+		cur_prob->compute_constraints(c_expected, p_denormalized);
+		norm.compute_constraints(c_actual, p_test);
+		if (!is_eq(c_expected, c_actual, EPS)) {
+			std::cout << " compute_constraints check failed!" << std::endl;
+			PRINT_VEC(c_expected);
+			PRINT_VEC(c_actual);
+			return 1;
+		}
+
+		std::cout << " compute_constraints invariant pass." << std::endl;
 	}
 
 	return 0;
