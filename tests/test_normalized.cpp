@@ -57,6 +57,94 @@ bool is_eq(fitness_vector f1, fitness_vector f2, double eps)
 	return true;
 }
 
+
+// TODO: currently this test is not included as it fails: denormalize does not check
+// that the input vector is valid.
+/// Test that denormalize accepts ONLY decision_vectors with values in [-1, 1].
+/**
+ * This test is composed of several checks on the behaviour of denormalize:
+ *   MUST NOT throw if input has all values in [-1, 1]
+ *   MUST throw if at least one value is -1.0 - EPS
+ *   MUST NOT throw if one value is -1.0 + EPS
+ *   MUST throw if at least one value is +1.0 + EPS
+ *   MUST NOT throw if one value is +1.0 - EPS
+ */
+int test_normalized_denormalize_outside_bounds()
+{
+	size_t dim = 20;
+
+	// Create problem and decision vector.
+	problem::ackley prob((int)dim);
+	problem::normalized norm(prob);
+	decision_vector p_test(dim);
+
+	rng_double drng	= rng_generator::get<rng_double>();
+
+	std::cout << "Start testing of denormalize with invalid bounded input." << std::endl;
+
+	// Initialise p_test with random values in [-1, 1].
+	for (size_t k = 0; k < dim; ++k) {
+		p_test[k] = boost::uniform_real<double>(-1.0,1.0)(drng);
+	}
+
+	// Check that we indeed all values are accepted.
+	try {
+		norm.denormalize(p_test);
+	} catch (...) {
+		std::cout << " Random [-1, 1] denormalize failed." << std::endl;
+	}
+
+	// Begin test procedure:
+	for (size_t k = 0; k < dim; ++k) {
+		double original_value = p_test[k];
+		p_test[k] = -1.0 - EPS;
+		try {
+			// Should throw.
+			norm.denormalize(p_test);
+			std::cout << " -1.0 - EPS value did not cause exception." << std::endl;
+			return 1;
+		} catch (const value_error& ex) {
+			// Expected exception. Do nothing.
+		} catch (...) {
+			std::cout << " -1.0 - EPS value caused unexpected exception." << std::endl;
+			return 1;
+		}
+
+		p_test[k] = -1.0 + EPS;
+		try {
+			norm.denormalize(p_test);
+		} catch (...) {
+			std::cout << "-1.0 + EPS value caused exception." << std::endl;
+			return 1;
+		}
+
+		p_test[k] = 1.0 + EPS;
+		try {
+			// Should throw.
+			norm.denormalize(p_test);
+			std::cout << " 1.0 + EPS value did not cause exception." << std::endl;
+			return 1;
+		} catch (const value_error& ex) {
+			// Expected exception. Do nothing.
+		} catch (...) {
+			std::cout << " 1.0 + EPS value caused unexpected exception." << std::endl;
+			return 1;
+		}
+
+		p_test[k] = 1.0 - EPS;
+		try {
+			norm.denormalize(p_test);
+		} catch (...) {
+			std::cout << "1.0 - EPS value caused exception." << std::endl;
+			return 1;
+		}
+
+		// Restore original value.
+		p_test[k] = original_value;
+	}
+	return 0;
+}
+
 /// Test various invariants for denormalize.
 /**
  * The invariants are as follows:
