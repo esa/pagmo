@@ -315,6 +315,26 @@ void archipelago::set_topology(const topology::base &tp)
 	m_topology = t;
 }
 
+/// Return a copy of the distribution type.
+/**
+ * @return a archipelago::distribution_type corresponding to the current distribution type in the archipelago.
+ */
+
+archipelago::distribution_type archipelago::get_distribution_type() const {
+	return m_dist_type;
+}
+
+/// Set distribution type.
+/**
+ * Change the current distribution type in the archipelago to be dt.
+ *
+ * @param[in] dt new distribution type for the archipelago.
+ */
+
+void archipelago::set_distribution_type(const archipelago::distribution_type &dt) {
+	m_dist_type = dt;
+}
+
 /// Check whether an island is compatible with the archipelago.
 /**
  * Will return true if any of these conditions holds:
