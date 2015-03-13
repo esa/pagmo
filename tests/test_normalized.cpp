@@ -80,7 +80,7 @@ int test_normalized_denormalize_outside_bounds()
 
 	rng_double drng	= rng_generator::get<rng_double>();
 
-	std::cout << "Start testing of denormalize with invalid bounded input." << std::endl;
+	std::cout << "Testing denormalize with invalid bounded input: ";
 
 	// Initialise p_test with random values in [-1, 1].
 	for (size_t k = 0; k < dim; ++k) {
@@ -91,7 +91,7 @@ int test_normalized_denormalize_outside_bounds()
 	try {
 		norm.denormalize(p_test);
 	} catch (...) {
-		std::cout << " Random [-1, 1] denormalize failed." << std::endl;
+		std::cout << "Random [-1, 1] denormalize failed." << std::endl;
 	}
 
 	// Begin test procedure:
@@ -101,12 +101,12 @@ int test_normalized_denormalize_outside_bounds()
 		try {
 			// Should throw.
 			norm.denormalize(p_test);
-			std::cout << " -1.0 - EPS value did not cause exception." << std::endl;
+			std::cout << "(-1.0 - EPS) value did not cause exception." << std::endl;
 			return 1;
 		} catch (const value_error& ex) {
 			// Expected exception. Do nothing.
 		} catch (...) {
-			std::cout << " -1.0 - EPS value caused unexpected exception." << std::endl;
+			std::cout << "(-1.0 - EPS) value caused unexpected exception." << std::endl;
 			return 1;
 		}
 
@@ -114,7 +114,7 @@ int test_normalized_denormalize_outside_bounds()
 		try {
 			norm.denormalize(p_test);
 		} catch (...) {
-			std::cout << "-1.0 + EPS value caused exception." << std::endl;
+			std::cout << "(-1.0 + EPS) value caused exception." << std::endl;
 			return 1;
 		}
 
@@ -122,12 +122,12 @@ int test_normalized_denormalize_outside_bounds()
 		try {
 			// Should throw.
 			norm.denormalize(p_test);
-			std::cout << " 1.0 + EPS value did not cause exception." << std::endl;
+			std::cout << "(1.0 + EPS) value did not cause exception." << std::endl;
 			return 1;
 		} catch (const value_error& ex) {
 			// Expected exception. Do nothing.
 		} catch (...) {
-			std::cout << " 1.0 + EPS value caused unexpected exception." << std::endl;
+			std::cout << "(1.0 + EPS) value caused unexpected exception." << std::endl;
 			return 1;
 		}
 
@@ -142,6 +142,7 @@ int test_normalized_denormalize_outside_bounds()
 		// Restore original value.
 		p_test[k] = original_value;
 	}
+	std::cout << "pass." << std::endl;
 	return 0;
 }
 
@@ -185,14 +186,14 @@ int test_normalized_invariant(
 		for (size_t k = 0; k < dim; ++k) {
 			if ((fabs(norm.get_lb()[k] - (-1.0)) > EPS) ||
 				(fabs(norm.get_ub()[k] - ( 1.0)) > EPS)) {
-				std::cout << " check bounds failed!" << std::endl;
+				std::cout << " bounds check failed!" << std::endl;
 				PRINT_VEC(norm.get_lb());
 				PRINT_VEC(norm.get_ub());
 				return 1;
 			}
 		}
 
-		std::cout << " check bounds pass, ";
+		std::cout << " bounds check pass, ";
 
 		// Generate random (normalized) decision vector: -1 <= p_test[i] <= 1
 		for (size_t k = 0; k < dim; ++k) {
@@ -263,7 +264,7 @@ int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 		// Ensure normalization did not change the bounds.
 		if (!is_eq(prob_norm.get_lb(), cur_prob->get_lb(), EPS) ||
 			!is_eq(prob_norm.get_ub(), cur_prob->get_ub(), EPS)) {
-			std::cout << " bounds failed!" << std::endl;
+			std::cout << " bounds check failed!" << std::endl;
 			PRINT_VEC(prob_norm.get_lb());
 			PRINT_VEC(cur_prob->get_lb());
 			PRINT_VEC(prob_norm.get_ub());
@@ -271,7 +272,7 @@ int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 			return 1;
 		}
 
-		std::cout << " bounds pass, ";
+		std::cout << " bounds check pass, ";
 
 		// Ensure denormalize() is essentially a no-op.
 		decision_vector p_denormalized = prob_norm.denormalize(p_normalized);
