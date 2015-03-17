@@ -31,31 +31,10 @@
 #include <cassert>
 #include "../src/pagmo.h"
 #include "../src/rng.h"
+#include "test.h"
 #include <boost/random/uniform_real.hpp>
 
 using namespace pagmo;
-
-const double EPS = 10e-9;
-
-#define PRINT_VEC(x) do {                             \
-	std::cout << "[ " #x " ] = ";                     \
-	for(unsigned int iii=0; iii<(x).size(); iii++) {  \
-		std::cout<<(x)[iii]<<" ";                     \
-	}                                                 \
-	std::cout<<std::endl; } while(0);
-
-bool is_eq(fitness_vector f1, fitness_vector f2, double eps)
-{
-	if (f1.size() != f2.size()) {
-		return false;
-	}
-	for (size_t i = 0; i < f1.size(); i++) {
-		if (fabs(f1[i] - f2[i]) > eps) {
-			return false;
-		}
-	}
-	return true;
-}
 
 
 // TODO: currently this test is not included as it fails: denormalize does not check
@@ -71,6 +50,7 @@ bool is_eq(fitness_vector f1, fitness_vector f2, double eps)
  */
 int test_normalized_denormalize_outside_bounds()
 {
+	const double EPS = 10e-9;
 	size_t dim = 20;
 
 	// Create problem and decision vector.
@@ -155,8 +135,8 @@ int test_normalized_denormalize_outside_bounds()
  *   normalized(prob).get_ub[k] == 1
  *
  * for any decision_vector dv:
- *   is_eq(normalized(prob).objfun(dv), prob.objfun(normalized(prob).denormalize(dv)))
- *   is_eq(prob.compute_constraints(dv),
+ *   is_eq_vector(normalized(prob).objfun(dv), prob.objfun(normalized(prob).denormalize(dv)))
+ *   is_eq_vector(prob.compute_constraints(dv),
  *         normalized(prob).compute_constraints(normalized(prob).denormalize(dv)))
  */
 int test_normalized_invariant(
@@ -184,8 +164,7 @@ int test_normalized_invariant(
 
 		// Test that we have indeed normalized: lb[i] = -1 and ub[i] = 1.
 		for (size_t k = 0; k < dim; ++k) {
-			if ((fabs(norm.get_lb()[k] - (-1.0)) > EPS) ||
-				(fabs(norm.get_ub()[k] - ( 1.0)) > EPS)) {
+			if (!is_eq(norm.get_lb()[k], -1.0) || !is_eq(norm.get_ub()[k], 1.0)) {
 				std::cout << " bounds check failed!" << std::endl;
 				PRINT_VEC(norm.get_lb());
 				PRINT_VEC(norm.get_ub());
@@ -204,7 +183,7 @@ int test_normalized_invariant(
 		decision_vector p_denormalized = norm.denormalize(p_test);
 		fitness_vector f_expected = cur_prob->objfun(p_denormalized);
 		fitness_vector f_actual = norm.objfun(p_test);
-		if (!is_eq(f_expected, f_actual, EPS)) {
+		if (!is_eq_vector(f_expected, f_actual)) {
 			std::cout << " objfun check failed!" << std::endl;
 			PRINT_VEC(f_expected);
 			PRINT_VEC(f_actual);
@@ -219,7 +198,7 @@ int test_normalized_invariant(
 		constraint_vector c_actual(norm.get_c_dimension());
 		cur_prob->compute_constraints(c_expected, p_denormalized);
 		norm.compute_constraints(c_actual, p_test);
-		if (!is_eq(c_expected, c_actual, EPS)) {
+		if (!is_eq_vector(c_expected, c_actual)) {
 			std::cout << " compute_constraints check failed!" << std::endl;
 			PRINT_VEC(c_expected);
 			PRINT_VEC(c_actual);
@@ -262,8 +241,8 @@ int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 		}
 
 		// Ensure normalization did not change the bounds.
-		if (!is_eq(prob_norm.get_lb(), cur_prob->get_lb(), EPS) ||
-			!is_eq(prob_norm.get_ub(), cur_prob->get_ub(), EPS)) {
+		if (!is_eq_vector(prob_norm.get_lb(), cur_prob->get_lb()) ||
+			!is_eq_vector(prob_norm.get_ub(), cur_prob->get_ub())) {
 			std::cout << " bounds check failed!" << std::endl;
 			PRINT_VEC(prob_norm.get_lb());
 			PRINT_VEC(cur_prob->get_lb());
@@ -276,7 +255,7 @@ int test_normalized_11(const std::vector<problem::base_ptr> &probs)
 
 		// Ensure denormalize() is essentially a no-op.
 		decision_vector p_denormalized = prob_norm.denormalize(p_normalized);
-		if (!is_eq(p_denormalized, p_normalized, EPS)) {
+		if (!is_eq_vector(p_denormalized, p_normalized)) {
 			std::cout << " denormalize failed!" << std::endl;
 			PRINT_VEC(p_denormalized);
 			PRINT_VEC(p_normalized);
