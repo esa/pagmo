@@ -30,20 +30,11 @@
 #include <vector>
 #include <cassert>
 #include "../src/pagmo.h"
+#include "test.h"
 
 using namespace pagmo;
 
 const double EPS = 10e-9;
-
-#define PRINT_VEC(x) do{ std::cout<<"[ " #x " ] = "; for(unsigned int iii=0;iii<(x).size();iii++) std::cout<<(x)[iii]<<" "; std::cout<<std::endl; } while(0);
-
-bool is_eq(fitness_vector f1, fitness_vector f2, double eps){
-	if(f1.size() != f2.size()) return false;
-	for(unsigned int i = 0; i < f1.size(); i++){
-		if(fabs(f1[i]-f2[i])>eps) return false;
-	}
-	return true;
-}
 
 int shifted_test1(){
 	pagmo::problem::dtlz prob(2, 40);	
@@ -55,7 +46,7 @@ int shifted_test1(){
 	fitness_vector f_shifted = prob_shifted.objfun(p1_shifted_space);
 	constraint_vector c_expected = prob.compute_constraints(p1_original_space);
 	constraint_vector c_shifted = prob_shifted.compute_constraints(p1_shifted_space);
-	if(is_eq(f_shifted, f_expected, EPS)){
+	if(is_eq_vector(f_shifted, f_expected, EPS)){
 		std::cout<<prob_shifted.get_name()<<" fitness passes, "<<"\t";
 	}
 	else{	
@@ -64,7 +55,7 @@ int shifted_test1(){
 		PRINT_VEC(f_shifted);
 		return 1;
 	}
-	if(is_eq(c_shifted, c_expected, EPS)){
+	if(is_eq_vector(c_shifted, c_expected, EPS)){
 		std::cout<<" constraints passes."<<std::endl;
 	}
 	else{
@@ -86,7 +77,7 @@ int shifted_test2(){
 	fitness_vector f_shifted = prob_shifted.objfun(p1_shifted_space);
 	constraint_vector c_expected = prob.compute_constraints(p1_original_space);
 	constraint_vector c_shifted = prob_shifted.compute_constraints(p1_shifted_space);
-	if(is_eq(f_shifted, f_expected, EPS)){
+	if(is_eq_vector(f_shifted, f_expected, EPS)){
 		std::cout<<prob_shifted.get_name()<<" fitness passes, "<<"\t";
 	}
 	else{	
@@ -95,7 +86,7 @@ int shifted_test2(){
 		PRINT_VEC(f_shifted);
 		return 1;
 	}
-	if(is_eq(c_shifted, c_expected, EPS)){
+	if(is_eq_vector(c_shifted, c_expected, EPS)){
 		std::cout<<" constraints passes."<<std::endl;
 	}
 	else{
@@ -116,7 +107,7 @@ int shifted_test3(){
 	fitness_vector f_shifted = prob_shifted.objfun(p1_shifted_space);
 	constraint_vector c_expected = prob.compute_constraints(p1_original_space);
 	constraint_vector c_shifted = prob_shifted.compute_constraints(p1_shifted_space);
-	if(is_eq(f_shifted, f_expected, EPS)){
+	if(is_eq_vector(f_shifted, f_expected, EPS)){
 		std::cout<<prob_shifted.get_name()<<" fitness passes, "<<"\t";
 	}
 	else{	
@@ -125,7 +116,7 @@ int shifted_test3(){
 		PRINT_VEC(f_shifted);
 		return 1;
 	}
-	if(is_eq(c_shifted, c_expected, EPS)){
+	if(is_eq_vector(c_shifted, c_expected, EPS)){
 		std::cout<<" constraints passes."<<std::endl;
 	}
 	else{
@@ -146,7 +137,7 @@ int shifted_test4(){
 	fitness_vector f_shifted = prob_shifted.objfun(p1_shifted_space);
 	constraint_vector c_expected = prob.compute_constraints(p1_original_space);
 	constraint_vector c_shifted = prob_shifted.compute_constraints(p1_shifted_space);
-	if(is_eq(f_shifted, f_expected, EPS)){
+	if(is_eq_vector(f_shifted, f_expected, EPS)){
 		std::cout<<prob_shifted.get_name()<<" fitness passes,"<<"\t";
 	}
 	else{	
@@ -155,7 +146,7 @@ int shifted_test4(){
 		PRINT_VEC(f_shifted);
 		return 1;
 	}
-	if(is_eq(c_shifted, c_expected, EPS)){
+	if(is_eq_vector(c_shifted, c_expected, EPS)){
 		std::cout<<" constraints passes."<<std::endl;
 	}
 	else{
@@ -209,7 +200,7 @@ int test_shifted(
 		decision_vector f_original = probs[i]->objfun(p_original_space);
 		decision_vector c_shifted = prob_shifted.compute_constraints(p_shifted_space);
 		decision_vector c_original = probs[i]->compute_constraints(p_original_space); 
-		if(is_eq(f_shifted, f_original, EPS)){
+		if(is_eq_vector(f_shifted, f_original, EPS)){
 			std::cout << std::setw(40) << prob_shifted.get_name() << " fitness passes, ";
 		}
 		else{	
@@ -218,7 +209,7 @@ int test_shifted(
 			PRINT_VEC(f_shifted);
 			return 1;
 		}
-		if(is_eq(c_shifted, c_original, EPS)){
+		if(is_eq_vector(c_shifted, c_original, EPS)){
 			std::cout << " constraints passes." << std::endl;
 		}
 		else{

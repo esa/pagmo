@@ -29,36 +29,14 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
+#include <functional>
 #include <boost/random/uniform_real.hpp>
 #include <cassert>
 #include "../src/pagmo.h"
 #include "../src/rng.h"
+#include "test.h"
 
 using namespace pagmo;
-
-const double EPS = 10e-9;
-
-#define PRINT_VEC(x) do{ std::cout<<"[ " #x " ] = ";\
-	for(unsigned int iii=0;iii<(x).size();iii++) std::cout<<(x)[iii]<<" ";\
-	std::cout<<std::endl; } while(0);
-
-//Compare two vectors
-bool is_eq_vector(fitness_vector f1, fitness_vector f2, double eps=EPS)
-{
-	
-	if(f1.size() != f2.size()) return false;
-	
-	for(fitness_vector::size_type i = 0; i < f1.size(); i++)
-		if(fabs(f1[i]-f2[i])>eps) return false;
-	
-	return true;
-
-}
-
-bool is_eq(double f1, double f2, double eps=EPS)
-{
-	return (fabs(f1-f2)<=eps);
-}
 
 //Generate random number between 0 and 1
 double fRand(rng_double drng)
@@ -93,7 +71,7 @@ decision_vector construct_test_point(const problem::base_ptr &prob, double d_fro
 	decision_vector ub = prob->get_ub();
 	decision_vector test_point(prob->get_dimension(), 0);
 	for(unsigned int i = 0; i < prob->get_dimension(); i++){
-		if(abs(ub[i] - lb[i]) < EPS) continue;
+		if(is_eq(ub[i], lb[i])) continue;
 		double middle_t = (ub[i] + lb[i]) / 2.0;
 		test_point[i] = middle_t + d_from_center * (ub[i] - middle_t);
 	}
