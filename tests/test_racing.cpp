@@ -40,14 +40,6 @@ using namespace util::racing;
 const double EPS = 10e-9;
 rng_uint32 rng_seed_provider;
 
-bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
-	if(f1.size() != f2.size()) return false;
-	for(unsigned int i = 0; i < f1.size(); i++){
-		if(fabs(f1[i]-f2[i])>eps) return false;
-	}
-	return true;
-}
-
 // This function takes a non-stochastic problem and creates a random
 // population associated to it. Then it transforms the problem into
 // a stochastic one (using the noisy meta-problem), and creates an

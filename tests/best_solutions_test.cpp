@@ -33,6 +33,7 @@
 #include "../src/keplerian_toolbox/epoch.h"
 
 #include "../src/Eigen/Dense"
+#include "test.h"
 
 //--------------------------------------------------------------------------------
 // static data needed to test the non-default constructor in some of the problems.
@@ -75,14 +76,6 @@ best_solutions_test make_struct(problem::base_ptr pb, const std::vector<fitness_
 
 std::vector<fitness_vector> get_cec2006_best_f(int id);
 std::vector<fitness_vector> get_cec2006_best_c(int id, int c_dimension);
-
-bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
-	if(f1.size() != f2.size()) return false;
-	for(unsigned int i = 0; i < f1.size(); i++){
-		if(fabs(f1[i]-f2[i])>eps) return false;
-	}
-	return true;
-}
 
 int main()
 {
@@ -176,7 +169,7 @@ int main()
 					const fitness_vector &best_f = best_tests[i].best_f.at(j);
 					fitness_vector best_f_computed = best_tests[i].problem->get_best_f().at(j);
 
-					if(is_eq(best_f_computed, best_f, EPS)){
+					if(is_eq_vector(best_f_computed, best_f, EPS)){
 						std::cout << " fitness passes, ";
 					}
 					else{
@@ -196,7 +189,7 @@ int main()
 					const constraint_vector &best_c = best_tests[i].best_c.at(j);
 					constraint_vector best_c_computed = best_tests[i].problem->get_best_c().at(j);
 
-					if(is_eq(best_c_computed, best_c, EPS)){
+					if(is_eq_vector(best_c_computed, best_c, EPS)){
 						std::cout << " constraints passes.";
 					}
 					else{

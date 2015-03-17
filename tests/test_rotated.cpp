@@ -31,18 +31,11 @@
 #include <cassert>
 #include "../src/pagmo.h"
 #include "../src/Eigen/Dense"
+#include "test.h"
 
 using namespace pagmo;
 
 const double EPS = 10e-9;
-
-bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
-	if(f1.size() != f2.size()) return false;
-	for(unsigned int i = 0; i < f1.size(); i++){
-		if(fabs(f1[i]-f2[i])>eps) return false;
-	}
-	return true;
-}
 
 // Construct a test point in the new transformed space
 decision_vector construct_test_point(const problem::base_ptr &prob, double d_from_center)
@@ -126,7 +119,7 @@ int test_rotated(
 		constraint_vector c_rotated = prob_rotated.compute_constraints(p_rotated_space);
 		constraint_vector c_original = probs[i]->compute_constraints(p_original_space); 
 
-		if(is_eq(f_rotated, f_original, EPS)){
+		if(is_eq_vector(f_rotated, f_original, EPS)){
 			std::cout << " fitness passes, ";
 		}
 		else{	
@@ -135,7 +128,7 @@ int test_rotated(
 			std::cout << "new fitness: " << f_rotated << std::endl;
 			return 1;
 		}
-		if(is_eq(c_rotated, c_original, EPS)){
+		if(is_eq_vector(c_rotated, c_original, EPS)){
 			std::cout << " constraints passes." << std::endl;
 		}
 		else{

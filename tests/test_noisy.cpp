@@ -30,19 +30,12 @@
 #include <vector>
 #include <cassert>
 #include "../src/pagmo.h"
+#include "test.h"
 
 using namespace pagmo;
 
 const double EPS = 10e-9;
 rng_uint32 rng_seed_provider;
-
-bool is_eq(const fitness_vector & f1, const fitness_vector & f2, double eps){
-	if(f1.size() != f2.size()) return false;
-	for(unsigned int i = 0; i < f1.size(); i++){
-		if(fabs(f1[i]-f2[i])>eps) return false;
-	}
-	return true;
-}
 
 // Run the batch test by constructing noisy meta-problems against probs given the parameters.
 // Test that the expected value of the noise is close to the mean after enough trials.
@@ -69,8 +62,8 @@ int test_noisy(const std::vector<problem::base_ptr> & probs, double noise_mean, 
 		std::cout<< std::setw(40) << prob_noisy.get_name();
 
 		// Check that bounds are set correctly in the meta-problem
-		if(!is_eq(prob_noisy.get_lb(), probs[i]->get_lb(), EPS) ||
-		   !is_eq(prob_noisy.get_ub(), probs[i]->get_ub(), EPS)){
+		if(!is_eq_vector(prob_noisy.get_lb(), probs[i]->get_lb(), EPS) ||
+		   !is_eq_vector(prob_noisy.get_ub(), probs[i]->get_ub(), EPS)){
 			std::cout<<" bounds failed!"<<std::endl;
 			return 1;
 		}
@@ -151,8 +144,8 @@ int test_noisy_uniform(const std::vector<problem::base_ptr> & probs, double nois
 		std::cout<< std::setw(40) << prob_noisy.get_name();
 
 		// Check that bounds are set correctly in the meta-problem
-		if(!is_eq(prob_noisy.get_lb(), probs[i]->get_lb(), EPS) ||
-		   !is_eq(prob_noisy.get_ub(), probs[i]->get_ub(), EPS)){
+		if(!is_eq_vector(prob_noisy.get_lb(), probs[i]->get_lb(), EPS) ||
+		   !is_eq_vector(prob_noisy.get_ub(), probs[i]->get_ub(), EPS)){
 			std::cout<<" bounds failed!"<<std::endl;
 			return 1;
 		}
