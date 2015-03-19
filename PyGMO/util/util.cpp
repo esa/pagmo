@@ -39,6 +39,16 @@
 #include "../../src/util/race_algo.h"
 #include "../utils.h"
 
+#include "../../src/util/hv_algorithm/base.h"
+#include "../../src/util/hv_algorithm/hv2d.h"
+#include "../../src/util/hv_algorithm/hv3d.h"
+#include "../../src/util/hv_algorithm/hv4d.h"
+#include "../../src/util/hv_algorithm/wfg.h"
+#include "../../src/util/hv_algorithm/bf_approx.h"
+#include "../../src/util/hv_algorithm/bf_fpras.h"
+#include "../../src/util/hv_algorithm/hoy.h"
+#include "../../src/util/hv_algorithm/fpl.h"
+
 using namespace boost::python;
 using namespace pagmo;
 using namespace pagmo::util;

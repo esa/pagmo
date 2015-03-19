@@ -29,8 +29,17 @@
 // include headers that implement a archive in simple text format
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-#include "../src/util/hypervolume.h"
 #include "../src/pagmo.h"
+#include "../src/util/hypervolume.h"
+#include "../src/util/hv_algorithm/base.h"
+#include "../src/util/hv_algorithm/hv2d.h"
+#include "../src/util/hv_algorithm/hv3d.h"
+#include "../src/util/hv_algorithm/hv4d.h"
+#include "../src/util/hv_algorithm/wfg.h"
+#include "../src/util/hv_algorithm/bf_approx.h"
+#include "../src/util/hv_algorithm/bf_fpras.h"
+#include "../src/util/hv_algorithm/hoy.h"
+#include "../src/util/hv_algorithm/fpl.h"
 
 using namespace pagmo;
 int main()

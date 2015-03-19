@@ -23,6 +23,7 @@
  *****************************************************************************/
 
 
+#include "hv2d.h"
 #include "wfg.h"
 #include "base.h"
 #include <algorithm>

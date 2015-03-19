@@ -29,6 +29,7 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../util/hypervolume.h"
+#include "../util/hv_algorithm/base.h"
 
 
 namespace pagmo { namespace algorithm {
