@@ -179,6 +179,7 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/spacecraft.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/core_functions/jorba.c
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/base.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/keplerian.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/gtoc2.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/gtoc5.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/gtoc6.cpp

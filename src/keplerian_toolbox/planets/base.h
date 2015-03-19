@@ -67,7 +67,7 @@ public:
 
 	/// Methods to stream the base and derived class in a human readable format
 	std::string human_readable() const;
-	virtual std::string human_readable_extra() const {return std::string();}
+	virtual std::string human_readable_extra() const;
 
 	/** @name Getters */
 	//@{

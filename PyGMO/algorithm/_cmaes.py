@@ -91,10 +91,33 @@ class py_cmaes(base):
 
         np.random.seed()
 
+    def de_operator(self, genotype):
+        from numpy import matrix
+        from random import randint, random, shuffle
+        from copy import deepcopy
+        from numpy.random import normal
+        F = 0.7
+        CR = 0.9
+        dim, popsize = genotype.shape
+        retval = matrix([[0.0] * dim] * popsize).T
+        for i in range(popsize):
+            idxs = range(popsize)
+            shuffle(idxs)
+            r1, r2, r3 = idxs[:3]
+            retval[:, i] = deepcopy(genotype[:, i])
+            n = randint(0, dim - 1)
+            L = 0
+            while ((random() < CR) and (L < dim)):
+                retval[n, i] = genotype[n, r3] + F * (genotype[n, r1] - genotype[n, r2])
+                n = (n + 1) % dim
+                L = L + 1
+            #retval[:, i] = normal(0.0, 1.0, [dim, 1])
+        return retval
+
     def evolve(self, pop):
         from numpy import matrix, array, log, diag, eye, sqrt, exp, ones
         from numpy.random import normal, random
-        from numpy.linalg import norm, eig
+        from numpy.linalg import norm, eig, inv
 
         # Let's rename some variables
         prob = pop.problem
@@ -213,13 +236,25 @@ class py_cmaes(base):
                 str(chiN) +
                 "\n")
 
+        genotypes = matrix([[0.0] * dim] * lam).T
         # Let's start the algorithm
         for gen in range(self.__gen):
 
-            # 1 - We generate and evaluate lam new individuals
-            variation = [B * diag(D) * normal(0, 1, [dim, 1])
-                         for i in range(lam)]
+            inversemap = inv(B * diag(D))
+
+            # We transform the chromosomes in the genotype space
+            phenotypes = [ind.best_x for ind in pop]
+            for i, x in enumerate(phenotypes):
+                genotypes[:, i] = inversemap * (matrix(x).T - mean) / sigma
+
+            variation = self.de_operator(genotypes)
+            variation = [B * diag(D) * variation[:, i] for i in range(lam)]
             variation = [[j[0, 0] for j in matr] for matr in variation]
+
+            # 1 - We generate and evaluate lam new individuals
+            #variation = [B * diag(D) * normal(0, 1, [dim, 1])
+            #             for i in range(lam)]
+            #variation = [[j[0, 0] for j in matr] for matr in variation]
             for i, d_mu in enumerate(variation):
                 newpop[:, i] = mean + sigma * matrix(d_mu).T
 
@@ -235,8 +270,8 @@ class py_cmaes(base):
 
             # insert in population
             for i in range(lam):
-                idx = pop.get_worst_idx()
-                pop.set_x(idx, [newpop[j, i] for j in range(N)])
+                #idx = pop.get_worst_idx()
+                pop.set_x(i, [newpop[j, i] for j in range(N)])
             counteval += lam
 
             # 2 - We extract the elite from this generation

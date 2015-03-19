@@ -969,7 +969,7 @@ gtoc2::gtoc2(int astid)
 	m_group = gtoc2_asteroids_data[astid][8];
 }
 
-/// Polimorphic copy consruction
+/// Polymorphic copy consruction
 planet_ptr gtoc2::clone() const
 {
 	return planet_ptr(new gtoc2(*this));
@@ -986,6 +986,5 @@ int gtoc2::get_group() const {
 
 }} //namespace
 
-// Serialization code
 BOOST_CLASS_EXPORT_IMPLEMENT(kep_toolbox::planets::gtoc2);
-// Serialization code (END)
+

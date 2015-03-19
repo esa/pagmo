@@ -214,6 +214,10 @@ void base::set_name(const std::string &radius) {
 }
 
 
+std::string base::human_readable_extra() const {
+	return std::string();
+}
+
 /// Human readable output for the planet
 std::string base::human_readable() const {
 	std::ostringstream s;

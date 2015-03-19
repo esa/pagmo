@@ -60,7 +60,7 @@
 #include "python_island.h"
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
-	#include "../../src/keplerian_toolbox/keplerian_toolbox.h"
+	#include "../../src/keplerian_toolbox/planets/base.h"
 #endif
 
 using namespace boost::python;
@@ -271,7 +271,7 @@ BOOST_PYTHON_MODULE(_core)
 	REGISTER_CONVERTER(std::vector<pagmo::problem::base_ptr>, variable_capacity_policy);
 	
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
-	REGISTER_CONVERTER(std::vector<kep_toolbox::planet_ptr>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<kep_toolbox::planets::planet_ptr>, variable_capacity_policy);
 #endif
 
 	// Expose population class.
