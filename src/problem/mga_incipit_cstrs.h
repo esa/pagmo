@@ -30,9 +30,8 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "../types.h"
 #include "base.h"
-#include "../keplerian_toolbox/planets/planet_js.h"
+#include "../keplerian_toolbox/planets/gtoc6.h"
 #include "../keplerian_toolbox/epoch.h"
 
 
@@ -52,7 +51,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE mga_incipit_cstrs: public base
 {
 	public:
-		mga_incipit_cstrs(const std::vector<kep_toolbox::planet_ptr> = construct_default_sequence(),
+		mga_incipit_cstrs(const std::vector<kep_toolbox::planets::planet_ptr> = construct_default_sequence(),
 			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(7305.0),
 			 const kep_toolbox::epoch t0_u = kep_toolbox::epoch(11323.0),
 			 const std::vector<std::vector<double> > tof = construct_default_tofs(),
@@ -66,18 +65,18 @@ class __PAGMO_VISIBLE mga_incipit_cstrs: public base
 		std::string pretty(const std::vector<double> &x) const;
 		void set_tof(const std::vector<std::vector<double> >&);
 		const std::vector<std::vector<double> >& get_tof() const;
-		std::vector<kep_toolbox::planet_ptr> get_sequence() const;
+		std::vector<kep_toolbox::planets::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		void compute_constraints_impl(constraint_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
 		
 	private:
-		static const std::vector<kep_toolbox::planet_ptr> construct_default_sequence() {
-			std::vector<kep_toolbox::planet_ptr> retval;
-			retval.push_back(kep_toolbox::planet_js("io").clone());
-			retval.push_back(kep_toolbox::planet_js("io").clone());
-			retval.push_back(kep_toolbox::planet_js("europa").clone());
+		static const std::vector<kep_toolbox::planets::planet_ptr> construct_default_sequence() {
+			std::vector<kep_toolbox::planets::planet_ptr> retval;
+			retval.push_back(kep_toolbox::planets::gtoc6("io").clone());
+			retval.push_back(kep_toolbox::planets::gtoc6("io").clone());
+			retval.push_back(kep_toolbox::planets::gtoc6("europa").clone());
 			return retval;
 		}
 		static const std::vector<std::vector<double> > construct_default_tofs() {
@@ -102,7 +101,7 @@ class __PAGMO_VISIBLE mga_incipit_cstrs: public base
 			ar & const_cast<double &>(m_tmax);
 			ar & const_cast<double &>(m_dmin);
 		}
-		std::vector<kep_toolbox::planet_ptr> m_seq;
+		std::vector<kep_toolbox::planets::planet_ptr> m_seq;
 		std::vector<std::vector<double> > m_tof;
 		const double m_tmax;
 		const double m_dmin;

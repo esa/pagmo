@@ -29,7 +29,10 @@
 #include <cmath>
 
 #include "mga_part.h"
-#include "../keplerian_toolbox/keplerian_toolbox.h"
+#include "../keplerian_toolbox/core_functions/propagate_lagrangian.h"
+#include "../keplerian_toolbox/core_functions/fb_prop.h"
+#include "../keplerian_toolbox/core_functions/closest_distance.h"
+#include "../keplerian_toolbox/lambert_problem.h"
 
 #define ASTRO_JR 71492000.0 //m
 
@@ -49,7 +52,7 @@ namespace pagmo { namespace problem {
  * @throws value_error if tof has a size different from seq.size()
  * @throws value_error if seq.size() is < 2
  */
-mga_part::mga_part(const std::vector<kep_toolbox::planet_ptr> seq, 
+mga_part::mga_part(const std::vector<kep_toolbox::planets::planet_ptr> seq, 
 			 const std::vector<std::vector<double> > tof,
 			 const kep_toolbox::epoch t0,
 			 const kep_toolbox::array3D vinf_in
@@ -58,7 +61,7 @@ mga_part::mga_part(const std::vector<kep_toolbox::planet_ptr> seq,
 {
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
-	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
 		mus[i] = seq[i]->get_mu_central_body();
 	}
 	if ((unsigned int)std::count(mus.begin(), mus.end(), mus[0]) != mus.size()) {
@@ -77,7 +80,7 @@ mga_part::mga_part(const std::vector<kep_toolbox::planet_ptr> seq,
 	}
 	
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
-	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < seq.size(); ++i) {
 		m_seq.push_back(seq[i]->clone());
 	}
 	
@@ -87,7 +90,7 @@ mga_part::mga_part(const std::vector<kep_toolbox::planet_ptr> seq,
 	
 
 	// all legs
-	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < (m_seq.size() - 1); ++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < (m_seq.size() - 1); ++i) {
 		lb[4*i] = - 2 * boost::math::constants::pi<double>();    ub[4*i] = 2 * boost::math::constants::pi<double>();
 		lb[4*i+1] = 1.1;  ub[4*i+1] = 30;
 		lb[4*i+2] = 1e-5; ub[4*i+2] = 1-1e-5;
@@ -95,7 +98,7 @@ mga_part::mga_part(const std::vector<kep_toolbox::planet_ptr> seq,
 	}
 	
 	// Adjusting the minimum and maximum allowed fly-by rp to the one defined in the kep_toolbox::planet class
-	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < (m_seq.size() - 1); ++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < (m_seq.size() - 1); ++i) {
 		lb[4*i+1] = m_seq[i]->get_safe_radius() / m_seq[i]->get_radius();
 		ub[4*i+1] = (m_seq[i]->get_radius() + 2000000) / m_seq[i]->get_radius(); //from gtoc6 problem description
 	}
@@ -105,7 +108,7 @@ mga_part::mga_part(const std::vector<kep_toolbox::planet_ptr> seq,
 /// Copy Constructor. Performs a deep copy
 mga_part::mga_part(const mga_part &p) : base(p.get_dimension()), m_tof(p.m_tof), m_t0(p.m_t0), m_vinf_in(p.m_vinf_in)
 {
-	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
 	}
 	set_bounds(p.get_lb(),p.get_ub());
@@ -136,7 +139,7 @@ try {
 	std::vector<double> DV(m_seq.size() - 1);
 	for (size_t i = 0; i<m_seq.size(); ++i) {
 		t_P[i] = kep_toolbox::epoch(m_t0.mjd2000() + std::accumulate(T.begin(),T.begin()+i,0.0));
-		m_seq[i]->get_eph(t_P[i], r_P[i], v_P[i]);
+		m_seq[i]->eph(t_P[i], r_P[i], v_P[i]);
 	}
 
 	// 3 - We loop over the legs
@@ -213,7 +216,7 @@ std::string mga_part::pretty(const std::vector<double> &x) const {
 	std::vector<double> DV(m_seq.size() - 1);
 	for (size_t i = 0; i<m_seq.size(); ++i) {
 		t_P[i] = kep_toolbox::epoch(m_t0.mjd2000() + std::accumulate(T.begin(),T.begin()+i,0.0));
-		m_seq[i]->get_eph(t_P[i], r_P[i], v_P[i]);
+		m_seq[i]->eph(t_P[i], r_P[i], v_P[i]);
 	}
 
 	// 4 - And we proceed with each successive leg (if any)
@@ -413,7 +416,7 @@ const kep_toolbox::array3D& mga_part::get_vinf_in() const {
 /**
  * @return An std::vector containing the kep_toolbox::planets
  */
-std::vector<kep_toolbox::planet_ptr> mga_part::get_sequence() const {
+std::vector<kep_toolbox::planets::planet_ptr> mga_part::get_sequence() const {
 	return m_seq;
 }
 

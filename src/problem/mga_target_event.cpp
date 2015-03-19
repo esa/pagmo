@@ -38,8 +38,8 @@
 namespace pagmo { namespace problem {
 
 mga_target_event::mga_target_event(
-				 const kep_toolbox::planet_ptr start,
-				 const kep_toolbox::planet_ptr end,
+				 const kep_toolbox::plantes::planet_ptr start,
+				 const kep_toolbox::planets::planet_ptr end,
 				 const kep_toolbox::epoch t_end,
 				 double T_max,
 				 bool discount_launcher
@@ -90,8 +90,8 @@ void mga_target_event::objfun_impl(fitness_vector &f, const decision_vector &x) 
 	kep_toolbox::epoch t1 = kep_toolbox::epoch(t0.mjd2000() + tof);			//epoch
 
 	kep_toolbox::array3D r0,v0,r1,v1,v_inf_vett,v0_sc;
-	m_start->get_eph(t0,r0,v0);
-	m_end->get_eph(t1,r1,v1);
+	m_start->eph(t0,r0,v0);
+	m_end->eph(t1,r1,v1);
 //std::cout << "r0: " << r0 << std::endl;
 //std::cout << "v0: " << v0 << std::endl;
 //std::cout << "r1: " << r1 << std::endl;

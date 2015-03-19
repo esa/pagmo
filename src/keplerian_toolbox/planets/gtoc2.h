@@ -22,55 +22,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEP_TOOLBOX_ASTEROID_GTOC5_H
-#define KEP_TOOLBOX_ASTEROID_GTOC5_H
+#ifndef KEP_TOOLBOX_PLANET_GTOC2_H
+#define KEP_TOOLBOX_PLANET_GTOC2_H
 
-#include "planet.h"
+#include "keplerian.h"
 #include "../serialization.h"
 #include "../config.h"
 
-namespace kep_toolbox{
+namespace kep_toolbox{ namespace planets {
 
-/// A GTOC5 asteroid
+/// A GTOC2 asteroid
 /**
- * This class derives from the planet class and allow to instantiate asteroids
- * from the Global Trajectory Optimization Competition (GTOC) 5th edition
+ * This class allows to instantiate asteroids
+ * from the Global Trajectory Optimization Competition (GTOC) 2nd edition
  *
  * @see http://www.esa.int/gsp/ACT/mad/op/GTOC/index.htm
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  * @author Francesco Biscani (bluescarni@gmail.com)
  */
 
-class __KEP_TOOL_VISIBLE asteroid_gtoc5 : public planet
+class __KEP_TOOL_VISIBLE gtoc2 : public keplerian
 {
 public:
-	/// Constructor
-	/**
-	 * Construct from a consecutive id from 1 to 7076 (Earth). The order is that of the original
-	 * data file from Russio
-	 * Asteroid: 1 - 7075
-	 * Earth: 7076
-	 * \param[in] ast_id an integer corrsponding to the asteroid row in the original russian file
-	 */
-	asteroid_gtoc5(const int & = 7076);
 
+	gtoc2(int = 0);
+
+	int get_group() const;
 	planet_ptr clone() const;
+
 private:
-// Serialization code
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
-		ar & boost::serialization::base_object<planet>(*this);
+		ar & boost::serialization::base_object<keplerian>(*this);
+		ar & m_group;
 	}
-// Serialization code (END)
+	int m_group;
 };
 
+}} // Namespaces
 
-} /// End of namespace kep_toolbox
+BOOST_CLASS_EXPORT_KEY(kep_toolbox::planets::gtoc2);
 
-// Serialization code
-BOOST_CLASS_EXPORT_KEY(kep_toolbox::asteroid_gtoc5);
-// Serialization code (END)
-
-#endif // KEP_TOOLBOX_ASTEROID_GTOC5_H
+#endif // KEP_TOOLBOX_ASTEROID_GTOC2_H
