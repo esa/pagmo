@@ -54,26 +54,7 @@ class __PAGMO_VISIBLE project_2_simplex
 {
 	public:
 		project_2_simplex(unsigned int dim) : m_dim(dim) {}
-		std::vector<double> operator()(std::vector<double> retval) const {
-			if (retval.size() == m_dim-1) {
-				std::sort(retval.begin(),retval.end());
-				retval.insert(retval.begin(),0.0);
-				retval.push_back(1.0);
-				double cumsum=0;
-				for (unsigned int i = 0; i<retval.size()-1;++i) {
-					retval[i] = retval[i+1] - retval[i];
-					cumsum += retval[i];
-				}
-				retval.pop_back();
-				for (unsigned int i = 0; i<retval.size();++i) {
-					retval[i] /= cumsum;
-				}
-				return retval;
-			}
-			else {
-				pagmo_throw(value_error,"To project on this simplex you need a point in dimension m_dim-1");
-			}
-		}
+		std::vector<double> operator()(std::vector<double> retval) const;
 	private:
 		unsigned int m_dim;
 };
