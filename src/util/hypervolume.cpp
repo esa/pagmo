@@ -23,6 +23,15 @@
  *****************************************************************************/
 
 #include "hypervolume.h"
+#include "hv_algorithm/base.h"
+#include "hv_algorithm/hv2d.h"
+#include "hv_algorithm/hv3d.h"
+#include "hv_algorithm/hv4d.h"
+#include "hv_algorithm/wfg.h"
+#include "hv_algorithm/bf_approx.h"
+#include "hv_algorithm/bf_fpras.h"
+#include "hv_algorithm/hoy.h"
+#include "hv_algorithm/fpl.h"
 
 namespace pagmo { namespace util {
 
