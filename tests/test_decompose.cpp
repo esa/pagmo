@@ -198,26 +198,6 @@ int test_decompose_tchebycheff(const std::vector<problem::base_ptr> &probs, std:
 
 		//get the decomposed fitness
 		fitness_vector f_decompose = prob_decompose.objfun(x);
-
-		if(is_eq_vector(weights, prob_decompose.get_weights()))
-			std::cout<<prob_decompose.get_name()<<"TCHEBYCHEFF weights passes, "<<std::endl;
-		else
-		{
-			std::cout<<prob_decompose.get_name()<<"TCHEBYCHEFF weights failed, "<<std::endl;
-			PRINT_VEC(weights);
-			PRINT_VEC(prob_decompose.get_weights());
-			return 1;
-		}
-
-		if(is_eq_vector(ideal[i], prob_decompose.get_ideal_point()))
-			std::cout<<prob_decompose.get_name()<<" TCHEBYCHEFF ideal point passes, "<<std::endl;
-		else
-		{
-			std::cout<<prob_decompose.get_name()<<" TCHEBYCHEFF ideal point failed, "<<std::endl;
-			PRINT_VEC(ideal[i]);
-			PRINT_VEC(prob_decompose.get_ideal_point());
-			return 1;
-		}
 		
 		if(is_eq(f_decompose[0], f_expected))
 			std::cout<<prob_decompose.get_name()<<" TCHEBYCHEFF fitness passes, "<<std::endl;
@@ -259,8 +239,8 @@ int main()
 		test_decompose_weighted_random(probs, -0.4) ||
 		test_decompose_weighted_random(probs, 0.2) ||
 		test_decompose_weighted_random(probs, -0.2) ||
-		test_decompose_weighted_random(probs, -0.2) ||
 		test_decompose_tchebycheff(probs, ideal, -0.2) ||
-		test_decompose_tchebycheff(probs, ideal, 0.2);
+		test_decompose_tchebycheff(probs, ideal, 0.2) ||
+		test_decompose_tchebycheff(probs, ideal, -0.4);
 
 }
