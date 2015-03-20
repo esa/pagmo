@@ -42,7 +42,7 @@ static inline class_<Topology,bases<topology::base> > topology_wrapper(const cha
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<Topology>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Topology>);
-	retval.def_pickle(generic_pickle_suite<Topology>());
+	retval.def_pickle(python_class_pickle_suite<Topology>());
 	retval.def("cpp_loads", &py_cpp_loads<Topology>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Topology>);
 	return retval;

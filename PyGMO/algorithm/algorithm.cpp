@@ -56,7 +56,7 @@ static inline class_<Algorithm,bases<algorithm::base> > algorithm_wrapper(const 
 	retval.def("__copy__", &Py_copy_from_ctor<Algorithm>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Algorithm>);
 	retval.def("evolve", &evolve_copy);
-	retval.def_pickle(generic_pickle_suite<Algorithm>());
+	retval.def_pickle(python_class_pickle_suite<Algorithm>());
 	retval.def("cpp_loads", &py_cpp_loads<Algorithm>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Algorithm>);
 	return retval;

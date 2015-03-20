@@ -102,7 +102,7 @@ static inline class_<Problem,bases<problem::base> > problem_wrapper(const char *
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
-	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def_pickle(python_class_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	return retval;
@@ -116,7 +116,7 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_stochastic
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
-	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def_pickle(python_class_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	retval.add_property("seed",&problem::base_stochastic::get_seed,&problem::base_stochastic::set_seed,
@@ -132,7 +132,7 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_meta> > me
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
-	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def_pickle(python_class_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	return retval;
@@ -151,7 +151,7 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_unc_mo> > 
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
-	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def_pickle(python_class_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	retval.def("p_distance", p_dist_o1,
@@ -173,7 +173,7 @@ static inline class_<Problem,bases<problem::base>,bases<problem::base_tsp> > tsp
 	retval.def(init<>());
 	retval.def("__copy__", &Py_copy_from_ctor<Problem>);
 	retval.def("__deepcopy__", &Py_deepcopy_from_ctor<Problem>);
-	retval.def_pickle(generic_pickle_suite<Problem>());
+	retval.def_pickle(python_class_pickle_suite<Problem>());
 	retval.def("cpp_loads", &py_cpp_loads<Problem>);
 	retval.def("cpp_dumps", &py_cpp_dumps<Problem>);
 	retval.def("full2cities", &problem::base_tsp::full2cities);
