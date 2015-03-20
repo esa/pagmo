@@ -30,7 +30,8 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "../keplerian_toolbox/keplerian_toolbox.h"
+#include "../keplerian_toolbox/planets/mpcorb.h"
+#include "../keplerian_toolbox/planets/base.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "base.h"
 
@@ -49,7 +50,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE sample_return: public base
 {
 	public:
-		sample_return(const ::kep_toolbox::planet &asteroid = ::kep_toolbox::planet_mpcorb(), const double &Tmax = 600);
+		sample_return(const ::kep_toolbox::planets::base &asteroid = ::kep_toolbox::planets::mpcorb(), const double &Tmax = 600);
 		base_ptr clone() const;
 		std::string pretty(const std::vector<double> &x) const;
 		std::vector<double> get_delta_v(const std::vector<double> &x) const;
@@ -70,13 +71,12 @@ class __PAGMO_VISIBLE sample_return: public base
 			ar & x_leg2;
 			ar & const_cast<double &>(m_Tmax);
 		}
-		::kep_toolbox::planet_ptr	m_target;
-		mutable mgadsmproblem		m_leg1;
-		mutable mgadsmproblem		m_leg2;
-		mutable std::vector<double>	x_leg1;
-		mutable std::vector<double>	x_leg2;
-		const double			m_Tmax;
-
+		::kep_toolbox::planets::planet_ptr	m_target;
+		mutable mgadsmproblem				m_leg1;
+		mutable mgadsmproblem				m_leg2;
+		mutable std::vector<double>			x_leg1;
+		mutable std::vector<double>			x_leg2;
+		const double						m_Tmax;
 };
 
 }}

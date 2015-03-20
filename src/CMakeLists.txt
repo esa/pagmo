@@ -178,14 +178,15 @@ IF(ENABLE_GTOP_DATABASE)
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/leg.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/sims_flanagan/spacecraft.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/core_functions/jorba.c
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/asteroid_gtoc2.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/asteroid_gtoc5.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/asteroid_gtoc7.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet_mpcorb.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet_ss.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet_js.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/planet_tle.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/base.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/keplerian.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/gtoc2.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/gtoc5.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/gtoc6.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/gtoc7.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/mpcorb.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/jpl_low_precision.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/planets/tle.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/Util.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/Tle.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/keplerian_toolbox/third_party/libsgp4/SolarPosition.cpp

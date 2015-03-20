@@ -47,7 +47,7 @@ namespace pagmo { namespace problem {
      * @param[in] encoding        a pagmo::problem::tsp::encoding representing the chosen encoding
      */
     tsp_ds::tsp_ds (            
-        const std::vector<kep_toolbox::planet_ptr>& planets, 
+        const std::vector<kep_toolbox::planets::planet_ptr>& planets, 
         const std::vector<double>& values,
         const double max_DV, 
         const std::vector<double>&  epochs, 
@@ -318,8 +318,8 @@ EndOfLoop:
     {
         // TODO: Edelbaum here instead? (see paper from Gatto-Casalino)
         using namespace std;
-        kep_toolbox::array6D elements1 =  m_planets[i]->get_elements();
-        kep_toolbox::array6D elements2 =  m_planets[j]->get_elements();
+        kep_toolbox::array6D elements1 =  m_planets[i]->compute_elements(); /// Careful here what epoch? The default is 0 mjd2000, but the debris will be decayed by then and an exception may occur.
+        kep_toolbox::array6D elements2 =  m_planets[j]->compute_elements();
 
         double a1 = elements1[0];
         double i1 = elements1[2];
@@ -371,7 +371,7 @@ EndOfLoop:
             for (auto j = 0u; j < m_planets.size(); ++j) {
                 try
                 {
-                    m_planets[j]->get_eph(kep_toolbox::epoch(m_epochs[i], kep_toolbox::epoch::MJD2000), m_eph_r[i][j], m_eph_v[i][j]);
+                    m_planets[j]->eph(kep_toolbox::epoch(m_epochs[i], kep_toolbox::epoch::MJD2000), m_eph_r[i][j], m_eph_v[i][j]);
                     kep_toolbox::ic2par(m_eph_r[i][j], m_eph_v[i][j], m_mu, m_eph_el[i][j]);
                 }
                 catch( ... )
@@ -459,7 +459,7 @@ EndOfLoop:
     /**
      * @return const reference to m_planets
      */
-    const std::vector<kep_toolbox::planet_ptr>& tsp_ds::get_planets() const
+    const std::vector<kep_toolbox::planets::planet_ptr>& tsp_ds::get_planets() const
     { 
         return m_planets; 
     }

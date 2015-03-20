@@ -22,49 +22,75 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
 
-#ifndef KEP_TOOLBOX_PLANET_JS_H
-#define KEP_TOOLBOX_PLANET_JS_H
+#ifndef KEP_TOOLBOX_PLANET_SPICE_H
+#define KEP_TOOLBOX_PLANET_SPICE_H
 
-#include "planet.h"
+#include <string>
+
+#include "base.h"
+#include "../utils/spice_utils.h"
 #include "../serialization.h"
 #include "../config.h"
 
-namespace kep_toolbox{
+namespace kep_toolbox{ namespace planets {
 
-/// Solar System Planet (keplerian)
+/// A planet using the SPICE Toolbox
 /**
- * This class derives from the planet class and allow to instantiate moons of
- * the Jupiter system by referring to their common names. Ephemerides are those
- * used during the GTOC6 competition
+ * This class allows to instantiate a planet that uses SPICE toolbox
+ * to compute the ephemerides.
+ *
+ * NOTE: The class does not check upon construction that the required kernels are loaded 
+ * in memory. Its only when the ephemerides are actually called that an exception is thrown
+ * in case the required kernels are not loaded
+ *
+ * @see http://naif.jpl.nasa.gov/naif/toolkit.html
  *
  * @author Dario Izzo (dario.izzo _AT_ googlemail.com)
  */
 
-class __KEP_TOOL_VISIBLE planet_js : public planet
+class __KEP_TOOL_VISIBLE spice : public base
 {
 public:
-	/**
-	 * Construct a Jupiter moon from its common name
-	 * \param[in] name a string describing a planet
-	 */
-	planet_js(const std::string & = "io");
+	spice(const std::string & = "CHURYUMOV-GERASIMENKO", 
+		const std::string & = "SUN", 
+		const std::string & = "ECLIPJ2000", 
+		const std::string & = "NONE",
+		double = 0, // mu_central_body
+		double = 0, // mu_self
+		double = 0, // radius
+		double = 0  // safe_radius
+	);
 	planet_ptr clone() const;
+	std::string human_readable_extra() const;
+
 private:
-// Serialization code
+	void eph_impl(double mjd2000, array3D &r, array3D &v) const;
+
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
 	{
-		ar & boost::serialization::base_object<planet>(*this);
+		ar & boost::serialization::base_object<base>(*this);
+		ar & const_cast<std::string& >(m_target);
+		ar & const_cast<std::string& >(m_observer);
+		ar & const_cast<std::string& >(m_reference_frame);
+		ar & const_cast<std::string& >(m_aberrations);
 	}
-// Serialization code (END)
+
+	const std::string m_target;
+	const std::string m_observer;
+	const std::string m_reference_frame;
+	const std::string m_aberrations;
+
+	// Dummy variables that store intermidiate values to transfer to and from SPICE 
+	mutable SpiceDouble m_state[6];
+	mutable SpiceDouble m_lt;
+
 };
 
 
-} /// End of namespace kep_toolbox
+}} /// End of namespace kep_toolbox
 
-// Serialization code
-BOOST_CLASS_EXPORT_KEY(kep_toolbox::planet_js);
-// Serialization code (END)
+BOOST_CLASS_EXPORT_KEY(kep_toolbox::planets::spice)
 
-#endif // KEP_TOOLBOX_PLANET_JS_H
+#endif // KEP_TOOLBOX_PLANET_SPICE_H

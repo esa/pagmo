@@ -29,7 +29,7 @@
 #include <boost/archive/text_iarchive.hpp>
 
 #include "../src/pagmo.h"
-#include "../src/keplerian_toolbox/planets/planet_ss.h"
+#include "../src/keplerian_toolbox/planets/jpl_low_precision.h"
 #include "../src/keplerian_toolbox/epoch.h"
 
 #include "../src/Eigen/Dense"
@@ -38,11 +38,11 @@
 // static data needed to test the non-default constructor in some of the problems.
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
 //mga_1dsm
-const std::vector<kep_toolbox::planet_ptr> construct_sequence() {
-	std::vector<kep_toolbox::planet_ptr> retval;
-	retval.push_back(kep_toolbox::planet_ss("earth").clone());
-	retval.push_back(kep_toolbox::planet_ss("earth").clone());
-	retval.push_back(kep_toolbox::planet_ss("earth").clone());
+const std::vector<kep_toolbox::planets::planet_ptr> construct_sequence() {
+	std::vector<kep_toolbox::planets::planet_ptr> retval;
+	retval.push_back(kep_toolbox::planets::jpl_lp("earth").clone());
+	retval.push_back(kep_toolbox::planets::jpl_lp("earth").clone());
+	retval.push_back(kep_toolbox::planets::jpl_lp("earth").clone());
 	return retval;
 }
 #endif

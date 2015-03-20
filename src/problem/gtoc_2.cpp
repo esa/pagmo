@@ -64,11 +64,11 @@ gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg, objective obj)
 	if (n_seg <= 0) {
 		pagmo_throw(value_error,"invalid number of segments");
 	}
-	m_asteroids.push_back(asteroid_gtoc2(910));
-	m_asteroids.push_back(asteroid_gtoc2(ast1));
-	m_asteroids.push_back(asteroid_gtoc2(ast2));
-	m_asteroids.push_back(asteroid_gtoc2(ast3));
-	m_asteroids.push_back(asteroid_gtoc2(ast4));
+	m_asteroids.push_back(planets::gtoc2(910));
+	m_asteroids.push_back(planets::gtoc2(ast1));
+	m_asteroids.push_back(planets::gtoc2(ast2));
+	m_asteroids.push_back(planets::gtoc2(ast3));
+	m_asteroids.push_back(planets::gtoc2(ast4));
 	// Build legs.
 	for (int i = 0; i < 4; ++i) {
 		m_legs.push_back(leg());
@@ -155,7 +155,7 @@ void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vecto
 		m_legs[i].set_t_i(start);
 		m_legs[i].set_t_f(end);
 		// Initial state.
-		m_asteroids[i].get_eph(start,r,v);
+		m_asteroids[i].eph(start,r,v);
 		// First leg: Vinf is added to the state.
 		if (i == 0) {
 			for (int j = 0; j < 3; ++j) {
@@ -168,7 +168,7 @@ void gtoc_2::compute_constraints_impl(constraint_vector &c, const decision_vecto
 			m_legs[i].set_throttles(j,get_nth_throttle(j,x.begin() + 15 + 3 * i * m_n_seg,start,end));
 		}
 		// Final state.
-		m_asteroids[i + 1].get_eph(end,r,v);
+		m_asteroids[i + 1].eph(end,r,v);
 		m_legs[i].set_x_f(sc_state(r,v,final_mass));
 		// Update masses.
 		initial_mass = final_mass;

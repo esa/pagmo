@@ -29,7 +29,10 @@
 #include <cmath>
 
 #include "mga_incipit.h"
-#include "../keplerian_toolbox/keplerian_toolbox.h"
+#include "../keplerian_toolbox/core_functions/propagate_lagrangian.h"
+#include "../keplerian_toolbox/core_functions/fb_prop.h"
+#include "../keplerian_toolbox/core_functions/closest_distance.h"
+#include "../keplerian_toolbox/lambert_problem.h"
 
 namespace pagmo { namespace problem {
 
@@ -47,7 +50,7 @@ namespace pagmo { namespace problem {
  * @throws value_error if the planets in seq do not all have the same central body gravitational constant
  * @throws value_error if tof has a size different from seq.size()
  */
-mga_incipit::mga_incipit(const std::vector<kep_toolbox::planet_ptr> seq, 
+mga_incipit::mga_incipit(const std::vector<kep_toolbox::planets::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
 			 const std::vector<std::vector<double> > tof
 			): 
@@ -55,7 +58,7 @@ mga_incipit::mga_incipit(const std::vector<kep_toolbox::planet_ptr> seq,
 {
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
-	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
 		mus[i] = seq[i]->get_mu_central_body();
 	}
 	if ((unsigned int)std::count(mus.begin(), mus.end(), mus[0]) != mus.size()) {
@@ -70,7 +73,7 @@ mga_incipit::mga_incipit(const std::vector<kep_toolbox::planet_ptr> seq,
 	}
 	
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
-	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < seq.size(); ++i) {
 		m_seq.push_back(seq[i]->clone());
 	}
 	
@@ -84,7 +87,7 @@ mga_incipit::mga_incipit(const std::vector<kep_toolbox::planet_ptr> seq,
 	lb[3] = m_tof[0][0]; ub[3] = m_tof[0][1];
 	
 	// Successive legs
-	for (std::vector<kep_toolbox::planet>::size_type i = 1; i < m_tof.size(); ++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 1; i < m_tof.size(); ++i) {
 		lb[4*i] = - 2 * boost::math::constants::pi<double>();    ub[4*i] = 2 * boost::math::constants::pi<double>();
 		lb[4*i+1] = 1.1;  ub[4*i+1] = 30;
 		lb[4*i+2] = 1e-5; ub[4*i+2] = 1-1e-5;
@@ -92,7 +95,7 @@ mga_incipit::mga_incipit(const std::vector<kep_toolbox::planet_ptr> seq,
 	}
 	
 	// Adjusting the minimum and maximum allowed fly-by rp to the one defined in the kep_toolbox::planet class
-	for (std::vector<kep_toolbox::planet>::size_type i = 0; i < m_tof.size()-1; ++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < m_tof.size()-1; ++i) {
 		lb[4*i+5] = m_seq[i]->get_safe_radius() / m_seq[i]->get_radius();
 		ub[4*i+5] = (m_seq[i]->get_radius() + 2000000) / m_seq[i]->get_radius(); //from gtoc6 problem description
 	}
@@ -102,7 +105,7 @@ mga_incipit::mga_incipit(const std::vector<kep_toolbox::planet_ptr> seq,
 /// Copy Constructor. Performs a deep copy
 mga_incipit::mga_incipit(const mga_incipit &p) : base(p.get_dimension()), m_tof(p.m_tof)
 {
-	for (std::vector<kep_toolbox::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
+	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
 	}
 	set_bounds(p.get_lb(),p.get_ub());
@@ -132,7 +135,7 @@ try {
 	std::vector<double> DV(m_seq.size());
 	for (size_t i = 0; i<r_P.size(); ++i) {
 		t_P[i] = kep_toolbox::epoch(x[0] + std::accumulate(T.begin(),T.begin()+1+i,0.0));
-		m_seq[i]->get_eph(t_P[i], r_P[i], v_P[i]);
+		m_seq[i]->eph(t_P[i], r_P[i], v_P[i]);
 	}
 
 	// 3 - We start with the first leg
@@ -216,7 +219,7 @@ std::string mga_incipit::pretty(const std::vector<double> &x) const {
 	std::vector<double> DV(m_seq.size());
 	for (size_t i = 0; i<r_P.size(); ++i) {
 		t_P[i] = kep_toolbox::epoch(x[0] + std::accumulate(T.begin(),T.begin()+1+i,0.0));
-		m_seq[i]->get_eph(t_P[i], r_P[i], v_P[i]);
+		m_seq[i]->eph(t_P[i], r_P[i], v_P[i]);
 	}
 
 	// 3 - We start with the first leg
@@ -329,7 +332,7 @@ void mga_incipit::set_tof(const std::vector<std::vector<double> >& tof) {
 /**
  * @return An std::vector containing the kep_toolbox::planets
  */
-std::vector<kep_toolbox::planet_ptr> mga_incipit::get_sequence() const {
+std::vector<kep_toolbox::planets::planet_ptr> mga_incipit::get_sequence() const {
 	return m_seq;
 }
 

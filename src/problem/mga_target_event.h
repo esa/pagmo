@@ -31,10 +31,9 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "base.h"
-
 #include "../keplerian_toolbox/epoch.h"
-#include "../keplerian_toolbox/planets/planet.h"
-#include "../keplerian_toolbox/planets/planet_ss.h"
+#include "../keplerian_toolbox/planets/base.h"
+#include "../keplerian_toolbox/planets/jpl_low_precision.h"
 
 
 namespace pagmo{ namespace problem {
@@ -57,8 +56,8 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE mga_target_event: public base
 {
 	public:
-	mga_target_event(const kep_toolbox::planet_ptr start = kep_toolbox::planet_ss("earth").clone(),
-						 const kep_toolbox::planet_ptr end = kep_toolbox::planet_ss("mars").clone(),
+	mga_target_event(const kep_toolbox::planets::planet_ptr start = kep_toolbox::planets::jpl_lp("earth").clone(),
+						 const kep_toolbox::planets::planet_ptr end = kep_toolbox::planets::jpl_lp("mars").clone(),
 						 const kep_toolbox::epoch t_end = kep_toolbox::epoch(0.0),
 						 double T_max = 700.0,
 						 bool discount_launcher = true
@@ -84,8 +83,8 @@ class __PAGMO_VISIBLE mga_target_event: public base
 			ar & m_T_max;
 			ar & m_discount_launcher;
 		}
-	kep_toolbox::planet_ptr m_start;
-	kep_toolbox::planet_ptr m_end;
+	kep_toolbox::planets::planet_ptr m_start;
+	kep_toolbox::planets::planet_ptr m_end;
 	kep_toolbox::epoch m_t_end;
 	double m_T_max;
 	bool m_discount_launcher;
@@ -94,4 +93,5 @@ class __PAGMO_VISIBLE mga_target_event: public base
 }} // namespaces
 
 BOOST_CLASS_EXPORT_KEY(pagmo::problem::mga_target_event)
+
 #endif // PAGMO_PROBLEM_MGA_TARGET_EVENT_H
