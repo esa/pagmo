@@ -24,11 +24,7 @@ class ArchipelagoTests(unittest.TestCase):
                 archi.evolve(200)
                 migr_hist = archi.dump_migr_history()
                 # Below: After 200 evaluations, there should be some migrants from 1->0, 2->0 and 2->1
-                # Although this test does not seem to fail, it is not deterministic
-                self.assertTrue("(1,1,0)" in migr_hist)
-                self.assertTrue("(1,2,0)" in migr_hist)
-                self.assertTrue("(1,2,1)" in migr_hist)
-                # Below: There should be no migrants from 1->0, 2->0 and 2->1
+                # There should be no migrants from 1->0, 2->0 and 2->1
                 self.assertTrue("(1,0,1)" not in migr_hist)
                 self.assertTrue("(1,0,2)" not in migr_hist)
                 self.assertTrue("(1,1,2)" not in migr_hist)
