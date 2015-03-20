@@ -47,9 +47,9 @@ class py_pl2pl(base):
             raise ImportError(
                 "Error while trying 'import PyKEP': is PyKEP installed?")
         if departure is None:
-            departure = PyKEP.planet_ss('earth')
+            departure = PyKEP.planets.jpl_lp('earth')
         if target is None:
-            target = mars = PyKEP.planet_ss('mars')
+            target = mars = PyKEP.planets.jpl_lp('mars')
         super(py_pl2pl, self).__init__(
             9 + nseg * 3, 0, 1, 9 + nseg, nseg + 2, 1e-5)
         self.__departure = departure

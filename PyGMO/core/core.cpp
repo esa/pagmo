@@ -324,7 +324,7 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("best_c",&get_best_c,&set_best_c)
 		.def("cpp_loads", &py_cpp_loads<population::individual_type>)
 		.def("cpp_dumps", &py_cpp_dumps<population::individual_type>)
-		.def_pickle(generic_pickle_suite<population::individual_type>());
+		.def_pickle(python_class_pickle_suite<population::individual_type>());
 
 	class_<population::champion_type>("champion","Champion class.",init<>())
 		.def("__repr__",&population::champion_type::human_readable)
@@ -335,7 +335,7 @@ BOOST_PYTHON_MODULE(_core)
 		.add_property("c",&get_c,&set_c)
 		.def("cpp_loads", &py_cpp_loads<population::champion_type>)
 		.def("cpp_dumps", &py_cpp_dumps<population::champion_type>)
-		.def_pickle(generic_pickle_suite<population::champion_type>());
+		.def_pickle(python_class_pickle_suite<population::champion_type>());
 
 	// Base island class for Python implementation.
 	class_<python_base_island, boost::noncopyable>("_base_island",init<const algorithm::base &, const problem::base &, optional<int,const migration::base_s_policy &,const migration::base_r_policy &> >())
