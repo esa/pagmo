@@ -23,10 +23,10 @@
  *****************************************************************************/
 
 #include <string>
+#include <keplerian_toolbox/epoch.h>
 
 #include "messenger_full.h"
 #include "../AstroToolbox/mga_dsm.h"
-#include "../keplerian_toolbox/epoch.h"
 
 namespace pagmo { namespace problem {
 

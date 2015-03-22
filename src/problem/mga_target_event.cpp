@@ -28,12 +28,13 @@
 #include <numeric>
 #include <cmath>
 #include <boost/lexical_cast.hpp>
+#include <keplerian_toolbox/core_functions/propagate_lagrangian.h>
+#include <keplerian_toolbox/astro_constants.h>
+#include <keplerian_toolbox/lambert_problem.h>
+#include <keplerian_toolbox/core_functions/array3D_operations.h>
 
 #include "mga_target_event.h"
-#include "../keplerian_toolbox/core_functions/propagate_lagrangian.h"
-#include "../keplerian_toolbox/astro_constants.h"
-#include "../keplerian_toolbox/lambert_problem.h"
-#include "../keplerian_toolbox/core_functions/array3D_operations.h"
+
 
 namespace pagmo { namespace problem {
 

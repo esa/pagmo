@@ -40,13 +40,13 @@
 #include "../../src/serialization.h"
 #include "../../src/types.h"
 #include "../../src/config.h"
-#include "../../src/problem/tsp_ds.h"
 #include "../utils.h"
 #include "python_base.h"
 #include "python_base_stochastic.h"
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
-		#include "../../src/keplerian_toolbox/planets/base.h"
+		#include <keplerian_toolbox/planets/base.h>
+		#include "../../src/problem/tsp_ds.h"
 #endif
 
 using namespace boost::python;
@@ -62,14 +62,16 @@ static inline tuple find_subsequence_wrapper_cs(const problem::tsp_cs& p, const 
 	return boost::python::make_tuple(retval_p,retval_l,retval_it_l,retval_it_r);
 }
 
-// wrapper for the find_subsequence method of tsp_ads
-static inline tuple find_subsequence_wrapper_ds(const problem::tsp_ds& p, const decision_vector& tour, const bool static_computations)
-{
-	double retval_p, retval_l;
-	decision_vector::size_type retval_it_l, retval_it_r;
-    p.find_subsequence(tour,retval_p,retval_l,retval_it_l,retval_it_r, static_computations);
-	return boost::python::make_tuple(retval_p,retval_l,retval_it_l,retval_it_r);
-}
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
+	// wrapper for the find_subsequence method of tsp_ads
+	static inline tuple find_subsequence_wrapper_ds(const problem::tsp_ds& p, const decision_vector& tour, const bool static_computations)
+	{
+		double retval_p, retval_l;
+		decision_vector::size_type retval_it_l, retval_it_r;
+	    p.find_subsequence(tour,retval_p,retval_l,retval_it_l,retval_it_r, static_computations);
+		return boost::python::make_tuple(retval_p,retval_l,retval_it_l,retval_it_r);
+	}
+#endif
 
 // Transforms an Eigen Matrix into a std::vector<std::vector<double> >
 std::vector<std::vector<double> > get_rotation_matrix_from_eigen(const problem::rotated & p) {

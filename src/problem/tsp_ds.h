@@ -27,13 +27,14 @@
 
 #include <vector>
 #include <string>
+#include <keplerian_toolbox/planets/base.h>
+#include <keplerian_toolbox/planets/jpl_low_precision.h>
+#include <keplerian_toolbox/astro_constants.h>
 
 #include "../types.h"
 #include "./base_tsp.h"
 #include "../serialization.h"
-#include "../keplerian_toolbox/planets/base.h"
-#include "../keplerian_toolbox/planets/jpl_low_precision.h"
-#include "../keplerian_toolbox/astro_constants.h"
+
 
 namespace pagmo { namespace problem {
 

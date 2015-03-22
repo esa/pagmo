@@ -27,16 +27,17 @@
 
 #include <vector>
 #include <string>
+#include <keplerian_toolbox/epoch.h>
+#include <keplerian_toolbox/planets/gtoc2.h>
+#include <keplerian_toolbox/sims_flanagan/leg.h>
+#include <keplerian_toolbox/sims_flanagan/spacecraft.h>
+#include <keplerian_toolbox/sims_flanagan/throttle.h>
 
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
 #include "base.h"
-#include "../keplerian_toolbox/epoch.h"
-#include "../keplerian_toolbox/planets/gtoc2.h"
-#include "../keplerian_toolbox/sims_flanagan/leg.h"
-#include "../keplerian_toolbox/sims_flanagan/spacecraft.h"
-#include "../keplerian_toolbox/sims_flanagan/throttle.h"
+
 
 namespace pagmo { namespace problem {
 

@@ -26,12 +26,12 @@
 #define PAGMO_SAMPLE_RETURN_H
 
 #include <string>
+#include <keplerian_toolbox/planets/mpcorb.h>
+#include <keplerian_toolbox/planets/base.h>
 
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "../keplerian_toolbox/planets/mpcorb.h"
-#include "../keplerian_toolbox/planets/base.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "base.h"
 
