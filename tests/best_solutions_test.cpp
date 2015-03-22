@@ -27,10 +27,12 @@
 #include <algorithm>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
-
+#ifdef PAGMO_ENABLE_KEP_TOOLBOX
+	#include <keplerian_toolbox/planets/jpl_low_precision.h>
+	#include <keplerian_toolbox/epoch.h>
+#endif
 #include "../src/pagmo.h"
-#include "../src/keplerian_toolbox/planets/jpl_low_precision.h"
-#include "../src/keplerian_toolbox/epoch.h"
+
 
 #include "../src/Eigen/Dense"
 #include "test.h"

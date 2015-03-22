@@ -24,11 +24,12 @@
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <string>
+#include <keplerian_toolbox/epoch.h>
 
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
 #include "../exceptions.h"
-#include "../keplerian_toolbox/epoch.h"
+
 #include "laplace.h"
 
 namespace pagmo { namespace problem {

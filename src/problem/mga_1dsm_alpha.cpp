@@ -27,11 +27,12 @@
 #include <vector>
 #include <numeric>
 #include <cmath>
+#include <keplerian_toolbox/core_functions/propagate_lagrangian.h>
+#include <keplerian_toolbox/core_functions/fb_prop.h>
+#include <keplerian_toolbox/lambert_problem.h>
 
 #include "mga_1dsm_alpha.h"
-#include "../keplerian_toolbox/core_functions/propagate_lagrangian.h"
-#include "../keplerian_toolbox/core_functions/fb_prop.h"
-#include "../keplerian_toolbox/lambert_problem.h"
+
 
 namespace pagmo { namespace problem {
 

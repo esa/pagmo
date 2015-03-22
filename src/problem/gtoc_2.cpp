@@ -27,9 +27,9 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <keplerian_toolbox/astro_constants.h>
 
 #include "gtoc_2.h"
-#include "../keplerian_toolbox/astro_constants.h"
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"

@@ -60,7 +60,7 @@
 #include "python_island.h"
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
-	#include "../../src/keplerian_toolbox/planets/base.h"
+	#include <keplerian_toolbox/planets/base.h>
 #endif
 
 using namespace boost::python;

@@ -26,13 +26,13 @@
 #define PAGMO_PROBLEM_MGA_INCIPIT_H
 
 #include <string>
+#include <keplerian_toolbox/planets/gtoc6.h>
+#include <keplerian_toolbox/epoch.h>
 
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
 #include "base.h"
-#include "../keplerian_toolbox/planets/gtoc6.h"
-#include "../keplerian_toolbox/epoch.h"
 
 
 namespace pagmo{ namespace problem {

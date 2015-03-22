@@ -23,15 +23,16 @@
  *****************************************************************************/
 
 #include <numeric>
+#include <keplerian_toolbox/astro_constants.h>
+#include <keplerian_toolbox/lambert_problem.h>
+#include <keplerian_toolbox/core_functions/array3D_operations.h>
+#include <keplerian_toolbox/core_functions/ic2par.h>
+#include <keplerian_toolbox/epoch.h>
 
 #include "tsp_ds.h"
 #include "../exceptions.h"
 #include "../population.h"
-#include "../keplerian_toolbox/astro_constants.h"
-#include "../keplerian_toolbox/lambert_problem.h"
-#include "../keplerian_toolbox/core_functions/array3D_operations.h"
-#include "../keplerian_toolbox/core_functions/ic2par.h"
-#include "../keplerian_toolbox/epoch.h"
+
 
 
 namespace pagmo { namespace problem {

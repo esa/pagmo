@@ -23,11 +23,11 @@
  *****************************************************************************/
 
 #include <string>
+ #include <keplerian_toolbox/epoch.h>
 
 #include "tandem.h"
 #include "../AstroToolbox/mga_dsm.h"
 #include "../AstroToolbox/misc4Tandem.h"
-#include "../keplerian_toolbox/epoch.h"
 
 namespace pagmo { namespace problem {
 
