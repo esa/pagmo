@@ -10,7 +10,6 @@ tsp_vrplc.encoding_type = _tsp_encoding
 tsp_cs.encoding_type = _tsp_encoding
 
 
-
 def _tsp_ctor(self, weights=[[0, 1, 2], [1, 0, 5], [2, 5, 0]], type="cities"):
     """
         Constructs Travelling Salesman Problem (TSP or ATSP)
