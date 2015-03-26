@@ -6,9 +6,7 @@ from PyGMO.algorithm import base
 class _scipy_base(base):
 
     def __init__(self, solver, constrained):
-        base.__init__(self)
-
-        from numpy import concatenate, array
+        super(_scipy_base, self).__init__()
         self.solver = solver
         self.constrained = constrained
     # Check if problem is compatible with the algorithm.
@@ -41,11 +39,13 @@ class _scipy_base(base):
         # chromosome.
         x0 = array(
             pop[pop.get_best_idx()].cur_x
-            [0: pop.problem.dimension - pop.problem.i_dimension], dtype=float)
+            [0: pop.problem.dimension - pop.problem.i_dimension], dtype=float
+        )
         # Combinatorial part of the chromosome (which will not be optimised).
         x0_comb = array(
             pop[pop.get_best_idx()].cur_x
-            [pop.problem.dimension - pop.problem.i_dimension:], dtype=float)
+            [pop.problem.dimension - pop.problem.i_dimension:], dtype=float
+        )
         return n_ec, x0, x0_comb
 
 
@@ -61,9 +61,7 @@ class scipy_fmin(_scipy_base):
             xtol=0.0001,
             ftol=0.0001,
             maxfun=None,
-            full_output=0,
-            disp=0,
-            retall=0):
+            disp=False):
         """
         Constructs a Nelder-Mead Simplex algorithm (SciPy)
 
@@ -73,9 +71,7 @@ class scipy_fmin(_scipy_base):
         * xtol: Relative error in xopt acceptable for convergence
         * ftol: Relative error in func(xopt) acceptable for convergence
         * maxfun: Maximum number of function evaluations to make
-        * full_output: Set to True if fval and warnflag outputs are desired
         * disp: Set to True to print convergence messages
-        * retall: Set to True to return list of solutions at each iteration
         """
         from scipy.optimize import fmin as solver
         _scipy_base.__init__(self, solver, False)
@@ -83,36 +79,32 @@ class scipy_fmin(_scipy_base):
         self.ftol = ftol
         self.maxiter = maxiter
         self.maxfun = maxfun
-        self.full_output = full_output
         self.disp = disp
-        self.retall = retall
 
     def evolve(self, pop):
         from numpy import concatenate
-        prob = pop.problem
+        # We extract the refernce here as we need to be able to update fevals
+        prob = pop._problem_reference
         self._problem_checks(prob)
         if len(pop) == 0:
             return pop
         _, x0, x0_comb = self._starting_params(pop)
         retval = self.solver(
-            lambda x: prob.objfun(
-                concatenate(
-                    (x,
-                     x0_comb)))[0],
+            lambda x: prob.objfun(concatenate((x, x0_comb)))[0],
             x0,
             xtol=self.xtol,
             ftol=self.ftol,
             maxiter=self.maxiter,
             maxfun=self.maxfun,
-            full_output=self.full_output,
+            full_output=True,
             disp=self.disp,
-            retall=self.retall)
-        new_chromosome = list(retval) + list(x0_comb)
+            retall=False
+        )
+        new_chromosome = list(retval[0]) + list(x0_comb)
         pop.set_x(
             pop.get_best_idx(),
-            self._check_new_chromosome(
-                new_chromosome,
-                prob))
+            self._check_new_chromosome(new_chromosome, prob)
+        )
         return pop
 
     def get_name(self):
@@ -173,7 +165,8 @@ class scipy_l_bfgs_b(_scipy_base):
 
     def evolve(self, pop):
         from numpy import concatenate, array
-        prob = pop.problem
+        # We extract the refernce here as we need to be able to update fevals
+        prob = pop._problem_reference
         self._problem_checks(prob)
         if len(pop) == 0:
             return pop
@@ -255,7 +248,8 @@ class scipy_slsqp(_scipy_base):
 
     def evolve(self, pop):
         from numpy import concatenate, array
-        prob = pop.problem
+        # We extract the refernce here as we need to be able to update fevals
+        prob = pop._problem_reference
         self._problem_checks(prob)
         # If population is empty, just return input population.
         if len(pop) == 0:
@@ -342,7 +336,8 @@ class scipy_tnc(_scipy_base):
 
     def evolve(self, pop):
         from numpy import concatenate, array
-        prob = pop.problem
+        # We extract the refernce here as we need to be able to update fevals
+        prob = pop._problem_reference
         self._problem_checks(prob)
         if len(pop) == 0:
             return pop
@@ -412,7 +407,8 @@ class scipy_cobyla(_scipy_base):
 
     def evolve(self, pop):
         from numpy import concatenate, array
-        prob = pop.problem
+        # We extract the reference here as we need to be able to update fevals
+        prob = pop._problem_reference
         self._problem_checks(prob)
         if len(pop) == 0:
             return pop
