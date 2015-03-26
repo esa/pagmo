@@ -1,4 +1,4 @@
-from PyGMO.algorithm._base import base
+from PyGMO.algorithm import base
 
 
 class py_example(base):

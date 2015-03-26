@@ -1,4 +1,4 @@
-from PyGMO.algorithm._base import base
+from PyGMO.algorithm import base
 
 # Helper class to ease the inclusion of scipy.optimize solvers.
 
