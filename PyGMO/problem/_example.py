@@ -1,4 +1,4 @@
-from PyGMO.problem._base import base
+from PyGMO.problem import base
 
 
 class py_example(base):
