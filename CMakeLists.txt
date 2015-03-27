@@ -62,6 +62,9 @@ OPTION(ENABLE_SNOPT "Enable support for SNOPT minimiser." OFF)
 # Build Option: IPOPT optimiser.
 OPTION(ENABLE_IPOPT "Enable support for IPOPT minimiser." OFF)
 
+# Build Option: WORHP optimiser.
+OPTION(ENABLE_WORHP "Enable support for WORHP minimiser." OFF)
+
 # Build Option: support for MPI clustering.
 OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
 
@@ -355,6 +358,19 @@ IF(ENABLE_IPOPT)
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_INIT} ${LAPACK_LINKER_FLAGS}")
 ENDIF(ENABLE_IPOPT)
 
+# If WORHP support is requested, look for the libraries.
+IF(ENABLE_WORHP)
+	FIND_LIBRARY(WORHP_LIBRARY NAMES worhp)
+	FIND_PATH(WORHP_INCLUDE_DIR NAMES worhp.h)
+	IF(NOT WORHP_LIBRARY OR NOT WORHP_INCLUDE_DIR)
+		MESSAGE(FATAL_ERROR "WORHP support was requested, but the library could not be located. The library should be called 'libworhp')")
+	ENDIF(NOT WORHP_LIBRARY OR NOT WORHP_INCLUDE_DIR)
+	MESSAGE(STATUS "WORHP library: ${WORHP_LIBRARY}")
+	MESSAGE(STATUS "WORHP include dir: ${WORHP_INCLUDE_DIR}")
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${WORHP_LIBRARY} -lgfortran)
+	ADD_DEFINITIONS(-DPAGMO_ENABLE_WORHP)
+	INCLUDE_DIRECTORIES("${WORHP_INCLUDE_DIR}")
+ENDIF(ENABLE_WORHP)
 
 
 # Add the directory for the PaGMO library.
