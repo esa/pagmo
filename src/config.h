@@ -57,15 +57,6 @@ environments, PaGMO can employ MPI (Message Passing Interface) to distribute the
 */
 
 
-// We detect the gcc version (not sure if this is used)
-
-#ifdef __GNUC__
-#define GCC_VERSION (__GNUC__ * 100000 \
-	+ __GNUC_MINOR__ * 1000 \
-	+ __GNUC_PATCHLEVEL__ * 10)
-#endif
-
-
 // We solve the library madness in windows
 #ifdef _WIN32
 	#ifdef PAGMO_DLL_EXPORT_API
