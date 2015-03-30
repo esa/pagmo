@@ -1694,3 +1694,23 @@ if "snopt" in str(_get_algorithm_list()):
         self.screen_output = screen_output
     snopt._orig_init = snopt.__init__
     snopt.__init__ = _snopt_ctor
+
+# SNOPT algorithm (only if PyGMO has been compiled with the snopt option
+# activated)
+if "worhp" in str(_get_algorithm_list()):
+    def _worhp_ctor(
+            self,
+            screen_output=False):
+        """
+        Constructs WORHP Algorithm
+
+        USAGE: algorithm.worhp(screen_output = False);
+
+        * screen_output: Activates output on screen
+        """
+        # We set the defaults or the kwargs
+        arg_list = []
+        arg_list.append(screen_output)
+        self._orig_init(*arg_list)
+    worhp._orig_init = worhp.__init__
+    worhp.__init__ = _worhp_ctor

@@ -66,7 +66,7 @@ void serialize(Archive &ar, QPParamsStruct &cb, const unsigned int)
 template <class Archive>
 void serialize(Archive &ar, ParamsStruct &cb, const unsigned int) 
 { 
-/* Pointer to QP parameter structure */ 
+ /* Pointer to QP parameter structure */ 
   ar & cb.qp;
 
  /* Debug marker. Used to find memory alignment/padding issues */ 
@@ -165,9 +165,6 @@ void serialize(Archive &ar, ParamsStruct &cb, const unsigned int)
 
  /* Lowpass-filter update factor for merit function values */ 
   ar & cb.LowPassAlphaMerit;
-
- /* Pivoting tolerance for MA solvers */ 
-  ar & cb.MAPivotThreshold;
 
  /* Threshold of meritfunction gradient for increasing Hessian regularisation */ 
   ar & cb.MeritGradTol;

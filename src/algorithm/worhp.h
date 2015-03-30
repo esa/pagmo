@@ -25,8 +25,7 @@
 #ifndef PAGMO_ALGORITHM_WORHP_H
 #define PAGMO_ALGORITHM_WORHP_H
 
-// WORHP uses c style boolean variables: the following definition is needed when not automatically introduced
-// in worhp/C_std.h
+// WORHP uses c style boolean variables: the following definition is needed when not automatically introduced in worhp/C_std.h (for example in osx)
 #ifndef _Bool
 #define _Bool bool
 #endif
@@ -45,7 +44,7 @@ namespace pagmo { namespace algorithm {
 class __PAGMO_VISIBLE worhp: public base
 {
 public:
-	worhp();
+	worhp(bool screen_output= false);
 	void evolve(pagmo::population&) const;
 	pagmo::algorithm::base_ptr clone() const;
 	std::string get_name() const;
@@ -59,7 +58,7 @@ private:
 		ar & m_params;
 	}  
 	
-	mutable Params m_params;
+	Params m_params;
 };
 
 }} // namespaces

@@ -21,23 +21,23 @@
  *   Free Software Foundation, Inc.,                                         *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
-#include <cstdio>
-
 #include "worhp.h"
 
 namespace pagmo { namespace algorithm {
 
 // Dummy print function used to suppress all screen output
 void no_screen_output (int mode, const char s[]) { (void)s; (void)mode;} 
-void default_screen_output (int mode, const char s[]) { WorhpPrint(mode, s);} 
+void default_output (int mode, const char s[]) { WorhpPrint(mode, s);}
 
 /// Constructor
  /**
  * Constructs a WORHP algorithm
  */
-worhp::worhp() {
+worhp::worhp(bool screen_output) {
+	set_screen_output(screen_output);
+	setenv("WORHP_DISABLE_KEYBOARD_HANDLER", "1", 0);
+
 	if (m_screen_output) {
-		SetWorhpPrint(default_screen_output);
 	} else {
 		SetWorhpPrint(no_screen_output);
 	}
@@ -45,6 +45,7 @@ worhp::worhp() {
 	int status;
 	m_params.initialised = false;
 	ReadParams(&status, const_cast<char*>("param.xml"), &m_params);
+	m_params.MatrixCC = false;
 }
 
 
@@ -72,35 +73,35 @@ void worhp::evolve(pagmo::population& pop) const {
 	}
 
 	OptVar opt;
+	Control control;
+	Params params;
+	Workspace workspace;
+
 	opt.initialised = false;
+	control.initialised = false;
+	params.initialised = false;
+	workspace.initialised = false;
+
+
 	opt.n = prob.get_dimension(); // number of variables
 	opt.m = prob.get_c_dimension(); // number of constraints
 	auto n_eq = prob.get_c_dimension() - prob.get_ic_dimension(); // number of equality constraints
-
-	Workspace workspace;
-	workspace.initialised = false;
 
 	// specify nonzeros of derivative matrixes
 	workspace.DF.nnz = opt.n; // dense
 	workspace.DG.nnz = opt.n * opt.m; // dense
 	workspace.HM.nnz = opt.n;
 
-	Control control;
-	control.initialised = false;
-	WorhpInit(&opt, &workspace, &m_params, &control);
+
+	WorhpInit(&opt, &workspace, &params, &control);
 	assert(control.status == FirstCall);
+	params = m_params;
 
     // Specify a derivative free case
-	m_params.UserDF = false;
-	m_params.UserDG = false;
-	m_params.UserHM = false;
-
-    // Activate or deactivate screen output
-	if (m_screen_output) {
-		SetWorhpPrint(default_screen_output);
-	} else {
-		SetWorhpPrint(no_screen_output);
-	}
+	params.UserDF = false;
+	params.UserDG = false;
+	params.UserHM = false;
+	params.initialised = true;
 
 	// Initialization of variables
 	const auto best_idx = pop.get_best_idx();
@@ -123,7 +124,7 @@ void worhp::evolve(pagmo::population& pop) const {
 	// Inequality constraints
 	for (auto i = n_eq; i < unsigned(opt.m); ++i) {
 		opt.Mu[i] = 0;
-		opt.GL[i] = -m_params.Infty;
+		opt.GL[i] = -params.Infty;
 		opt.GU[i] = 0;
 	}
 
@@ -138,16 +139,16 @@ void worhp::evolve(pagmo::population& pop) const {
 
 	while (control.status < TerminateSuccess && control.status > TerminateError) {
 		if (GetUserAction(&control, callWorhp)) {
-			Worhp(&opt, &workspace, &m_params, &control);
+			Worhp(&opt, &workspace, &params, &control);
 		}
 
-		if (GetUserAction(&control, iterOutput)) {
-			//if (m_screen_output) {
-				IterationOutput(&opt, &workspace, &m_params, &control);
-			//}
+		if (GetUserAction(&control, iterOutput)) 
+		{
+			IterationOutput(&opt, &workspace, &params, &control);
 			DoneUserAction(&control, iterOutput);
 		}
 
+		
 		if (GetUserAction(&control, evalF)) {
 			for (int i = 0; i < opt.n; ++i) {
 				x[i] = opt.X[i];
@@ -169,16 +170,17 @@ void worhp::evolve(pagmo::population& pop) const {
 		}
 
 		if (GetUserAction(&control, fidif)) {
-			WorhpFidif(&opt, &workspace, &m_params, &control);
+			WorhpFidif(&opt, &workspace, &params, &control);
 		}
 	}
-
-	StatusMsg(&opt, &workspace, &m_params, &control);
 
 	for (int i = 0; i < opt.n; ++i) {
 		x[i] = opt.X[i];
 	}
 	pop.set_x(best_idx, x);
+
+	StatusMsg(&opt, &workspace, &params, &control);
+	WorhpFree(&opt, &workspace, &params, &control);
 }
 
 /// Clone method.
