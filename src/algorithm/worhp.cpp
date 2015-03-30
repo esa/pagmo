@@ -100,14 +100,14 @@ void worhp::evolve(pagmo::population& pop) const {
 	}
 
 	// Equality constraints
-	for (int i = 0; i < n_eq; ++i) {
+	for (auto i = 0u; i < n_eq; ++i) {
 		opt.Mu[i] = 0;
 		opt.GL[i] = 0;
 		opt.GU[i] = 0;
 	}
 
 	// Inequality constraints
-	for (int i = n_eq; i < opt.m; ++i) {
+	for (auto i = n_eq; i < unsigned(opt.m); ++i) {
 		opt.Mu[i] = 0;
 		opt.GL[i] = -params.Infty;
 		opt.GU[i] = 0;

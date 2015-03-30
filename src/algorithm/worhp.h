@@ -49,6 +49,13 @@ public:
 	std::string get_name() const;
 
 private:
+	friend class boost::serialization::access;
+	template <class Archive>
+	void serialize(Archive &ar, const unsigned int)
+	{
+		ar & boost::serialization::base_object<base>(*this);
+	}  
+	
 	mutable Params params;
 };
 
