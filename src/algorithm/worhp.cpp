@@ -21,24 +21,30 @@
  *   Free Software Foundation, Inc.,                                         *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
  *****************************************************************************/
-
+#include <cstdio>
 
 #include "worhp.h"
 
 namespace pagmo { namespace algorithm {
+
+// Dummy print function used to suppress all screen output
+void no_screen_output (int mode, const char s[]) { (void)s; (void)mode;} 
+void default_screen_output (int mode, const char s[]) { WorhpPrint(mode, s);} 
 
 /// Constructor
  /**
  * Constructs a WORHP algorithm
  */
 worhp::worhp() {
-	CHECK_WORHP_VERSION
+	if (m_screen_output) {
+		SetWorhpPrint(default_screen_output);
+	} else {
+		SetWorhpPrint(no_screen_output);
+	}
 
 	int status;
-	params.initialised = false;
-	ReadParams(&status, const_cast<char*>("param.xml"), &params);
-	assert(status == OK);
-	params.MatrixCC = false;
+	m_params.initialised = false;
+	ReadParams(&status, const_cast<char*>("param.xml"), &m_params);
 }
 
 
@@ -81,14 +87,22 @@ void worhp::evolve(pagmo::population& pop) const {
 
 	Control control;
 	control.initialised = false;
-
-	WorhpInit(&opt, &workspace, &params, &control);
+	WorhpInit(&opt, &workspace, &m_params, &control);
 	assert(control.status == FirstCall);
 
-	params.UserDF = false;
-	params.UserDG = false;
-	params.UserHM = false;
+    // Specify a derivative free case
+	m_params.UserDF = false;
+	m_params.UserDG = false;
+	m_params.UserHM = false;
 
+    // Activate or deactivate screen output
+	if (m_screen_output) {
+		SetWorhpPrint(default_screen_output);
+	} else {
+		SetWorhpPrint(no_screen_output);
+	}
+
+	// Initialization of variables
 	const auto best_idx = pop.get_best_idx();
 	pagmo::decision_vector x = pop.get_individual(best_idx).cur_x;
 
@@ -109,7 +123,7 @@ void worhp::evolve(pagmo::population& pop) const {
 	// Inequality constraints
 	for (auto i = n_eq; i < unsigned(opt.m); ++i) {
 		opt.Mu[i] = 0;
-		opt.GL[i] = -params.Infty;
+		opt.GL[i] = -m_params.Infty;
 		opt.GU[i] = 0;
 	}
 
@@ -124,12 +138,12 @@ void worhp::evolve(pagmo::population& pop) const {
 
 	while (control.status < TerminateSuccess && control.status > TerminateError) {
 		if (GetUserAction(&control, callWorhp)) {
-			Worhp(&opt, &workspace, &params, &control);
+			Worhp(&opt, &workspace, &m_params, &control);
 		}
 
 		if (GetUserAction(&control, iterOutput)) {
 			//if (m_screen_output) {
-				IterationOutput(&opt, &workspace, &params, &control);
+				IterationOutput(&opt, &workspace, &m_params, &control);
 			//}
 			DoneUserAction(&control, iterOutput);
 		}
@@ -155,11 +169,11 @@ void worhp::evolve(pagmo::population& pop) const {
 		}
 
 		if (GetUserAction(&control, fidif)) {
-			WorhpFidif(&opt, &workspace, &params, &control);
+			WorhpFidif(&opt, &workspace, &m_params, &control);
 		}
 	}
 
-	StatusMsg(&opt, &workspace, &params, &control);
+	StatusMsg(&opt, &workspace, &m_params, &control);
 
 	for (int i = 0; i < opt.n; ++i) {
 		x[i] = opt.X[i];

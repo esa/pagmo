@@ -34,9 +34,11 @@
 #include <worhp/worhp.h>
 #include <string>
 
+#include "worhp_cpp_wrapper/worhp_param_serialization.h"
 #include "../population.h"
 #include "../serialization.h"
 #include "base.h"
+
 
 namespace pagmo { namespace algorithm {
 
@@ -54,9 +56,10 @@ private:
 	void serialize(Archive &ar, const unsigned int)
 	{
 		ar & boost::serialization::base_object<base>(*this);
+		ar & m_params;
 	}  
 	
-	mutable Params params;
+	mutable Params m_params;
 };
 
 }} // namespaces
@@ -69,3 +72,5 @@ BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::worhp)
 #ifdef _Bool
 #undef _Bool
 #endif
+
+
