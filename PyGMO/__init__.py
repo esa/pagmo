@@ -65,8 +65,7 @@ if "snopt" in str(algorithm._get_algorithm_list()):
     __extensions__['snopt'] = True
 if "ipopt" in str(algorithm._get_algorithm_list()):
     __extensions__['ipopt'] = True
-if "cassini" in str(problem._get_problem_list()):
-    __extensions__['gtop'] = True
+
 # NOTE: All extensions are now detected
 
 __doc__ = 'PyGMO is a pretty cool guy. It kills aliens and does not afraid of anything...'
@@ -81,10 +80,6 @@ __all__ += [name for name in dir(core) if not name.startswith('_')]
 problem_list = problem._get_problem_list()
 algorithm_list = algorithm._get_algorithm_list()
 island_list = core._get_island_list()
-
-
-
-
 
 
 def run_test(n_trials=200, pop_size=20, n_gen=500):

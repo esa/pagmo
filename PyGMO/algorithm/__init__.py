@@ -627,40 +627,32 @@ def _pade_ctor(
     * z: the reference point (used with Tchebycheff and BI decomposition methods)
     """
     # We set the defaults or the kwargs
-    from PyGMO.problem._problem import _decomposition_method
+    from PyGMO.problem._problem_meta import _decomposition_method
+    DECOMPOSITION_TYPE = {
+        'weighted': _decomposition_method.WEIGHTED,
+        'tchebycheff': _decomposition_method.TCHEBYCHEFF,
+        'bi': _decomposition_method.BI,
+    }
 
-    def decomposition_type(x):
-        return {
-            'weighted': _decomposition_method.WEIGHTED,
-            'tchebycheff': _decomposition_method.TCHEBYCHEFF,
-            'bi': _decomposition_method.BI,
-        }[x]
-
-    def weight_generation_type(x):
-        return {
-            'low_discrepancy': _algorithm._weight_generation.LOW_DISCREPANCY,
-            'grid': _algorithm._weight_generation.GRID,
-            'random': _algorithm._weight_generation.RANDOM,
-        }[x]
+    WEIGHT_GENERATION_TYPE = {
+        'low_discrepancy': _algorithm._weight_generation.LOW_DISCREPANCY,
+        'grid': _algorithm._weight_generation.GRID,
+        'random': _algorithm._weight_generation.RANDOM,
+    }
 
     arg_list = []
     arg_list.append(gen)
     arg_list.append(threads)
-    arg_list.append(decomposition_type(decomposition.lower()))
+    arg_list.append(DECOMPOSITION_TYPE[decomposition.lower()])
     if solver is None:
         solver = jde(100)
     arg_list.append(solver)
     arg_list.append(T)
-    arg_list.append(weight_generation_type(weights.lower()))
+    arg_list.append(WEIGHT_GENERATION_TYPE[weights.lower()])
     arg_list.append(z)
     self._orig_init(*arg_list)
 pade._orig_init = pade.__init__
 pade.__init__ = _pade_ctor
-
-
-_algorithm.nspso.CROWDING_DISTANCE = _algorithm._diversity_mechanism.CROWDING_DISTANCE
-_algorithm.nspso.NICHE_COUNT = _algorithm._diversity_mechanism.NICHE_COUNT
-_algorithm.nspso.MAXMIN = _algorithm._diversity_mechanism.MAXMIN
 
 
 def _nspso_ctor(
@@ -673,12 +665,12 @@ def _nspso_ctor(
         CHI=1.0,
         v_coeff=0.5,
         leader_selection_range=5,
-        diversity_mechanism=nspso.CROWDING_DISTANCE):
+        diversity_mechanism='crowding distance'):
     """
     Constructs a Multi Objective PSO
 
     USAGE: algorithm.nspso(self, gen=10, minW = 0.4, maxW = 1.0, C1 = 2.0, C2 = 2.0,
-            CHI = 1.0, v_coeff = 0.5, leader_selection = 5, diversity_mechanism = nspso.CROWDING_DISTANCE):
+            CHI = 1.0, v_coeff = 0.5, leader_selection = 5, diversity_mechanism = 'crowding_distance'):
 
     * gen: number of generations
     * minW: minimum particles' inertia weight (the inertia weight is decreased troughout the run between maxW and minW)
@@ -688,9 +680,15 @@ def _nspso_ctor(
     * CHI: velocity scaling factor
     * v_coeff: velocity coefficient (determining the maximum allowed particle velocity)
     * leader_selection_range the leader of each particle is selected among the best leader_selection_range% individuals
-    * diversity_mechanism the diversity mechanism to use to mantein diversity on the pareto front
+    * diversity_mechanism one of 'crowding distance', 'niche count' or 'maxmin'. Defines the diversity mechanism used
     """
     # We set the defaults or the kwargs
+    DIVERSITY_MECHANISM = {
+        'crowding distance': _algorithm._diversity_mechanism.CROWDING_DISTANCE,
+        'niche count': _algorithm._diversity_mechanism.NICHE_COUNT,
+        'maxmin': _algorithm._diversity_mechanism.MAXMIN,
+    }
+
     arg_list = []
     arg_list.append(gen)
     arg_list.append(minW)
@@ -700,7 +698,7 @@ def _nspso_ctor(
     arg_list.append(CHI)
     arg_list.append(v_coeff)
     arg_list.append(leader_selection_range)
-    arg_list.append(diversity_mechanism)
+    arg_list.append(DIVERSITY_MECHANISM[diversity_mechanism])
     self._orig_init(*arg_list)
 
 nspso._orig_init = nspso.__init__
@@ -1674,7 +1672,7 @@ if "snopt" in str(_get_algorithm_list()):
     def _snopt_ctor(
             self,
             major_iter=100,
-            feas_tol=1e-6,
+            feas_tol=1e-8,
             opt_tol=1e-6,
             screen_output=False):
         """
@@ -1696,3 +1694,32 @@ if "snopt" in str(_get_algorithm_list()):
         self.screen_output = screen_output
     snopt._orig_init = snopt.__init__
     snopt.__init__ = _snopt_ctor
+
+# SNOPT algorithm (only if PyGMO has been compiled with the snopt option
+# activated)
+if "worhp" in str(_get_algorithm_list()):
+    def _worhp_ctor(
+            self,
+            MaxIter=100,
+            TolFeas=1e-8,
+            TolOpti=1e-6,
+            screen_output=False):
+        """
+        Constructs WORHP Algorithm
+
+        USAGE: algorithm.worhp(screen_output = False);
+
+        * major_iter: Maximum number of major iterations
+        * feas_tol: Feasibility tolerance
+        * opt_tol: Optimality tolerance
+        * screen_output: Activates output on screen
+        """
+        # We set the defaults or the kwargs
+        arg_list = []
+        arg_list.append(MaxIter)
+        arg_list.append(TolFeas)
+        arg_list.append(TolOpti)
+        arg_list.append(screen_output)
+        self._orig_init(*arg_list)
+    worhp._orig_init = worhp.__init__
+    worhp.__init__ = _worhp_ctor

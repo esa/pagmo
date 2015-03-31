@@ -99,4 +99,8 @@
 	#include "algorithm/nlopt_aug_lag_eq.h"
 #endif
 
+#ifdef PAGMO_ENABLE_WORHP
+	#include "algorithm/worhp.h"
+#endif
+
 #endif

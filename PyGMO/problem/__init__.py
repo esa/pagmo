@@ -2,6 +2,13 @@
 from PyGMO.problem._base import base
 from PyGMO.problem._base_stochastic import base_stochastic
 from PyGMO.problem._problem import *
+from PyGMO.problem._problem_meta import *
+try:
+    from PyGMO.problem._problem_space import *
+    from PyGMO.problem._gtop import *
+    __extensions__["gtop"] = True
+except ImportError:
+    pass
 from PyGMO.problem._problem import _base
 from PyGMO.problem._problem import _base_stochastic
 from PyGMO.problem._example import py_example
@@ -12,9 +19,6 @@ from PyGMO.problem._mo import *
 from PyGMO.problem._tsp import *
 from PyGMO import __extensions__
 
-# If GTOP database support is active import interplanetary trajectory problems
-if __extensions__["gtop"] is True:
-    from PyGMO.problem._gtop import *
 
 # If GSL support is active import mit_sphere
 try:
@@ -629,18 +633,17 @@ def _decompose_ctor(
     # We construct the arg list for the original constructor exposed by
     # boost_python
 
-    def decomposition_type(x):
-        return {
-            'weighted': _problem._decomposition_method.WEIGHTED,
-            'tchebycheff': _problem._decomposition_method.TCHEBYCHEFF,
-            'bi': _problem._decomposition_method.BI,
-        }[x]
+    DECOMPOSITION_TYPE = {
+        'weighted': _problem_meta._decomposition_method.WEIGHTED,
+        'tchebycheff': _problem_meta._decomposition_method.TCHEBYCHEFF,
+        'bi': _problem_meta._decomposition_method.BI,
+    }
 
     arg_list = []
     if problem is None:
         problem = zdt(1, 2)
     arg_list.append(problem)
-    arg_list.append(decomposition_type(method.lower()))
+    arg_list.append(DECOMPOSITION_TYPE[method.lower()])
     arg_list.append(weights)
     arg_list.append(z)
     self._orig_init(*arg_list)
@@ -706,7 +709,7 @@ rotated._orig_init = rotated.__init__
 rotated.__init__ = _rotated_ctor
 
 
-_problem.noisy.noise_distribution = _problem._noise_distribution
+_problem_meta.noisy.noise_distribution = _problem_meta._noise_distribution
 
 
 def _noisy_ctor(
@@ -771,7 +774,7 @@ robust._orig_init = robust.__init__
 robust.__init__ = _robust_ctor
 
 # Renaming and placing the enums
-_problem.death_penalty.method = _problem._death_method_type
+_problem_meta.death_penalty.method = _problem_meta._death_method_type
 
 
 def _death_penalty_ctor(self, problem=None, method=None, penalty_factors=None):
@@ -806,7 +809,7 @@ death_penalty.__init__ = _death_penalty_ctor
 
 
 # Renaming and placing the enums
-_problem.con2mo.method = _problem._con2mo_method_type
+_problem_meta.con2mo.method = _problem_meta._con2mo_method_type
 
 
 def _con2mo_ctor(self, problem=None, method='obj_cstrsvio'):
@@ -831,17 +834,16 @@ def _con2mo_ctor(self, problem=None, method='obj_cstrsvio'):
     # We construct the arg list for the original constructor exposed by
     # boost_python
 
-    def method_type(x):
-        return {
-            'obj_cstrs': _problem._con2mo_method_type.OBJ_CSTRS,
-            'obj_cstrsvio': _problem._con2mo_method_type.OBJ_CSTRSVIO,
-            'obj_eqvio_ineqvio': _problem._con2mo_method_type.OBJ_EQVIO_INEQVIO,
-        }[x]
+    METHOD_TYPE = {
+        'obj_cstrs': _problem_meta._con2mo_method_type.OBJ_CSTRS,
+        'obj_cstrsvio': _problem_meta._con2mo_method_type.OBJ_CSTRSVIO,
+        'obj_eqvio_ineqvio': _problem_meta._con2mo_method_type.OBJ_EQVIO_INEQVIO,
+    }
 
     arg_list = []
     if problem is None:
         problem = cec2006(4)
-    method = method_type(method.lower())
+    method = METHOD_TYPE[method.lower()]
     arg_list.append(problem)
     arg_list.append(method)
     self._orig_init(*arg_list)
@@ -850,36 +852,33 @@ con2mo._orig_init = con2mo.__init__
 con2mo.__init__ = _con2mo_ctor
 
 
-# Renaming and placing the enums
-_problem.con2uncon.method = _problem._con2uncon_method_type
-
-
-def _con2uncon_ctor(self, problem=None, method=None):
+def _con2uncon_ctor(self, problem=cec2006(4), method='optimality'):
     """
     Implements a meta-problem class that wraps constrained problems,
     resulting in an unconstrained problem. Two methods
-    are available for definig the objective function of the meta-problem: OPTIMALITY and FEASIBILITY.
-    The OPTIMALITY uses as objective function the original objective function, it basically removes the constraints from the original problem. The
-    FEASIBILITY uses as objective function the sum of the violation of the constraints, the meta-problem hence optimize just the level of infeasibility.
+    are available for definig the objective function of the meta-problem: 'optimality' and 'feasibility'.
+    The 'optimality' uses as objective function the original objective function, it basically removes the constraints from the original problem. The
+    'feasibility' uses as objective function the sum of the violation of the constraints, the meta-problem hence optimize just the level of infeasibility.
 
     Implements a meta-problem class that wraps some other constrained problems,
     resulting in multi-objective problem.
 
-    USAGE: problem.con2uncon(problem=PyGMO.cec2006(4), method=con2uncon.method.OPTIMALITY)
+    USAGE: problem.con2uncon(problem=PyGMO.cec2006(4), method='optimality')
 
     * problem: original PyGMO constrained problem
-    * method: OPTIMALITY uses the objective function of the original problem. The FEASIBILITY computes the sum of the constraints violation
+    * method: one of 'optimality', 'feasibility'.
     """
 
     # We construct the arg list for the original constructor exposed by
     # boost_python
+    METHOD_TYPE = {
+        'optimality': _problem_meta._con2uncon_method_type.OPTIMALITY,
+        'feasibility': _problem_meta._con2uncon_method_type.FEASIBILITY,
+    }
+
     arg_list = []
-    if problem is None:
-        problem = cec2006(4)
-    if method is None:
-        method = con2uncon.method.OPTIMALITY
     arg_list.append(problem)
-    arg_list.append(method)
+    arg_list.append(METHOD_TYPE[method.lower()])
     self._orig_init(*arg_list)
 
 con2uncon._orig_init = con2uncon.__init__

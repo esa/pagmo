@@ -260,6 +260,7 @@ BOOST_PYTHON_MODULE(_core)
 	//Register std converters to lists if not already registered by some other module
 	REGISTER_CONVERTER(array2D,fixed_size_policy);
 	REGISTER_CONVERTER(std::vector<double>, variable_capacity_policy);
+	REGISTER_CONVERTER(std::vector<std::string>, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<int>, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<topology::base::vertices_size_type>, variable_capacity_policy);
 	REGISTER_CONVERTER(std::vector<std::vector<double> >, variable_capacity_policy);

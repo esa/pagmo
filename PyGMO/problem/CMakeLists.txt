@@ -1,5 +1,15 @@
 ADD_LIBRARY(_problem SHARED problem.cpp)
 PYTHON_CPPMODULE(_problem)
+
+ADD_LIBRARY(_problem_meta SHARED problem_meta.cpp)
+PYTHON_CPPMODULE_ADDITION(_problem_meta problem)
+
+IF(ENABLE_GTOP_DATABASE)
+	ADD_LIBRARY(_problem_space SHARED problem_space.cpp)
+	PYTHON_CPPMODULE_ADDITION(_problem_space problem)
+ENDIF(ENABLE_GTOP_DATABASE)
+
+
 INSTALL(FILES __init__.py DESTINATION ${PYGMO_INSTALL_PATH}/problem)
 INSTALL(FILES _mit_spheres.py DESTINATION ${PYGMO_INSTALL_PATH}/problem)
 INSTALL(FILES _pl2pl.py DESTINATION ${PYGMO_INSTALL_PATH}/problem)
