@@ -493,7 +493,10 @@ BOOST_PYTHON_MODULE(_algorithm) {
 
 	#ifdef PAGMO_ENABLE_WORHP
 	algorithm_wrapper<algorithm::worhp>("worhp","WORHP solve.")
-		.def(init<optional<bool> >());
+		.def(init<optional<int, double, double, bool> >())
+		.def("set_param", &algorithm::worhp::set_param)
+		.def("get_param", &algorithm::worhp::get_param)
+		.def("get_available_parameters", &algorithm::worhp::get_available_parameters);
 	#endif
 
 	// Register to_python conversion from smart pointer.

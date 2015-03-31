@@ -230,6 +230,7 @@ ENDIF(ENABLE_IPOPT)
 IF(ENABLE_WORHP)
 	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
 		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/worhp.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/algorithm/worhp_cpp_wrapper/set_get_params.cpp
 	)
 ENDIF(ENABLE_WORHP)
 

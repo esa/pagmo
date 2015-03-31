@@ -25,31 +25,41 @@
 #ifndef PAGMO_ALGORITHM_WORHP_H
 #define PAGMO_ALGORITHM_WORHP_H
 
-// WORHP uses c style boolean variables: the following definition is needed when not automatically introduced in worhp/C_std.h (for example in osx)
-#ifndef _Bool
-#define _Bool bool
-#endif
-
 #include <worhp/worhp.h>
 #include <string>
+#include <map>
 
-#include "worhp_cpp_wrapper/worhp_param_serialization.h"
-#include "../population.h"
 #include "../serialization.h"
+#include "worhp_cpp_wrapper/worhp_param_serialization.h"
 #include "base.h"
 
 
-namespace pagmo { namespace algorithm {
+
+namespace pagmo { 
+
+// FOrward declaration
+class population;
+
+namespace algorithm {
 
 class __PAGMO_VISIBLE worhp: public base
 {
 public:
-	worhp(bool screen_output= false);
+	worhp(int iter = 100, double feas=1e-10, double opt = 1e-4, bool screen_output = true);
 	void evolve(pagmo::population&) const;
 	pagmo::algorithm::base_ptr clone() const;
 	std::string get_name() const;
 
+	void set_param(std::string, double);
+	double get_param(std::string name) const;
+	std::vector<std::string> get_available_parameters() const;
+
+protected:
+	std::string human_readable_extra() const;
+
 private:
+    void define_param_map();
+
 	friend class boost::serialization::access;
 	template <class Archive>
 	void serialize(Archive &ar, const unsigned int)
@@ -57,8 +67,10 @@ private:
 		ar & boost::serialization::base_object<base>(*this);
 		ar & m_params;
 	}  
-	
+	// Structure containing all the WORHP parameters, see WORHP documentation
 	Params m_params;
+	// A map between the WORHP parameters available to the user for geting and setting and integres 1...N
+	std::map<std::string, int> m_param_map;
 };
 
 }} // namespaces
@@ -66,10 +78,3 @@ private:
 #endif // PAGMO_ALGORITHM_WORHP_H
 
 BOOST_CLASS_EXPORT_KEY(pagmo::algorithm::worhp)
-
-// We clean the unnecessary _Bool definition for future sanity
-#ifdef _Bool
-#undef _Bool
-#endif
-
-

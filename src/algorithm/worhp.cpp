@@ -26,26 +26,54 @@
 namespace pagmo { namespace algorithm {
 
 // Dummy print function used to suppress all screen output
-void no_screen_output (int mode, const char s[]) { (void)s; (void)mode;} 
-void default_output (int mode, const char s[]) { WorhpPrint(mode, s);}
+void no_screen_output (int, const char []) {} 
+void default_output(int mode, const char *message) {
+  if (mode & WORHP_PRINT_MESSAGE) {
+    printf(" %s\n",message);
+  }
+  if (mode & WORHP_PRINT_WARNING) {
+    printf(" %s\n",message);
+  }
+  if (mode & WORHP_PRINT_ERROR) {
+    fprintf(stderr," %s\n",message);
+  }
+}
 
 /// Constructor
  /**
  * Constructs a WORHP algorithm
  */
-worhp::worhp(bool screen_output) {
+worhp::worhp(int iter, double feas, double opt, bool screen_output)
+{
+	// We construct the map between parameters and integers used to set and get them
+	define_param_map();
+
+	// We set the screen output member from algorithm::base
 	set_screen_output(screen_output);
+
+	// We deactivate WORHP keyboard handler as it does introduce funny problems
 	setenv("WORHP_DISABLE_KEYBOARD_HANDLER", "1", 0);
 
+	// We deal with screen output (this is buggy in lworhp 1.8.0, hopefully future releases can fix the problem
+	// and we will be able to restore the screen output upon request
 	if (m_screen_output) {
+		SetWorhpPrint(default_output);
 	} else {
 		SetWorhpPrint(no_screen_output);
 	}
 
+	// We read the algorithm parameters from the xml file, if this is not found
+	// we set default values and ignore the issue.
 	int status;
 	m_params.initialised = false;
 	ReadParams(&status, const_cast<char*>("param.xml"), &m_params);
-	m_params.MatrixCC = false;
+	status = OK;
+	m_params.MatrixCC = false; // Not sure what this deas exactly
+
+	// We set some of the parameters exposed in the constructor
+	set_param("TolFeas", feas);
+	set_param("TolOpti", opt);
+	set_param("MaxIter", iter);
 }
 
 
@@ -70,6 +98,13 @@ void worhp::evolve(pagmo::population& pop) const {
 	if (prob.get_f_dimension() != 1) {
 		pagmo_throw(value_error,
 		            "The problem is not single objective and WORHP is not suitable to solve it");
+	}
+
+	// We check the screen output again as the user may have changed it
+	if (m_screen_output) {
+		SetWorhpPrint(default_output);
+	} else {
+		SetWorhpPrint(no_screen_output);
 	}
 
 	OptVar opt;
@@ -129,6 +164,7 @@ void worhp::evolve(pagmo::population& pop) const {
 	}
 
 	// Define HM as a diagonal LT-CS-matrix, but only if needed by WORHP
+	// Not sure if this is needed at all
 	if (workspace.HM.NeedStructure) {
 		for(int i = 0; i < workspace.HM.nnz; ++i) 
 		{
@@ -195,9 +231,16 @@ std::string worhp::get_name() const
 	return "WORHP";
 }
 
-
-
-
+/// Extra human readable algorithm info.
+/**
+ * @return a formatted string displaying the parameters of the algorithm.
+ */
+std::string worhp::human_readable_extra() const
+{
+	std::ostringstream s;
+	s << "MaxIter:" << get_param("MaxIter") << " TolFeas:"<<get_param("TolFeas")<< " TolOpti:"<<get_param("TolOpti") << std::endl;
+	return s.str();
+}
 
 }} // namespaces
 

@@ -1672,7 +1672,7 @@ if "snopt" in str(_get_algorithm_list()):
     def _snopt_ctor(
             self,
             major_iter=100,
-            feas_tol=1e-6,
+            feas_tol=1e-8,
             opt_tol=1e-6,
             screen_output=False):
         """
@@ -1700,16 +1700,25 @@ if "snopt" in str(_get_algorithm_list()):
 if "worhp" in str(_get_algorithm_list()):
     def _worhp_ctor(
             self,
+            MaxIter=100,
+            TolFeas=1e-8,
+            TolOpti=1e-6,
             screen_output=False):
         """
         Constructs WORHP Algorithm
 
         USAGE: algorithm.worhp(screen_output = False);
 
+        * major_iter: Maximum number of major iterations
+        * feas_tol: Feasibility tolerance
+        * opt_tol: Optimality tolerance
         * screen_output: Activates output on screen
         """
         # We set the defaults or the kwargs
         arg_list = []
+        arg_list.append(MaxIter)
+        arg_list.append(TolFeas)
+        arg_list.append(TolOpti)
         arg_list.append(screen_output)
         self._orig_init(*arg_list)
     worhp._orig_init = worhp.__init__
