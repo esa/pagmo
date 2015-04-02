@@ -37,8 +37,8 @@
 #include "../types.h"
 #include "base.h"
 #include "gtoc5_self_flyby.h"
-#include "../keplerian_toolbox/astro_constants.h"
-#include "../keplerian_toolbox/asteroid_gtoc5.h"
+#include <keplerian_toolbox/astro_constants.h>
+#include <keplerian_toolbox/planets/gtoc5.h>
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;
@@ -99,8 +99,8 @@ void gtoc5_self_flyby::compute_constraints_impl(constraint_vector &c, const deci
 	// We set the leg.
 	const epoch epoch_source(m_mjd,epoch::MJD), epoch_target(m_mjd + x[0],epoch::MJD);
 	array3D v_source, r_source, v_target, r_target;
-	m_ast.get_eph(epoch_source,r_source,v_source);
-	m_ast.get_eph(epoch_target,r_target,v_target);
+	m_ast.eph(epoch_source,r_source,v_source);
+	m_ast.eph(epoch_target,r_target,v_target);
 	v_target[0] += x[2];
 	v_target[1] += x[3];
 	v_target[2] += x[4];
@@ -145,8 +145,8 @@ std::string gtoc5_self_flyby::pretty(const decision_vector &x) const
 	// We set the leg.
 	const epoch epoch_source(m_mjd,epoch::MJD), epoch_target(m_mjd + x[0],epoch::MJD);
 	array3D v_source, r_source, v_target, r_target;
-	m_ast.get_eph(epoch_source,r_source,v_source);
-	m_ast.get_eph(epoch_target,r_target,v_target);
+	m_ast.eph(epoch_source,r_source,v_source);
+	m_ast.eph(epoch_target,r_target,v_target);
 	v_target[0] += x[2];
 	v_target[1] += x[3];
 	v_target[2] += x[4];

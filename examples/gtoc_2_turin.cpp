@@ -28,11 +28,11 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <string>
+#include <keplerian_toolbox/keplerian_toolbox.h>
 
 #include "../src/algorithm/snopt.h"
 #include "../src/island.h"
 #include "../src/problem/gtoc_2.h"
-#include "../src/keplerian_toolbox/keplerian_toolbox.h"
 
 using namespace pagmo;
 using namespace kep_toolbox;

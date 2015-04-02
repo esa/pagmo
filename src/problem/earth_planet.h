@@ -31,8 +31,8 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "../keplerian_toolbox/sims_flanagan/codings.h"
-#include "../keplerian_toolbox/sims_flanagan/fb_traj.h"
+#include <keplerian_toolbox/sims_flanagan/codings.h>
+#include <keplerian_toolbox/sims_flanagan/fb_traj.h>
 #include "base.h"
 
 namespace pagmo { namespace problem {

@@ -37,8 +37,8 @@
 #include "../types.h"
 #include "base.h"
 #include "gtoc5_flyby.h"
-#include "../keplerian_toolbox/astro_constants.h"
-#include "../keplerian_toolbox/asteroid_gtoc5.h"
+#include <keplerian_toolbox/astro_constants.h>
+#include <keplerian_toolbox/planets/gtoc5.h>
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;
@@ -118,12 +118,12 @@ void gtoc5_flyby::compute_constraints_impl(constraint_vector &c, const decision_
 	// We set the leg.
 	const epoch epoch_source(x[0],epoch::MJD), epoch_flyby(x[0] + x[1]*x[2],epoch::MJD), epoch_target(x[0] + x[2],epoch::MJD);
 	array3D v_source, r_source, v_flyby, r_flyby, v_target, r_target;
-	m_source.get_eph(epoch_source,r_source,v_source);
-	m_flyby.get_eph(epoch_flyby,r_flyby,v_flyby);
+	m_source.eph(epoch_source,r_source,v_source);
+	m_flyby.eph(epoch_flyby,r_flyby,v_flyby);
 	v_flyby[0] += x[5];
 	v_flyby[1] += x[6];
 	v_flyby[2] += x[7];
-	m_target.get_eph(epoch_target,r_target,v_target);
+	m_target.eph(epoch_target,r_target,v_target);
 	m_leg1.set_leg(epoch_source,sc_state(r_source,v_source,m_leg1.get_spacecraft().get_mass()),x.begin() + 8, x.begin() + 8 + m_n_segments * 3,
 		epoch_flyby,sc_state(r_flyby,v_flyby,x[3]),ASTRO_MU_SUN);
 	m_leg2.set_leg(epoch_flyby,sc_state(r_flyby,v_flyby,x[3] - 1),x.begin() + 8 + m_n_segments * 3, x.end(),
@@ -172,12 +172,12 @@ std::string gtoc5_flyby::pretty(const decision_vector &x) const
 	// We set the leg.
 	const epoch epoch_source(x[0],epoch::MJD), epoch_flyby(x[0] + x[1],epoch::MJD), epoch_target(x[0] + x[1] + x[2],epoch::MJD);
 	array3D v_source, r_source, v_flyby, r_flyby, v_target, r_target;
-	m_source.get_eph(epoch_source,r_source,v_source);
-	m_flyby.get_eph(epoch_flyby,r_flyby,v_flyby);
+	m_source.eph(epoch_source,r_source,v_source);
+	m_flyby.eph(epoch_flyby,r_flyby,v_flyby);
 	v_flyby[0] += x[5];
 	v_flyby[1] += x[6];
 	v_flyby[2] += x[7];
-	m_target.get_eph(epoch_target,r_target,v_target);
+	m_target.eph(epoch_target,r_target,v_target);
 	m_leg1.set_leg(epoch_source,sc_state(r_source,v_source,m_leg1.get_spacecraft().get_mass()),x.begin() + 8, x.begin() + 8 + m_n_segments * 3,
 		epoch_flyby,sc_state(r_flyby,v_flyby,x[3]),ASTRO_MU_SUN);
 	m_leg2.set_leg(epoch_flyby,sc_state(r_flyby,v_flyby,x[3] - 1),x.begin() + 8 + m_n_segments * 3, x.end(),

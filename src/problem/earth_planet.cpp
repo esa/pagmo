@@ -30,13 +30,13 @@
 #include <cmath>
 #include <stdexcept>
 #include <vector>
+#include <keplerian_toolbox/sims_flanagan/codings.h>
+#include <keplerian_toolbox/planets/jpl_low_precision.h>
 
 #include "../exceptions.h"
 #include "../types.h"
 #include "base.h"
 #include "earth_planet.h"
-#include "../keplerian_toolbox/sims_flanagan/codings.h"
-#include "../keplerian_toolbox/planets/planet_ss.h"
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;
@@ -89,8 +89,8 @@ earth_planet::earth_planet(int segments, std::string target, const double &ctol)
 
 	//traj_fb constructor
 	std::vector<planet_ptr> sequence;
-	sequence.push_back(planet_ptr(new planet_ss("earth")));
-	sequence.push_back(planet_ptr(new planet_ss(target)));
+	sequence.push_back(planet_ptr(new jpl_lp("earth")));
+	sequence.push_back(planet_ptr(new jpl_lp(target)));
 	trajectory = fb_traj(sequence,segments,1000,0.05,boost::numeric::bounds<double>::highest());
 }
 

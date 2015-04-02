@@ -28,7 +28,6 @@
 #include <string>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include "../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../src/pagmo.h"
 
 #include "../src/algorithm/cstrs_co_evolution.h"
@@ -39,7 +38,6 @@ table summarizing all results. The purpose is to show the effect of the constrai
 */
 
 using namespace pagmo;
-using namespace kep_toolbox;
 
 template<typename T>
 std::string to_string( const T & value )

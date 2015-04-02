@@ -31,7 +31,7 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include "../keplerian_toolbox/keplerian_toolbox.h"
+#include <keplerian_toolbox/keplerian_toolbox.h>
 #include "base.h"
 
 namespace pagmo { namespace problem {
@@ -68,24 +68,24 @@ class __PAGMO_VISIBLE gtoc5_flyby: public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_n_segments;
-			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_source);
-			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_flyby);
-			ar & const_cast<kep_toolbox::asteroid_gtoc5 &>(m_target);
+			ar & const_cast<kep_toolbox::planets::gtoc5 &>(m_source);
+			ar & const_cast<kep_toolbox::planets::gtoc5 &>(m_flyby);
+			ar & const_cast<kep_toolbox::planets::gtoc5 &>(m_target);
 			ar & const_cast<double &>(m_lb_epoch);
 			ar & const_cast<double &>(m_initial_mass);
 			ar & const_cast<objective &>(m_obj);
 			ar & m_leg1;
 			ar & m_leg2;
 		}
-		int 						m_n_segments;
-		const kep_toolbox::asteroid_gtoc5 		m_source;
-		const kep_toolbox::asteroid_gtoc5 		m_flyby;
-		const kep_toolbox::asteroid_gtoc5 		m_target;
-		const double					m_lb_epoch;
-		const double					m_initial_mass;
-		const objective					m_obj;
-		mutable kep_toolbox::sims_flanagan::leg		m_leg1;
-		mutable kep_toolbox::sims_flanagan::leg		m_leg2;
+		int                                     m_n_segments;
+		const kep_toolbox::planets::gtoc5       m_source;
+		const kep_toolbox::planets::gtoc5       m_flyby;
+		const kep_toolbox::planets::gtoc5       m_target;
+		const double                            m_lb_epoch;
+		const double                            m_initial_mass;
+		const objective                         m_obj;
+		mutable kep_toolbox::sims_flanagan::leg m_leg1;
+		mutable kep_toolbox::sims_flanagan::leg m_leg2;
 };
 
 }} //namespaces

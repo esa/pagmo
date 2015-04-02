@@ -109,7 +109,7 @@ ENDIF(ENABLE_GTOP_DATABASE)
 SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} ${MANDATORY_BOOST_LIBS})
 
 IF(ENABLE_GTOP_DATABASE)
-	#We look for ipopt libraries and headers
+	# We look for keplerian_toolbox library and headers
 	FIND_LIBRARY(KEP_TOOLBOX_LIB NAMES keplerian_toolbox)
 	FIND_PATH(KEP_TOOLBOX_HEADERS NAMES keplerian_toolbox/keplerian_toolbox.h)
 	IF(NOT KEP_TOOLBOX_LIB OR NOT KEP_TOOLBOX_HEADERS)
