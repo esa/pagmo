@@ -61,13 +61,13 @@ namespace pagmo { namespace algorithm {
  *
  * At each call of the evolve method a number of function evaluations equal to m_gen * pop.size()
  * is performed.
- * 
+ *
  * The algorithm is suitable for box-constrained single-objective continuous optimization.
- * 
+ *
  * @see http://www.particleswarm.info/ for a repository of information related to PSO
  * @see http://dx.doi.org/10.1007/s11721-007-0002-0 for a recent survey
  * @see http://www.engr.iupui.edu/~shi/Coference/psopap4.html for the first paper on this algorithm
- * 
+ *
  * @author Dario Izzo (dario.izzo@googlemail.com)
  * @author Luis Simoes (luis.f.m.simoes@gmail.com)
  */
@@ -83,6 +83,7 @@ public:
 	void initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__von( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__adaptive_random( std::vector< std::vector<int> > &neighb ) const;
+	void initialize_topology__hexagon( std::vector< std::vector<int> > &neighb) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
@@ -100,7 +101,7 @@ private:
 		ar & const_cast<int &>(m_variant);
 		ar & const_cast<int &>(m_neighb_type);
 		ar & const_cast<int &>(m_neighb_param);
-	}  
+	}
 	// Number of generations
 	const int m_gen;
 	// Particle Inertia weight, or alternatively the constriction coefficient
