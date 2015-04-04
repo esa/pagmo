@@ -19,7 +19,7 @@ Let us try to solve the 50-dimensional Schwefel problem.
    isl.evolve(10)
    print isl.population.champion.f
 
-And it is done!! We have used the algorithm Differential Evolution and we have evolved ten times 200 generations. 
+And it is done!! We have used the algorithm Differential Evolution and we have evolved ten times 500 generations. 
 
 .. code-block:: python
 
@@ -42,7 +42,7 @@ Let us try to solve, again, the 50-dimensional Schwefel problem.
    print min([isl.population.champion.f for isl in archi])
 
 And it is done!! We have launched eight separated threads each one running an instance of Differential Evolution.
-Each thread evolves separately ten times 200 generations. We then print the best found in the 8 runs. 
+Each thread evolves separately ten times 500 generations. We then print the best found in the 8 runs. 
 
 ... and migrating solutions ...
 ----------------------------------------------------
@@ -60,7 +60,7 @@ Let us try to solve, again, the 50-dimensional Schwefel problem.
    print min([isl.population.champion.f for isl in archi])
 
 And it is done!! We have launched eight separated threads each one running an instance of Differential Evolution. Each thread evolves
-for 200 generation its population, then it exchanges solutions according to the defined ring topology. All happens asynchronously in te background
+for 500 generation its population, then it exchanges solutions according to the defined ring topology. All happens asynchronously in the background
 We then print the best found in the 8 runs. 
 
 
@@ -84,5 +84,5 @@ Let us try to solve, again, the 50-dimensional Schwefel problem.
    print min([isl.population.champion.f for isl in archi])
 
 And it is done!! We have instantiated 8 different variants of Differential Evolution
-and have them cooperate to solve the same optimization problem! What do we make of it ?!?!?!?????
+and have them cooperate to solve the same optimization problem!
 
