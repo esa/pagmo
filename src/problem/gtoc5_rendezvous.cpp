@@ -37,8 +37,8 @@
 #include "../types.h"
 #include "base.h"
 #include "gtoc5_rendezvous.h"
-#include "../keplerian_toolbox/astro_constants.h"
-#include "../keplerian_toolbox/asteroid_gtoc5.h"
+#include <keplerian_toolbox/astro_constants.h>
+#include <keplerian_toolbox/planets/gtoc5.h>
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;
@@ -98,8 +98,8 @@ void gtoc5_rendezvous::compute_constraints_impl(constraint_vector &c, const deci
 	// We set the leg.
 	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x[1] + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
-	m_source.get_eph(epoch_i,r0,v0);
-	m_target.get_eph(epoch_f,rf,vf);
+	m_source.eph(epoch_i,r0,v0);
+	m_target.eph(epoch_f,rf,vf);
 	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 3, x.end(),epoch_f,sc_state(rf,vf,x[2]),ASTRO_MU_SUN);
 
 	// We evaluate the state mismatch at the mid-point. And we use astronomical units to scale them
@@ -135,8 +135,8 @@ std::string gtoc5_rendezvous::pretty(const decision_vector &x) const
 	// We set the leg.
 	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x[1] + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
-	m_source.get_eph(epoch_i,r0,v0);
-	m_target.get_eph(epoch_f,rf,vf);
+	m_source.eph(epoch_i,r0,v0);
+	m_target.eph(epoch_f,rf,vf);
 	m_leg.set_leg(epoch_i,sc_state(r0,v0,m_leg.get_spacecraft().get_mass()),x.begin() + 3, x.end(),epoch_f,sc_state(rf,vf,x[2]),ASTRO_MU_SUN);
 
 	std::ostringstream oss;

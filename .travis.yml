@@ -38,7 +38,7 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake .. -DBUILD_PYGMO="ON" -DENABLE_TESTS="ON" -DPYTHON_MODULES_DIR="~/local/python" -DCMAKE_INSTALL_PREFIX="~/local"
+  - cmake .. -DBUILD_PYGMO="ON" -DBUILD_EXAMPLES="ON" -DENABLE_TESTS="ON" -DPYTHON_MODULES_DIR="~/local/python" -DCMAKE_INSTALL_PREFIX="~/local"
   - make -j4
   - make test
   - make install

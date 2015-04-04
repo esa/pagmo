@@ -28,7 +28,6 @@
 #include <string>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include "../src/keplerian_toolbox/keplerian_toolbox.h"
 #include "../src/pagmo.h"
 
 
@@ -41,7 +40,6 @@ CPU TIME: each optimization open 20 threads. The example completes in minutes.
 */
 
 using namespace pagmo;
-using namespace kep_toolbox;
 
 double mean(archipelago a) {
 	double retval = 0;

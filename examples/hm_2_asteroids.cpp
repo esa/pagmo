@@ -29,7 +29,7 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 
-#include "../src/keplerian_toolbox/keplerian_toolbox.h"
+#include <keplerian_toolbox/keplerian_toolbox.h>
 #ifdef PAGMO_ENABLE_NLOPT
 	#include"../src/algorithm/nlopt_sbplx.h"
 #else
@@ -102,10 +102,10 @@ int main()
 	while(!mpcorbfile.eof()) {
 		try {
 			std::getline(mpcorbfile,line);
-			planet_mpcorb target(line);
+			planets::mpcorb target(line);
 
 			//Pruning based on the asteroid elements
-			array6D elem = target.get_elements(kep_toolbox::epoch(0,kep_toolbox::epoch::MJD2000));
+			array6D elem = target.get_elements();
 			if (elem[0] / ASTRO_AU < 1.8) {
 
 				//build the problem

@@ -37,9 +37,9 @@
 #include "../types.h"
 #include "base.h"
 #include "gtoc5_launch.h"
-#include "../keplerian_toolbox/sims_flanagan/codings.h"
-#include "../keplerian_toolbox/astro_constants.h"
-#include "../keplerian_toolbox/asteroid_gtoc5.h"
+#include <keplerian_toolbox/sims_flanagan/codings.h>
+#include <keplerian_toolbox/astro_constants.h>
+#include <keplerian_toolbox/planets/gtoc5.h>
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;
@@ -111,8 +111,8 @@ void gtoc5_launch::compute_constraints_impl(constraint_vector &c, const decision
 	// 1 - We set the leg.
 	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x[1] + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
-	m_earth.get_eph(epoch_i,r0,v0);
-	m_target.get_eph(epoch_f,rf,vf);
+	m_earth.eph(epoch_i,r0,v0);
+	m_target.eph(epoch_f,rf,vf);
 
 	v0[0] += x[3];
 	v0[1] += x[4];
@@ -153,8 +153,8 @@ std::string gtoc5_launch::pretty(const decision_vector &x) const
 	// 1 - We set the leg.
 	const epoch epoch_i(x[0],epoch::MJD), epoch_f(x[1] + x[0],epoch::MJD);
 	array3D v0, r0, vf, rf;
-	m_earth.get_eph(epoch_i,r0,v0);
-	m_target.get_eph(epoch_f,rf,vf);
+	m_earth.eph(epoch_i,r0,v0);
+	m_target.eph(epoch_f,rf,vf);
 
 	v0[0] += x[2];
 	v0[1] += x[3];
