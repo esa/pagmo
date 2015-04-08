@@ -30,8 +30,6 @@
 #include "../serialization.h"
 #include "../types.h"
 #include "base.h"
-#include "snopt_cpp_wrapper/snopt_PAGMO.h"
-#include "snopt_cpp_wrapper/snfilewrapper_PAGMO.h"
 
 namespace pagmo { namespace algorithm {
 
