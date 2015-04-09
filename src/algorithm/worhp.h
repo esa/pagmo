@@ -34,10 +34,9 @@
 #include "base.h"
 
 
-
 namespace pagmo { 
 
-// FOrward declaration
+// Forward declaration
 class population;
 
 namespace algorithm {
@@ -58,7 +57,7 @@ protected:
 	std::string human_readable_extra() const;
 
 private:
-    void define_param_map();
+    void define_param_map() ;
 
 	friend class boost::serialization::access;
 	template <class Archive>
