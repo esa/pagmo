@@ -77,8 +77,8 @@ pso::pso(int gen, double omega, double eta1, double eta2, double vcoeff, int var
 		pagmo_throw(value_error,"algorithm variant must be one of 1 ... 6");
 	}
 
-	if (neighb_type < 1 || neighb_type > 4) {
-		pagmo_throw(value_error,"swarm topology variant must be one of 1 ... 4");
+	if (neighb_type < 1 || neighb_type > 5) {
+		pagmo_throw(value_error,"swarm topology variant must be one of 1 ... 5");
 	}
 	// And neighb param???
 }
