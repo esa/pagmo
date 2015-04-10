@@ -526,18 +526,17 @@ def _pop_plot_pareto_fronts(
 
     for id_f, f in enumerate(p_list):
         for ind in f:
-            ax = plt.plot([pop[ind].cur_f[comp[0]]],
-                          [pop[ind].cur_f[comp[1]]],
-                          symbol,
-                          color=cl[id_f],
-                          markersize=size)
+            plt.plot([pop[ind].cur_f[comp[0]]],
+                     [pop[ind].cur_f[comp[1]]],
+                     symbol,
+                     color=cl[id_f], markersize=size)
         x = [pop[ind].cur_f[comp[0]] for ind in f]
         y = [pop[ind].cur_f[comp[1]] for ind in f]
         tmp = [(a, b) for a, b in zip(x, y)]
         tmp = sorted(tmp, key=lambda k: k[0])
         plt.step([c[0] for c in tmp], [c[1]
                  for c in tmp], color=cl[id_f], where='post')
-    return ax
+    return plt.gca()
 
 population.plot_pareto_fronts = _pop_plot_pareto_fronts
 
