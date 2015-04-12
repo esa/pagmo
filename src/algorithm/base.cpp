@@ -68,18 +68,34 @@ void base::set_screen_output(const bool p) {m_screen_output = p;}
 
 /// Gets screen output
 /**
- * Gets screen output boolean variable. When True the algorithm may print stuff on screen 
+ * Gets screen output boolean variable. When True the algorithm may print stuff on screen
  * (careful, in multithreading this can mess up things)
  *
  * return boolean value associated to the screen output option
  */
 bool base::get_screen_output() const {return m_screen_output;}
 
+/// Sets ignore integer part
+/**
+ * Sets ignore integer part boolean variable. When True the algorithm won't touch the integer part of the decision vector.
+ *
+ * @param[in] p true or false
+ */
+void base::set_ignore_integer_part(const bool p) {m_ignore_integer_part = p;}
+
+/// Gets ignore integer part
+/**
+ * Gets ignore integer part boolean variable. When True the algorithm won't touch the integer part of the decision vector.
+ *
+ * return boolean value associated to the ignore integer part option
+ */
+bool base::get_ignore_integer_part() const {return m_ignore_integer_part;}
+
 /// Resets the random number generators
 /**
  * Resets the seed of the internal random number generators to p
  *
- * @param[in] p the new seed. It will be used to instantiate both drng and urng 
+ * @param[in] p the new seed. It will be used to instantiate both drng and urng
  */
 void base::reset_rngs(const unsigned int p) const {
 	m_urng = rng_uint32(p);

@@ -56,7 +56,7 @@ typedef boost::shared_ptr<base> base_ptr;
  *
  * \section Serialization
  * The algorithm classes are serialized for the purpose of being transmitted over a distributed environment.
- * Serializing a derived algorithm requires that the needed serialization libraries be declared in their header of the derived class. 
+ * Serializing a derived algorithm requires that the needed serialization libraries be declared in their header of the derived class.
  * Virtually all the derived algorithm classes need to have the following declared in the header files:
 @verbatim
 	friend class boost::serialization::access;
@@ -66,20 +66,20 @@ typedef boost::shared_ptr<base> base_ptr;
 @verbatim
 	ar & boost::serialization::base_object<base>(*this);
 @endverbatim
- * and the rest of the attributes simply as archive members: 
+ * and the rest of the attributes simply as archive members:
 @verbatim
 	ar & attribute_name;
 @endverbatim
  * In order to be able to identify the dervied class from a base_pointer the derived class needs to be registered. This is done by registering the class in the "pagmo/src/algorithms.h", in the REGISTER_ALGORITHM_SERIALIZATIONS() routine.
- * Notes: 
+ * Notes:
  * - "const" attributes need to be cast as constants in the serialize method using const_cast
  * - attributes that that are not primitives, need be a serialized type as well
  * - pointers to primitives cannot be serialized (in this case one can split the serialize method into save/load methods and store the values, that the pointers refer to, into temporary variables which are serialized insted - see boost serialize documentation on the topic if needed)
  *
- * @author Francesco Biscani (bluescarni@gmail.com) 
+ * @author Francesco Biscani (bluescarni@gmail.com)
  */
 class __PAGMO_VISIBLE base
-{    
+{
 	public:
 		base();
 		/// Evolve method.
@@ -108,12 +108,18 @@ return base_ptr(new derived_algorithm(*this));
 		void set_screen_output(const bool p);
 		bool get_screen_output() const;
 
+		/// Setter-Getter for protected m_ignore_integer_part
+		void set_ignore_integer_part(bool);
+		bool get_ignore_integer_part() const;
+
 		/// Resets the seed of the internal rngs using a user-provided seed
 		void reset_rngs(const unsigned int) const;
 
 	protected:
 		/// Indicates to the derived class whether to print stuff on screen
 		bool m_screen_output;
+		/// Should the integer part of the decision vector be ignored
+		bool m_ignore_integer_part = false;
 		/// Random number generator for double-precision floating point values.
 		mutable rng_double	m_drng;
 		/// Random number generator for unsigned integer values.
@@ -121,11 +127,14 @@ return base_ptr(new derived_algorithm(*this));
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>
-		void serialize(Archive &ar, const unsigned int)
+		void serialize(Archive &ar, const unsigned int version)
 		{
 			ar & m_drng;
-			ar & m_urng; 
+			ar & m_urng;
 			ar & m_screen_output;
+			if (version > 0) {
+				ar & m_ignore_integer_part;
+			}
 		}
 	protected:
 		/// A counter for the number of function evaluations
@@ -137,6 +146,7 @@ std::ostream __PAGMO_VISIBLE_FUNC &operator<<(std::ostream &, const base &);
 }
 }
 
+BOOST_CLASS_VERSION(pagmo::algorithm::base, 1)
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(pagmo::algorithm::base)
 
 #endif

@@ -26,7 +26,7 @@
 namespace pagmo { namespace algorithm {
 
 // Dummy print function used to suppress all screen output
-void no_screen_output (int, const char []) {} 
+void no_screen_output (int, const char []) {}
 void default_output(int mode, const char *message) {
   if (mode & WORHP_PRINT_MESSAGE) {
     printf(" %s\n",message);
@@ -90,7 +90,7 @@ void worhp::evolve(pagmo::population& pop) const {
 
 	const auto& prob = pop.problem();
 
-	if (prob.get_i_dimension() != 0) {
+	if (prob.get_i_dimension() != 0 && !m_ignore_integer_part) {
 		pagmo_throw(value_error,
 		            "The problem has an integer part and WORHP is not suitable to solve it.");
 	}
@@ -118,7 +118,7 @@ void worhp::evolve(pagmo::population& pop) const {
 	workspace.initialised = false;
 
 
-	opt.n = prob.get_dimension(); // number of variables
+	opt.n = prob.get_dimension() - prob.get_i_dimension(); // number of variables
 	opt.m = prob.get_c_dimension(); // number of constraints
 	auto n_eq = prob.get_c_dimension() - prob.get_ic_dimension(); // number of equality constraints
 
@@ -166,7 +166,7 @@ void worhp::evolve(pagmo::population& pop) const {
 	// Define HM as a diagonal LT-CS-matrix, but only if needed by WORHP
 	// Not sure if this is needed at all
 	if (workspace.HM.NeedStructure) {
-		for(int i = 0; i < workspace.HM.nnz; ++i) 
+		for(int i = 0; i < workspace.HM.nnz; ++i)
 		{
 			workspace.HM.row[i] = i + 1;
 			workspace.HM.col[i] = i + 1;
@@ -178,13 +178,13 @@ void worhp::evolve(pagmo::population& pop) const {
 			Worhp(&opt, &workspace, &params, &control);
 		}
 
-		if (GetUserAction(&control, iterOutput)) 
+		if (GetUserAction(&control, iterOutput))
 		{
 			IterationOutput(&opt, &workspace, &params, &control);
 			DoneUserAction(&control, iterOutput);
 		}
 
-		
+
 		if (GetUserAction(&control, evalF)) {
 			for (int i = 0; i < opt.n; ++i) {
 				x[i] = opt.X[i];
