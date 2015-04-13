@@ -45,7 +45,7 @@
 #include "python_base_stochastic.h"
 
 #ifdef PAGMO_ENABLE_KEP_TOOLBOX
-		#include <keplerian_toolbox/planets/base.h>
+		#include <keplerian_toolbox/planet/base.h>
 		#include "../../src/problem/tsp_ds.h"
 #endif
 

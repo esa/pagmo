@@ -27,8 +27,8 @@
 
 #include <vector>
 #include <string>
-#include <keplerian_toolbox/planets/base.h>
-#include <keplerian_toolbox/planets/jpl_low_precision.h>
+#include <keplerian_toolbox/planet/base.h>
+#include <keplerian_toolbox/planet/jpl_low_precision.h>
 #include <keplerian_toolbox/astro_constants.h>
 
 #include "../types.h"
@@ -60,7 +60,7 @@ class __PAGMO_VISIBLE tsp_ds: public base_tsp
 
         /// Constructor
         tsp_ds(
-            const std::vector<kep_toolbox::planets::planet_ptr>& planets = {kep_toolbox::planets::jpl_lp("venus").clone(), kep_toolbox::planets::jpl_lp("earth").clone(), kep_toolbox::planets::jpl_lp("mars").clone()}, 
+            const std::vector<kep_toolbox::planet::planet_ptr>& planets = {kep_toolbox::planet::jpl_lp("venus").clone(), kep_toolbox::planet::jpl_lp("earth").clone(), kep_toolbox::planet::jpl_lp("mars").clone()}, 
             const std::vector<double>& values = {1.,1.,1.},
             const double max_DV = 30000, 
             const std::vector<double>&  epochs = {1200, 1550, 1940}, 
@@ -75,7 +75,7 @@ class __PAGMO_VISIBLE tsp_ds: public base_tsp
 
         /** @name Getters*/
         //@{
-        const std::vector<kep_toolbox::planets::planet_ptr>& get_planets() const;
+        const std::vector<kep_toolbox::planet::planet_ptr>& get_planets() const;
         const std::vector<double>& get_values() const;
         double get_max_DV() const;
         const decision_vector& get_epochs() const;
@@ -106,7 +106,7 @@ class __PAGMO_VISIBLE tsp_ds: public base_tsp
         void serialize(Archive &ar, const unsigned int)
         {
             ar & boost::serialization::base_object<base_tsp>(*this);
-            ar & const_cast<std::vector<kep_toolbox::planets::planet_ptr> &>(m_planets);
+            ar & const_cast<std::vector<kep_toolbox::planet::planet_ptr> &>(m_planets);
             ar & const_cast<std::vector<double> &>(m_values);
             ar & const_cast<double &>(m_max_DV);
             ar & const_cast<std::vector<double> &>(m_epochs);
@@ -114,7 +114,7 @@ class __PAGMO_VISIBLE tsp_ds: public base_tsp
         }
 
     private:
-        const std::vector<kep_toolbox::planets::planet_ptr> m_planets;
+        const std::vector<kep_toolbox::planet::planet_ptr> m_planets;
         const std::vector<double> m_values;
         const double m_max_DV;
         const decision_vector m_epochs;

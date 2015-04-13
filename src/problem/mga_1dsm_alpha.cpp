@@ -55,7 +55,7 @@ namespace pagmo { namespace problem {
  * 
  * @throws value_error if the planets in seq do not all have the same central body gravitational constant
  */
-mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planets::planet_ptr> seq, 
+mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planet::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
 			 const double tof_l, const double tof_u, 
 			 const double vinf_l, const double vinf_u, 
@@ -64,14 +64,14 @@ mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planets::planet_pt
 {
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
 		mus[i] = seq[i]->get_mu_central_body();
 	}
 	if ((unsigned int)std::count(mus.begin(), mus.end(), mus[0]) != mus.size()) {
 		pagmo_throw(value_error,"The planets do not all have the same mu_central_body");  
 	}
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < seq.size(); ++i) {
 		m_seq.push_back(seq[i]->clone());
 	}
 	
@@ -88,7 +88,7 @@ mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planets::planet_pt
 	lb[6] = 1e-5; ub[6] = 1-1e-5;
 	
 	// Successive legs
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < m_n_legs - 1; ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < m_n_legs - 1; ++i) {
 		lb[7+4*i] = - 2 * boost::math::constants::pi<double>();    ub[7+4*i] = 2 * boost::math::constants::pi<double>();
 		lb[8+4*i] = 1.1;  ub[8+4*i] = 100;
 		lb[9+4*i] = 1e-5; ub[9+4*i] = 1-1e-5;
@@ -96,7 +96,7 @@ mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planets::planet_pt
 	}
 	
 	// Adjusting the minimum allowed fly-by rp to the one defined in the kep_toolbox::planet class
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 1; i < m_n_legs; ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 1; i < m_n_legs; ++i) {
 		lb[4 + 4*i] = m_seq[i]->get_safe_radius() / m_seq[i]->get_radius();
 	}
 	set_bounds(lb,ub);
@@ -105,7 +105,7 @@ mga_1dsm_alpha::mga_1dsm_alpha(const std::vector<kep_toolbox::planets::planet_pt
 /// Copy Constructor. Performs a deep copy
 mga_1dsm_alpha::mga_1dsm_alpha(const mga_1dsm_alpha &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_seq(), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr) 
 {
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
 	}
 	set_bounds(p.get_lb(),p.get_ub());
@@ -371,7 +371,7 @@ std::vector<double> mga_1dsm_alpha::get_tof() const {
 /**
  * @return An std::vector containing the kep_toolbox::planets
  */
-std::vector<kep_toolbox::planets::planet_ptr> mga_1dsm_alpha::get_sequence() const {
+std::vector<kep_toolbox::planet::planet_ptr> mga_1dsm_alpha::get_sequence() const {
 	return m_seq;
 }
 

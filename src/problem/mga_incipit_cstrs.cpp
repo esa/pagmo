@@ -54,7 +54,7 @@ namespace pagmo { namespace problem {
  * @throws value_error if tof has a size different from seq.size()
  */
 mga_incipit_cstrs::mga_incipit_cstrs(
-			 const std::vector<kep_toolbox::planets::planet_ptr> seq,
+			 const std::vector<kep_toolbox::planet::planet_ptr> seq,
 			 const kep_toolbox::epoch t0_l,
 			 const kep_toolbox::epoch t0_u,
 			 const std::vector<std::vector<double> > tof,
@@ -63,7 +63,7 @@ mga_incipit_cstrs::mga_incipit_cstrs(
 {
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
 		mus[i] = seq[i]->get_mu_central_body();
 	}
 	if ((unsigned int)std::count(mus.begin(), mus.end(), mus[0]) != mus.size()) {
@@ -78,7 +78,7 @@ mga_incipit_cstrs::mga_incipit_cstrs(
 	}
 	
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < seq.size(); ++i) {
 		m_seq.push_back(seq[i]->clone());
 	}
 	
@@ -92,7 +92,7 @@ mga_incipit_cstrs::mga_incipit_cstrs(
 	lb[3] = m_tof[0][0]; ub[3] = m_tof[0][1];
 	
 	// Successive legs
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 1; i < m_tof.size(); ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 1; i < m_tof.size(); ++i) {
 		lb[4*i] = - 2 * boost::math::constants::pi<double>();    ub[4*i] = 2 * boost::math::constants::pi<double>();
 		lb[4*i+1] = 1.1;  ub[4*i+1] = 30;
 		lb[4*i+2] = 1e-5; ub[4*i+2] = 1-1e-5;
@@ -100,7 +100,7 @@ mga_incipit_cstrs::mga_incipit_cstrs(
 	}
 	
 	// Adjusting the minimum and maximum allowed fly-by rp to the one defined in the kep_toolbox::planet class
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < m_tof.size()-1; ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < m_tof.size()-1; ++i) {
 		lb[4*i+5] = m_seq[i]->get_safe_radius() / m_seq[i]->get_radius();
 		ub[4*i+5] = (m_seq[i]->get_radius() + 2000000) / m_seq[i]->get_radius(); //from gtoc6 problem description
 	}
@@ -114,7 +114,7 @@ mga_incipit_cstrs::mga_incipit_cstrs(const mga_incipit_cstrs &p) :
 	 m_tmax(p.m_tmax),
 	 m_dmin(p.m_dmin)
 {
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
 	}
 	set_bounds(p.get_lb(),p.get_ub());
@@ -412,7 +412,7 @@ void mga_incipit_cstrs::set_tof(const std::vector<std::vector<double> >& tof) {
 /**
  * @return An std::vector containing the kep_toolbox::planets
  */
-std::vector<kep_toolbox::planets::planet_ptr> mga_incipit_cstrs::get_sequence() const {
+std::vector<kep_toolbox::planet::planet_ptr> mga_incipit_cstrs::get_sequence() const {
 	return m_seq;
 }
 

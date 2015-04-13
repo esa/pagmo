@@ -48,7 +48,7 @@ namespace pagmo { namespace problem {
      * @param[in] encoding        a pagmo::problem::tsp::encoding representing the chosen encoding
      */
     tsp_ds::tsp_ds (            
-        const std::vector<kep_toolbox::planets::planet_ptr>& planets, 
+        const std::vector<kep_toolbox::planet::planet_ptr>& planets, 
         const std::vector<double>& values,
         const double max_DV, 
         const std::vector<double>&  epochs, 
@@ -460,7 +460,7 @@ EndOfLoop:
     /**
      * @return const reference to m_planets
      */
-    const std::vector<kep_toolbox::planets::planet_ptr>& tsp_ds::get_planets() const
+    const std::vector<kep_toolbox::planet::planet_ptr>& tsp_ds::get_planets() const
     { 
         return m_planets; 
     }

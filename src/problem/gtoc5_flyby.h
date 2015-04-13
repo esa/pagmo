@@ -68,9 +68,9 @@ class __PAGMO_VISIBLE gtoc5_flyby: public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_n_segments;
-			ar & const_cast<kep_toolbox::planets::gtoc5 &>(m_source);
-			ar & const_cast<kep_toolbox::planets::gtoc5 &>(m_flyby);
-			ar & const_cast<kep_toolbox::planets::gtoc5 &>(m_target);
+			ar & const_cast<kep_toolbox::planet::gtoc5 &>(m_source);
+			ar & const_cast<kep_toolbox::planet::gtoc5 &>(m_flyby);
+			ar & const_cast<kep_toolbox::planet::gtoc5 &>(m_target);
 			ar & const_cast<double &>(m_lb_epoch);
 			ar & const_cast<double &>(m_initial_mass);
 			ar & const_cast<objective &>(m_obj);
@@ -78,9 +78,9 @@ class __PAGMO_VISIBLE gtoc5_flyby: public base
 			ar & m_leg2;
 		}
 		int                                     m_n_segments;
-		const kep_toolbox::planets::gtoc5       m_source;
-		const kep_toolbox::planets::gtoc5       m_flyby;
-		const kep_toolbox::planets::gtoc5       m_target;
+		const kep_toolbox::planet::gtoc5       m_source;
+		const kep_toolbox::planet::gtoc5       m_flyby;
+		const kep_toolbox::planet::gtoc5       m_target;
 		const double                            m_lb_epoch;
 		const double                            m_initial_mass;
 		const objective                         m_obj;

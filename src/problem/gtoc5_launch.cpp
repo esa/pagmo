@@ -39,7 +39,7 @@
 #include "gtoc5_launch.h"
 #include <keplerian_toolbox/sims_flanagan/codings.h>
 #include <keplerian_toolbox/astro_constants.h>
-#include <keplerian_toolbox/planets/gtoc5.h>
+#include <keplerian_toolbox/planet/gtoc5.h>
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;

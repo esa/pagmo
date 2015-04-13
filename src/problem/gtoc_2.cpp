@@ -64,11 +64,11 @@ gtoc_2::gtoc_2(int ast1, int ast2, int ast3, int ast4, int n_seg, objective obj)
 	if (n_seg <= 0) {
 		pagmo_throw(value_error,"invalid number of segments");
 	}
-	m_asteroids.push_back(planets::gtoc2(910));
-	m_asteroids.push_back(planets::gtoc2(ast1));
-	m_asteroids.push_back(planets::gtoc2(ast2));
-	m_asteroids.push_back(planets::gtoc2(ast3));
-	m_asteroids.push_back(planets::gtoc2(ast4));
+	m_asteroids.push_back(planet::gtoc2(910));
+	m_asteroids.push_back(planet::gtoc2(ast1));
+	m_asteroids.push_back(planet::gtoc2(ast2));
+	m_asteroids.push_back(planet::gtoc2(ast3));
+	m_asteroids.push_back(planet::gtoc2(ast4));
 	// Build legs.
 	for (int i = 0; i < 4; ++i) {
 		m_legs.push_back(leg());

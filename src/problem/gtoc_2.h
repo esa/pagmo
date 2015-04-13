@@ -28,7 +28,7 @@
 #include <vector>
 #include <string>
 #include <keplerian_toolbox/epoch.h>
-#include <keplerian_toolbox/planets/gtoc2.h>
+#include <keplerian_toolbox/planet/gtoc2.h>
 #include <keplerian_toolbox/sims_flanagan/leg.h>
 #include <keplerian_toolbox/sims_flanagan/spacecraft.h>
 #include <keplerian_toolbox/sims_flanagan/throttle.h>
@@ -89,7 +89,7 @@ class __PAGMO_VISIBLE gtoc_2: public base
 			ar & m_obj;
 		}
 		const int												m_n_seg;
-		std::vector<kep_toolbox::planets::gtoc2>				m_asteroids;
+		std::vector<kep_toolbox::planet::gtoc2>				m_asteroids;
 		mutable std::vector< kep_toolbox::sims_flanagan::leg>	m_legs;
 		const kep_toolbox::sims_flanagan::spacecraft			m_spacecraft;
 		objective												m_obj;

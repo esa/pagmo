@@ -102,7 +102,7 @@ int main()
 	while(!mpcorbfile.eof()) {
 		try {
 			std::getline(mpcorbfile,line);
-			planets::mpcorb target(line);
+			planet::mpcorb target(line);
 
 			//Pruning based on the asteroid elements
 			array6D elem = target.get_elements();

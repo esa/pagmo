@@ -40,7 +40,7 @@ namespace pagmo { namespace problem {
 
 mga_target_event::mga_target_event(
 				 const kep_toolbox::plantes::planet_ptr start,
-				 const kep_toolbox::planets::planet_ptr end,
+				 const kep_toolbox::planet::planet_ptr end,
 				 const kep_toolbox::epoch t_end,
 				 double T_max,
 				 bool discount_launcher

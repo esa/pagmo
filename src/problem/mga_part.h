@@ -26,7 +26,7 @@
 #define PAGMO_PROBLEM_MGA_PART_H
 
 #include <string>
-#include <keplerian_toolbox/planets/gtoc6.h>
+#include <keplerian_toolbox/planet/gtoc6.h>
 #include <keplerian_toolbox/astro_constants.h>
 #include <keplerian_toolbox/epoch.h>
 
@@ -52,7 +52,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE mga_part: public base
 {
 	public:
-		mga_part(const std::vector<kep_toolbox::planets::planet_ptr> = construct_default_sequence(), 
+		mga_part(const std::vector<kep_toolbox::planet::planet_ptr> = construct_default_sequence(), 
 			 const std::vector<std::vector<double> > tof = construct_default_tofs(),
 			 const kep_toolbox::epoch t0 = kep_toolbox::epoch(11000),
 			 const kep_toolbox::array3D vinf_in = construct_default_v()
@@ -73,16 +73,16 @@ class __PAGMO_VISIBLE mga_part: public base
 		std::vector<std::vector<double> > get_betas() const;
 		void set_rps(const std::vector<std::vector<double> >&);
 		std::vector<std::vector<double> > get_rps() const;
-		std::vector<kep_toolbox::planets::planet_ptr> get_sequence() const;
+		std::vector<kep_toolbox::planet::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
 	private:
-		static const std::vector<kep_toolbox::planets::planet_ptr> construct_default_sequence() {
-			std::vector<kep_toolbox::planets::planet_ptr> retval;
-			retval.push_back(kep_toolbox::planets::gtoc6("europa").clone());
-			retval.push_back(kep_toolbox::planets::gtoc6("europa").clone());
-			retval.push_back(kep_toolbox::planets::gtoc6("europa").clone());
+		static const std::vector<kep_toolbox::planet::planet_ptr> construct_default_sequence() {
+			std::vector<kep_toolbox::planet::planet_ptr> retval;
+			retval.push_back(kep_toolbox::planet::gtoc6("europa").clone());
+			retval.push_back(kep_toolbox::planet::gtoc6("europa").clone());
+			retval.push_back(kep_toolbox::planet::gtoc6("europa").clone());
 			return retval;
 		}
 		static const kep_toolbox::array3D construct_default_v() {
@@ -109,7 +109,7 @@ class __PAGMO_VISIBLE mga_part: public base
 			ar & m_t0;
 			ar & m_vinf_in;
 		}
-		std::vector<kep_toolbox::planets::planet_ptr> 		m_seq;
+		std::vector<kep_toolbox::planet::planet_ptr> 		m_seq;
 		std::vector<std::vector<double> > 					m_tof;
 		kep_toolbox::epoch									m_t0;
 		kep_toolbox::array3D								m_vinf_in;

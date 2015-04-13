@@ -31,7 +31,7 @@
 #include <stdexcept>
 #include <vector>
 #include <keplerian_toolbox/sims_flanagan/codings.h>
-#include <keplerian_toolbox/planets/jpl_low_precision.h>
+#include <keplerian_toolbox/planet/jpl_low_precision.h>
 
 #include "../exceptions.h"
 #include "../types.h"

@@ -38,7 +38,7 @@
 #include "base.h"
 #include "gtoc5_flyby.h"
 #include <keplerian_toolbox/astro_constants.h>
-#include <keplerian_toolbox/planets/gtoc5.h>
+#include <keplerian_toolbox/planet/gtoc5.h>
 
 using namespace kep_toolbox;
 using namespace kep_toolbox::sims_flanagan;

@@ -55,7 +55,7 @@ namespace pagmo { namespace problem {
  * 
  * @throws value_error if the planets in seq do not all have the same central body gravitational constant and if the tof dimension is not compatible with the sequence length
  */
-mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planets::planet_ptr> seq, 
+mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planet::planet_ptr> seq, 
 			 const kep_toolbox::epoch t0_l, const kep_toolbox::epoch t0_u,
 			 const std::vector<boost::array<double,2> > tof, 
 			 const double vinf_l, const double vinf_u, 
@@ -64,7 +64,7 @@ mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planets::planet_ptr> s
 {	
 	// We check that all planets have equal central body
 	std::vector<double> mus(seq.size());
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i< seq.size(); ++i) {
 		mus[i] = seq[i]->get_mu_central_body();
 	}
 	if ((unsigned int)std::count(mus.begin(), mus.end(), mus[0]) != mus.size()) {
@@ -76,7 +76,7 @@ mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planets::planet_ptr> s
 	}
 	
 	// Filling in the planetary sequence data member. This requires to construct the polymorphic planets via their clone method 
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < seq.size(); ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < seq.size(); ++i) {
 		m_seq.push_back(seq[i]->clone());
 	}
 	// Now setting the problem bounds
@@ -92,14 +92,14 @@ mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planets::planet_ptr> s
 	lb[5] = tof[0][0]; ub[5] = tof[0][1];
 
 	// Successive legs
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < m_n_legs - 1; ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < m_n_legs - 1; ++i) {
 		lb[6+4*i] = - 2 * boost::math::constants::pi<double>();    ub[6+4*i] = 2 * boost::math::constants::pi<double>();
 		lb[7+4*i] = 1.1;  ub[7+4*i] = 100;
 		lb[8+4*i] = 1e-5; ub[8+4*i] = 1-1e-5;
 		lb[9+4*i] = tof[i+1][0]; ub[9+4*i] = tof[i+1][1];
 	}
 	// Adjusting the minimum allowed fly-by rp to the one defined in the kep_toolbox::planet class
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 1; i < m_n_legs; ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 1; i < m_n_legs; ++i) {
 		lb[3 + 4*i] = m_seq[i]->get_safe_radius() / m_seq[i]->get_radius();
 	}
 
@@ -110,7 +110,7 @@ mga_1dsm_tof::mga_1dsm_tof(const std::vector<kep_toolbox::planets::planet_ptr> s
 /// Copy Constructor. Performs a deep copy
 mga_1dsm_tof::mga_1dsm_tof(const mga_1dsm_tof &p) : base(p.get_dimension(), 0, p.get_f_dimension(),0,0,0.0), m_seq(), m_n_legs(p.m_n_legs), m_add_vinf_dep(p.m_add_vinf_dep), m_add_vinf_arr(p.m_add_vinf_arr)
 {
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < p.m_seq.size();++i) {
 		m_seq.push_back(p.m_seq[i]->clone());
 	}
 	set_bounds(p.get_lb(),p.get_ub());
@@ -342,7 +342,7 @@ void mga_1dsm_tof::set_tof(const std::vector<boost::array<double,2> > tof) {
 		pagmo_throw(value_error,"The size of the time of flight is inconsistent");  
 	}
 	// setting bounds
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < m_n_legs; ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < m_n_legs; ++i) {
 		set_bounds(5 + i*4,tof[i][0],tof[i][1]);
 	}
 }
@@ -377,7 +377,7 @@ std::vector<std::vector<double> > mga_1dsm_tof::get_tof() const {
 	std::vector<double> tmp;
 	const decision_vector lb = get_lb();
 	const decision_vector ub = get_ub();
-	for (std::vector<kep_toolbox::planets::planet_ptr>::size_type i = 0; i < m_n_legs; ++i) {
+	for (std::vector<kep_toolbox::planet::planet_ptr>::size_type i = 0; i < m_n_legs; ++i) {
 		tmp.push_back(lb[5+(i*4)]);
 		tmp.push_back(ub[5+(i*4)]);
 		retval.push_back(tmp);
@@ -390,7 +390,7 @@ std::vector<std::vector<double> > mga_1dsm_tof::get_tof() const {
 /**
  * @return An std::vector containing the kep_toolbox::planets
  */
-std::vector<kep_toolbox::planets::planet_ptr> mga_1dsm_tof::get_sequence() const {
+std::vector<kep_toolbox::planet::planet_ptr> mga_1dsm_tof::get_sequence() const {
 	return m_seq;
 }
 

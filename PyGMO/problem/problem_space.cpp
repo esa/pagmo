@@ -44,7 +44,7 @@
 #include "python_base.h"
 #include "python_base_stochastic.h"
 
-#include <keplerian_toolbox/planets/base.h>
+#include <keplerian_toolbox/planet/base.h>
 #include "../../src/problem/tsp_ds.h"
 
 
@@ -191,7 +191,7 @@ BOOST_PYTHON_MODULE(_problem_space) {
 		.def("pretty", &problem::tandem::pretty);
 
 	problem_wrapper<problem::mga_1dsm_alpha>("mga_1dsm_alpha", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
-		.def(init< optional<std::vector<kep_toolbox::planets::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool, bool> >())
+		.def(init< optional<std::vector<kep_toolbox::planet::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, double, double, double, double, bool, bool, bool> >())
 		.def("pretty", &problem::mga_1dsm_alpha::pretty)
 		.def("set_tof", &problem::mga_1dsm_alpha::set_tof)
 		.def("get_tof", &problem::mga_1dsm_alpha::get_tof)
@@ -200,7 +200,7 @@ BOOST_PYTHON_MODULE(_problem_space) {
 		.def("get_sequence", &problem::mga_1dsm_alpha::get_sequence);
 
 	problem_wrapper<problem::mga_1dsm_tof>("mga_1dsm_tof", "A Multiple Gravity Assist with 1 Deep Space Manouvre problem")
-		.def(init< optional<std::vector<kep_toolbox::planets::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<boost::array<double,2> >, double, double, bool, bool, bool> >())
+		.def(init< optional<std::vector<kep_toolbox::planet::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<boost::array<double,2> >, double, double, bool, bool, bool> >())
 		.def("pretty", &problem::mga_1dsm_tof::pretty, (arg("x"),arg("extended_output") = false))
 		.def("set_tof", &problem::mga_1dsm_tof::set_tof)
 		.def("get_tof", &problem::mga_1dsm_tof::get_tof)
@@ -209,19 +209,19 @@ BOOST_PYTHON_MODULE(_problem_space) {
 		.def("get_sequence", &problem::mga_1dsm_tof::get_sequence);
 		
 	problem_wrapper<problem::mga_incipit>("mga_incipit", "Jupiter capture problem from the first part of gtoc6")
-		.def(init< optional< std::vector<kep_toolbox::planets::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > > >())
+		.def(init< optional< std::vector<kep_toolbox::planet::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> > > >())
 		.def("pretty", &problem::mga_incipit::pretty)
 		.def("get_sequence", &problem::mga_incipit::get_sequence)
 		.add_property("tof",make_function(&problem::mga_incipit::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_incipit::set_tof,"bound on the times of flight for the different legs");
 
 	problem_wrapper<problem::mga_incipit_cstrs>("mga_incipit_cstrs", "Jupiter capture problem from the first part of gtoc6 (constrained version)")
-		.def(init< optional< std::vector<kep_toolbox::planets::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> >, const double, const double > >())
+		.def(init< optional< std::vector<kep_toolbox::planet::planet_ptr>, kep_toolbox::epoch, kep_toolbox::epoch, std::vector<std::vector<double> >, const double, const double > >())
 		.def("pretty", &problem::mga_incipit_cstrs::pretty)
 		.def("get_sequence", &problem::mga_incipit_cstrs::get_sequence)
 		.add_property("tof",make_function(&problem::mga_incipit_cstrs::get_tof, return_value_policy<copy_const_reference>()), &problem::mga_incipit_cstrs::set_tof,"bound on the times of flight for the different legs");
 
 	problem_wrapper<problem::mga_part>("mga_part", "A part of the Jupiter moon tour from gtoc6")
-		.def(init< optional <std::vector<kep_toolbox::planets::planet_ptr>, std::vector<std::vector<double> >, kep_toolbox::epoch, kep_toolbox::array3D > >())
+		.def(init< optional <std::vector<kep_toolbox::planet::planet_ptr>, std::vector<std::vector<double> >, kep_toolbox::epoch, kep_toolbox::array3D > >())
 		.def("pretty", &problem::mga_part::pretty)
 		.def("get_sequence", &problem::mga_part::get_sequence)
 		.add_property("vinf_in",make_function(&problem::mga_part::get_vinf_in, return_value_policy<copy_const_reference>()), &problem::mga_part::set_vinf_in,"initial incoming relative spacecraft velocity")
@@ -232,7 +232,7 @@ BOOST_PYTHON_MODULE(_problem_space) {
 
 	// Travelling salesman problem, Asteroids / Debris Selection TSP (TSP-ADS)
 	tsp_problem_wrapper<problem::tsp_ds>("tsp_ds","Debris Selection TSP (TSP-DS)")
-		.def(init<optional<const std::vector<kep_toolbox::planets::planet_ptr>&, const std::vector<double>&, const double, const std::vector<double>&, const problem::base_tsp::encoding_type & > >())
+		.def(init<optional<const std::vector<kep_toolbox::planet::planet_ptr>&, const std::vector<double>&, const double, const std::vector<double>&, const problem::base_tsp::encoding_type & > >())
 		.def("find_subsequence", &find_subsequence_wrapper_ds)
         .add_property("planets", make_function(&problem::tsp_ds::get_planets, return_value_policy<copy_const_reference>()) )
         .add_property("values", make_function(&problem::tsp_ds::get_values, return_value_policy<copy_const_reference>()) )

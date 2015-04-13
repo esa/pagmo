@@ -26,7 +26,7 @@
 #define PAGMO_PROBLEM_MGA_INCIPIT_H
 
 #include <string>
-#include <keplerian_toolbox/planets/gtoc6.h>
+#include <keplerian_toolbox/planet/gtoc6.h>
 #include <keplerian_toolbox/epoch.h>
 
 #include "../config.h"
@@ -50,7 +50,7 @@ Decision vector:
 class __PAGMO_VISIBLE mga_incipit: public base
 {
 	public:
-		mga_incipit(const std::vector<kep_toolbox::planets::planet_ptr> = construct_default_sequence(), 
+		mga_incipit(const std::vector<kep_toolbox::planet::planet_ptr> = construct_default_sequence(), 
 			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(7305.0), const kep_toolbox::epoch t0_u = kep_toolbox::epoch(11323.0),
 			 const std::vector<std::vector<double> > tof = construct_default_tofs()
 			 );
@@ -61,17 +61,17 @@ class __PAGMO_VISIBLE mga_incipit: public base
 		std::string pretty(const std::vector<double> &x) const;
 		void set_tof(const std::vector<std::vector<double> >&);
 		const std::vector<std::vector<double> >& get_tof() const;
-		std::vector<kep_toolbox::planets::planet_ptr> get_sequence() const;
+		std::vector<kep_toolbox::planet::planet_ptr> get_sequence() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
 		
 	private:
-		static const std::vector<kep_toolbox::planets::planet_ptr> construct_default_sequence() {
-			std::vector<kep_toolbox::planets::planet_ptr> retval;
-			retval.push_back(kep_toolbox::planets::gtoc6("io").clone());
-			retval.push_back(kep_toolbox::planets::gtoc6("io").clone());
-			retval.push_back(kep_toolbox::planets::gtoc6("europa").clone());
+		static const std::vector<kep_toolbox::planet::planet_ptr> construct_default_sequence() {
+			std::vector<kep_toolbox::planet::planet_ptr> retval;
+			retval.push_back(kep_toolbox::planet::gtoc6("io").clone());
+			retval.push_back(kep_toolbox::planet::gtoc6("io").clone());
+			retval.push_back(kep_toolbox::planet::gtoc6("europa").clone());
 			return retval;
 		}
 		static const std::vector<std::vector<double> > construct_default_tofs() {
@@ -94,7 +94,7 @@ class __PAGMO_VISIBLE mga_incipit: public base
 			ar & m_seq;
 			ar & m_tof;
 		}
-		std::vector<kep_toolbox::planets::planet_ptr> m_seq;
+		std::vector<kep_toolbox::planet::planet_ptr> m_seq;
 		std::vector<std::vector<double> > m_tof;
 };
 

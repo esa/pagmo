@@ -31,7 +31,7 @@
 #include "../config.h"
 #include "../serialization.h"
 #include "../types.h"
-#include <keplerian_toolbox/planets/gtoc5.h>
+#include <keplerian_toolbox/planet/gtoc5.h>
 #include <keplerian_toolbox/sims_flanagan/codings.h>
 #include <keplerian_toolbox/sims_flanagan/fb_traj.h>
 #include "base.h"
@@ -69,14 +69,14 @@ class __PAGMO_VISIBLE gtoc5_launch: public base
 		{
 			ar & boost::serialization::base_object<base>(*this);
 			ar & m_n_segments;
-			ar & const_cast<kep_toolbox::planets::gtoc5 &>(m_earth);
-			ar & const_cast<kep_toolbox::planets::gtoc5 &>(m_target);
+			ar & const_cast<kep_toolbox::planet::gtoc5 &>(m_earth);
+			ar & const_cast<kep_toolbox::planet::gtoc5 &>(m_target);
 			ar & const_cast<objective &>(m_obj);
 			ar & m_leg;
 		}
 		int 						m_n_segments;
-		const kep_toolbox::planets::gtoc5 		m_earth;
-		const kep_toolbox::planets::gtoc5 		m_target;
+		const kep_toolbox::planet::gtoc5 		m_earth;
+		const kep_toolbox::planet::gtoc5 		m_target;
 		const objective					m_obj;
 		mutable kep_toolbox::sims_flanagan::leg		m_leg;
 };

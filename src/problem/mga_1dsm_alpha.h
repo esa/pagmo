@@ -26,7 +26,7 @@
 #define PAGMO_PROBLEM_MGA_1DSM_ALPHA_H
 
 #include <string>
-#include <keplerian_toolbox/planets/jpl_low_precision.h>
+#include <keplerian_toolbox/planet/jpl_low_precision.h>
 #include <keplerian_toolbox/epoch.h>
 
 #include "../config.h"
@@ -66,7 +66,7 @@ namespace pagmo{ namespace problem {
 class __PAGMO_VISIBLE mga_1dsm_alpha: public base
 {
 	public:
-		mga_1dsm_alpha(const std::vector<kep_toolbox::planets::planet_ptr> = construct_default_sequence(), 
+		mga_1dsm_alpha(const std::vector<kep_toolbox::planet::planet_ptr> = construct_default_sequence(), 
 			 const kep_toolbox::epoch t0_l = kep_toolbox::epoch(0), const kep_toolbox::epoch t0_r = kep_toolbox::epoch(1000),
 			 const double tof_l = 1.0*365.25, const double tof_u = 5.0*365.25, 
 			 const double vinf_l = 0.5, const double vinf_u = 2.5, 
@@ -79,17 +79,17 @@ class __PAGMO_VISIBLE mga_1dsm_alpha: public base
 		void set_tof(const double, const double);
 		void set_launch_window(const kep_toolbox::epoch&, const kep_toolbox::epoch&);
 		void set_vinf(const double);
-		std::vector<kep_toolbox::planets::planet_ptr> get_sequence() const;
+		std::vector<kep_toolbox::planet::planet_ptr> get_sequence() const;
 		std::vector<double> get_tof() const;
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 		std::string human_readable_extra() const;
 	private:
-		static const std::vector<kep_toolbox::planets::planet_ptr> construct_default_sequence() {
-			std::vector<kep_toolbox::planets::planet_ptr> retval;
-			retval.push_back(kep_toolbox::planets::jpl_lp("earth").clone());
-			retval.push_back(kep_toolbox::planets::jpl_lp("venus").clone());
-			retval.push_back(kep_toolbox::planets::jpl_lp("earth").clone());
+		static const std::vector<kep_toolbox::planet::planet_ptr> construct_default_sequence() {
+			std::vector<kep_toolbox::planet::planet_ptr> retval;
+			retval.push_back(kep_toolbox::planet::jpl_lp("earth").clone());
+			retval.push_back(kep_toolbox::planet::jpl_lp("venus").clone());
+			retval.push_back(kep_toolbox::planet::jpl_lp("earth").clone());
 			return retval;
 		}
 	
@@ -103,7 +103,7 @@ class __PAGMO_VISIBLE mga_1dsm_alpha: public base
 			ar & m_add_vinf_dep;
 			ar & m_add_vinf_arr;
 		}
-		std::vector<kep_toolbox::planets::planet_ptr> m_seq;
+		std::vector<kep_toolbox::planet::planet_ptr> m_seq;
 		const size_t m_n_legs;
 		bool m_add_vinf_dep;
 		bool m_add_vinf_arr;
