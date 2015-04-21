@@ -1695,7 +1695,7 @@ if "snopt" in str(_get_algorithm_list()):
     snopt._orig_init = snopt.__init__
     snopt.__init__ = _snopt_ctor
 
-# SNOPT algorithm (only if PyGMO has been compiled with the snopt option
+# WORHP algorithm (only if PyGMO has been compiled with the worhp option
 # activated)
 if "worhp" in str(_get_algorithm_list()):
     def _worhp_ctor(
@@ -1709,9 +1709,9 @@ if "worhp" in str(_get_algorithm_list()):
 
         USAGE: algorithm.worhp(screen_output = False);
 
-        * major_iter: Maximum number of major iterations
-        * feas_tol: Feasibility tolerance
-        * opt_tol: Optimality tolerance
+        * MaxIter: Maximum number of major iterations
+        * TolFeas: Feasibility tolerance
+        * TolOpti: Optimality tolerance
         * screen_output: Activates output on screen
         """
         # We set the defaults or the kwargs

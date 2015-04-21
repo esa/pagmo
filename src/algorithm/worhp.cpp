@@ -68,7 +68,7 @@ worhp::worhp(int iter, double feas, double opt, bool screen_output)
 	m_params.initialised = false;
 	ReadParams(&status, const_cast<char*>("param.xml"), &m_params);
 	status = OK;
-	m_params.MatrixCC = false; // Not sure what this deas exactly
+	m_params.MatrixCC = false; // Not sure what this does exactly
 
 	// We set some of the parameters exposed in the constructor
 	set_param("TolFeas", feas);
@@ -113,11 +113,6 @@ void worhp::evolve(pagmo::population& pop) const {
 	Workspace workspace;
 	WorhpPreInit(&opt, &workspace, &params, &control);
 
-	//opt.initialised = false;
-	//control.initialised = false;
-	//params.initialised = false;
-	//workspace.initialised = false;
-
 
 	opt.n = prob.get_dimension(); // number of variables
 	opt.m = prob.get_c_dimension(); // number of constraints
@@ -138,7 +133,6 @@ void worhp::evolve(pagmo::population& pop) const {
 	params.UserDG = false;
 	params.UserHM = false;
 	params.UserHMstructure = false;
-	//params.initialised = true;
 
 	// Initialization of variables
 	const auto best_idx = pop.get_best_idx();
@@ -164,16 +158,6 @@ void worhp::evolve(pagmo::population& pop) const {
 		opt.GL[i] = -params.Infty;
 		opt.GU[i] = 0;
 	}
-
-	// Define HM as a diagonal LT-CS-matrix, but only if needed by WORHP
-	// Not sure if this is needed at all
-	//if (workspace.HM.NeedStructure) {
-	//	for(int i = 0; i < workspace.HM.nnz; ++i) 
-	//	{
-	//		workspace.HM.row[i] = i + 1;
-	//		workspace.HM.col[i] = i + 1;
-	//	}
-	//}
 
 	while (control.status < TerminateSuccess && control.status > TerminateError) {
 		if (GetUserAction(&control, callWorhp)) {
