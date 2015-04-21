@@ -111,11 +111,12 @@ void worhp::evolve(pagmo::population& pop) const {
 	Control control;
 	Params params;
 	Workspace workspace;
+	WorhpPreInit(&opt, &workspace, &params, &control);
 
-	opt.initialised = false;
-	control.initialised = false;
-	params.initialised = false;
-	workspace.initialised = false;
+	//opt.initialised = false;
+	//control.initialised = false;
+	//params.initialised = false;
+	//workspace.initialised = false;
 
 
 	opt.n = prob.get_dimension(); // number of variables
@@ -136,7 +137,8 @@ void worhp::evolve(pagmo::population& pop) const {
 	params.UserDF = false;
 	params.UserDG = false;
 	params.UserHM = false;
-	params.initialised = true;
+	params.UserHMstructure = false;
+	//params.initialised = true;
 
 	// Initialization of variables
 	const auto best_idx = pop.get_best_idx();
@@ -165,13 +167,13 @@ void worhp::evolve(pagmo::population& pop) const {
 
 	// Define HM as a diagonal LT-CS-matrix, but only if needed by WORHP
 	// Not sure if this is needed at all
-	if (workspace.HM.NeedStructure) {
-		for(int i = 0; i < workspace.HM.nnz; ++i) 
-		{
-			workspace.HM.row[i] = i + 1;
-			workspace.HM.col[i] = i + 1;
-		}
-	}
+	//if (workspace.HM.NeedStructure) {
+	//	for(int i = 0; i < workspace.HM.nnz; ++i) 
+	//	{
+	//		workspace.HM.row[i] = i + 1;
+	//		workspace.HM.col[i] = i + 1;
+	//	}
+	//}
 
 	while (control.status < TerminateSuccess && control.status > TerminateError) {
 		if (GetUserAction(&control, callWorhp)) {
