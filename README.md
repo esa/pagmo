@@ -3,7 +3,7 @@ PaGMO
 
 [![Join the chat at https://gitter.im/esa/pygmo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/esa/pagmo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-[![Build Status](https://travis-ci.org/esa/pagmo.svg?branch=master)](https://travis-ci.org/esa/pagmo)
+[![Build Status](https://travis-ci.org/esa/pagmo.svg?branch=master)](https://travis-ci.org/esa/pagmo) [![Code Health](https://landscape.io/github/esa/pagmo/master/landscape.svg?style=flat)](https://landscape.io/github/esa/pagmo/master)
 
 Parallel Global Multiobjective Optimizer (and its Python alter ego PyGMO) offers a
 user-friendly access to a wide array of global and local optimization algorithms and problems.
