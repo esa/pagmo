@@ -39,7 +39,7 @@ static int __check__(int N){
 	}
 	if (N<=15 || N % 2)
 	{
-		pagmo_throw(value_error,"problem dimension needs to be at least 14 and even");
+		pagmo_throw(value_error,"problem dimension needs to be at least 16 and even");
 	}
 	return N;
 }
