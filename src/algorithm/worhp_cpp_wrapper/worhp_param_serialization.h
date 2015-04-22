@@ -30,7 +30,7 @@
 // This is from WORHP 1.8.0
 
 template <class Archive>
-void serialize(Archive &ar, QPParamsStruct &cb, const unsigned int) 
+void serialize(Archive &ar, QPParamsStruct &cb, const unsigned int)
 {
   ar & cb.ipBarrier;
   ar & cb.ipComTol;
@@ -56,7 +56,7 @@ void serialize(Archive &ar, QPParamsStruct &cb, const unsigned int)
   ar & cb.method;
   ar & cb.nsnLsMethod;
   ar & cb.printLevel;
-  
+
   ar & cb.ipTryRelax;
   ar & cb.lsScale;
   ar & cb.lsTrySimple;
@@ -67,7 +67,7 @@ void serialize(Archive &ar, QPParamsStruct &cb, const unsigned int)
 
 template <class Archive>
 void serialize(Archive &ar, ParamsStruct &cb, const unsigned int) 
-{ 
+{
 /* Pointer to QP parameter structure */
   ar & cb.qp;
 

@@ -33,8 +33,7 @@
 #include "worhp_cpp_wrapper/worhp_param_serialization.h"
 #include "base.h"
 
-
-namespace pagmo { 
+namespace pagmo {
 
 // Forward declaration
 class population;
@@ -44,20 +43,20 @@ namespace algorithm {
 class __PAGMO_VISIBLE worhp: public base
 {
 public:
-	worhp(int iter = 100, double feas=1e-10, double opt = 1e-4, bool screen_output = true);
+	worhp(const int iter=100, const double feas=1e-10, const double opt=1e-4, const bool screen_output=true);
 	void evolve(pagmo::population&) const;
 	pagmo::algorithm::base_ptr clone() const;
 	std::string get_name() const;
 
-	void set_param(std::string, double);
-	double get_param(std::string name) const;
+	void set_param(const std::string, const double);
+	double get_param(const std::string name) const;
 	std::vector<std::string> get_available_parameters() const;
 
 protected:
 	std::string human_readable_extra() const;
 
 private:
-    void define_param_map() ;
+	void define_param_map() ;
 
 	friend class boost::serialization::access;
 	template <class Archive>
@@ -65,7 +64,7 @@ private:
 	{
 		ar & boost::serialization::base_object<base>(*this);
 		ar & m_params;
-	}  
+	}
 	// Structure containing all the WORHP parameters, see WORHP documentation
 	Params m_params;
 	// A map between the WORHP parameters available to the user for geting and setting and integres 1...N

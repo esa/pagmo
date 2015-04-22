@@ -28,109 +28,107 @@
 
 namespace pagmo { namespace algorithm {
 
-
 void worhp::define_param_map() {
-    m_param_map["AcceptTolFeas"] = 1;
-    m_param_map["AcceptTolOpti"] = 2;
-    m_param_map["TolFeas"] = 3;
-    m_param_map["TolComp"] = 4;
-    m_param_map["TolOpti"] = 5;
-    m_param_map["NLPprint"] = 6;
-    m_param_map["InitialLMest"] = 7;
-    m_param_map["MaxIter"] = 8;
+	m_param_map["AcceptTolFeas"] = 1;
+	m_param_map["AcceptTolOpti"] = 2;
+	m_param_map["TolFeas"] = 3;
+	m_param_map["TolComp"] = 4;
+	m_param_map["TolOpti"] = 5;
+	m_param_map["NLPprint"] = 6;
+	m_param_map["InitialLMest"] = 7;
+	m_param_map["MaxIter"] = 8;
 }
 
-void worhp::set_param(std::string name, double value) 
-{ 
-    // We check that the key exists
-    auto el = m_param_map.find(name);
-    if (el == m_param_map.end()) {
-        pagmo_throw(value_error,"Unknown parameter name, cannot set it.");
-    }
-
-    // According to the input we set the appropriate parameter
-    switch ( m_param_map[name] ) {
-    case 1:
-      m_params.AcceptTolFeas = value;
-      break;
-    case 2:
-      m_params.AcceptTolOpti = value;
-      break;
-    case 3:
-      m_params.TolFeas = value;
-      break;
-    case 4:
-      m_params.TolComp = value;
-      break;
-    case 5:
-      m_params.TolOpti = value;
-      break;
-    case 6:
-      m_params.NLPprint = value;
-      break;
-    case 7:
-      m_params.InitialLMest = value;
-      break;
-    case 8:
-      m_params.MaxIter = value;
-      break;
-    default:
-        pagmo_throw(value_error,"You should not be here!!");
-  }
+void worhp::set_param(const std::string name, const double value)
+{
+	// We check that the key exists
+	auto el = m_param_map.find(name);
+	if (el == m_param_map.end()) {
+	    pagmo_throw(value_error,"Unknown parameter name, cannot set it.");
+	}
+	// According to the input we set the appropriate parameter
+	switch ( m_param_map[name] ) {
+		case 1:
+			m_params.AcceptTolFeas = value;
+			break;
+		case 2:
+			m_params.AcceptTolOpti = value;
+			break;
+		case 3:
+			m_params.TolFeas = value;
+			break;
+		case 4:
+			m_params.TolComp = value;
+			break;
+		case 5:
+			m_params.TolOpti = value;
+			break;
+		case 6:
+			m_params.NLPprint = value;
+			break;
+		case 7:
+			m_params.InitialLMest = value;
+			break;
+		case 8:
+			m_params.MaxIter = value;
+			break;
+		default:
+			pagmo_throw(value_error,"You should not be here!!");
+	}
 }
 
-double worhp::get_param(std::string name) const
-{ 
-    // We check that the key exists
-    auto el = m_param_map.find(name);
-    if (el == m_param_map.end()) {
-        pagmo_throw(value_error,"Unknown parameter name, cannot get it.");
-    }
-    // We make a copy for const correctness
-    std::map<std::string, int> map_copy = m_param_map;
+double worhp::get_param(const std::string name) const
+{
+	// We check that the key exists
+	auto el = m_param_map.find(name);
+	if (el == m_param_map.end()) {
+		pagmo_throw(value_error,"Unknown parameter name, cannot get it.");
+	}
 
-    double retval = 0;
+	// We make a copy for const correctness
+	std::map<std::string, int> map_copy = m_param_map;
 
-    // According to the input we return the appropriate parameter
-    switch ( map_copy[name] ) {
-    case 1:
-      retval = m_params.AcceptTolFeas;
-      break;
-    case 2:
-      retval = m_params.AcceptTolOpti;
-      break;
-    case 3:
-      retval = m_params.TolFeas;
-      break;
-    case 4:
-      retval = m_params.TolComp;
-      break;
-    case 5:
-      retval = m_params.TolOpti;
-      break;
-    case 6:
-      retval = m_params.NLPprint;
-      break;
-    case 7:
-      retval = m_params.InitialLMest;
-      break;
-    case 8:
-      retval = m_params.MaxIter;
-      break;
-    default:
-        pagmo_throw(value_error,"You should not be here!!");
-  }
-  return retval;
+	double retval = 0;
+
+	// According to the input we return the appropriate parameter
+	switch ( map_copy[name] ) {
+	case 1:
+		retval = m_params.AcceptTolFeas;
+		break;
+	case 2:
+		retval = m_params.AcceptTolOpti;
+		break;
+	case 3:
+		retval = m_params.TolFeas;
+		break;
+	case 4:
+		retval = m_params.TolComp;
+		break;
+	case 5:
+		retval = m_params.TolOpti;
+		break;
+	case 6:
+		retval = m_params.NLPprint;
+		break;
+	case 7:
+		retval = m_params.InitialLMest;
+		break;
+	case 8:
+		retval = m_params.MaxIter;
+		break;
+	default:
+		pagmo_throw(value_error,"You should not be here!!");
+	}
+	return retval;
 }
 
 std::vector<std::string> worhp::get_available_parameters() const
 {
-    std::vector<std::string>  retval;
-    for(auto it = m_param_map.begin(); it != m_param_map.end(); ++it) {
-      retval.push_back(it->first);
-    }
-    return retval;
+	std::vector<std::string> retval;
+	for(auto it = m_param_map.begin(); it != m_param_map.end(); ++it) {
+		retval.push_back(it->first);
+	}
+	return retval;
 }
 
 }} // namespaces
-

@@ -26,24 +26,25 @@
 namespace pagmo { namespace algorithm {
 
 // Dummy print function used to suppress all screen output
-void no_screen_output (int, const char []) {} 
-void default_output(int mode, const char *message) {
-  if (mode & WORHP_PRINT_MESSAGE) {
-    printf(" %s\n",message);
-  }
-  if (mode & WORHP_PRINT_WARNING) {
-    printf(" %s\n",message);
-  }
-  if (mode & WORHP_PRINT_ERROR) {
-    fprintf(stderr," %s\n",message);
-  }
+void no_screen_output (int, const char []) {}
+void default_output(int mode, const char *message)
+{
+	if (mode & WORHP_PRINT_MESSAGE) {
+		printf(" %s\n",message);
+	}
+	if (mode & WORHP_PRINT_WARNING) {
+		printf(" %s\n",message);
+	}
+	if (mode & WORHP_PRINT_ERROR) {
+		fprintf(stderr," %s\n",message);
+	}
 }
 
 /// Constructor
  /**
  * Constructs a WORHP algorithm
  */
-worhp::worhp(int iter, double feas, double opt, bool screen_output)
+worhp::worhp(const int iter, const double feas, const double opt, const bool screen_output)
 {
 	// We construct the map between parameters and integers used to set and get them
 	define_param_map();
@@ -62,12 +63,10 @@ worhp::worhp(int iter, double feas, double opt, bool screen_output)
 		SetWorhpPrint(no_screen_output);
 	}
 
-	// We read the algorithm parameters from the xml file, if this is not found
+	// We read the algorithm parameters from the xml file. If this is not found
 	// we set default values and ignore the issue.
 	int status;
-	m_params.initialised = false;
 	ReadParams(&status, const_cast<char*>("param.xml"), &m_params);
-	status = OK;
 	m_params.MatrixCC = false; // Not sure what this does exactly
 
 	// We set some of the parameters exposed in the constructor
@@ -75,7 +74,6 @@ worhp::worhp(int iter, double feas, double opt, bool screen_output)
 	set_param("TolOpti", opt);
 	set_param("MaxIter", iter);
 }
-
 
 /// Evolve implementation.
 /**
@@ -113,7 +111,6 @@ void worhp::evolve(pagmo::population& pop) const {
 	Workspace workspace;
 	WorhpPreInit(&opt, &workspace, &params, &control);
 
-
 	opt.n = prob.get_dimension(); // number of variables
 	opt.m = prob.get_c_dimension(); // number of constraints
 	auto n_eq = prob.get_c_dimension() - prob.get_ic_dimension(); // number of equality constraints
@@ -123,12 +120,11 @@ void worhp::evolve(pagmo::population& pop) const {
 	workspace.DG.nnz = opt.n * opt.m; // dense
 	workspace.HM.nnz = opt.n;
 
-
 	WorhpInit(&opt, &workspace, &params, &control);
 	assert(control.status == FirstCall);
 	params = m_params;
 
-    // Specify a derivative free case
+	// Specify a derivative free case
 	params.UserDF = false;
 	params.UserDG = false;
 	params.UserHM = false;
@@ -164,13 +160,12 @@ void worhp::evolve(pagmo::population& pop) const {
 			Worhp(&opt, &workspace, &params, &control);
 		}
 
-		if (GetUserAction(&control, iterOutput)) 
+		if (GetUserAction(&control, iterOutput))
 		{
 			IterationOutput(&opt, &workspace, &params, &control);
 			DoneUserAction(&control, iterOutput);
 		}
 
-		
 		if (GetUserAction(&control, evalF)) {
 			for (int i = 0; i < opt.n; ++i) {
 				x[i] = opt.X[i];
@@ -224,7 +219,7 @@ std::string worhp::get_name() const
 std::string worhp::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "MaxIter:" << get_param("MaxIter") << " TolFeas:"<<get_param("TolFeas")<< " TolOpti:"<<get_param("TolOpti") << std::endl;
+	s << "MaxIter:" << get_param("MaxIter") << " TolFeas:"<<get_param("TolFeas")<< " TolOpti:"<< get_param("TolOpti") << std::endl;
 	return s.str();
 }
 

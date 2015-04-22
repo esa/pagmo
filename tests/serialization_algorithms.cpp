@@ -170,6 +170,11 @@ int main()
 	algos_new.push_back(algorithm::snopt().clone());
 #endif
 
+#ifdef PAGMO_ENABLE_WORHP
+	algos.push_back(algorithm::worhp(gen, 2.3E-6, 2.3E-6).clone());
+	algos_new.push_back(algorithm::worhp().clone());
+#endif
+
 #ifdef PAGMO_ENABLE_IPOPT
 	algos.push_back(algorithm::ipopt(gen, 2.3E-6, 2.3E-6, 2.3E-6, false, 2.0, 0.234).clone());
 	algos_new.push_back(algorithm::ipopt().clone());
@@ -209,12 +214,11 @@ int main()
 			// archive and stream closed when destructors are called
 		}
 
-
 		{
 		//copy the original population
 		population pop1(prob), pop2(prob);
 		if (i<n_mo) {
-			pop1 = population(pop_original_mo); 
+			pop1 = population(pop_original_mo);
 			pop2 = population(pop_original_mo);
 		} else if (i<(n_mo+n_con) && (i>=n_mo)) {
 			pop1 = population(pop_original_con);
