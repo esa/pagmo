@@ -15,4 +15,3 @@ This is a collection of tutorials on PyGMO's basics:
    racing
    tsp
    landscape_analysis_with_DrPyGMO
-   local_optimization
