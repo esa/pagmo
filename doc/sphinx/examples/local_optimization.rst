@@ -4,9 +4,9 @@
 Third-party Non-linear optimizers in PyGMO
 ==========================================
 
-Besides a variety of available metaheuristics and global optimization algorithms, PaGMO interfaces several popular local optimizers (full list available on page :ref:`algorithms`).
-Local optimization algorithms are interfaced such that they are compatible with all of other PyGMO features, such as Python interface, island model or algorithm evaluation metrics.
-In this example we will present several features and usecases of nonlinear local optimizers available in PyGMO.
+Besides a variety of available metaheuristics and global optimization algorithms, PaGMO interfaces to several popular local optimizers (full list available on page :ref:`algorithms`).
+Local optimization algorithms are interfaced such that they are compatible with all of other PyGMO features, such as island model.
+In this example we will present several features and use cases of nonlinear local optimizers available in PyGMO.
 
 .. note::
  Almost all of the local optimizers (with an exception of :class:`PyGMO.algorithm.cs` available in PaGMO are interfaces to third-party dependencies.
@@ -73,7 +73,7 @@ License file ``worhp.lic`` can either reside in the current working directory or
 Usage
 -----
 
-Usecase of :class:`PyGMO.algorithm.worhp` is the same as that of the SNOPT as show previously.
+Use case of :class:`PyGMO.algorithm.worhp` is the same as that of the SNOPT as show previously.
 Additionally to three key parameters exposed in the constructor, it is also possible to set some WORHP parameters through the setter.
 
 .. note::
@@ -82,7 +82,7 @@ Additionally to three key parameters exposed in the constructor, it is also poss
  **All parameters set by a setter method, as well as the parameters in the constructor (also the defaults!) are oveloading the values from the configuration file ``param.xml``.**
  List of setter-exposed WORHP parameters is available at: https://github.com/esa/pagmo/blob/master/src/algorithm/worhp_cpp_wrapper/set_get_params.cpp
 
-Script below shows a usecase of WORHP as local optimizer in PaGMO:
+Script below shows a use case of WORHP as local optimizer in PaGMO:
 
 .. code-block:: python
 
@@ -120,7 +120,6 @@ First, we will define functions used for running and experiment and plotting the
 
     def plot(l, title, ax):
         a1, a2 = zip(*l)
-        ax.set_xscale('log')
 
         d = filter(lambda x: x[2], a1)
         if d:
@@ -154,7 +153,8 @@ For each comparison we start with the same initial conditions.
         tmp.append(run(seed, algorithm.snopt(major_iter=1000, feas_tol=1e-8, opt_tol=1e-8), prob))
         l.append(tmp)
         sys.stdout.write("{}/{} ".format(i, N))
-        
+    
+    ax.set_xscale('log')
     plot(l, "Luksan Vlcek 1 (D=10)", ax=plt.gca())
     plt.show()
 
