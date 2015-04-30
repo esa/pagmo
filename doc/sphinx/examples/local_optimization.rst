@@ -1,8 +1,8 @@
-.. _adding_a_new_algorithm:
+.. _local_optimization:
 
-===============================
-Nonlinear optimization in PyGMO
-===============================
+==========================================
+Third-party Non-linear optimizers in PyGMO
+==========================================
 
 Besides a variety of available metaheuristics and global optimization algorithms, PaGMO interfaces several popular local optimizers (full list available on page :ref:`algorithms`).
 Local optimization algorithms are interfaced such that they are compatible with all of other PyGMO features, such as Python interface, island model or algorithm evaluation metrics.
@@ -23,6 +23,7 @@ Installation
 
 To use SNOPT you first need to obtain either the full version of the library, or request a trial version from here:
 https://ccom.ucsd.edu/~optimizers/downloads.php
+Installation is to be followed according with the instructions provided on SNOPT software, according to your operating system.
 
 Once SNOPT is installed in the system, you need to recompile PaGMO with ``ENABLE_SNOPT=ON`` flag.
 
@@ -97,9 +98,10 @@ Script below shows a usecase of WORHP as local optimizer in PaGMO:
 
 SNOPT and WORHP comparison
 ==========================
-This simple script seves as a comparison of two algorithms when run on several basic benchmarks
 
-First, we will define some functions later used for the experiment:
+In this section we will aim at providing some basic comparison between two algorithms on one standard benchmark problem and a trajectory optimization problem.
+
+First, we will define functions used for running and experiment and plotting the results:
 
 .. code-block:: python
 
@@ -107,6 +109,8 @@ First, we will define some functions later used for the experiment:
     import PyKEP
     import sys
     import random
+    import matplotlib.pyplot as plt
+    import matplotlib.gridspec as gridspec
 
     def run(seed, alg, prob):
         pop = population(prob, 1, seed)
@@ -114,28 +118,26 @@ First, we will define some functions later used for the experiment:
         feas = prob.feasibility_x(pop.champion.x)
         return (pop.champion.f[0], pop.problem.fevals, feas)
 
-    def plot(l, title):
-        import matplotlib.pyplot as plt
+    def plot(l, title, ax):
         a1, a2 = zip(*l)
-        plt.xscale('log')
+        ax.set_xscale('log')
 
         d = filter(lambda x: x[2], a1)
         if d:
-            plt.scatter(zip(*d)[0], zip(*d)[1], c='r', s=30, marker='o',
-                label='WORHP, {}/{} feasible'.format(len(d), len(a1)))
+            ax.scatter(zip(*d)[0], zip(*d)[1], c='r', s=30, marker='o', label='WORHP, {}/{} feasible'.format(len(d), len(a1)))
+        
         d = filter(lambda x: x[2], a2)
         if d:
-            plt.scatter(zip(*d)[0], zip(*d)[1], c='g', s=30, marker='o',
-                label='SNOPT, {}/{} feasible'.format(len(d), len(a1)))
-        plt.legend()
-        plt.xlabel('Objective function value')
-        plt.grid(True)
-        plt.ylabel('Function evaluations')
-        plt.title(title)
-        plt.show()
+            ax.scatter(zip(*d)[0], zip(*d)[1], c='g', s=30, marker='o', label='SNOPT, {}/{} feasible'.format(len(d), len(a1)))
+        
+        ax.legend()
+        ax.set_xlabel('Objective function value')
+        ax.grid(True)
+        ax.set_ylabel('Function evaluations')
+        ax.set_title(title)
 
-We compute 100 solutions to Luksan-Vlcek problem (dim=10) using SNOPT and WORHP, and plot the obtained objective function value against the number of function evaluations. For each comparison we start with the same initial conditions.
-Results of the script below will open a new matpotlib window:
+We compute 100 solutions to Luksan-Vlcek problem (dim=10) using SNOPT and WORHP, and plot the obtained objective function value against the number of function evaluations.
+For each comparison we start with the same initial conditions.
 
 .. code-block:: python
 
@@ -146,31 +148,46 @@ Results of the script below will open a new matpotlib window:
     sys.stdout.write("Computing {} luksan_vlcek_1 solutions..\n".format(N))
 
     for i in range(1, N + 1):
-        tmp = []
+        tmp = []    
         seed = random.randint(0,1000000)  # We start from the same initial conditions
         tmp.append(run(seed, algorithm.worhp(MaxIter=1000, TolFeas=1e-8, TolOpti=1e-8), prob))
         tmp.append(run(seed, algorithm.snopt(major_iter=1000, feas_tol=1e-8, opt_tol=1e-8), prob))
         l.append(tmp)
         sys.stdout.write("{}/{} ".format(i, N))
-    plot(l, "Luksan Vlcek 1 (D=10)")
+        
+    plot(l, "Luksan Vlcek 1 (D=10)", ax=plt.gca())
+    plt.show()
 
+Results of the script are as follows:
 
-Similarly we compute 20 solutions to Python planet to planet problem (PyGMO needs to be compiled with ``ENABLE_GTOC=ON``):
+.. image:: ../images/examples/local_optimization_luksan.png
+
+It can be concluded that SNOPT algorithm spends less function evaluations to achieve similar solution quality, while both algorithms get stuck in local optimia in roughly half of the runs.
+
+Similarly we compute 20 solutions to Python planet to planet (Earth to Mars) problem (Requires PyKEP, while PyGMO needs to be compiled with ``ENABLE_GTOC=ON``):
 
 .. code-block:: python
 
     # Warning: This is a very long test, Change N to something smaller (5) to get a quick overview
     N = 20  # number of restarts
 
-    for n_seg in [5, 10, 20, 40]:
+    gs = gridspec.GridSpec(2, 2)
+    ll = []
+    for ax_i, n_seg in enumerate([5, 10, 20, 40]):
         l = []
         sys.stdout.write("Computing {} py_pl2pl solutions for {} segments..\n".format(N, n_seg))
         for i in range(1, N + 1):
-            prob = problem.py_pl2pl(nseg=5)
-            tmp = []    
-            seed = random.randint(0,1000000)  # We start from the same initial conditions
+            prob = problem.py_pl2pl(nseg=n_seg)
+            tmp = []
+            seed = random.randint(0, 1000000)  # We start from the same initial conditions
             tmp.append(run(seed, algorithm.worhp(MaxIter=1000, TolFeas=1e-8, TolOpti=1e-8), prob))
             tmp.append(run(seed, algorithm.snopt(major_iter=1000, feas_tol=1e-8, opt_tol=1e-8), prob))
             l.append(tmp)
             sys.stdout.write("{}/{} ".format(i, N))
-        plot(l, "Python Planet to Planet (N segments={})".format(n_seg))
+        ll.append(l)
+        sys.stdout.write("\n")
+        ax = plt.subplot(gs[ax_i / 2, ax_i % 2])
+        plot(l, "Python Planet to Planet (N segments={})".format(n_seg), ax=ax)
+    plt.show()
+
+.. image:: ../images/examples/local_optimization_pl2pl.png
