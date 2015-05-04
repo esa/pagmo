@@ -1,0 +1,9 @@
+Best individual:
+	Decision vector:	[1.0000035381312899, -1.000007979785372]
+	Constraints vector:	[]
+	Fitness vector:		[-1.0000000000941514]
+
+Comparison of the best found fitness with the best known fitness:
+9.41513533803e-11
+L2 distance to the best decision vector:
+8.72899465051e-06
