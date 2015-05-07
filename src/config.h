@@ -72,6 +72,22 @@ environments, PaGMO can employ MPI (Message Passing Interface) to distribute the
 	#define __PAGMO_VISIBLE_FUNC
 #endif
 
+
+// Redefining M_PI end M_E to avoid problems in windows
+#include <boost/math/constants/constants.hpp>
+#ifndef M_PI
+#define M_PI boost::math::constants::pi<double>()
+#endif
+#ifndef M_PI_2
+#define M_PI_2 boost::math::constants::pi<double>()/2
+#endif
+#ifndef M_PI_4
+#define M_PI_4 boost::math::constants::pi<double>()/4
+#endif
+#ifndef M_E
+#define M_E boost::math::constants::e<double>()
+#endif
+
 /// Root PaGMO namespace.
 namespace pagmo {}
 
