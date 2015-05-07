@@ -53,7 +53,7 @@ class _serialization_test(_ut.TestCase):
 # This class will stress the island and archipelago classes with highly
 # concurrent simple evolutions.
 
-
+import platform
 class _island_torture_test(_ut.TestCase):
 
     def __test_impl(self, isl_type, algo, prob):
@@ -73,7 +73,13 @@ class _island_torture_test(_ut.TestCase):
             for prob in prob_list:
                 self.__test_impl(isl_type, algo, prob)
 
+    @_ut.skipIf(platform.system() == "Windows", "The py_island test cannot be run on Windows")
     def test_py_island(self):
+        # This test creates an infinite import loop on Windows when creating a new process
+        # with Python multiprocessing module.
+        # Normal usage of py_island on Windows is possible by using the `if __name__ == "__main__":` guard
+        # Reference: http://stackoverflow.com/questions/20222534/python-multiprocessing-on-windows-if-name-main
+
         from PyGMO import py_island, algorithm, problem
         isl_type = py_island
         algo_list = [algorithm.py_example(1), algorithm.de(5)]
