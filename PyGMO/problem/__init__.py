@@ -1,4 +1,5 @@
 # -*- coding: iso-8859-1 -*-
+from PyGMO import __extensions__
 from PyGMO.problem._base import base
 from PyGMO.problem._base_stochastic import base_stochastic
 from PyGMO.problem._problem import *
@@ -17,7 +18,6 @@ from PyGMO.problem._example_stochastic import py_example_stochastic
 from PyGMO.problem._pl2pl import py_pl2pl
 from PyGMO.problem._mo import *
 from PyGMO.problem._tsp import *
-from PyGMO import __extensions__
 
 
 # If GSL support is active import mit_sphere

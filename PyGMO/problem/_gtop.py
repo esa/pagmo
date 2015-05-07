@@ -1,5 +1,4 @@
-from PyGMO.problem._problem import cassini_1, gtoc_1, gtoc_2, cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_incipit_cstrs, mga_part
-from _problem import _gtoc_2_objective
+from PyGMO.problem._problem_space import cassini_1, gtoc_1, gtoc_2, cassini_2, rosetta, messenger_full, tandem, laplace, sagas, mga_1dsm_alpha, mga_1dsm_tof, mga_incipit, mga_incipit_cstrs, mga_part, _gtoc_2_objective
 
 # Redefining the constructors of all problems to obtain good documentation
 # and allowing kwargs
@@ -208,17 +207,18 @@ gtoc_2._orig_init = gtoc_2.__init__
 gtoc_2.__init__ = _gtoc_2_ctor
 
 
-from PyKEP import planet_ss, epoch, planet_js
+from PyKEP.core._core import epoch
+from PyKEP.planet import jpl_lp, gtoc6
 
 
 def _mga_1dsm_alpha_ctor(
-        self, seq=[planet_ss('earth'), planet_ss('venus'), planet_ss('earth')],
+        self, seq=[jpl_lp('earth'), jpl_lp('venus'), jpl_lp('earth')],
         t0=[epoch(0), epoch(1000)], tof=[365.25, 5.0 * 365.25], vinf=[0.5,
                                                                       2.5], multi_objective=False, add_vinf_dep=False, add_vinf_arr=True):
     """
     Constructs an mga_1dsm problem (alpha-encoding)
 
-    USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [365.25,5.0 * 365.25], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
+    USAGE: problem.mga_1dsm(seq = [jpl_lp('earth'),jpl_lp('venus'),jpl_lp('earth')], t0 = [epoch(0),epoch(1000)], tof = [365.25,5.0 * 365.25], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
 
     * seq: list of PyKEP planets defining the encounter sequence (including the starting planet)
     * t0: list of two epochs defining the launch window
@@ -249,7 +249,7 @@ mga_1dsm_alpha.__init__ = _mga_1dsm_alpha_ctor
 
 def _mga_1dsm_tof_ctor(
     self, seq=[
-        planet_ss('earth'), planet_ss('venus'), planet_ss('earth')], t0=[
+        jpl_lp('earth'), jpl_lp('venus'), jpl_lp('earth')], t0=[
         epoch(0), epoch(1000)], tof=[
         [
             50, 900], [
@@ -258,7 +258,7 @@ def _mga_1dsm_tof_ctor(
     """
     Constructs an mga_1dsm problem (tof-encoding)
 
-    USAGE: problem.mga_1dsm(seq = [planet_ss('earth'),planet_ss('venus'),planet_ss('earth')], t0 = [epoch(0),epoch(1000)], tof = [ [50, 900], [50, 900] ], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
+    USAGE: problem.mga_1dsm(seq = [jpl_lp('earth'),jpl_lp('venus'),jpl_lp('earth')], t0 = [epoch(0),epoch(1000)], tof = [ [50, 900], [50, 900] ], vinf = [0.5, 2.5], multi_objective = False, add_vinf_dep = False, add_vinf_arr = True)
 
     * seq: list of PyKEP planets defining the encounter sequence (including the starting planet)
     * t0: list of two epochs defining the launch window
@@ -288,14 +288,14 @@ mga_1dsm_tof.__init__ = _mga_1dsm_tof_ctor
 
 def _mga_incipit_ctor(
     self, seq=[
-        planet_js('io'), planet_js('io'), planet_js('europa')], t0=[
+        gtoc6('io'), gtoc6('io'), gtoc6('europa')], t0=[
         epoch(7305.0), epoch(11323.0)], tof=[
         [
             100, 200], [
             3, 200], [
             4, 100]]):
     """
-    USAGE: mga_incipit(seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)], tof = [[100,200],[3,200],[4,100]])
+    USAGE: mga_incipit(seq = [gtoc6('io'),gtoc6('io'),gtoc6('europa')], t0 = [epoch(6905.0),epoch(11323.0)], tof = [[100,200],[3,200],[4,100]])
 
     * seq: list of jupiter moons defining the trajectory incipit
     * t0:  list of two epochs defining the launch window
@@ -315,14 +315,14 @@ mga_incipit.__init__ = _mga_incipit_ctor
 
 def _mga_incipit_cstrs_ctor(
     self, seq=[
-        planet_js('io'), planet_js('io'), planet_js('europa')], t0=[
+        gtoc6('io'), gtoc6('io'), gtoc6('europa')], t0=[
         epoch(7305.0), epoch(11323.0)], tof=[
         [
             100, 200], [
             3, 200], [
             4, 100]], Tmax=300.00, Dmin=2.0):
     """
-    USAGE: mga_incipit_cstrs(seq = [planet_js('io'),planet_js('io'),planet_js('europa')], t0 = [epoch(6905.0),epoch(11323.0)], tof = [[100,200],[3,200],[4,100]], Tmax = 365.25, Dmin = 0.2)
+    USAGE: mga_incipit_cstrs(seq = [gtoc6('io'),gtoc6('io'),gtoc6('europa')], t0 = [epoch(6905.0),epoch(11323.0)], tof = [[100,200],[3,200],[4,100]], Tmax = 365.25, Dmin = 0.2)
 
     * seq: list of jupiter moons defining the trajectory incipit
     * t0:  list of two epochs defining the launch window
@@ -344,13 +344,13 @@ mga_incipit_cstrs.__init__ = _mga_incipit_cstrs_ctor
 
 def _mga_part_ctor(
     self, seq=[
-        planet_js('europa'), planet_js('europa'), planet_js('europa')], tof=[
+        gtoc6('europa'), gtoc6('europa'), gtoc6('europa')], tof=[
         [
             5, 50], [
             5, 50]], t0=epoch(11000), v_inf_in=[
         1500.0, 350.0, 145.0]):
     """
-    USAGE: mga_part(seq = [planet_js('europa'),planet_js('europa'),planet_js('europa')], tof = [[5,50],[5,50]], t0 = epoch(11000), v_inf_in[1500.0,350.0,145.0])
+    USAGE: mga_part(seq = [gtoc6('europa'),gtoc6('europa'),gtoc6('europa')], tof = [[5,50],[5,50]], t0 = epoch(11000), v_inf_in[1500.0,350.0,145.0])
 
     * seq: list of jupiter moons defining the trajectory incipit
     * tof: list of n lists containing the lower and upper bounds for the legs flight times (days)
@@ -930,4 +930,4 @@ def _mga_1dsm_tof_plot(self, x):
     return axis
 mga_1dsm_tof.plot = _mga_1dsm_tof_plot
 
-del planet_js, planet_ss
+del gtoc6, jpl_lp

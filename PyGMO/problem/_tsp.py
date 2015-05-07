@@ -1,7 +1,7 @@
 from PyGMO.problem._problem import tsp, tsp_cs, tsp_vrplc, _tsp_encoding
 from PyGMO import __extensions__
 if __extensions__["gtop"] is True:
-    from PyGMO.problem._problem import tsp_ds
+    from PyGMO.problem._problem_space import tsp_ds
     tsp_ds.encoding_type = _tsp_encoding
 
 # Renaming and placing the enums
