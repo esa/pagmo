@@ -459,8 +459,8 @@ class scipy_cobyla(_scipy_base):
             x0,
             cons=f_cons,
             iprint=iprn,
-            maxfun=self.maxfun,
-            rhoend=self.rhoend)
+            maxfun=self.max_fun,
+            rhoend=self.rho_end)
         new_chromosome = list(retval) + list(x0_comb)
         pop.set_x(
             pop.get_best_idx(),
@@ -474,4 +474,4 @@ class scipy_cobyla(_scipy_base):
 
     def human_readable_extra(self):
         return "maxfun = " + \
-            str(self.maxfun) + ", rhoend = " + str(self.rhoend)
+            str(self.max_fun) + ", rhoend = " + str(self.rho_end)
