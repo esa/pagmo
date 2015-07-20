@@ -678,6 +678,18 @@ shifted._orig_init = shifted.__init__
 shifted.__init__ = _shifted_ctor
 
 
+def _relaxed_ctor(self, problem=None):
+    # We construct the arg list for the original constructor exposed by
+    # boost_python
+    arg_list = []
+    if problem is None:
+        problem = ackley(1)
+    arg_list.append(problem)
+    self._orig_init(*arg_list)
+relaxed._orig_init = relaxed.__init__
+relaxed.__init__ = _relaxed_ctor
+
+
 def _rotated_ctor(self, problem=None, rotation=None):
     """
     Rotates a problem. (also reflections are possible)

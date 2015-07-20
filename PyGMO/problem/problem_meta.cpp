@@ -150,20 +150,24 @@ BOOST_PYTHON_MODULE(_problem_meta) {
 		.def(init<const problem::base &, double>())
 		.add_property("shift_vector",make_function(&problem::shifted::get_shift_vector,return_value_policy<copy_const_reference>()))
 		.def("deshift",&problem::shifted::deshift);
-		
+
+	// Relaxed meta-problem
+	meta_problem_wrapper<problem::relaxed>("relaxed","Relaxed problem")
+		.def(init<const problem::base &>());
+
 	// Scaled meta-problem
 	meta_problem_wrapper<problem::scaled>("scaled","Scaled problem")
 		.def(init<const problem::base &, fitness_vector >())
 		.add_property("units",make_function(&problem::scaled::get_units,return_value_policy<copy_const_reference>()))
 		.def("descale",&problem::scaled::descale);
-		
+
 	// Rotated meta-problem
 	meta_problem_wrapper<problem::rotated>("rotated","Rotated problem")
 		.def(init<const problem::base &>())
 		.def(init<const problem::base &, Eigen::MatrixXd >())
 		.add_property("rotation_matrix",&get_rotation_matrix_from_eigen)
 		.def("derotate",&problem::rotated::derotate);
-		
+
 	// Normalized meta-problem
 	meta_problem_wrapper<problem::normalized>("normalized","Normalized problem")
 		.def(init<const problem::base &>())
@@ -177,7 +181,7 @@ BOOST_PYTHON_MODULE(_problem_meta) {
 	// Decomposition meta-problem
 	meta_problem_wrapper<problem::decompose>("decompose","Decomposed problem")
 		.def(init<const problem::base &, optional<problem::decompose::method_type, const std::vector<double> &, const std::vector<double> &, const bool> >())
-		.def("compute_decomposed_fitness", &compute_decomposed_fitness_wrapper, 
+		.def("compute_decomposed_fitness", &compute_decomposed_fitness_wrapper,
 		"Computes the fitness of the decomposed problem\n\n"
 		"  USAGE:: w = prob.compute_decomposed_fitness(fit,weight)\n"
 		"   - fit: multi-dimensional fitness\n"
