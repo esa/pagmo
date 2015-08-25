@@ -59,6 +59,7 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/griewank.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/levy5.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/lennard_jones.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/lavor_maculan.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/ackley.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/branin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/dtlz.cpp
@@ -96,8 +97,8 @@ SET(PAGMO_LIB_SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/death_penalty.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/cstrs_self_adaptive.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/antibodies_problem.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp	
-	${CMAKE_CURRENT_SOURCE_DIR}/problem/scaled.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/shifted.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/problem/scaled.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/rotated.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/normalized.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/problem/decompose.cpp

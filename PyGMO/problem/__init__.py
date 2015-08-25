@@ -199,6 +199,24 @@ griewank._orig_init = griewank.__init__
 griewank.__init__ = _dejong_ctor
 
 
+def _lavor_maculan_ctor(self, n_atoms=4):
+    """
+    Constructs a Lavor-Maculan problem (Box-Constrained Continuous Single-Objective) with hydrocarbon chain of N atoms (N-3 dimensions).
+
+    USAGE: problem.lavor_maculan(n_atoms=10)
+
+    * n_atoms: number of atoms
+    """
+
+    # We construct the arg list for the original constructor exposed by
+    # boost_python
+    arg_list = []
+    arg_list.append(n_atoms)
+    self._orig_init(*arg_list)
+lavor_maculan._orig_init = lavor_maculan.__init__
+lavor_maculan.__init__ = _lavor_maculan_ctor
+
+
 def _lennard_jones_ctor(self, n_atoms=4):
     """
     Constructs a Lennard-Jones problem (Box-Constrained Continuous Single-Objective)
