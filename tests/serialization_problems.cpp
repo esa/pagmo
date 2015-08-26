@@ -91,6 +91,8 @@ int main()
 	probs_new.push_back(problem::kur().clone());
 	probs.push_back(problem::lennard_jones(dimension).clone());
 	probs_new.push_back(problem::lennard_jones().clone());
+	probs.push_back(problem::lavor_maculan(dimension).clone());
+	probs_new.push_back(problem::lavor_maculan().clone());
 	probs.push_back(problem::levy5(dimension).clone());
 	probs_new.push_back(problem::levy5().clone());
 	probs.push_back(problem::luksan_vlcek_1(dimension).clone());

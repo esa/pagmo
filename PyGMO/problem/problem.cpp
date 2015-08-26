@@ -287,6 +287,10 @@ BOOST_PYTHON_MODULE(_problem) {
 	problem_wrapper<problem::lennard_jones>("lennard_jones","Lennard Jones problem.")
 		.def(init<int>());
 
+	// Lavor Maculan Potential Energy of Molecules problem.
+	problem_wrapper<problem::lavor_maculan>("lavor_maculan", "Lavor Maculan problem.")
+		.def(init<int>());
+
 	// Levy5 problem.
 	problem_wrapper<problem::levy5>("levy5","Levy5 problem.")
 		.def(init<int>());
