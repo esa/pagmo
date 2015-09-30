@@ -49,6 +49,7 @@
 #include "problem/luksan_vlcek_2.h"
 #include "problem/luksan_vlcek_3.h"
 #include "problem/lennard_jones.h"
+#include "problem/lavor_maculan.h"
 #include "problem/levy5.h"
 #include "problem/michalewicz.h"
 #include "problem/rastrigin.h"
