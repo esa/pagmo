@@ -371,6 +371,8 @@ void moead::evolve(population &pop) const
 					if(candidate[kk]>ub[kk]){ 
 						candidate[kk] = ub[kk] - m_drng()*(ub[kk] - pop.get_individual(n).cur_x[kk]);
 					}
+				} else {
+					candidate[kk] = pop.get_individual(n).cur_x[kk];
 				}
 			}
 			mutation(candidate, pop, 1.0 / prob.get_dimension());
