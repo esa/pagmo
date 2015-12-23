@@ -40,6 +40,6 @@ int main()
 	//We instantiate a population containing 20 candidate solutions to the Schwefel problem
 	pagmo::population pop(prob,20);
 	algo.evolve(pop);
-	
+
 	return 0;
 }
