@@ -31,42 +31,48 @@
 
 namespace pagmo { namespace problem {
 
-/// Constructor from dimension.
-/**
- * Will construct an n dimensional Rosenbrock problem.
- *
- * @param[in] n integer dimension of the problem.
- *
- * @see problem::base constructors.
- */
-rosenbrock::rosenbrock(int n):base(n)
-{
-	// Set bounds.
-	set_lb(-5.0);
-	set_ub(10);
-}
+	/// Constructor from dimension.
+	/**
+	 * Will construct an n dimensional Rosenbrock problem.
+	 *
+	 * @param[in] n integer dimension of the problem.
+	 *
+	 * @see problem::base constructors.
+	 */
+	rosenbrock::rosenbrock(int n):base(n)
+	{
+		// Set bounds.
+		set_lb(-5.0);
+		set_ub(10);
+		// Initialise global minima vector vector vector vector
+		std::vector<decision_vector> best_x(1);
+		// The Rosenbrock problem has only one global minimum: at (1, ..., 1)
+		// (the value for all dimensions is 0).
+		for(int i = 0; i < n; ++i) {
+			best_x[0].push_back(1);
+		}
 
-/// Clone method.
-base_ptr rosenbrock::clone() const
-{
-	return base_ptr(new rosenbrock(*this));
-}
+		/// Clone method.
+		base_ptr rosenbrock::clone() const
+		{
+			return base_ptr(new rosenbrock(*this));
+		}
 
-/// Implementation of the objective function.
-void rosenbrock::objfun_impl(fitness_vector &f, const decision_vector &x) const
-{
-	const decision_vector::size_type n = x.size();
-	f[0]=0;
-	for (decision_vector::size_type i=0; i<n-1; ++i){
-		f[0] += 100 * (x[i]*x[i] -x[i+1])*(x[i]*x[i] -x[i+1]) + (x[i]-1)*(x[i]-1);
-	}
-}
+		/// Implementation of the objective function.
+		void rosenbrock::objfun_impl(fitness_vector &f, const decision_vector &x) const
+		{
+			const decision_vector::size_type n = x.size();
+			f[0]=0;
+			for (decision_vector::size_type i=0; i<n-1; ++i){
+				f[0] += 100 * (x[i]*x[i] -x[i+1])*(x[i]*x[i] -x[i+1]) + (x[i]-1)*(x[i]-1);
+			}
+		}
 
-std::string rosenbrock::get_name() const
-{
-	return "Rosenbrock";
-}
+		std::string rosenbrock::get_name() const
+		{
+			return "Rosenbrock";
+		}
 
-}}
+	}}
 
 BOOST_CLASS_EXPORT_IMPLEMENT(pagmo::problem::rosenbrock)
