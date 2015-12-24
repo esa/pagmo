@@ -33,44 +33,52 @@
 
 namespace pagmo { namespace problem {
 
-/// Constructor from dimension.
-/**
- * Will construct an n dimensional Schwefel problem.
- *
- * @param[in] n integer dimension of the problem.
- *
- * @see problem::base constructors.
- */
-schwefel::schwefel(int n):base(n)
-{
-	// Set bounds.
-	set_lb(-500);
-	set_ub(500);
-}
+	/// Constructor from dimension.
+	/**
+	 * Will construct an n dimensional Schwefel problem.
+	 *
+	 * @param[in] n integer dimension of the problem.
+	 *
+	 * @see problem::base constructors.
+	 */
+	schwefel::schwefel(int n):base(n)
+	{
+		// Set bounds.
+		set_lb(-500);
+		set_ub(500);
+		//Initialise global minima vector vector vector vector
+		std::vector<decision_vector> best_x(1);
+		// The Schwefel problem has only one global minimum: at (420.9687, ..., 420.9687)
+		// (the value for all dimensions is 0).
+		for(int i = 0; i < n; ++i) {
+			best_x[0].push_back(420.9687);
+		}
+		set_best_x(best_x);
+	}
 
-/// Clone method.
-base_ptr schwefel::clone() const
-{
-	return base_ptr(new schwefel(*this));
-}
+	/// Clone method.
+	base_ptr schwefel::clone() const
+	{
+		return base_ptr(new schwefel(*this));
+	}
 
-/// Implementation of the objective function.
-void schwefel::objfun_impl(fitness_vector &f, const decision_vector &x) const
-{
-	pagmo_assert(f.size() == 1);
-	std::vector<double>::size_type n = x.size();
-	double value=0;
+	/// Implementation of the objective function.
+	void schwefel::objfun_impl(fitness_vector &f, const decision_vector &x) const
+	{
+		pagmo_assert(f.size() == 1);
+		std::vector<double>::size_type n = x.size();
+		double value=0;
 
-	for (std::vector<double>::size_type i=0; i<n; i++){
-		value += x[i] * sin(sqrt(fabs(x[i])));
+		for (std::vector<double>::size_type i=0; i<n; i++){
+			value += x[i] * sin(sqrt(fabs(x[i])));
 		}
 		f[0] = 418.9828872724338 * n - value;
-}
+	}
 
-std::string schwefel::get_name() const
-{
-	return "Schwefel";
-}
+	std::string schwefel::get_name() const
+	{
+		return "Schwefel";
+	}
 
 }}
 
