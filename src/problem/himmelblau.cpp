@@ -30,7 +30,17 @@
 namespace pagmo { namespace problem {
 
 /// Default constructor.
-himmelblau::himmelblau():base(-6.,6.,2) {}
+himmelblau::himmelblau():base(-6.,6.,2) {
+    // Initialise global minima vector
+    std::vector<decision_vector> best_x(1);
+    // The Himmerblau problem has only one global maxima: at (-0.270845, -0.923039)
+    // (the optimum value at the global maxima is 181.617).
+
+    best_x[0].push_back(-0.270845);
+    best_x[0].push_back(-0.923039);
+
+    set_best_x(best_x);
+}
 
 /// Clone method.
 base_ptr himmelblau::clone() const

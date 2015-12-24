@@ -45,6 +45,15 @@ griewank::griewank(int n):base(n)
 	// Set bounds.
 	set_lb(-600);
 	set_ub(600);
+	// Initialise global minima vector
+	std::vector<decision_vector> best_x(1);
+	// The Griewank problem has only one global minimum: at (0, ..., 0)
+	// (the value for all dimensions is 0).
+	for(int i = 0; i < n; ++i) {
+		best_x[0].push_back(0);
+	}
+
+	set_best_x(best_x);
 }
 
 /// Clone method.

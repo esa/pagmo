@@ -43,6 +43,16 @@ namespace pagmo { namespace problem {
 dejong::dejong(int n):base(n) {
 	set_lb(-5.12);
 	set_ub(5.12);
+
+	// Initialise global minima vector
+	std::vector<decision_vector> best_x(1);
+	// The Dejong problem has only one global minimum: at (0, ..., 0)
+	// (the value for all dimensions is 0).
+	for(int i = 0; i < n; ++i) {
+		best_x[0].push_back(0);
+	}
+
+	set_best_x(best_x);
 }
 
 /// Clone method.
