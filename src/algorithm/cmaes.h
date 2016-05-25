@@ -40,7 +40,7 @@
 
 namespace pagmo { namespace algorithm {
 
-/// Covariance Matrix Adaptation Evolutionary Startegy (CMAES)
+/// Covariance Matrix Adaptation Evolutionary Strategy (CMAES)
 /**
 
  */
