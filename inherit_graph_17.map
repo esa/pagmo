@@ -1,0 +1,81 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classpagmo_1_1problem_1_1base.html" title="Base problem class. " alt="" coords="5,2104,156,2131"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1problem_1_1ackley.html" title="The Ackley problem. " alt="" coords="229,157,390,184"/>
+<area shape="rect" id="node3" href="$classpagmo_1_1problem_1_1antibodies__problem.html" title="Antibodies meta&#45;problem. " alt="" coords="218,209,401,250"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1problem_1_1base__meta.html" title="Meta=problems base class. " alt="" coords="216,275,403,301"/>
+<area shape="rect" id="node13" href="$classpagmo_1_1problem_1_1base__stochastic.html" title="Base Stochastic Optimization Problem. " alt="" coords="234,571,385,613"/>
+<area shape="rect" id="node20" href="$classpagmo_1_1problem_1_1base__tsp.html" title="Base TSP (Travelling Salesman Problem). " alt="" coords="221,772,397,799"/>
+<area shape="rect" id="node25" href="$classpagmo_1_1problem_1_1base__unc__mo.html" title="Base Class for Unconstrained Multi&#45;objective problems. " alt="" coords="234,823,385,865"/>
+<area shape="rect" id="node29" href="$classpagmo_1_1problem_1_1branin.html" title="Branin rcos test function. " alt="" coords="230,889,389,916"/>
+<area shape="rect" id="node30" href="$classpagmo_1_1problem_1_1bukin.html" title="Bukin f6 function. " alt="" coords="232,940,387,967"/>
+<area shape="rect" id="node31" href="$classpagmo_1_1problem_1_1cassini__1.html" title="Cassini MGA problem. " alt="" coords="220,991,399,1017"/>
+<area shape="rect" id="node32" href="$classpagmo_1_1problem_1_1cassini__2.html" title="Cassini MGA&#45;DSM Problem. " alt="" coords="220,1041,399,1068"/>
+<area shape="rect" id="node33" href="$classpagmo_1_1problem_1_1cec2006.html" title="The CEC 2006 problems: Constrained Real&#45;Parameter Optimization. " alt="" coords="223,1092,395,1119"/>
+<area shape="rect" id="node34" href="$classpagmo_1_1problem_1_1cec2009.html" title="pagmo::problem::cec2009" alt="" coords="223,1143,395,1169"/>
+<area shape="rect" id="node35" href="$classpagmo_1_1problem_1_1cec2013.html" title="The CEC 2013 problems: Real&#45;Parameter Single Objective Optimization Competition. " alt="" coords="223,1193,395,1220"/>
+<area shape="rect" id="node36" href="$classpagmo_1_1problem_1_1dejong.html" title="The De Jong&#39;s problem. " alt="" coords="229,1244,390,1271"/>
+<area shape="rect" id="node37" href="$classpagmo_1_1problem_1_1earth__planet.html" title="Test problem kep tool. " alt="" coords="233,1295,385,1337"/>
+<area shape="rect" id="node38" href="$classpagmo_1_1problem_1_1fon.html" title="Fonseca and Fleming&#39;s study. " alt="" coords="239,1361,380,1388"/>
+<area shape="rect" id="node39" href="$classpagmo_1_1problem_1_1golomb__ruler.html" title="Golomb ruler problem. " alt="" coords="227,1413,392,1454"/>
+<area shape="rect" id="node40" href="$classpagmo_1_1problem_1_1griewank.html" title="The Griewank problem. " alt="" coords="222,1479,397,1505"/>
+<area shape="rect" id="node41" href="$classpagmo_1_1problem_1_1gtoc5__flyby.html" title="Test problem kep tool. " alt="" coords="232,1530,387,1571"/>
+<area shape="rect" id="node42" href="$classpagmo_1_1problem_1_1gtoc5__launch.html" title="Launch phase of the GTOC5 roblem. " alt="" coords="232,1595,387,1637"/>
+<area shape="rect" id="node43" href="$classpagmo_1_1problem_1_1gtoc5__rendezvous.html" title="Test problem kep tool. " alt="" coords="232,1661,387,1702"/>
+<area shape="rect" id="node44" href="$classpagmo_1_1problem_1_1gtoc5__self__flyby.html" title="Test problem kep tool. " alt="" coords="232,1726,387,1767"/>
+<area shape="rect" id="node45" href="$classpagmo_1_1problem_1_1gtoc__1.html" title="GTOC_1 MGA problem. " alt="" coords="228,1792,391,1819"/>
+<area shape="rect" id="node46" href="$classpagmo_1_1problem_1_1gtoc__2.html" title="GTOC_2 Low&#45;Thrust Multiple Asteroid Randezvous Problem. " alt="" coords="228,1843,391,1869"/>
+<area shape="rect" id="node47" href="$classpagmo_1_1problem_1_1himmelblau.html" title="Himmelblau function minimisation problem. " alt="" coords="215,1893,404,1920"/>
+<area shape="rect" id="node48" href="$classpagmo_1_1problem_1_1identity.html" title="Identity problem. " alt="" coords="227,1944,392,1971"/>
+<area shape="rect" id="node49" href="$classpagmo_1_1problem_1_1kur.html" title="Kursawe&#39;s study. " alt="" coords="239,1995,380,2021"/>
+<area shape="rect" id="node50" href="$classpagmo_1_1problem_1_1laplace.html" title="Laplace problem. " alt="" coords="227,2045,391,2072"/>
+<area shape="rect" id="node51" href="$classpagmo_1_1problem_1_1lavor__maculan.html" title="The Potential Energy of Molecules problem as proposed by Lavor and Maculan. " alt="" coords="234,2097,385,2138"/>
+<area shape="rect" id="node52" href="$classpagmo_1_1problem_1_1lennard__jones.html" title="The Lennard&#45;Jones problem. " alt="" coords="227,2162,392,2203"/>
+<area shape="rect" id="node53" href="$classpagmo_1_1problem_1_1levy5.html" title="The Levy5 problem. " alt="" coords="232,2228,387,2255"/>
+<area shape="rect" id="node54" href="$classpagmo_1_1problem_1_1luksan__vlcek__1.html" title="Test problem from the Luksan and Vlcek book. " alt="" coords="229,2279,390,2321"/>
+<area shape="rect" id="node55" href="$classpagmo_1_1problem_1_1luksan__vlcek__2.html" title="Test problem from the Luksan and Vlcek book. " alt="" coords="229,2345,390,2386"/>
+<area shape="rect" id="node56" href="$classpagmo_1_1problem_1_1luksan__vlcek__3.html" title="Test problem from the Luksan and Vlcek book. " alt="" coords="229,2410,390,2451"/>
+<area shape="rect" id="node57" href="$classpagmo_1_1problem_1_1messenger.html" title="Messenger MGA&#45;DSM Problem (reduced version) " alt="" coords="216,2476,403,2503"/>
+<area shape="rect" id="node58" href="$classpagmo_1_1problem_1_1messenger__full.html" title="Messenger MGA&#45;DSM Problem (full version) " alt="" coords="204,2527,415,2553"/>
+<area shape="rect" id="node59" href="$classpagmo_1_1problem_1_1mga__1dsm__alpha.html" title="A generic MGA&#45;1DSM Problem. " alt="" coords="235,2578,383,2619"/>
+<area shape="rect" id="node60" href="$classpagmo_1_1problem_1_1mga__1dsm__tof.html" title="A generic MGA&#45;1DSM Problem (tof encoding) " alt="" coords="235,2643,383,2685"/>
+<area shape="rect" id="node61" href="$classpagmo_1_1problem_1_1mga__incipit.html" title="The beginning of the GTOC6 Jupiter Capture Trajectory. " alt="" coords="235,2709,383,2750"/>
+<area shape="rect" id="node62" href="$classpagmo_1_1problem_1_1mga__incipit__cstrs.html" title="The beginning of the GTOC6 Jupiter Capture Trajectory. " alt="" coords="235,2774,383,2815"/>
+<area shape="rect" id="node63" href="$classpagmo_1_1problem_1_1mga__part.html" title="A part of the GTOC6 Jupiter Capture Trajectory. " alt="" coords="221,2840,398,2867"/>
+<area shape="rect" id="node64" href="$classpagmo_1_1problem_1_1mga__target__event.html" title="Used in GTOC 7. " alt="" coords="235,2891,383,2933"/>
+<area shape="rect" id="node65" href="$classpagmo_1_1problem_1_1michalewicz.html" title="The Michalewicz problem. " alt="" coords="212,2957,407,2984"/>
+<area shape="rect" id="node66" href="$classpagmo_1_1problem_1_1pol.html" title="Poloni&#39;s study. " alt="" coords="239,3008,379,3035"/>
+<area shape="rect" id="node67" href="$classpagmo_1_1problem_1_1pressure__vessel.html" title="The pressure vessel design problem: Constrained Real&#45;Parameter Optimization. " alt="" coords="223,3059,396,3101"/>
+<area shape="rect" id="node68" href="$classpagmo_1_1problem_1_1rastrigin.html" title="The Rastrigin problem. " alt="" coords="225,3125,394,3152"/>
+<area shape="rect" id="node69" href="$classpagmo_1_1problem_1_1rosenbrock.html" title="The Rosenbrock problem. " alt="" coords="216,3176,403,3203"/>
+<area shape="rect" id="node70" href="$classpagmo_1_1problem_1_1rosetta.html" title="Rosetta MGA&#45;DSM Problem. " alt="" coords="228,3227,391,3253"/>
+<area shape="rect" id="node71" href="$classpagmo_1_1problem_1_1sagas.html" title="SAGAS MGA&#45;DSM Problem. " alt="" coords="230,3277,389,3304"/>
+<area shape="rect" id="node72" href="$classpagmo_1_1problem_1_1sample__return.html" title="Human mission to asteroids. " alt="" coords="227,3329,392,3370"/>
+<area shape="rect" id="node73" href="$classpagmo_1_1problem_1_1sch.html" title="Shaffer&#39;s study problem. " alt="" coords="237,3395,381,3421"/>
+<area shape="rect" id="node74" href="$classpagmo_1_1problem_1_1schwefel.html" title="The Schwefel problem. " alt="" coords="222,3445,397,3472"/>
+<area shape="rect" id="node75" href="$classpagmo_1_1problem_1_1snopt__toyprob.html" title="Test problem from SNOPT. " alt="" coords="232,3497,387,3538"/>
+<area shape="rect" id="node76" href="$classpagmo_1_1problem_1_1string__match.html" title="String matching problem. " alt="" coords="232,3562,387,3603"/>
+<area shape="rect" id="node77" href="$classpagmo_1_1problem_1_1tandem.html" title="TandEM problem. " alt="" coords="226,3628,393,3655"/>
+<area shape="rect" id="node78" href="$classpagmo_1_1problem_1_1tens__comp__string.html" title="The tension compression string design problem: Constrained Real&#45;Parameter Optimization. " alt="" coords="235,3679,383,3721"/>
+<area shape="rect" id="node79" href="$classpagmo_1_1problem_1_1welded__beam.html" title="The welded beam design problem: Constrained Real&#45;Parameter Optimization. " alt="" coords="208,3745,411,3772"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1problem_1_1con2mo.html" title="Constrainted to Multi&#45;Objective meta&#45;problem. " alt="" coords="473,5,643,32"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1problem_1_1con2uncon.html" title="Constrained to unconstrained meta&#45;problem. " alt="" coords="465,56,651,83"/>
+<area shape="rect" id="node7" href="$classpagmo_1_1problem_1_1death__penalty.html" title="Constrainted death penalty meta&#45;problem. " alt="" coords="481,107,635,149"/>
+<area shape="rect" id="node8" href="$classpagmo_1_1problem_1_1decompose.html" title="Decompose meta&#45;problem. " alt="" coords="463,173,653,200"/>
+<area shape="rect" id="node9" href="$classpagmo_1_1problem_1_1normalized.html" title="Normalized meta&#45;problem. " alt="" coords="465,224,651,251"/>
+<area shape="rect" id="node10" href="$classpagmo_1_1problem_1_1rotated.html" title="Shifted meta&#45;problem. " alt="" coords="477,275,639,301"/>
+<area shape="rect" id="node11" href="$classpagmo_1_1problem_1_1scaled.html" title="Scaled meta&#45;problem. " alt="" coords="477,325,639,352"/>
+<area shape="rect" id="node12" href="$classpagmo_1_1problem_1_1shifted.html" title="Shifted meta&#45;problem. " alt="" coords="477,376,639,403"/>
+<area shape="rect" id="node14" href="$classpagmo_1_1problem_1_1inventory.html" title="Stochastic Programming Test Problem: Inventory Model. " alt="" coords="470,427,646,453"/>
+<area shape="rect" id="node15" href="$classpagmo_1_1problem_1_1noisy.html" title="Noisy meta&#45;problem. " alt="" coords="481,477,635,504"/>
+<area shape="rect" id="node16" href="$classpagmo_1_1problem_1_1robust.html" title="Robust meta&#45;problem. " alt="" coords="479,528,637,555"/>
+<area shape="rect" id="node17" href="$classpagmo_1_1problem_1_1spheres.html" title="Evolutionary Neuro&#45;Controller for the MIT Spheres (perception&#45;action defined in the absolute frame) ..." alt="" coords="473,579,643,605"/>
+<area shape="rect" id="node18" href="$classpagmo_1_1problem_1_1spheres__q.html" title="Evolutionary Neuro&#45;Controller for the MIT Spheres (perception&#45;action defined in the body frame) ..." alt="" coords="467,629,649,656"/>
+<area shape="rect" id="node19" href="$classpagmo_1_1util_1_1racing_1_1metrics__algos_1_1standard.html" title="pagmo::util::racing\l::metrics_algos::standard" alt="" coords="473,681,643,722"/>
+<area shape="rect" id="node21" href="$classpagmo_1_1problem_1_1tsp.html" title="A static Travelling Salesman Problem. " alt="" coords="487,747,629,773"/>
+<area shape="rect" id="node22" href="$classpagmo_1_1problem_1_1tsp__cs.html" title="The City&#45;Selection Travelling Salesman Problem. " alt="" coords="477,797,639,824"/>
+<area shape="rect" id="node23" href="$classpagmo_1_1problem_1_1tsp__ds.html" title="The TSP &#45; Debris Selection Problem. " alt="" coords="477,848,639,875"/>
+<area shape="rect" id="node24" href="$classpagmo_1_1problem_1_1tsp__vrplc.html" title="A static Travelling Salesman Problem. " alt="" coords="487,899,629,941"/>
+<area shape="rect" id="node26" href="$classpagmo_1_1problem_1_1base__dtlz.html" title="Base DTLZ Multi&#45;objective optimization problem. " alt="" coords="469,965,647,992"/>
+<area shape="rect" id="node28" href="$classpagmo_1_1problem_1_1zdt.html" title="ZDT problem test suite. " alt="" coords="487,1016,629,1043"/>
+<area shape="rect" id="node27" href="$classpagmo_1_1problem_1_1dtlz.html" title="DTLZ problem test suite. " alt="" coords="701,965,845,992"/>
+</map>

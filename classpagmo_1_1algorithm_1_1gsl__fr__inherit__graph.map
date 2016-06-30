@@ -1,0 +1,5 @@
+<map id="pagmo::algorithm::gsl_fr" name="pagmo::algorithm::gsl_fr">
+<area shape="rect" id="node2" href="$classpagmo_1_1algorithm_1_1gsl__gradient.html" title="Wrapper for GSL minimisers with derivatives. " alt="" coords="23,155,170,196"/>
+<area shape="rect" id="node3" href="$classpagmo_1_1algorithm_1_1base__gsl.html" title="Base class for GSL algorithms. " alt="" coords="5,80,188,107"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1algorithm_1_1base.html" title="Base algorithm class. " alt="" coords="17,5,176,32"/>
+</map>

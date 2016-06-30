@@ -1,0 +1,7 @@
+<map id="pagmo::problem::base_tsp" name="pagmo::problem::base_tsp">
+<area shape="rect" id="node3" href="$classpagmo_1_1problem_1_1tsp.html" title="A static Travelling Salesman Problem. " alt="" coords="439,5,580,32"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1problem_1_1tsp__cs.html" title="The City&#45;Selection Travelling Salesman Problem. " alt="" coords="428,56,591,83"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1problem_1_1tsp__ds.html" title="The TSP &#45; Debris Selection Problem. " alt="" coords="428,107,591,133"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1problem_1_1tsp__vrplc.html" title="A static Travelling Salesman Problem. " alt="" coords="439,158,580,199"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1problem_1_1base.html" title="Base problem class. " alt="" coords="5,81,156,108"/>
+</map>

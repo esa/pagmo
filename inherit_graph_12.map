@@ -1,0 +1,15 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classpagmo_1_1migration_1_1base.html" title="Base migration class. " alt="" coords="5,291,164,318"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1migration_1_1base__r__policy.html" title="Base class for migration replacement policies. " alt="" coords="212,169,371,211"/>
+<area shape="rect" id="node8" href="$classpagmo_1_1migration_1_1base__s__policy.html" title="Base class for migration selection policies. " alt="" coords="212,431,371,472"/>
+<area shape="rect" id="node3" href="$classpagmo_1_1migration_1_1fair__r__policy.html" title="Fair replacement policy. " alt="" coords="431,5,579,47"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1migration_1_1hv__fair__r__policy.html" title="Replace the &#39;n&#39; least contributors with the incoming set. " alt="" coords="433,71,577,112"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1migration_1_1hv__greedy__r__policy.html" title="Replace the &#39;n&#39; successive least contributors with the incoming set. " alt="" coords="433,136,577,177"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1migration_1_1random__r__policy.html" title="Random replacement policy. " alt="" coords="419,201,592,243"/>
+<area shape="rect" id="node7" href="$classpagmo_1_1migration_1_1worst__r__policy.html" title="Worst replacement policy. " alt="" coords="424,267,587,308"/>
+<area shape="rect" id="node9" href="$classpagmo_1_1migration_1_1best__kill__s__policy.html" title="&quot;Choose best and kill him&quot; migration selection policy. " alt="" coords="428,332,583,373"/>
+<area shape="rect" id="node10" href="$classpagmo_1_1migration_1_1best__s__policy.html" title="&quot;Choose best&quot; migration selection policy. " alt="" coords="428,397,583,439"/>
+<area shape="rect" id="node11" href="$classpagmo_1_1migration_1_1hv__best__s__policy.html" title="Choose &#39;n&#39; greatest contributors migration policy. " alt="" coords="433,463,577,504"/>
+<area shape="rect" id="node12" href="$classpagmo_1_1migration_1_1hv__greedy__s__policy.html" title="Choose &#39;n&#39; successive greatest contributors migration policy. " alt="" coords="433,528,577,569"/>
+<area shape="rect" id="node13" href="$classpagmo_1_1migration_1_1random__s__policy.html" title="Random migration selection policy. " alt="" coords="419,593,592,635"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="pagmo::problem::base_stochastic" name="pagmo::problem::base_stochastic">
+<area shape="rect" id="node3" href="$classpagmo_1_1problem_1_1inventory.html" title="Stochastic Programming Test Problem: Inventory Model. " alt="" coords="406,5,582,32"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1problem_1_1noisy.html" title="Noisy meta&#45;problem. " alt="" coords="417,56,571,83"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1problem_1_1robust.html" title="Robust meta&#45;problem. " alt="" coords="415,107,573,133"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1problem_1_1spheres.html" title="Evolutionary Neuro&#45;Controller for the MIT Spheres (perception&#45;action defined in the absolute frame) ..." alt="" coords="409,157,579,184"/>
+<area shape="rect" id="node7" href="$classpagmo_1_1problem_1_1spheres__q.html" title="Evolutionary Neuro&#45;Controller for the MIT Spheres (perception&#45;action defined in the body frame) ..." alt="" coords="403,208,585,235"/>
+<area shape="rect" id="node8" href="$classpagmo_1_1util_1_1racing_1_1metrics__algos_1_1standard.html" title="pagmo::util::racing\l::metrics_algos::standard" alt="" coords="409,259,579,301"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1problem_1_1base.html" title="Base problem class. " alt="" coords="5,132,156,159"/>
+</map>

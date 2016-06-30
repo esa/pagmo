@@ -1,0 +1,7 @@
+<map id="pagmo::algorithm::gsl_derivative_free" name="pagmo::algorithm::gsl_derivative_free">
+<area shape="rect" id="node4" href="$classpagmo_1_1algorithm_1_1gsl__nm.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm. " alt="" coords="5,251,177,278"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1algorithm_1_1gsl__nm2.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm (version 2). " alt="" coords="202,251,381,278"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1algorithm_1_1gsl__nm2rand.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm (version 2 + randomly&#45;oriented initial simplex)..." alt="" coords="405,244,551,285"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1algorithm_1_1base__gsl.html" title="Base class for GSL algorithms. " alt="" coords="200,80,383,107"/>
+<area shape="rect" id="node3" href="$classpagmo_1_1algorithm_1_1base.html" title="Base algorithm class. " alt="" coords="212,5,371,32"/>
+</map>

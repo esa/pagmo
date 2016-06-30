@@ -1,0 +1,56 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classpagmo_1_1algorithm_1_1base.html" title="Base algorithm class. " alt="" coords="5,1391,164,1417"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1algorithm_1_1base__gsl.html" title="Base class for GSL algorithms. " alt="" coords="218,232,401,259"/>
+<area shape="rect" id="node12" href="$classpagmo_1_1algorithm_1_1base__nlopt.html" title="Base class for wrapping NLopt&#39;s algorithms. " alt="" coords="230,453,389,494"/>
+<area shape="rect" id="node20" href="$classpagmo_1_1algorithm_1_1bee__colony.html" title="The Artificial Bee Colony Solver (ABC) " alt="" coords="234,518,385,559"/>
+<area shape="rect" id="node21" href="$classpagmo_1_1algorithm_1_1cmaes.html" title="Covariance Matrix Adaptation Evolutionary Strategy (CMAES) " alt="" coords="225,584,394,611"/>
+<area shape="rect" id="node22" href="$classpagmo_1_1algorithm_1_1cs.html" title="The Compass Search Solver (CS) " alt="" coords="237,635,381,661"/>
+<area shape="rect" id="node23" href="$classpagmo_1_1algorithm_1_1cstrs__co__evolution.html" title="Co&#45;Evolution constraints handling meta&#45;algorithm. " alt="" coords="230,686,389,727"/>
+<area shape="rect" id="node24" href="$classpagmo_1_1algorithm_1_1cstrs__core.html" title="CORE constraints handling meta&#45;algorithm. " alt="" coords="214,752,405,779"/>
+<area shape="rect" id="node25" href="$classpagmo_1_1algorithm_1_1cstrs__immune__system.html" title="Immune system constraints handling meta&#45;algorithm. " alt="" coords="230,803,389,845"/>
+<area shape="rect" id="node26" href="$classpagmo_1_1algorithm_1_1cstrs__self__adaptive.html" title="Self&#45;Adaptive Fitness constraints handling meta&#45;algorithm. " alt="" coords="230,869,389,910"/>
+<area shape="rect" id="node27" href="$classpagmo_1_1algorithm_1_1de.html" title="Differential Evolution Algorithm. " alt="" coords="237,935,381,961"/>
+<area shape="rect" id="node28" href="$classpagmo_1_1algorithm_1_1de__1220.html" title="Differential Evolution Algorithm &#45; 1220 (our version!!) " alt="" coords="220,985,399,1012"/>
+<area shape="rect" id="node29" href="$classpagmo_1_1algorithm_1_1firefly.html" title="The Firefly algorithm. " alt="" coords="228,1036,391,1063"/>
+<area shape="rect" id="node30" href="$classpagmo_1_1algorithm_1_1ihs.html" title="Improved harmony search algorithm. " alt="" coords="236,1087,383,1113"/>
+<area shape="rect" id="node31" href="$classpagmo_1_1algorithm_1_1inverover.html" title="Inver&#45;Over Algorithm (IO) " alt="" coords="218,1137,401,1164"/>
+<area shape="rect" id="node32" href="$classpagmo_1_1algorithm_1_1ipopt.html" title="Wrapper for the IPOPT solver. " alt="" coords="230,1188,389,1215"/>
+<area shape="rect" id="node33" href="$classpagmo_1_1algorithm_1_1jde.html" title="jDE &#45; Differential Evolution Algorithm &#45; Self&#45;Adaptive C and R (2011) " alt="" coords="236,1239,383,1265"/>
+<area shape="rect" id="node34" href="$classpagmo_1_1algorithm_1_1mbh.html" title="Monotonic Basin Hopping (generalized) " alt="" coords="232,1289,387,1316"/>
+<area shape="rect" id="node35" href="$classpagmo_1_1algorithm_1_1mde__pbx.html" title="MDE_pBX &#45; Differential Evolution variant. " alt="" coords="218,1340,401,1367"/>
+<area shape="rect" id="node36" href="$classpagmo_1_1algorithm_1_1moead.html" title="MOEA/D &#45; DE. " alt="" coords="225,1391,394,1417"/>
+<area shape="rect" id="node37" href="$classpagmo_1_1algorithm_1_1monte__carlo.html" title="Monte Carlo algorithm. " alt="" coords="226,1442,393,1483"/>
+<area shape="rect" id="node38" href="$classpagmo_1_1algorithm_1_1ms.html" title="Multistart. " alt="" coords="235,1508,383,1535"/>
+<area shape="rect" id="node39" href="$classpagmo_1_1algorithm_1_1nn__tsp.html" title="Nearest Neighbor Algorithm (NN) " alt="" coords="225,1559,394,1585"/>
+<area shape="rect" id="node40" href="$classpagmo_1_1algorithm_1_1nsga2.html" title="Nondominated Sorting genetic algorithm II (NSGA&#45;II) " alt="" coords="227,1609,392,1636"/>
+<area shape="rect" id="node41" href="$classpagmo_1_1algorithm_1_1nspso.html" title="Non&#45;dominated Sorting Particle Swarm Optimizer (NSPSO) " alt="" coords="227,1660,392,1687"/>
+<area shape="rect" id="node42" href="$classpagmo_1_1algorithm_1_1null.html" title="Null algorithm. " alt="" coords="234,1711,385,1737"/>
+<area shape="rect" id="node43" href="$classpagmo_1_1algorithm_1_1pade.html" title="Parallel Decomposition (PaDe) " alt="" coords="230,1761,389,1788"/>
+<area shape="rect" id="node44" href="$classpagmo_1_1algorithm_1_1pso.html" title="Particle Swarm optimization. " alt="" coords="234,1812,385,1839"/>
+<area shape="rect" id="node45" href="$classpagmo_1_1algorithm_1_1pso__generational.html" title="Particle Swarm optimization generational. " alt="" coords="234,1863,385,1905"/>
+<area shape="rect" id="node46" href="$classpagmo_1_1algorithm_1_1pso__generational__racing.html" title="Particle Swarm optimization generational with racing. " alt="" coords="234,1929,385,1970"/>
+<area shape="rect" id="node47" href="$classpagmo_1_1algorithm_1_1sa__corana.html" title="Simulated Annealing, Corana&#39;s version with adaptive neighbourhood. " alt="" coords="237,1994,381,2035"/>
+<area shape="rect" id="node48" href="$classpagmo_1_1algorithm_1_1sea.html" title="(N+1)&#45;EA Simple Evolutionary Algorithm " alt="" coords="234,2060,385,2087"/>
+<area shape="rect" id="node49" href="$classpagmo_1_1algorithm_1_1sga.html" title="The Simple Genetic Algorithm (SGA) " alt="" coords="234,2111,385,2137"/>
+<area shape="rect" id="node50" href="$classpagmo_1_1algorithm_1_1sga__gray.html" title="The Simple Genetic Algorithm with gray encoding (sga_gray) " alt="" coords="218,2161,401,2188"/>
+<area shape="rect" id="node51" href="$classpagmo_1_1algorithm_1_1sms__emoa.html" title="S&#45;metric selection evolutionary multiobjective optimisation algorithm (SMS&#45;EMOA) " alt="" coords="212,2212,407,2239"/>
+<area shape="rect" id="node52" href="$classpagmo_1_1algorithm_1_1snopt.html" title="Wrapper for the SNOPT solver. " alt="" coords="228,2263,391,2289"/>
+<area shape="rect" id="node53" href="$classpagmo_1_1algorithm_1_1spea2.html" title="&quot;Strength Pareto Evolutionary Algorithm (SPEA2)&quot; " alt="" coords="227,2313,392,2340"/>
+<area shape="rect" id="node54" href="$classpagmo_1_1algorithm_1_1vega.html" title="VEGA based multi&#45;objective algorithm. " alt="" coords="230,2364,389,2391"/>
+<area shape="rect" id="node3" href="$classpagmo_1_1algorithm_1_1gsl__derivative__free.html" title="Wrapper for GSL minimisers without derivatives. " alt="" coords="479,78,625,119"/>
+<area shape="rect" id="node7" href="$classpagmo_1_1algorithm_1_1gsl__gradient.html" title="Wrapper for GSL minimisers with derivatives. " alt="" coords="479,225,625,266"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1algorithm_1_1gsl__nm.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm. " alt="" coords="701,5,873,32"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1algorithm_1_1gsl__nm2.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm (version 2). " alt="" coords="697,56,876,83"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1algorithm_1_1gsl__nm2rand.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm (version 2 + randomly&#45;oriented initial simplex)..." alt="" coords="713,107,860,149"/>
+<area shape="rect" id="node8" href="$classpagmo_1_1algorithm_1_1gsl__bfgs.html" title="Wrapper for the GSL BFGS algorithm. " alt="" coords="697,173,876,200"/>
+<area shape="rect" id="node9" href="$classpagmo_1_1algorithm_1_1gsl__bfgs2.html" title="Wrapper for the GSL BFGS2 algorithm. " alt="" coords="713,225,860,266"/>
+<area shape="rect" id="node10" href="$classpagmo_1_1algorithm_1_1gsl__fr.html" title="Wrapper for the GSL Fletcher&#45;Reeves conjugate gradient algorithm. " alt="" coords="705,291,868,317"/>
+<area shape="rect" id="node11" href="$classpagmo_1_1algorithm_1_1gsl__pr.html" title="Wrapper for the GSL Polak&#45;Ribiere conjugate gradient algorithm. " alt="" coords="704,341,869,368"/>
+<area shape="rect" id="node13" href="$classpagmo_1_1algorithm_1_1nlopt__aug__lag.html" title="Wrapper for NLopt&#39;s Augmented Lagrangian algorithm. " alt="" coords="473,290,631,331"/>
+<area shape="rect" id="node14" href="$classpagmo_1_1algorithm_1_1nlopt__aug__lag__eq.html" title="Wrapper for NLopt&#39;s Augmented Lagrangian algorithm (using penalties only for the equalities) ..." alt="" coords="473,355,631,397"/>
+<area shape="rect" id="node15" href="$classpagmo_1_1algorithm_1_1nlopt__bobyqa.html" title="Wrapper for NLopt&#39;s BOBYQA algorithm. " alt="" coords="473,421,631,462"/>
+<area shape="rect" id="node16" href="$classpagmo_1_1algorithm_1_1nlopt__cobyla.html" title="Wrapper for NLopt&#39;s COBYLA algorithm. " alt="" coords="473,486,631,527"/>
+<area shape="rect" id="node17" href="$classpagmo_1_1algorithm_1_1nlopt__mma.html" title="Wrapper for NLopt&#39;s Method of Moving Asymptotes algorithm. " alt="" coords="455,552,649,579"/>
+<area shape="rect" id="node18" href="$classpagmo_1_1algorithm_1_1nlopt__sbplx.html" title="Wrapper for NLopt&#39;s Sbplx algorithm. " alt="" coords="473,603,631,645"/>
+<area shape="rect" id="node19" href="$classpagmo_1_1algorithm_1_1nlopt__slsqp.html" title="Wrapper for NLopt&#39;s Slsqp algorithm. " alt="" coords="473,669,631,710"/>
+</map>

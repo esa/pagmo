@@ -1,0 +1,12 @@
+<map id="pagmo::algorithm::base_gsl" name="pagmo::algorithm::base_gsl">
+<area shape="rect" id="node3" href="$classpagmo_1_1algorithm_1_1gsl__derivative__free.html" title="Wrapper for GSL minimisers without derivatives. " alt="" coords="443,78,589,119"/>
+<area shape="rect" id="node7" href="$classpagmo_1_1algorithm_1_1gsl__gradient.html" title="Wrapper for GSL minimisers with derivatives. " alt="" coords="443,225,589,266"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1algorithm_1_1base.html" title="Base algorithm class. " alt="" coords="5,173,164,200"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1algorithm_1_1gsl__nm.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm. " alt="" coords="641,5,813,32"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1algorithm_1_1gsl__nm2.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm (version 2). " alt="" coords="637,56,816,83"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1algorithm_1_1gsl__nm2rand.html" title="Wrapper for the GSL Nelder&#45;Mead simplex algorithm (version 2 + randomly&#45;oriented initial simplex)..." alt="" coords="653,107,800,149"/>
+<area shape="rect" id="node8" href="$classpagmo_1_1algorithm_1_1gsl__bfgs.html" title="Wrapper for the GSL BFGS algorithm. " alt="" coords="637,173,816,200"/>
+<area shape="rect" id="node9" href="$classpagmo_1_1algorithm_1_1gsl__bfgs2.html" title="Wrapper for the GSL BFGS2 algorithm. " alt="" coords="653,225,800,266"/>
+<area shape="rect" id="node10" href="$classpagmo_1_1algorithm_1_1gsl__fr.html" title="Wrapper for the GSL Fletcher&#45;Reeves conjugate gradient algorithm. " alt="" coords="645,291,808,317"/>
+<area shape="rect" id="node11" href="$classpagmo_1_1algorithm_1_1gsl__pr.html" title="Wrapper for the GSL Polak&#45;Ribiere conjugate gradient algorithm. " alt="" coords="644,341,809,368"/>
+</map>

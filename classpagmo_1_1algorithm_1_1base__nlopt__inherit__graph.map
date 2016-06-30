@@ -1,0 +1,10 @@
+<map id="pagmo::algorithm::base_nlopt" name="pagmo::algorithm::base_nlopt">
+<area shape="rect" id="node3" href="$classpagmo_1_1algorithm_1_1nlopt__aug__lag.html" title="Wrapper for NLopt&#39;s Augmented Lagrangian algorithm. " alt="" coords="437,5,595,47"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1algorithm_1_1nlopt__aug__lag__eq.html" title="Wrapper for NLopt&#39;s Augmented Lagrangian algorithm (using penalties only for the equalities) ..." alt="" coords="437,71,595,112"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1algorithm_1_1nlopt__bobyqa.html" title="Wrapper for NLopt&#39;s BOBYQA algorithm. " alt="" coords="437,136,595,177"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1algorithm_1_1nlopt__cobyla.html" title="Wrapper for NLopt&#39;s COBYLA algorithm. " alt="" coords="437,201,595,243"/>
+<area shape="rect" id="node7" href="$classpagmo_1_1algorithm_1_1nlopt__mma.html" title="Wrapper for NLopt&#39;s Method of Moving Asymptotes algorithm. " alt="" coords="419,267,613,294"/>
+<area shape="rect" id="node8" href="$classpagmo_1_1algorithm_1_1nlopt__sbplx.html" title="Wrapper for NLopt&#39;s Sbplx algorithm. " alt="" coords="437,319,595,360"/>
+<area shape="rect" id="node9" href="$classpagmo_1_1algorithm_1_1nlopt__slsqp.html" title="Wrapper for NLopt&#39;s Slsqp algorithm. " alt="" coords="437,384,595,425"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1algorithm_1_1base.html" title="Base algorithm class. " alt="" coords="5,209,164,235"/>
+</map>

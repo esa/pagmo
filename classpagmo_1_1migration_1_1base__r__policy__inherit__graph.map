@@ -1,0 +1,8 @@
+<map id="pagmo::migration::base_r_policy" name="pagmo::migration::base_r_policy">
+<area shape="rect" id="node3" href="$classpagmo_1_1migration_1_1fair__r__policy.html" title="Fair replacement policy. " alt="" coords="431,5,579,47"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1migration_1_1hv__fair__r__policy.html" title="Replace the &#39;n&#39; least contributors with the incoming set. " alt="" coords="433,71,577,112"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1migration_1_1hv__greedy__r__policy.html" title="Replace the &#39;n&#39; successive least contributors with the incoming set. " alt="" coords="433,136,577,177"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1migration_1_1random__r__policy.html" title="Random replacement policy. " alt="" coords="419,201,592,243"/>
+<area shape="rect" id="node7" href="$classpagmo_1_1migration_1_1worst__r__policy.html" title="Worst replacement policy. " alt="" coords="424,267,587,308"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1migration_1_1base.html" title="Base migration class. " alt="" coords="5,143,164,170"/>
+</map>

@@ -1,0 +1,152 @@
+\form#0:$ \in [0,1[ $
+\form#1:$ \in ]0,1[$
+\form#2:$ \gamma $
+\form#3:$ \beta = \beta_0 \exp(-\gamma r) $
+\form#4:$\mathbf x$
+\form#5:$ \in [0,1[$
+\form#6:$ \in [0,1]$
+\form#7:$\mathbf x^l_i$
+\form#8:$ \mathbf x^g $
+\form#9:\[ \mathbf v_{i+1} = \omega \mathbf v_i + \eta_1 \mathbf r_1 \cdot \left( \mathbf x_i - \mathbf x^l_i \right) + \eta_2 \mathbf r_2 \cdot \left( \mathbf x_i - \mathbf x^g \right) \]
+\form#10:\[ \mathbf x_{i+1} = \mathbf x_i + \mathbf v_i \]
+\form#11:$\omega, \eta_1, \eta_2$
+\form#12:$ vcoeff$
+\form#13:$r_1$
+\form#14:$r_2$
+\form#15:$\mathbf r_1 = [r_{11}, r_{12}, ..., r_{1n}]$
+\form#16:$\mathbf r_2 = [r_{21}, r_{21}, ..., r_{2n}]$
+\form#17:$\mathbf r_2 = [r_{11}, r_{11}, ..., r_{1n}]$
+\form#18:$\mathbf r_1 = [r_1, r_1, ..., r_1]$
+\form#19:$\mathbf r_2 = [r_2, r_2, ..., r_2]$
+\form#20:$\mathbf r_2 = [r_1, r_1, ..., r_1]$
+\form#21:$]0,1[$
+\form#22:$ K=\sqrt{pop size + archive size} $
+\form#23:$ \begin{array}{rl} \mbox{find:} & \mathbf x \in R^n \times N^m \\ \mbox{to minimize:} & \mathbf f(\mathbf x, \mathbf s) \\ \mbox{subject to:} & \mathbf {lb} \le \mathbf x \le \mathbf {ub} \\ & \mathbf c(\mathbf x) = \mathbf 0 \\ & \mathbf c_{in}(\mathbf x) \le \mathbf 0 \end{array} $
+\form#24:\[ z_i^{\mbox{ideal}} = \mbox{min}_{x \in X : x \mbox{ is Pareto Optimal}} f_i(x) \]
+\form#25:\[ z_i^{\mbox{nadir}} = \mbox{max}_{x \in X : x \mbox{ is Pareto Optimal}} f_i(x) \]
+\form#26:\[ F\left(x_1,\ldots,x_n\right) = 20 + e - 20e^{-\frac 15 \sqrt{\frac 1n \sum_{i=1}^n x_i^2}} - e^{\frac 1n \sum_{i=1}^n \cos(2\pi x_i)}, \quad x_i \in \left[ -15,30 \right]. \]
+\form#27:$x_i=0$
+\form#28:$ F\left( 0,\ldots,0 \right) = 0 $
+\form#29:$ \mathbf G $
+\form#30:$ \mathbf G_{ij} = \frac{\partial F_i}{\partial x_j}$
+\form#31:$ \mathbf F = [fit_1,\ldots,fit_{nfit}, ceq_1,\ldots,ceq_{neq}, cineq_1,\ldots, cineq_{nineq}] $
+\form#32:$ \mathbf x $
+\form#33:$ G_{ij} \neq 0 $
+\form#34:$ \mathbf x_0 $
+\form#35:$ x_j $
+\form#36:$ F_i $
+\form#37:$ x_{0_j}$
+\form#38:$ J(\mathbf x) = E_s(\mathbf x,s) $
+\form#39:\[ f_{br}\left(x_1,x_2\right) = a \left( x_2 - bx_1^2 +cx_1 - d \right)^2 + e\left( 1 - f \right) \cos x_1 + e, \]
+\form#40:\[ \begin{array}{rcl} a & = & 1, \\ b & = & \frac{5.1}{4\pi^2}, \\ c & = & \frac{5}{\pi}, \\ d & = & 6, \\ e & = & 10, \\ f & = & \frac{1}{8\pi}, \end{array} \]
+\form#41:\[ \begin{array}{rcl} x_1 & \in & \left[ -5,10 \right ],\\ x_2 & \in & \left[ 0,15 \right ]. \end{array} \]
+\form#42:$ \left( -\pi, 12.275 \right) $
+\form#43:$ \left( \pi, 2.275 \right) $
+\form#44:$ \left( 9.42478, 2.475 \right) $
+\form#45:$ 0.397887 $
+\form#46:\[ f(x, y) = 100\sqrt{\left|y - 0.01 x^2\right|} + 0.01\left|x+10\right| \]
+\form#47:$ x = -10 $
+\form#48:$ y = 1 $
+\form#49:$ f(x,y) = 0 $
+\form#50:$ lb = [-15,-3], ub = [-5,3] $
+\form#51:$ \Delta V$
+\form#52:$ T $
+\form#53:$\Delta V$
+\form#54:$ F(X) = (F_1(X), \ldots, F_n(X)) $
+\form#55:$ w = (w_1, \ldots, w_n) $
+\form#56:$ z = (z_1, \ldots, z_n) $
+\form#57:$ F_d(X) = \sum_{i=1}^n w_i F_i(X) $
+\form#58:$ F_d(X) = max_{1 \leq i \leq m} w_i \vert F_i(X) - z_i \vert $
+\form#59:\[ F \left(x_1,\ldots,x_n\right) = \sum_{i=1}^n sin(x_i) x_i^2, \quad x_i \in \left[ -5.12,5.12 \right]. \]
+\form#60:$ x_i = 0$
+\form#61:$ k + fdim - 1 $
+\form#62:$ \sum_{m=1}^M f_m = 0.5 $
+\form#63:$ M \in [5, 10]$
+\form#64:\[ F_1 \left(x\right) = 1 - \exp(-\sum_{i=1}^3 (x_i - 1 / \sqrt(3))^2 \]
+\form#65:\[ F_2 \left(x\right) = 1 - \exp(-\sum_{i=1}^3 (x_i + 1 / \sqrt(3))^2 x \in \left[ -4,4 \right]. \]
+\form#66:$ x_1 = x_2 = x_3 \in \left[-1/ \sqrt(3) , +1/ \sqrt(3) \right] $
+\form#67:\[ F\left(x_1,\ldots,x_n\right) = \sum_{i=1}^n x_i^2 / 4000 - \prod_{i=1}^n\cos\frac{x_i}{\sqrt{i}}, \quad x_i \in \left[ -600,600 \right]. \]
+\form#68:\[ f(x, y) = \left(x^2+y-11\right)^2 + \left(x+y^2-7\right)^2. \]
+\form#69:$ x = -0.270844 $
+\form#70:$ y = -0.923038 $
+\form#71:$ f(x,y) = 181.616 $
+\form#72:$ f(3.0, 2.0) = 0.0 $
+\form#73:$ f(-2.805118, 3.131312) = 0.0 $
+\form#74:$ f(-3.779310, -3.283186) = 0.0 $
+\form#75:$ f(3.584428, -1.848126) = 0.0 $
+\form#76:$ [-6,6] $
+\form#77:\[ F \left(x_1,\ldots,x_n\right) = \left(x_1, \ldots, x_n\right) \]
+\form#78:$ N$
+\form#79:$ x_i $
+\form#80:$d_i$
+\form#81:$ c$
+\form#82:$ b $
+\form#83:$ h $
+\form#84:\[ I_i = [I_{i-1} + x_i - d_i]_+, I_1 = 0 \]
+\form#85:$N$
+\form#86:\[ J(\mathbf x, \mathbf d) = c \sum_{i=1}^N x_i+ b \sum_{i=1}^N [d_i - I_i - x_i]_+ + h \sum_{i=1}^N [I_i + x_i - d_i]_+ \]
+\form#87:\[ F_1 \left(x\right) = \sum_{i=1}^3 \left(-10 \exp \left(-0.2 \sqrt{x_i^2 + x_{i+1}^2}\right) \right) \]
+\form#88:\[ F_2 \left(x\right) = \sum_{i=1}^3 (|x_i|^{0.8} + 5 \sin(x_i^3) x \in \left[ -5,5 \right]. \]
+\form#89:$6 + 4(n-1)$
+\form#90:$n$
+\form#91:\[ F(x,y) = \sum_{i=1}^5 i\cos[(i-1)x + i]\sum_{j=1}^5 j\cos[(j+1)x + j] + (x+1.42513)^2 + (y+0.00832)^2, x,y \in \left[ -100,100 \right]. \]
+\form#92:$x=-1.30685, y=-1.424845$
+\form#93:$ F = -176.1375 $
+\form#94:$ [t_0,T] + [u,v,V_{\infty},\eta_1,\alpha_1] + [\beta, r_p/r_P, \eta_2,\alpha_2]$
+\form#95:$ \mathbf V_{\infty} = V_{\infty}*(\cos(\theta)\cos(\phi)\mathbf i+\cos(\theta)\sin(\phi)\mathbf j+\sin(\phi)\mathbf k) $
+\form#96:$ \theta = 2\pi u, \phi = acos(2v-1)-\pi/2 $
+\form#97:$ T_n = T log(\alpha_n) / \sum_i(log(\alpha_i))$
+\form#98:$\alpha$
+\form#99:$ [t_0] + [u,v,V_{\infty},\eta_1,T_1] + [\beta, r_p/r_P, \eta_2,T_2]$
+\form#100:\[ F \left(x_1,\ldots,x_n\right) = \sum_{i=1}^n sin(x_i) \left[sin \left(\frac{i x_i^2}{\pi} \right) \right]^2m, \quad x_i \in \left[ 0,\pi \right]. \]
+\form#101:$ m=10, n=5 f(x) = -4.687658$
+\form#102:\[ F_1 \left(x\right) = 1 + (A_1 - B_1)^2 + (A_2 - B_2)^2 \]
+\form#103:\[ F_2 \left(x\right) = (x_1 + 3)^2 + (x_2+1)^2 x \in \left[ -\pi,\pi \right]. \]
+\form#104:\[ A_1 = 0.5 \sin(1) - 2 \cos(1) + \sin(2) -1.5 \cos(2) \]
+\form#105:\[ A_2 = 1.5 \sin(1) - \cos(1) + 2 \sin(2) - 0.5 \cos(2) \]
+\form#106:\[ B_1 = 0.5 \sin(x_1) - 2 \cos(x_1) + \sin(x_2) - 1.5 \cos(x_2) \]
+\form#107:\[ B_2 = 1.5 \sin(x_1) - \cos(x_1) + 2 \sin(x_2) - 0.5 \cos(x_2) \]
+\form#108:\[ F\left(x_1,\ldots,x_n\right) = 10 \cdot n + \sum_{i=1}^n x_i^2 - 10\cdot\cos\left( 2\pi \cdot x_i \right), \quad x_i \in \left[ -5.12,5.12 \right]. \]
+\form#109:\[ F\left(x_1,\ldots,x_n\right) = \sum_{i=1}^{n-1}\left[ 100\left(x_i^2-x_{i+1}\right)^2+\left(x_i-1\right)^2\right], \quad x_i \in \left[ -5,10 \right]. \]
+\form#110:$x_i=1$
+\form#111:$ F\left( 1,\ldots,1 \right) = 0 $
+\form#112:\[ F_1 \left( x\right) = x^2 \]
+\form#113:\[ F_2 \left( x\right) = (x-2)^2 x \in \left[ -10^3,10^3 \right]. \]
+\form#114:$ x \in \left[0,2\right]$
+\form#115:\[ F\left(x_1,\ldots,x_n\right) = 418.9829 n - \sum_{i=1}^{n} x_i\sin \sqrt{|x_i|}, \quad x_i \in \left[ -500,500 \right]. \]
+\form#116:$ x \in \left[ 0,10 \right] $
+\form#117:$ y \in \left[ -10,10 \right]$
+\form#118:\[ f(x,y) = y, \]
+\form#119:$ \begin{array}{rcl} x^2 + 4y^2 &\leq & 4, \\ \left(x - 2\right)^2 + y^2 &\leq & 5. \end{array} $
+\form#120:$ \left( x,y \right) = \left( 0,-1 \right) $
+\form#121:$ y \in \left[ -10,10 \right] $
+\form#122:\[ F = |L1^2 - r_1^2| + |L2^2 - r_2^2| + |L3^2 - r_3^2| + (|v_{f1}^2| + |v_{f2}^2| + |v_{f3}^2|) / 2 \]
+\form#123:$ r_1<r_2<r_3 $
+\form#124:\[ F = |L^2 - r_{12}^2| + |L^2 - r_{13}^2| + |L^2 - r_{23}^2| + (|v_1^2| + |v_2^2| + |v_3^2|) / 2 \]
+\form#125:$ f = -\log(m_f)$
+\form#126:$m_f$
+\form#127:$ l<l^* $
+\form#128:$ P $
+\form#129:$ L $
+\form#130:$ l^* $
+\form#131:$ \max V $
+\form#132:$ P=\max V $
+\form#133:\[ g\left(x\right) = 1 + 9 \left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right) \]
+\form#134:\[ F_1 \left(x\right) = x_1 \]
+\form#135:\[ F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} \right] x \in \left[ 0,1 \right]. \]
+\form#136:\[ F_2 \left(x\right) = g(x) \left[ 1 - \left(x_1 / g(x)\right)^2 \right] x \in \left[ 0,1 \right]. \]
+\form#137:\[ F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} - x_1/g(x) \sin(10 \pi x_1) \right] x \in \left[ 0,1 \right]. \]
+\form#138:\[ g\left(x\right) = 91 + \sum_{i=2}^{n} \left[x_i^2 - 10 \cos \left(4\pi x_i \right) \right] \]
+\form#139:\[ F_2 \left(x\right) = g(x) \left[ 1 - \sqrt{x_1 / g(x)} \right] x_1 \in [0,1], x_i \in \left[ -5,5 \right] i=2, \cdots, 10. \]
+\form#140:\[ F_1\left(x\right) = 1 + u \left(x_{1} \right) \]
+\form#141:\[ g\left(x\right) = \sum_{i=2}^{11} v \left(u \left(x_{i} \right) \right) \]
+\form#142:\[ v\left(u\left(x_{i}\right)\right) = 2 + u \left(x_{i} \right) if u \left(x_{i} \right) < 5 v\left(u\left(x_{i}\right)\right) = 1 if u \left(x_{i} \right) = 5 \]
+\form#143:\[ F_2 = g \left(x \right) * 1/F_1 \left(x \right) \]
+\form#144:\[ g\left(x\right) = 1 + 9 \left[\left(\sum_{i=2}^{n} x_i \right) / \left( n-1 \right)\right]^{0.25} \]
+\form#145:\[ F_1 \left(x\right) = 1 - \exp(-4 x_1) \sin^6(6 \pi \ x_1) \]
+\form#146:\[ F_2 \left(x\right) = g(x) \left[ 1 - (f_1(x) / g(x))^2 \right] x \in \left[ 0,1 \right]. \]
+\form#147:$ G(n,p) $
+\form#148:$ n $
+\form#149:$ p $
+\form#150:$ {n \choose 2} p $
+\form#151:$ \sum_i x_{i} = 1 $

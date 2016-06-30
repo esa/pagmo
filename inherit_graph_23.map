@@ -1,0 +1,11 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classpagmo_1_1util_1_1hv__algorithm_1_1base.html" title="Base hypervolume class. " alt="" coords="5,209,173,251"/>
+<area shape="rect" id="node2" href="$classpagmo_1_1util_1_1hv__algorithm_1_1bf__approx.html" title="Bringmann&#45;Friedrich approximation method. " alt="" coords="236,5,404,47"/>
+<area shape="rect" id="node3" href="$classpagmo_1_1util_1_1hv__algorithm_1_1bf__fpras.html" title="Bringmann&#45;Friedrich approximation method. " alt="" coords="236,71,404,112"/>
+<area shape="rect" id="node4" href="$classpagmo_1_1util_1_1hv__algorithm_1_1fpl.html" title="fpl hypervolume algorithm " alt="" coords="225,137,415,163"/>
+<area shape="rect" id="node5" href="$classpagmo_1_1util_1_1hv__algorithm_1_1hoy.html" title="HOY algorithm. " alt="" coords="221,187,419,214"/>
+<area shape="rect" id="node6" href="$classpagmo_1_1util_1_1hv__algorithm_1_1hv2d.html" title="hv2d hypervolume algorithm class " alt="" coords="236,239,404,280"/>
+<area shape="rect" id="node7" href="$classpagmo_1_1util_1_1hv__algorithm_1_1hv3d.html" title="hv3d hypervolume algorithm class " alt="" coords="236,304,404,345"/>
+<area shape="rect" id="node8" href="$classpagmo_1_1util_1_1hv__algorithm_1_1hv4d.html" title="hv4d hypervolume algorithm " alt="" coords="236,369,404,411"/>
+<area shape="rect" id="node9" href="$classpagmo_1_1util_1_1hv__algorithm_1_1wfg.html" title="WFG hypervolume algorithm. " alt="" coords="221,435,419,462"/>
+</map>
