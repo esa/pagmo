@@ -44,8 +44,8 @@ namespace pagmo { namespace algorithm {
  * @param[in] gen number of generations.
  * @param[in] variant algorithm variant (one of 1..18)
  * @param[in] variant_adptv parameter adaptation scheme to be used (one of 1..2)
- * @param[in] ftol stopping criteria on the x tolerance
- * @param[in] xtol stopping criteria on the f tolerance
+ * @param[in] ftol stopping criteria on the f tolerance
+ * @param[in] xtol stopping criteria on the x tolerance
  * @param[in] memory when true the algorithm preserves its internal state (adapted parameters) through successive calls
  * @throws value_error if f,cr are not in the [0,1] interval, strategy is not one of 1 .. 10, gen is negative
  */
