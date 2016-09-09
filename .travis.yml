@@ -45,7 +45,6 @@ script:
   - make install
   - export PYTHONPATH=~/local/python
   - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/local/lib:${PWD%/build}/boost/lib
-  - pip install ipyparallel
   - python -c "from PyGMO import test; test.run_full_test_suite()"
 
 after_success:
