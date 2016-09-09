@@ -90,12 +90,11 @@ class _island_torture_test(_ut.TestCase):
 
     def test_ipy_island(self):
         from PyGMO import ipy_island, algorithm, problem
-        try:
-            from IPython.kernel import client
-            mec = client.MultiEngineClient()
-            if len(mec) == 0:
+        try: 
+            from ipyparallel import Client
+            rc = Client()
+            if len(rc.ids) == 0:
                 raise RuntimeError()
-        except ImportError as ie:
             return
         except BaseException as e:
             print(
@@ -103,6 +102,7 @@ class _island_torture_test(_ut.TestCase):
             print(e)
             print('Tests for ipy_island will not be run.')
             return
+        
         isl_type = ipy_island
         algo_list = [algorithm.py_example(1), algorithm.de(5)]
         prob_list = [problem.py_example(), problem.dejong(1)]
