@@ -34,6 +34,7 @@ install:
   - tar -xjf boost.tar.bz2
   - rm boost.tar.bz2
   - export BOOST_ROOT=$(pwd)/boost
+  - pip install --user ipyparallel
 
 script:
   - mkdir build

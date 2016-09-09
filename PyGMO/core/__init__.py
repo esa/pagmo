@@ -214,15 +214,18 @@ class ipy_island(base_island):
 
     def _perform_evolution(self, algo, pop):
         try:
-            from IPython.kernel.client import TaskClient, MapTask
-            # Create task client.
-            tc = TaskClient()
-            # Create the task.
-            mt = MapTask(_maptask_target, args=(algo, pop))
-            # Run the task.
-            task_id = tc.run(mt)
-            # Get retval.
-            retval = tc.get_task_result(task_id, block=True)
+            from ipyparallel import Client
+            
+            # Create client
+            rc = Client()
+            # Create Load-balanced view
+            lbview = rc.load_balanced_view()
+            # Run the task
+            lbview.block = True
+            ar = lbview.apply(_maptask_target, args=(algo, pop))
+            # Get retval
+            retval = ar.get() 
+
             if isinstance(retval, BaseException):
                 raise retval
             return retval
@@ -255,9 +258,10 @@ def _get_island_list():
     names = [n for n in dir(core) if not n.startswith(
         '_') and not n.startswith('base') and n.endswith('_island')]
     try:
-        from IPython.kernel.client import TaskClient, MapTask
+        from ipyparallel import Client
     except ImportError:
         names = [n for n in names if n != 'ipy_island']
+
     return [core.__dict__[n] for n in names]
 
 
