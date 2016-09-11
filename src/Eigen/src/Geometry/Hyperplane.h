@@ -22,8 +22,8 @@ namespace Eigen {
   * A hyperplane is an affine subspace of dimension n-1 in a space of dimension n.
   * For example, a hyperplane in a plane is a line; a hyperplane in 3-space is a plane.
   *
-  * \param _Scalar the scalar type, i.e., the type of the coefficients
-  * \param _AmbientDim the dimension of the ambient space, can be a compile time value or Dynamic.
+  * \tparam _Scalar the scalar type, i.e., the type of the coefficients
+  * \tparam _AmbientDim the dimension of the ambient space, can be a compile time value or Dynamic.
   *             Notice that the dimension of the hyperplane is _AmbientDim-1.
   *
   * This class represents an hyperplane as the zero set of the implicit equation
@@ -41,7 +41,7 @@ public:
   };
   typedef _Scalar Scalar;
   typedef typename NumTraits<Scalar>::Real RealScalar;
-  typedef DenseIndex Index;
+  typedef Eigen::Index Index; ///< \deprecated since Eigen 3.3
   typedef Matrix<Scalar,AmbientDimAtCompileTime,1> VectorType;
   typedef Matrix<Scalar,Index(AmbientDimAtCompileTime)==Dynamic
                         ? Dynamic
@@ -100,7 +100,17 @@ public:
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(VectorType, 3)
     Hyperplane result(p0.size());
-    result.normal() = (p2 - p0).cross(p1 - p0).normalized();
+    VectorType v0(p2 - p0), v1(p1 - p0);
+    result.normal() = v0.cross(v1);
+    RealScalar norm = result.normal().norm();
+    if(norm <= v0.norm() * v1.norm() * NumTraits<RealScalar>::epsilon())
+    {
+      Matrix<Scalar,2,3> m; m << v0.transpose(), v1.transpose();
+      JacobiSVD<Matrix<Scalar,2,3> > svd(m, ComputeFullV);
+      result.normal() = svd.matrixV().col(2);
+    }
+    else
+      result.normal() /= norm;
     result.offset() = -p0.dot(result.normal());
     return result;
   }
