@@ -1,4 +1,5 @@
 from __future__ import print_function as _dummy
+from PyGMO import core, problem
 
 
 class analysis:
