@@ -608,7 +608,7 @@ def _mga_incipit_plot_old(self, x, plot_leg_0=False):
     ax.scatter(0, 0, 0, color='y')
 
     JR = 71492000.0
-    legs = len(x) / 4
+    legs = len(x) // 4
     seq = self.get_sequence()
     common_mu = seq[0].mu_central_body
 
@@ -698,7 +698,7 @@ def _mga_part_plot_old(self, x):
     ax.scatter(0, 0, 0, color='y')
 
     JR = 71492000.0
-    legs = len(x) / 4
+    legs = len(x) // 4
     seq = self.get_sequence()
     common_mu = seq[0].mu_central_body
     start_mjd2000 = self.t0.mjd2000
@@ -755,7 +755,7 @@ def _part_plot(x, units, axis, seq, start_mjd2000, vinf_in):
     from math import pi, acos, cos, sin
     from scipy.linalg import norm
 
-    legs = len(x) / 4
+    legs = len(x) // 4
     common_mu = seq[0].mu_central_body
 
     # 1 -  we 'decode' the chromosome recording the various times of flight
