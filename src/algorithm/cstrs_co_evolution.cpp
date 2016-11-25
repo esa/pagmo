@@ -275,7 +275,6 @@ void cstrs_co_evolution::evolve(population &pop) const
 				std::cout << "Generation " << k << " ***" << std::endl;
 				std::cout << "    Best global fitness: " << current_population.champion().f << std::endl;
 				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
-				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
 			}
 		}
 	}

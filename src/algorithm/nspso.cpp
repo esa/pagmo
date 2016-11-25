@@ -601,7 +601,7 @@ std::string nspso::human_readable_extra() const
 	s << "CHI:" << m_CHI << ' ';
 	s << "v_coeff:" << m_v_coeff << ' ';
 	s << "leader_selection_range:" << m_leader_selection_range << ' ';
-	s << "diversity_mechanism: ";
+	s << "diversity_mechanism:";
 	switch (m_diversity_mechanism)
 	{
 		case CROWDING_DISTANCE : s << "CROWDING_DISTANCE" << ' ';

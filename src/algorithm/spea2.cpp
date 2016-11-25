@@ -306,11 +306,11 @@ std::string spea2::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	s << "cr: " << m_cr << ' ';
-	s << "eta_c: " << m_eta_c << ' ';
-	s << "m: " << m_m << ' ';
-	s << "eta_m: " << m_eta_m << ' ';
-	s << "archive_size: " << m_archive_size << ' ';
+	s << "cr:" << m_cr << ' ';
+	s << "eta_c:" << m_eta_c << ' ';
+	s << "m:" << m_m << ' ';
+	s << "eta_m:" << m_eta_m << ' ';
+	s << "archive_size:" << m_archive_size << ' ';
 	return s.str();
 }
 

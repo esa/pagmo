@@ -86,12 +86,12 @@ void nlopt_aug_lag::set_local(size_t d) const{
 std::string nlopt_aug_lag::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "max_iter: " << m_max_iter << ' ';
-	oss << "ftol: " << m_ftol << " ";
-	oss << "xtol: " << m_xtol << " ";
-	oss << "aux_max_iter: " << m_aux_max_iter << ' ';
-	oss << "aux_ftol: " << m_aux_ftol << " ";
-	oss << "aux_xtol: " << m_aux_xtol;
+	oss << "max_iter:" << m_max_iter << ' ';
+	oss << "ftol:" << m_ftol << " ";
+	oss << "xtol:" << m_xtol << " ";
+	oss << "aux_max_iter:" << m_aux_max_iter << ' ';
+	oss << "aux_ftol:" << m_aux_ftol << " ";
+	oss << "aux_xtol:" << m_aux_xtol;
 
 	return oss.str();
 }
