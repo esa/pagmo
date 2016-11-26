@@ -348,7 +348,7 @@ std::string snopt::get_name() const
 std::string snopt::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "major_iter:" << m_major << " feas_tol: "<<m_feas<< " opt_tol: "<<m_opt << std::endl;
+	s << "major_iter:" << m_major << " feas_tol:"<<m_feas<< " opt_tol:"<<m_opt << std::endl;
 	return s.str();
 }
 

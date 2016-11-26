@@ -291,10 +291,10 @@ std::string inverover::get_name() const
 std::string inverover::human_readable_extra() const
 {
 	std::ostringstream s;
-	s << "generations: " << m_gen << " ";
-	s << "mutation probability: " << m_ri << " ";
+	s << "generations:" << m_gen << " ";
+	s << "mutation probability:" << m_ri << " ";
 	std::string ini_str = (m_ini_type==0) ? ("Random") : ("Nearest Neighbour");
-	s << "initialization method: " << ini_str;
+	s << "initialization method:" << ini_str;
 	return s.str();
 }
 

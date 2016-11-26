@@ -264,11 +264,11 @@ void gsl_gradient::cleanup(gsl_vector *x, gsl_multimin_fdfminimizer *s)
 std::string gsl_gradient::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "max_iter: " << m_max_iter << ' ';
-	oss << "step_size: " << m_step_size << ' ';
-	oss << "tol: " << m_tol << ' ';
-	oss << "grad_step_size: " << m_numdiff_step_size << ' ';
-	oss << "grad_tol: " << m_grad_tol << ' ';
+	oss << "max_iter:" << m_max_iter << ' ';
+	oss << "step_size:" << m_step_size << ' ';
+	oss << "tol:" << m_tol << ' ';
+	oss << "grad_step_size:" << m_numdiff_step_size << ' ';
+	oss << "grad_tol:" << m_grad_tol << ' ';
 
 
 	return oss.str();

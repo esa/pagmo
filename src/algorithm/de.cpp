@@ -347,7 +347,6 @@ void de::evolve(population &pop) const
 				std::cout << "Generation " << gen << " ***" << std::endl;
 				std::cout << "    Best global fitness: " << pop.champion().f << std::endl;
 				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
-				std::cout << "    xtol: " << dx << ", ftol: " << mah << std::endl;
 			}
 
 		}
@@ -420,8 +419,8 @@ std::string de::human_readable_extra() const
 {
 	std::ostringstream s;
 	s << "gen:" << m_gen << ' ';
-	s << "F: " << m_f << ' ';
-	s << "CR: " << m_cr << ' ';
+	s << "F:" << m_f << ' ';
+	s << "CR:" << m_cr << ' ';
 	s << "variant:" << m_strategy << ' ';
 	s << "ftol:" << m_ftol << ' ';
 	s << "xtol:" << m_xtol;

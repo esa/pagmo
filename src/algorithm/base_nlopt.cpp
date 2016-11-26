@@ -66,9 +66,9 @@ base_nlopt::base_nlopt(nlopt::algorithm algo, bool constrained, bool only_ineq, 
 std::string base_nlopt::human_readable_extra() const
 {
 	std::ostringstream oss;
-	oss << "max_iter: " << m_max_iter << ' ';
-	oss << "ftol: " << m_ftol << " ";
-	oss << "xtol: " << m_xtol;
+	oss << "max_iter:" << m_max_iter << ' ';
+	oss << "ftol:" << m_ftol << " ";
+	oss << "xtol:" << m_xtol;
 	return oss.str();
 }
 
