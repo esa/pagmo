@@ -78,6 +78,9 @@ decision_vector normalized::denormalize(const decision_vector& x) const
 {
 	decision_vector retval(x.size(), 0);
 	for(base::size_type i = 0; i < x.size(); ++i){
+		if (x[i] < -1.0 || x[i] > 1.0) {
+			pagmo_throw(value_error, "Vector values must be between -1 and 1.");
+		}
 		retval[i] = (x[i] * m_normalization_scale[i]) + m_normalization_center[i];
 	}
 	return retval;
