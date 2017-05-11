@@ -1,8 +1,14 @@
-PaGMO
-=====
+Upgrade to pagmo 2
+==================
+
+This Version of the PaGMO code is no longer developed nor maintained. 
+Pagmo 2 is now developed and released, find the code here: https://github.com/esa/pagmo2.
+Updating from pagmo to pagmo2 is not trivial as the API has changed.
+
+The old PaGMO
+=============
 
 [![Join the chat at https://gitter.im/esa/pygmo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/esa/pagmo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
-
 [![Build Status](https://travis-ci.org/esa/pagmo.svg?branch=master)](https://travis-ci.org/esa/pagmo) [![Code Health](https://landscape.io/github/esa/pagmo/master/landscape.svg?style=flat)](https://landscape.io/github/esa/pagmo/master)
 
 Parallel Global Multiobjective Optimizer (and its Python alter ego PyGMO) offers a
