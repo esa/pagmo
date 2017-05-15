@@ -61,6 +61,8 @@ class __PAGMO_VISIBLE himmelblau: public base
 	protected:
 		void objfun_impl(fitness_vector &, const decision_vector &) const;
 	private:
+		void initialize_best(void);
+
 		friend class boost::serialization::access;
 		template <class Archive>
 		void serialize(Archive &ar, const unsigned int)
