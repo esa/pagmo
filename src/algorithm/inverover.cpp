@@ -139,7 +139,7 @@ void inverover::evolve(population &pop) const
 			for (size_t j = 1; j < Nv-1; j++) {
 					boost::uniform_int<int> dist_(j, Nv - 1);
 					boost::variate_generator<boost::mt19937 &, boost::uniform_int<int> > dist(m_urng,dist_);
-					
+
 				for (size_t ii = 0; ii < not_feasible.size(); ii++) {
 					i = not_feasible[ii];
 					rnd_idx = dist();
@@ -223,7 +223,7 @@ void inverover::evolve(population &pop) const
 					pos2_c2 = (pos2_c1 == Nv-1? 0:pos2_c1+1);
 					pos1_c2 = std::find(tmp_tour.begin(),tmp_tour.end(),my_pop[i2][pos2_c2])-tmp_tour.begin();
 				}
-				stop = (abs(pos1_c1-pos1_c2)==1 || static_cast<problem::base::size_type>(abs(pos1_c1-pos1_c2))==Nv-1);
+				stop = (fabs(pos1_c1-pos1_c2)==1 || static_cast<problem::base::size_type>(fabs(pos1_c1-pos1_c2))==Nv-1);
 				if(!stop) {
 					changed = true;
 					if(pos1_c1<pos1_c2) {
@@ -238,7 +238,7 @@ void inverover::evolve(population &pop) const
 						}
 						pos1_c1 = (pos1_c2 == 0? Nv-1:pos1_c2-1);
 					}
-					
+
 				}
 			} //end of while loop (looping over a single indvidual)
 			if(changed) {
