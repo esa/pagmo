@@ -77,8 +77,8 @@ pso::pso(int gen, double omega, double eta1, double eta2, double vcoeff, int var
 		pagmo_throw(value_error,"algorithm variant must be one of 1 ... 6");
 	}
 	
-	if (neighb_type < 1 || neighb_type > 4) {
-		pagmo_throw(value_error,"swarm topology variant must be one of 1 ... 4");
+	if (neighb_type < 1 || neighb_type > 5) {
+		pagmo_throw(value_error,"swarm topology variant must be one of 1 ... 5");
 	}
 	// And neighb param???
 }
@@ -177,6 +177,7 @@ void pso::evolve(population &pop) const
 	switch( m_neighb_type ){
 		case 1:  initialize_topology__gbest( pop, best_neighb, best_fit, neighb ); break;
 		case 3:  initialize_topology__von( neighb ); break;
+		case 5: initialize_topology__hexagonal(neighb);break;
 		case 4:  initialize_topology__adaptive_random( neighb );
 			best_fit = pop.champion().f;	// need to track improvements in best found fitness, to know when to rewire
 			break;
@@ -380,6 +381,7 @@ decision_vector pso::particle__get_best_neighbor( population::size_type pidx, st
 		case 2: // { lbest }
 		case 3: // { von }
 		case 4: // { adaptive random }
+		case 5: // {hexagonal}
 		default:
 			// iterate over indexes of the particle's neighbours, and identify the best
 			bnidx = neighb[pidx][0];
@@ -562,6 +564,51 @@ void pso::initialize_topology__adaptive_random( std::vector< std::vector<int> > 
 			// leading to a performance penalty in particle__get_best_neighbor() when it occurs.
 		}
 	}
+}
+
+
+/**
+ * @brief Arranges particles in a 2D lattice with alternatively staggered rows, where each interacts with its 6 nearest neighbours.
+
+*/
+const int hexagonal_neighb_diff_even[6][2] = { {-1,-1}, {0,-1}, {-1,0}, {1,0}, {-1,1}, {0,1} };
+const int hexagonal_neighb_diff_odd[6][2] = { {0,-1}, {1,-1}, {-1,0}, {1,0}, {0,1}, {1,1} };
+
+void pso::initialize_topology__hexagonal( std::vector< std::vector<int> > &neighb ) const
+{
+        int swarm_size = neighb.size();
+        int     cols, rows;             // lattice structure
+        int     pidx, nidx;             // particle and neighbour indices, in the swarm and neighbourhood vectors
+        int     p_x, p_y;               // particle's coordinates in the lattice
+        int     n_x, n_y;               // particle neighbor's coordinates in the lattice
+
+        rows = std::sqrt( swarm_size );
+        while( ( (swarm_size % rows != 0) || (rows % 2 == 1)) && (rows>1)  )
+                rows -= 1;
+        if (rows<2)
+                pagmo_throw(value_error,"Hexagonal topology requires a swarm size to have an even factor > 2");
+        cols = swarm_size / rows;
+
+        for( pidx = 0; pidx < swarm_size; pidx++ ){
+                p_x = pidx % cols;
+                p_y = pidx / cols;
+
+                for( nidx = 0; nidx < 6; nidx++ ){
+                        if (p_y % 2 == 0){
+                                n_x = ( p_x + hexagonal_neighb_diff_even[nidx][0] ) % cols;
+                                n_y = ( p_y + hexagonal_neighb_diff_even[nidx][1] ) % rows;
+                        }
+                        else {
+                                n_x = ( p_x + hexagonal_neighb_diff_odd[nidx][0] ) % cols;
+                                n_y = ( p_y + hexagonal_neighb_diff_odd[nidx][1] ) % rows;
+                        }
+
+                        if( n_x < 0 ) n_x = cols + n_x; // sign of remainder(%) in a division when at least one of the operands is negative is compiler implementation specific. The 'if' here ensures the same behaviour across compilers
+                        if( n_y < 0 ) n_y = rows + n_y;
+
+                        neighb[pidx].push_back( n_y * cols + n_x );
+                }
+        }
 }
 
 

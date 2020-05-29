@@ -83,6 +83,7 @@ public:
 	void initialize_topology__lbest( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__von( std::vector< std::vector<int> > &neighb ) const;
 	void initialize_topology__adaptive_random( std::vector< std::vector<int> > &neighb ) const;
+	void initialize_topology__hexagonal( std::vector< std::vector<int> > &neighb ) const;
 	std::string get_name() const;
 protected:
 	std::string human_readable_extra() const;
