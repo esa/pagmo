@@ -49,6 +49,9 @@
 #include "../../src/algorithm/base.h"
 #include "../../src/archipelago.h"
 #include "../../src/base_island.h"
+#ifdef PAGMO_ENABLE_ZMQ
+    #include "../../src/zmq_island.h"
+#endif
 #include "../../src/config.h"
 #include "../../src/exceptions.h"
 #include "../../src/migration/base_r_policy.h"
@@ -379,6 +382,20 @@ BOOST_PYTHON_MODULE(_core)
 
 	// Register to_python conversion from smart pointer.
 	register_ptr_to_python<base_island_ptr>();
+
+#ifdef PAGMO_ENABLE_ZMQ
+	// ZMQ island class.
+	class_<zmq_island,bases<base_island> >("_zmq_island", "ZMQ island class.",init<const algorithm::base &, const problem::base &, optional<int,const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const algorithm::base &, const population &, optional<const migration::base_s_policy &,const migration::base_r_policy &> >())
+		.def(init<const zmq_island &>())
+		.def("__copy__", &Py_copy_from_ctor<zmq_island>)
+		.def("__deepcopy__", &Py_deepcopy_from_ctor<zmq_island>)
+		.def("set_broker_details", &zmq_island::set_broker_details)
+		.def("set_token", &zmq_island::set_token)
+		.def("set_ip", &zmq_island::set_ip)
+		.def("set_evolve", &zmq_island::set_evolve)
+		.def("connect", &zmq_island::connect);
+#endif
 
 	// Expose archipelago class.
 	class_<archipelago>("archipelago", "Archipelago class.", init<const algorithm::base &, const problem::base &,

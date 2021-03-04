@@ -1,3 +1,8 @@
+IF(ENABLE_ZMQ)
+    ADD_EXECUTABLE(zeromq zeromq.cpp)
+    TARGET_LINK_LIBRARIES(zeromq ${MANDATORY_LIBRARIES} pagmo_static)
+ENDIF(ENABLE_ZMQ)
+
 IF(ENABLE_GTOP_DATABASE)
 
 ADD_EXECUTABLE(hm_2_asteroids hm_2_asteroids.cpp)

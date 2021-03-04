@@ -68,6 +68,9 @@ OPTION(ENABLE_WORHP "Enable support for WORHP minimiser." OFF)
 # Build Option: support for MPI clustering.
 OPTION(ENABLE_MPI "Enable support for the Message Passage Interface (MPI)." OFF)
 
+# Build Option: ZeroMQ islands.
+OPTION(ENABLE_ZMQ "Enable support for ZeroMQ islands." OFF)
+
 # Build option: enable test set.
 OPTION(ENABLE_TESTS "Build test set." OFF)
 
@@ -198,6 +201,12 @@ IF(ENABLE_MPI)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_COMPILE_FLAGS}")
 	ADD_DEFINITIONS(-DPAGMO_ENABLE_MPI)
 ENDIF(ENABLE_MPI)
+
+IF(ENABLE_ZMQ)
+    ADD_DEFINITIONS(-DPAGMO_ENABLE_ZMQ)
+	SET(MANDATORY_LIBRARIES ${MANDATORY_LIBRARIES} zmq redox ev hiredis)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive") # workaround for void perform_evolution() const 
+ENDIF(ENABLE_ZMQ)
 
 # If GSL support is requested, look for the library.
 IF(ENABLE_GSL)

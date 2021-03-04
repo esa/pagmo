@@ -44,4 +44,8 @@
 	#include "mpi_island.h"
 #endif
 
+#ifdef PAGMO_ENABLE_ZMQ
+    #include "zmq_island.h"
+#endif
+
 #endif

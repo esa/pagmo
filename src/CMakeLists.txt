@@ -243,6 +243,14 @@ IF(ENABLE_MPI)
 	)
 ENDIF(ENABLE_MPI)
 
+# ZeroMQ support
+
+IF(ENABLE_ZMQ)
+	SET(PAGMO_LIB_SRC_LIST ${PAGMO_LIB_SRC_LIST}
+		${CMAKE_CURRENT_SOURCE_DIR}/zmq_island.cpp
+	)
+ENDIF(ENABLE_ZMQ)
+
 # Create a pagmo_static library if main or tests or examples are requested.
 IF(BUILD_MAIN OR ENABLE_TESTS OR BUILD_EXAMPLES)
 	ADD_LIBRARY(pagmo_static STATIC ${PAGMO_LIB_SRC_LIST})

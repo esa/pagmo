@@ -15,3 +15,4 @@ This is a collection of tutorials on PyGMO's basics:
    racing
    tsp
    landscape_analysis_with_DrPyGMO
+   distributed_computation_with_zeromq

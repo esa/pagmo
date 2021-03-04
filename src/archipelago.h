@@ -162,6 +162,8 @@ class __PAGMO_VISIBLE archipelago
 		bool destruction_checks() const;
 		void reevaluate_immigrants(std::vector<std::pair<population::size_type, individual_type> > &,
 			const base_island &) const;
+
+		bool should_clone(base_island_ptr) const;
 	private:
 		friend class boost::serialization::access;
 		template <class Archive>

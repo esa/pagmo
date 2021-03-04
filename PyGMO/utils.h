@@ -90,7 +90,7 @@ struct python_class_pickle_suite: boost::python::pickle_suite
 			throw_error_already_set();
 		}
 		// Restore the object's __dict__.
-		dict d = extract<dict>(obj.attr("__dict__"))();
+		boost::python::dict d = extract<boost::python::dict>(obj.attr("__dict__"))();
 		d.update(state[0]);
 		// Restore the internal state of the C++ object.
 		const std::string str = extract<std::string>(state[1]);

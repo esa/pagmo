@@ -207,6 +207,18 @@ archipelago::size_type archipelago::locate_island(const base_island &isl) const
 	return std::distance(m_container.begin(),it);
 }
 
+/// Determine whether we should return a copy of the island, or a pointer to it.
+/**
+ * @param[in] isl island to be checked
+ */
+bool archipelago::should_clone(base_island_ptr isl) const {
+	if(isl->get_name().find("ZMQ") != std::string::npos) {
+		// we don't want to clone ZMQ islands
+		return false;
+	}
+	return true;
+}
+
 /// Add an island to the archipelago.
 /**
  * Both the island and the archipelago will be synchronised before any operation takes place. The island will then
@@ -711,9 +723,16 @@ base_island_ptr archipelago::get_island(const size_type &idx) const
 	if (idx >= m_container.size()) {
 		pagmo_throw(index_error,"invalid island index");
 	}
-	base_island_ptr retval = m_container[idx]->clone();
-	// The island is no more in an archipelago.
-	retval->m_archi = 0;
+	base_island_ptr retval;
+	
+	if(should_clone(m_container[idx])) {
+		retval = m_container[idx]->clone();
+		// The island is no more in an archipelago.
+		retval->m_archi = 0;
+	} else {
+		retval = m_container[idx];
+	}
+	
 	return retval;
 }
 
