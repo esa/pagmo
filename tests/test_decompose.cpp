@@ -213,6 +213,69 @@ int test_decompose_tchebycheff(const std::vector<problem::base_ptr> &probs, std:
 
 }
 
+//Test decompose(BI) when weights are given.
+int test_decompose_bi(const std::vector<problem::base_ptr> &probs, std::vector<fitness_vector> &ideal, double d_from_center)
+{
+	
+	for(unsigned int i=0; i<probs.size(); i++)
+	{
+
+		decision_vector x = construct_test_point(probs[i], d_from_center);
+
+		int f_dimension = probs[i]->get_f_dimension();
+		fitness_vector weights(f_dimension, 0);
+
+		//generate random weights vector
+		generate_weights(weights);
+
+		//get the original fitness
+		fitness_vector f_original = probs[i]->objfun(x);
+
+		//calculate expected fitness
+		double f_expected = 0.0;
+
+		const double THETA = 5.0;
+		double tmp1 = 0.0;
+
+		double weight_norm = sqrt(std::inner_product(weights.begin(), weights.end(), weights.begin(), 0.0));
+
+		for(int k = 0; k < f_dimension; ++k)
+			tmp1 += (f_original[k] - ideal[i][k]) * weights[k];
+		
+		tmp1 = fabs(tmp1)/weight_norm;
+
+		double tmp2 = 0.0;
+
+		for(int k = 0; k < f_dimension; ++k)
+			tmp2 += pow(f_original[k] - (ideal[i][k] + tmp1*weights[k]/weight_norm), 2);
+		
+		tmp2 = sqrt(tmp2);
+
+		f_expected = tmp1 + THETA * tmp2;
+
+		
+		problem::decompose prob_decompose(*(probs[i]), problem::decompose::BI, weights);
+		
+		//set ideal point
+		prob_decompose.set_ideal_point(ideal[i]);
+
+		//get the decomposed fitness
+		fitness_vector f_decompose = prob_decompose.objfun(x);
+		
+		if(is_eq(f_decompose[0], f_expected))
+			std::cout<<prob_decompose.get_name()<<" BI fitness passes, "<<std::endl;
+		else
+		{
+			std::cout<<prob_decompose.get_name()<<" BI fitness failed, "<<"\t";
+			std::cout<<f_expected<<"!="<<f_decompose[0]<<std::endl;
+			return 1;
+		}
+	}
+
+	return 0;
+
+}
+
 int main()
 {
 
@@ -241,6 +304,9 @@ int main()
 		test_decompose_weighted_random(probs, -0.2) ||
 		test_decompose_tchebycheff(probs, ideal, -0.2) ||
 		test_decompose_tchebycheff(probs, ideal, 0.2) ||
-		test_decompose_tchebycheff(probs, ideal, -0.4);
+		test_decompose_tchebycheff(probs, ideal, -0.4) ||
+		test_decompose_bi(probs, ideal, -0.2) ||
+		test_decompose_bi(probs, ideal, 0.2) ||
+		test_decompose_bi(probs, ideal, -0.4);
 
 }
